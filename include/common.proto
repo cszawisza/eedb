@@ -1,0 +1,20 @@
+option optimize_for = LITE_RUNTIME;
+
+message Details{
+  required string name =1;
+  optional string description = 2;
+  optional fixed64 creationDate = 3;
+  optional fixed64 lastupdate = 4;
+}
+
+message IdField{
+  required uint32 id = 1;
+}
+
+message Event{
+  required fixed64 timestamp = 1;
+}
+
+message TimeLine{
+  repeated Event event = 1;
+}

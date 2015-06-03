@@ -1,0 +1,63 @@
+option optimize_for = LITE_RUNTIME;
+package protbuf;
+import public "storage.proto";
+import public "stats.proto";
+import public "common.proto";
+enum Replay{
+  LoginPass = 1;
+  LoginDeny = 2;
+
+  EmailExists = 3;
+  EmailAddressToLong = 4;
+  EmailNotValidate = 5;
+  PasswordToShort = 6;
+  UserNameToLong = 11;
+  UserNameToShort = 12;
+  UserAlreadyExists=13;
+  UserAddOk = 14;
+
+  UserAlreadyLogged = 21;
+  LogoutOk = 22;
+  UserNotLogged = 23;
+}
+
+message LoginRequest{
+  required string name = 3;
+  required string password = 4;
+}
+
+message UserDetails{
+    optional string email = 1;
+    optional string name = 2;
+    optional string address = 3;
+    optional bytes phone_number = 4;
+    optional bytes description = 5; 
+    optional bytes avatar = 6;
+}
+
+message UserStatistics{
+//   required uint32 magazineCount = 1; // number of magazines
+//   required uint32 totalNumOfElements=2; // number of elements
+//   required uint32 totalNumOfUniqueElements = 3; // number of different elements
+//   required uint32 totalNumOfRequests = 4; // number of requests to server
+//   required uint32 totalModifiedItems = 5; // total number of modified elements by user
+//   required uint32 totalAddItems = 6; // total items that user add to groups
+  optional fixed64 last_login = 7;  // last login date
+  optional fixed64 registration_date = 8; // registration date
+}
+
+message UserConfig{
+  optional uint32 last_storage_id = 1;
+  optional uint32 last_group = 2;
+}
+
+message UserFullData{
+    required IdField basic = 1; 
+    required UserDetails details = 2;
+    optional UserConfig config = 3; // program settings, last group, etc.
+    optional UserStatistics stats = 4;
+    
+    repeated Storage storages = 5;
+    optional string password = 6;
+}
+

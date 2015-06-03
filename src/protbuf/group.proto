@@ -1,0 +1,30 @@
+option optimize_for = LITE_RUNTIME;
+package protbuf;
+
+import public "parameters.proto";
+import public "common.proto";
+
+// message GroupStats{
+//   optional uint32 totalElements=1;
+// }
+
+message GroupDetails{
+  optional string description = 1;
+  repeated uint32 parameters_id = 2;// parameters assosieted with group
+  required bool allow_sets = 3; 
+  required bool allow_items = 4;
+}
+
+// message contains information needed to build
+// group tree view
+message GroupBasicInfo{
+  required uint32 id = 1;
+  required string name =2;
+  required uint32 parent_id = 3; //
+}
+
+message GroupFullData{
+  optional GroupBasicInfo basic = 1;
+  optional GroupDetails details = 2;
+//   optional GroupStats stats = 3;
+}

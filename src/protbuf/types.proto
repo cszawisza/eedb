@@ -1,0 +1,29 @@
+option optimize_for = LITE_RUNTIME;
+
+enum MsgType{
+	dummyResponse = 0;
+
+// special messages.
+	reqLogin = 1;
+	
+        resCode = 2;
+// parameters containing data
+        msgItemFullData	 = 100;
+
+        msgUserFullData	 = 110;
+        msgUserDetails   = 111;
+        msgUserStatistics= 112;
+        msgUserConfig    = 113;
+
+        msgGroup	= 120;
+        msgContainer    = 130;
+        msgCapsule	= 131;
+        msgPackage	= 140;
+        msgParameter    = 150;
+        msgParameterConf= 151;
+        msgStorage	= 160;
+        msgQueryStats   = 170;
+
+//special responses
+        msgServerError = 1000;
+}

@@ -1,0 +1,16 @@
+option optimize_for = LITE_RUNTIME;
+package protbuf;
+import public "common.proto";
+
+message StorageStatistics{
+  //required uint32 elements_number = 1;
+  //required uint32 unique_elements_number = 2;
+}
+
+message Storage {
+  required IdField basic =1;
+  optional Details details = 2;
+  optional uint32 owner_id = 3;
+//   optional StorageStatistics stats = 4;
+}
+

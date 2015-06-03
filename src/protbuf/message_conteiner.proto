@@ -1,0 +1,77 @@
+option optimize_for = LITE_RUNTIME;
+package protbuf;
+import public "types.proto";
+import public "group.proto";
+import public "user.proto";
+import public "package.proto";
+import public "parameters.proto";
+import public "item.proto";
+
+/// message used for sending back code of operation 
+/// (operation succes or error)
+
+enum Action {
+option allow_alias = true;
+	Select = 1;
+	Get    = 1;
+	Insert = 2;
+	Add    = 2;
+	Update = 3;
+	Set    = 3;
+	Delete = 4;
+	Remove = 4;
+	InsertOrUpdate = 5;
+
+	ServerResponse = 16;
+}
+
+message MessageFrame{
+	repeated MessageCapsule capsules=1;
+}
+
+message ResponseCode{
+	required bool error  = 1;
+	repeated uint32 code = 2;
+}
+
+message FilterComponent {
+	enum Operation {
+		Equal = 1;
+		NotEqual = 2;
+		LessThen = 3;
+	}
+	required bytes lvalue = 1;
+	required Operation operation = 2;
+	required bytes rvalue = 3;
+}
+
+message Filter {
+	repeated FilterComponent component = 1;
+}
+
+message Limits {
+	required uint32 count = 1;
+	required uint32 offset = 2;
+}
+
+message OrderBy {
+
+}
+
+message MessageCapsule{
+        required uint32    msgId	= 1 [default = 1]; // marker
+	required MsgType msgType 	= 2; // mesage type that is stored in data field
+        optional bytes      data 	= 3; // a encapsuled message
+        optional Action   action 	= 4; // is it a Select or insert or what
+	optional Filter   filter 	= 5; // user filters 
+	optional Limits   limits 	= 6;
+        optional OrderBy   order 	= 7;
+        optional bool compressed	= 8; // is data compressed
+}
+
+// To login   , MsgType -> reqLogin	; action -> null  	; bytes -> null     	 ; Filter -> null
+// To add user, MsgType -> addUser 	; action -> Insert 	; bytes -> UserData 	 ; Filter -> null
+// To logout  , MsgType -> reqLoout	; action -> null  	; bytes -> null     	 ; Filter -> null
+// To add param,MsgType -> addParameter	; action -> Insert 	; bytes -> ParameterData ; Filter -> null
+// To getParametersDiff -> reqParameters; action -> Select 	; bytes -> null          ; Filter -> {LastUpdate <= now(0)}
+// login succes,MsgType -> resLogin 	; action -> Returning   ; bytes -> ResponseCode  ; Filter -> null
