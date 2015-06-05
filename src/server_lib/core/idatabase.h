@@ -17,12 +17,8 @@ class DatabaseConnectionProvider;
 class PerformanceCounter
 {
 public:
-    PerformanceCounter(){
-        timer.restart();
-    }
-    ~PerformanceCounter(){
-        qDebug() << "query takes:" << timer.nsecsElapsed()/1000.0 << " µs";
-    }
+    PerformanceCounter();
+    ~PerformanceCounter();
 
 private:
     QElapsedTimer timer;
@@ -54,17 +50,8 @@ class DatabaseConnectionProvider
     unique_ptr<DatabaseConnection> m_db;
 
 public:
-    DatabaseConnectionProvider( const DatabasePool *parent ):
-        m_parent( const_cast<DatabasePool *>( parent ) ),
-        m_db(m_parent->getDatabase()) {}
-    ~DatabaseConnectionProvider(){
-        m_parent->returnDatabase(move(m_db));
-    }
-
-//    const sqlpp::postgresql::connection &connection() const {
-//        auto db = m_db.get();
-//        return &dynamic_cast<sqlpp::postgresql::connection*> (db);
-//    }
+    DatabaseConnectionProvider( const DatabasePool *parent );
+    ~DatabaseConnectionProvider();
 
     template<typename T>
     auto operator()(const T& t) -> decltype(m_db->operator()(t) ) {

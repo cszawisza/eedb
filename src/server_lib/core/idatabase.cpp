@@ -20,7 +20,6 @@ void DatabasePool::returnDatabase(unique_ptr<DatabaseConnection> &&db) {
     m_databases.push( move(db) );
 }
 
-
 DatabaseConnection::DatabaseConnection():
     sqlpp::postgresql::connection( getConf() ){}
 
@@ -33,4 +32,21 @@ shared_ptr<sqlpp::postgresql::connection_config> DatabaseConnection::getConf()
     conf->password = "postgres";
 //    conf->debug = true;
     return std::move(conf);
+}
+
+PerformanceCounter::PerformanceCounter(){
+    timer.restart();
+}
+
+PerformanceCounter::~PerformanceCounter(){
+    qDebug() << "query takes:" << timer.nsecsElapsed()/1000.0 << " µs";
+}
+
+
+DatabaseConnectionProvider::DatabaseConnectionProvider(const DatabasePool *parent):
+    m_parent( const_cast<DatabasePool *>( parent ) ),
+    m_db(m_parent->getDatabase()) {}
+
+DatabaseConnectionProvider::~DatabaseConnectionProvider(){
+    m_parent->returnDatabase(move(m_db));
 }

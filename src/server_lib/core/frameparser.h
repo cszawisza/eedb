@@ -1,30 +1,25 @@
 #pragma once
 
 #include <QByteArray>
+#include <QSharedPointer>
+
 #include "message_conteiner.pb.h"
+
+///TODO remove if not needed
 
 /**
  * @brief The FrameParser class
  * class parses 'main' protbuf message whih is then
  * divided into individual protbuf messages
  */
-class FrameParser
+class RequestsDecoder
 {
 public:
-    explicit FrameParser();
+    typedef QSharedPointer<protbuf::ClientRequests> SharedRequests;
 
-    /**
-     * @brief prepareMessages set the data reference into parser
-     * @param ba a whole binarry message (frame containing messages)
-     * @throws std::exception
-     */
-    void prepareMessages(const QByteArray &ba);
-
-    int messagesCount() const Q_DECL_NOEXCEPT;
-    bool hasPandingMessags() const Q_DECL_NOEXCEPT;
-    const protbuf::MessageCapsule &nextPandingMessage() Q_DECL_NOEXCEPT;
-
+    explicit RequestsDecoder(QByteArray ba);
+    bool decodeTo( SharedRequests &frame );
+    void setData(QByteArray ba);
 private:
-    int m_currentMsg;
-    protbuf::MessageFrame m_frame;
-};
+    QByteArray m_rawMessage;
+ };

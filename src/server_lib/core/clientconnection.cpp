@@ -16,12 +16,13 @@ ClientConnection::ClientConnection(QWebSocket *socket, QObject *parent) :
         m_bytesSend += frame.size();
         m_socket->sendBinaryMessage(frame); ///TODO check socket state?
         qDebug() << "request served in: " << timer.nsecsElapsed() / 1000.0 << " µs";
+        qDebug() << "send: " << frame.size() << " Bytes";
+        qDebug() << "Message sent: " << frame.toHex();
         ///NOTE provide feedback to worker, about frame send data state
     });
 
-
     // increment recived data size
-    connect(m_socket, &QWebSocket::binaryMessageReceived, [=](const QByteArray &frame){
+    connect(m_socket, &QWebSocket::binaryMessageReceived, [&](const QByteArray &frame){
         timer.restart();
         m_bytesRecived += frame.size();
     });
@@ -30,12 +31,17 @@ ClientConnection::ClientConnection(QWebSocket *socket, QObject *parent) :
     connect(m_socket, SIGNAL(binaryMessageReceived(QByteArray)),
             m_worker, SLOT(processBinnaryMessage(QByteArray)), Qt::QueuedConnection);
 
+    connect(m_socket, &QWebSocket::disconnected, [&](){
+        emit disconnected();
+    });
+
     m_worker->moveToThread(m_workerThread);
     m_workerThread->start();
 }
 
 ClientConnection::~ClientConnection()
 {
+    m_workerThread->quit();
     m_socket->deleteLater();
     m_worker->deleteLater();
 }

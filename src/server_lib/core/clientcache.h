@@ -1,15 +1,17 @@
 #pragma once
 
-enum Status{
-    logged,
-    notLogged
-};
+#include <QSharedPointer>
 
 
 class UserStatus{
 public:
+    enum Status{
+        logged,
+        notLogged
+    };
+
     UserStatus():
-    m_status(notLogged){
+        m_status(notLogged){
     }
     bool isLogged() const { return m_status == logged; }
     void setStatus(Status s){ m_status = s; }
@@ -32,3 +34,4 @@ private:
     UserStatus m_userStatus;
 };
 
+typedef QSharedPointer<ClientCache> SharedClientCache;

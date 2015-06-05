@@ -17,10 +17,12 @@ class ClientWorker : public QObject
 {
     Q_OBJECT
 public:
+    typedef QSharedPointer<protbuf::ClientRequests> SharedRequests;
+    typedef QSharedPointer<protbuf::ServerResponses> SharedResponses;
     explicit ClientWorker(QObject *parent = 0);
 
-    void printMessageInfo(const protbuf::MessageCapsule &message);
-    void processData();
+    void printMessageInfo(const protbuf::ClientRequest &request);
+    void processMessages();
 signals:
     /**
      * @brief jobFinished signal emmited when worker ends processing data
@@ -41,13 +43,13 @@ public slots:
 
     /**
      * @brief processBinnaryMessage: is responsible for handling message
-     * @param frame a protbuf message (MessageFrame) containing MessageCapsules with encapsuled information
+     * @param frame a protbuf message (MessageFrame) containing Messages with encapsuled information
      */
-    void processBinnaryMessage(const QByteArray frame);
+    void processBinnaryMessage(QByteArray frame);
 private:
-    protbuf::MessageFrame m_responseFrame;
-    QHash<MsgType, QSharedPointer<IProcessor>> m_messageProcessors;
-    FrameParser m_frameParser;
-    QSharedPointer<ClientCache> m_cache;
-    QSharedPointer<IProcessor> m_defaultProcessor;
+    SharedResponses m_responseFrame;
+    SharedRequests m_inputFrame;
+    QHash<protbuf::ClientRequest::DataCase, QSharedPointer<MessageHandler>> m_messageProcessors;
+    SharedClientCache m_cache;
+    QSharedPointer<MessageHandler> m_defaultProcessor;
 };

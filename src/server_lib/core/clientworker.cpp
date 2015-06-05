@@ -7,7 +7,8 @@
 ClientWorker::ClientWorker(QObject *parent) :
     QObject(parent),
     m_cache(QSharedPointer<ClientCache>(new ClientCache() )),
-    m_defaultProcessor(QSharedPointer<IProcessor>(new UnknownMessageProcessor()))
+    m_responseFrame( SharedResponses(new protbuf::ServerResponses )) /*,
+    m_defaultProcessor(QSharedPointer<MessageHandler>(new UnknownMessageProcessor()))*/
 {
 //    auto loginProcessor = QSharedPointer<LoginProcessor>(new LoginProcessor() );
 //    loginProcessor->setClientCache(m_cache);
@@ -19,53 +20,42 @@ ClientWorker::ClientWorker(QObject *parent) :
 //    m_messageProcessors.insert(MsgType::msgUserFullData, registerUser);
 }
 
-void ClientWorker::printMessageInfo(const protbuf::MessageCapsule &message)
+void ClientWorker::printMessageInfo(const protbuf::ClientRequest &request)
 {
-    qDebug() << "recived message id: " << message.msgid()
-    << "\ntype: " << message.msgtype()
-    << "\naction: " << message.action()
-    << "\ndata size: " << message.data().size()
-    << "\nhas filters? " << message.has_filter()
-    << "\nhas limits? " << message.has_limits()
-    << "\nis_compressed? " << message.compressed();
+    qDebug() << "recived message id: " << request.requestid()
+    << "\ntype: " << request.data_case()
+//    << "\naction: " << message.action()
+    << "\ndata size: " << request.ByteSize();
+//    << "\nhas filters? " << message.has_filter()
+//    << "\nhas limits? " << message.has_limits()
+//    << "\nis_compressed? " << message.compressed()
+            ;
 }
 
-void ClientWorker::processData()
+void ClientWorker::processMessages()
 {
-    auto message = m_frameParser.nextPandingMessage();
-    auto processor = m_messageProcessors.value(message.msgtype(), m_defaultProcessor);
-    auto id = message.msgid();
+    for(int msgId=0; msgId<m_inputFrame->request_size(); msgId++ ){
+        printMessageInfo(m_inputFrame->request(msgId));
+        auto processor = m_messageProcessors.value(m_inputFrame->request(msgId).data_case(),  QSharedPointer<MessageHandler>(new MessageHandler()));
 
-    printMessageInfo(message);
-    processor->setWorkingCapsule(message);
-    if ( processor->checkUserState() ){ // check if user state is apriopriet (is logged)
-        if (!processor->preProcess())
-            emit messageCorrupted( message.msgid() ); // no emit, resend message to client?
-        else{
-            processor->process();
-            auto response = processor->generateResponse();
-            for (int i=0;i<response.size();i++){
-                auto capsule = response[i];
-                capsule.set_msgid(id);
-                if( !capsule.has_msgtype() )
-                    capsule.set_msgtype( MsgType::dummyResponse );
-                m_responseFrame.add_capsules()->CopyFrom(capsule);
-            }
-        }
+        processor->setInputData(m_inputFrame);
+        processor->setOutputData(m_responseFrame);
+        processor->setWorkingMessage(msgId);
+        processor->process();
     }
 }
 
-void ClientWorker::processBinnaryMessage(const QByteArray frame)
+void ClientWorker::processBinnaryMessage(QByteArray frame)
 {
-    m_responseFrame.Clear();
-    m_frameParser.prepareMessages(frame);
+    m_responseFrame->Clear();
+    RequestsDecoder decoder(frame);
+    decoder.decodeTo(m_inputFrame);
 
-    while (m_frameParser.hasPandingMessags() )
-        processData();
+    processMessages();
 
     QByteArray ba;
-    ba.resize(m_responseFrame.ByteSize());
-    m_responseFrame.SerializeToArray(ba.data(), ba.size());
+    ba.resize(m_responseFrame->ByteSize());
+    m_responseFrame->SerializeToArray(ba.data(), ba.size());
 
     emit binnaryMessageReadyToSend(ba);
     emit jobFinished();

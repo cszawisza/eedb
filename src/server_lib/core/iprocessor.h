@@ -3,98 +3,68 @@
 #include <QObject>
 #include <QSharedPointer>
 #include <QDebug>
+#include <QSharedPointer>
 #include "message_conteiner.pb.h"
 #include "clientcache.h"
 
-using protbuf::MessageCapsule;
+using protbuf::ClientRequest;
+using protbuf::ClientRequests;
 /**
  * @brief The IProcessor class
  */
-class IProcessor
+
+class MessageHandler
 {
-
 public:
-    virtual ~IProcessor(){;}
+    typedef QSharedPointer<protbuf::ClientRequests> SharedRequests;
+    typedef QSharedPointer<protbuf::ServerResponses> SharedResponses;
+    virtual ~MessageHandler(){;}
 
-    /**
-     * @brief setWorkingCapsule
-     * @param msg a capsule to process
-     */
-    void setWorkingCapsule( const MessageCapsule &msg ){
-        m_inputMessage.Clear();
-        m_inputMessage.CopyFrom(msg);
+    /// working input frame
+    void setInputData( SharedRequests frame ){
+        m_inputFrame.swap(frame);
     }
 
-    virtual bool checkUserState() {
-        return cache()->userStatus().isLogged();
+    /// set the index of message that we work on
+    /// returns false when type of message not fits or when index exceds message number
+    bool setWorkingMessage( int index ){
+        m_messageIndex = index;
+        return true;
     }
 
-    /**
-     * @brief preProcess
-     * @return true if everything is OK or
-     * false if message is corrupted
-     */
-    virtual bool preProcess() = 0;
-
-    /**
-     * @brief process data given in setWorkingCapsule;
-     */
-    virtual void process() = 0;
-
-    /**
-     * @brief generateResponse
-     * @return a ready to send capsule containing data
-     */
-    virtual QList<MessageCapsule> generateResponse() = 0;
+    void setOutputData( SharedResponses frame ){
+        m_outputFrame.swap( frame );
+    }
 
     /**
      * @brief setClientCache
      * @param cache: sets a pointer to common cache (containing user status information and session stuf)
      */
-    void setClientCache(QSharedPointer<ClientCache> cache){
+    void setClientCache( SharedClientCache cache){
         m_cache.swap(cache);
     }
 
+
+    /**
+     * @brief process data given in setWorkingCapsule;
+     */
+    virtual void process(){
+        auto msg = m_outputFrame->add_response();
+        msg->CopyFrom( protbuf::ServerResponse::default_instance() );
+        msg->set_responseid( m_inputFrame->request(m_messageIndex).requestid() );
+        ResponseCode *codes = msg->mutable_msgserverresponse()->add_codes();
+        codes->set_error(true);
+        codes->set_code( protbuf::ServerErrorCodes::Error_MsgUnknown );
+    }
+
 protected:
-    QSharedPointer<ClientCache> cache() {
-        if( m_cache.isNull() )
-            m_cache = QSharedPointer<ClientCache>( new ClientCache() );
+    SharedClientCache cache(){
         return m_cache;
     }
 
-    MessageCapsule &inputMessage(){
-        return m_inputMessage;
-    }
-    const MessageCapsule &inputMessage() const {
-        return m_inputMessage;
-    }
-
 private:
-    MessageCapsule m_inputMessage;
-    QSharedPointer<ClientCache> m_cache;
-};
-
-/**
- * @brief The unknownMessage class returns a message
- * informing the client that this type of message is unsuported
- */
-class UnknownMessageProcessor : public IProcessor
-{
-public:
-    bool preProcess() Q_DECL_OVERRIDE
-    {
-        return true;
-    }
-    void process() Q_DECL_OVERRIDE
-    {
-        // unknown message handle
-        // set proper output
-    }
-
-    QList<protbuf::MessageCapsule> generateResponse() Q_DECL_OVERRIDE
-    {
-        QList<protbuf::MessageCapsule> list;
-        list << inputMessage();
-        return list;
-    }
+    SharedClientCache m_cache;
+    SharedRequests m_inputFrame;
+    SharedResponses m_outputFrame;
+    int m_messageIndex;
 };

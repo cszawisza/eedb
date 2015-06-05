@@ -3,12 +3,12 @@
 #include <QWebSocket>
 #include <QPointer>
 
-QCatalogServer::QCatalogServer(QObject *parent) :
+EEDB::EEDB(QObject *parent) :
     QWebSocketServer(QStringLiteral("EKATALOG"),QWebSocketServer::NonSecureMode, parent)
 {
 }
 
-void QCatalogServer::startServer()
+void EEDB::startServer()
 {
     quint16 port = setup.value("listenPort", 6666).toUInt();
     if(!this->listen(QHostAddress::Any, port)){
@@ -19,19 +19,21 @@ void QCatalogServer::startServer()
      connect(this, SIGNAL(acceptError(QAbstractSocket::SocketError)), this, SLOT(processConnectionError(QAbstractSocket::SocketError)));
 }
 
-void QCatalogServer::processConnectionError(QAbstractSocket::SocketError e)
+void EEDB::processConnectionError(QAbstractSocket::SocketError e)
 {
     qDebug() << "connetion error :" << e;
 }
 
 
-void QCatalogServer::incomingConnection()
+void EEDB::incomingConnection()
 {
     while(hasPendingConnections()){
         QWebSocket *ws = nextPendingConnection();
 
-        auto connection = new ClientConnection(ws);
+        ClientConnection *connection = new ClientConnection(ws);
         m_connectedClients.append(connection);
+        connect(connection, SIGNAL(disconnected()),
+                this, SLOT(removeConnection()));
 //        if (thread){
 //            connect(thread, SIGNAL(finished()),
 //                    this, SLOT(collectDeadThread()));
@@ -49,4 +51,11 @@ void QCatalogServer::incomingConnection()
 //            thread->setPriority(QThread::LowestPriority);
 //        }
     }
+}
+
+void EEDB::removeConnection()
+{
+    auto con = dynamic_cast<ClientConnection*>( sender() );
+    m_connectedClients.removeOne( con );
+    con->deleteLater();
 }

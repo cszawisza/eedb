@@ -1,0 +1,9 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2015-06-04T12:31:15+02:00
+
+====== message container ======
+Created czwartek 04 czerwiec 2015
+
+The purpouse of this message is to create a possibility to transport a serialized message (please note that this message don't need to be a protbuf message!) to other "end" of wire, with saved information about the 
+

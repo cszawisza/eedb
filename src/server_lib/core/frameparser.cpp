@@ -1,25 +1,15 @@
 #include "frameparser.h"
-FrameParser::FrameParser()
+RequestsDecoder::RequestsDecoder(QByteArray ba):
+    m_rawMessage(ba)
 {
 }
 
-void FrameParser::prepareMessages(const QByteArray &ba) {
-    ///TODO posible race odition
-    m_currentMsg = 0;
-    m_frame.ParseFromArray(ba.data(), ba.size() );
+bool RequestsDecoder::decodeTo(SharedRequests &frame){
+    if(!frame)
+        frame = SharedRequests(new protbuf::ClientRequests );
+    return frame->ParseFromArray(m_rawMessage.data(), m_rawMessage.size() );
 }
 
-int FrameParser::messagesCount() const Q_DECL_NOEXCEPT
-{
-    return m_frame.capsules_size();
-}
-
-bool FrameParser::hasPandingMessags() const Q_DECL_NOEXCEPT
-{
-    return messagesCount() > m_currentMsg;
-}
-
-const protbuf::MessageCapsule &FrameParser::nextPandingMessage() Q_DECL_NOEXCEPT
-{
-    return m_frame.capsules(m_currentMsg++);
+void RequestsDecoder::setData(QByteArray ba){
+    m_rawMessage = ba;
 }

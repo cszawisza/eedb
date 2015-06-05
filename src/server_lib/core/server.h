@@ -3,12 +3,12 @@
 #include <QSettings>
 #include "clientconnection.h"
 
-class QCatalogServer : public QWebSocketServer
+class EEDB : public QWebSocketServer
 {
     Q_OBJECT
 public:
-    explicit QCatalogServer(QObject *parent = 0);
-    ~QCatalogServer(){;}
+    explicit EEDB(QObject *parent = 0);
+    ~EEDB(){;}
 
     void startServer();
 signals:
@@ -20,7 +20,7 @@ protected:
 private slots:
     void processConnectionError(QAbstractSocket::SocketError);
     void incomingConnection();
-
+    void removeConnection();
 private:
     QList<ClientConnection*> m_connectedClients;
 };

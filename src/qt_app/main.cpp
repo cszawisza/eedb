@@ -1,13 +1,13 @@
-#include <QCoreApplication>
+//#include "mainwindow.h"
+#include <QApplication>
 #include <QFile>
 #include <QDebug>
-#include <QAbstractSocket>
-#include "core/server.h"
+#include <QTimer>
+#include "logindialog.h"
 
-
-int keepassx_main_impl(int argc, char *argv[], int (*app_run)() )
+int main(int argc, char *argv[])
 {
-    QCoreApplication a(argc, argv);
+    QApplication a(argc, argv);
 
     QCoreApplication::setApplicationName(QStringLiteral("EKATALOG"));
     QCoreApplication::setOrganizationName(QStringLiteral("BAPP"));
@@ -36,22 +36,16 @@ int keepassx_main_impl(int argc, char *argv[], int (*app_run)() )
     delete prog;
     delete msg;
 
-    EEDB server;
-    try{
-        server.startServer();
+//    MainWindow *w;
+    LoginDialog *lDialog = new LoginDialog();
+    if(lDialog->exec()){
+//        w = new MainWindow();
+//        w->setSocket(lDialog->socket());
+//        w->show();
     }
-    catch(QWebSocketProtocol::CloseCode e){
-        qDebug() << "QWebSocket throw error :" << e << " exiting";
-        exit(1);
+    else{
+        QTimer::singleShot(1,&a,SLOT(quit()));
     }
-
-    return app_run();
-}
-
-int qApp_exec(){
-    return qApp->exec();
-}
-
-int keepassx_main(int argc, char** argv ){
-    return keepassx_main_impl(argc,argv,qApp_exec);
+    delete lDialog;
+    return a.exec();
 }

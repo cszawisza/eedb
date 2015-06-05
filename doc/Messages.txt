@@ -1,0 +1,7 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2015-06-04T12:31:06+02:00
+
+====== Messages ======
+Created czwartek 04 czerwiec 2015
+

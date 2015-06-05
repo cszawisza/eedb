@@ -1,9 +1,8 @@
 include_directories( ../ )
+include_directories( ../../messages/cpp )
 include_directories( sqlpp11_SOURCE_DIR )
 include_directories( ${sqlpp11-connector-postgresql_SOURCE_DIR}/include )
 include_directories( ${auto_generated_SOURCE_DIR}/protbuf)
-
-find_package(Qt5websockets)
 
 set(SOURCES
     acl.cpp
@@ -26,7 +25,7 @@ set(HEADERS
     server.h
 )
 
-find_package(Qt5Widgets)
 add_library(Core STATIC ${SOURCES} )
+target_link_libraries(Core Messages ${PROTOBUF_LITE_LIBRARY})
 qt5_use_modules(Core Core WebSockets)
 
