@@ -1,4 +1,4 @@
-include_directories( ../messages/cpp )
+include_directories( ${Common_SOURCE_DIR}/messages )
 
 find_package(Qt5Widgets)
 
@@ -15,5 +15,5 @@ adduserdialog.ui
 adduserdialog.h
 )
 
-add_executable(qeedb ${SRC} )
-target_link_libraries(qeedb  Messages Qt5::Widgets Qt5::WebSockets)
+add_executable( Client ${SRC} )
+target_link_libraries( Client Messages Qt5::Widgets Qt5::WebSockets)
