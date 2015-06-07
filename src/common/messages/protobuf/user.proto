@@ -1,0 +1,127 @@
+option optimize_for = LITE_RUNTIME;
+package user;
+import public "storage.proto";
+import public "stats.proto";
+import public "common.proto";
+
+// ENUM VALUES
+enum Action{
+  Action_Add = 1;
+  Action_Login = 2;
+  Action_Logout = 3;
+  Action_Remove = 4;
+  Action_Modify = 5;
+  Action_Get = 6;
+}
+  
+enum Replay{
+  LoginPass = 1;
+  LoginDeny = 2;
+
+  EmailExists = 3;
+  EmailAddressToLong = 4;
+  EmailNotValidate = 5;
+  PasswordToShort = 6;
+  UserNameToLong = 11;
+  UserNameToShort = 12;
+  UserAlreadyExists=13;
+  UserAddOk = 14;
+
+  UserAlreadyLogged = 21;
+  LogoutOk = 22;
+  UserNotLogged = 23;
+}
+  
+message MsgUserRequest{
+// USER MESSAGE STRUCTURE 
+  optional Action action = 1;
+  
+  oneof data{
+    Add add = 2;
+    Login login = 3;
+    Logout logout = 4; 
+    Remove remove = 5;
+    Modify modify = 6;
+    Get  get = 7;
+  }
+ 
+// INTERNAL MESSAGES ///////////////
+  message Credentials{
+    oneof login_id{
+      uint32 id = 1;
+      string name = 2;
+      string email = 3;
+    }
+  }
+  
+// ACTION MESSAGES /////////////////////
+  message Login{
+    required Credentials cred = 1;
+    required string password = 2;
+  }
+  message Logout{
+    // option save_state = 1;
+  }
+  
+  message Add{
+    required UserDetails details = 1;
+    optional UserConfig config = 2;
+    optional string password = 3;
+  }
+  
+  message Remove{
+    required Credentials cred = 1;
+    //optional bool remove_config = 2;
+    //optional bool remove_userdata = 3;
+  }
+  
+  message Modify{
+    optional string email = 1;
+    optional string name = 2;
+    optional string address = 3;
+    optional bytes phone_number = 4;
+    optional bytes description = 5; 
+    optional bytes avatar = 6; 
+  }
+  message Get {
+    optional bool basic_data = 1;
+    optional bool config = 2;
+    optional bool stats = 3;
+    optional bool permissions = 4;
+    optional bool details = 5;
+  }
+}
+
+message MsgUserResponse {
+  required ResponseCode code = 1;
+  // optional UserDetails details = 2;
+  // optional UserConfig config = 3;
+  // optional UserStats stats = 4;
+}
+
+message UserDetails{
+  required string email = 1;
+  required string name = 2;
+  optional string address = 3;
+  optional bytes phone_number = 4;
+  optional bytes description = 5; 
+  optional bytes avatar = 6;
+}
+
+message UserConfig{
+  optional uint32 last_storage_id = 1;
+  optional uint32 last_group_id = 2;
+  optional uint32 last_item_id = 3;
+  optional uint32 last_parameter_id = 4;
+}
+
+message UserStatis{
+  optional uint32 magazineCount = 1; // number of magazines
+  optional uint32 totalNumOfElements=2; // number of elements
+  optional uint32 totalNumOfUniqueElements = 3; // number of different elements
+  optional uint32 totalNumOfRequests = 4; // number of requests to server
+  optional uint32 totalModifiedItems = 5; // total number of modified elements by user
+  optional uint32 totalAddItems = 6; // total items that user add to groups
+  optional fixed64 last_login = 7;  // last login date
+  optional fixed64 registration_date = 8; // registration date
+}
