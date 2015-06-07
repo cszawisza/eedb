@@ -8,9 +8,12 @@ message StorageStatistics{
 }
 
 message Storage {
-  required IdField basic =1;
-  optional Details details = 2;
-  optional uint32 owner_id = 3;
+  required uint32 id =1;
+  optional string name =2;
+  optional string description = 3;
+  optional fixed64 creationDate = 4;
+  optional fixed64 lastupdate = 5;
+  optional uint32 owner_id = 6;
 //   optional StorageStatistics stats = 4;
 }
 

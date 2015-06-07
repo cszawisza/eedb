@@ -1,6 +1,0 @@
-[submodule "externals/sqlpp11"]
-	path = externals/sqlpp11
-	url = https://github.com/rbock/sqlpp11.git
-[submodule "externals/sqlpp11_pqsql_driver"]
-	path = externals/sqlpp11_pqsql_driver
-	url = https://github.com/matthijs/sqlpp11-connector-postgresql.git

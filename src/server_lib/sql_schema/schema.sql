@@ -82,6 +82,7 @@ COMMENT ON COLUMN t_privilege.c_related_uid   IS 'stores the ID of the object to
 CREATE TABLE users (
     name VARCHAR(34) NOT NULL UNIQUE,
     password CHAR(128) NOT NULL,
+    salt CHAR(128) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     phonenumber VARCHAR(32),
     address TEXT,

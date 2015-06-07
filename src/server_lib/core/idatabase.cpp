@@ -30,16 +30,18 @@ shared_ptr<sqlpp::postgresql::connection_config> DatabaseConnection::getConf()
     conf->dbname = "postgres";
     conf->user = "postgres";
     conf->password = "postgres";
-//    conf->debug = true;
+    conf->debug = true;
     return std::move(conf);
 }
 
-PerformanceCounter::PerformanceCounter(){
+PerformanceCounter::PerformanceCounter(QString msg):
+    m_additional(msg)
+{
     timer.restart();
 }
 
 PerformanceCounter::~PerformanceCounter(){
-    qDebug() << "query takes:" << timer.nsecsElapsed()/1000.0 << " µs";
+    qDebug() << m_additional << " query takes:" << timer.nsecsElapsed()/1000.0 << " µs";
 }
 
 
@@ -48,5 +50,6 @@ DatabaseConnectionProvider::DatabaseConnectionProvider(const DatabasePool *paren
     m_db(m_parent->getDatabase()) {}
 
 DatabaseConnectionProvider::~DatabaseConnectionProvider(){
+    ///TODO check if a transaction is started
     m_parent->returnDatabase(move(m_db));
 }

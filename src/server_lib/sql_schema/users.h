@@ -114,6 +114,21 @@ namespace schema {
 			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::require_insert>;
 		};
 
+                struct Salt {
+                        struct _alias_t {
+                                static constexpr const char _literal[] ="salt";
+                                using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+                                template<typename T>
+                                        struct _member_t {
+                                                T salt;
+                                                T &operator()() { return salt; }
+                                                const T &operator()() const { return salt; }
+                                        };
+                        };
+
+                        using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::require_insert>;
+                };
+
 		struct Email {
 			struct _alias_t {
 				static constexpr const char _literal[] ="email";
@@ -228,6 +243,7 @@ namespace schema {
 				users_::C_status,
 				users_::Name,
 				users_::Password,
+                                users_::Salt,
 				users_::Email,
 				users_::Phonenumber,
 				users_::Address,

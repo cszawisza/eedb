@@ -1,2 +1,1 @@
-add_subdirectory(sqlpp11)
-add_subdirectory(sqlpp11_pqsql_driver)
+

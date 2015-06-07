@@ -2,6 +2,14 @@ option optimize_for = LITE_RUNTIME;
 package protbuf;
 import public "common.proto";
 
+
+message Details{
+  required string name =1;
+  optional string description = 2;
+  optional fixed64 creationDate = 3;
+  optional fixed64 lastupdate = 4;
+}
+
 message ParameterConfig {
   required int32 type = 1; // QVariant metadate type
   optional bytes defaultValue = 2;

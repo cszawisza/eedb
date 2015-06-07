@@ -11,6 +11,7 @@ set(SOURCES
     clientworker.cpp
     frameparser.cpp
     idatabase.cpp
+    user.cpp
     server.cpp
 )
 
@@ -22,10 +23,11 @@ set(HEADERS
     frameparser.h
     idatabase.h
     iprocessor.h
+    user.h
     server.h
 )
 
-add_library(Core STATIC ${SOURCES} )
-target_link_libraries(Core Messages ${PROTOBUF_LITE_LIBRARY})
+add_library(Core STATIC ${SOURCES} ${HEADERS})
+target_link_libraries(Core sqlpp-postgresql Messages ${PROTOBUF_LITE_LIBRARY})
 qt5_use_modules(Core Core WebSockets)
 

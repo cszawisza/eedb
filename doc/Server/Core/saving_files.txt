@@ -1,0 +1,12 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2015-06-07T09:55:45+02:00
+
+====== saving files ======
+Created niedziela 07 czerwiec 2015
+
+1. Get file from user
+2. Calculate hash
+3. Check if file already exist in database
+4. Get mime type
+5. Save file

@@ -49,7 +49,7 @@ public slots:
 private:
     SharedResponses m_responseFrame;
     SharedRequests m_inputFrame;
-    QHash<protbuf::ClientRequest::DataCase, QSharedPointer<MessageHandler>> m_messageProcessors;
+    QHash<protbuf::ClientRequest::DataCase, QSharedPointer<MessageHandler>> m_msgHandlers;
     SharedClientCache m_cache;
     QSharedPointer<MessageHandler> m_defaultProcessor;
 };

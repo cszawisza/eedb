@@ -29,6 +29,8 @@ public:
     /// returns false when type of message not fits or when index exceds message number
     bool setWorkingMessage( int index ){
         m_messageIndex = index;
+        if(m_inputFrame->request_size() < index)
+            return false;
         return true;
     }
 
@@ -44,7 +46,6 @@ public:
         m_cache.swap(cache);
     }
 
-
     /**
      * @brief process data given in setWorkingCapsule;
      */
@@ -58,7 +59,18 @@ public:
     }
 
 protected:
-    SharedClientCache cache(){
+
+    const protbuf::ClientRequest &getRequest(){
+        return m_inputFrame->request(m_messageIndex);
+    }
+
+    const bool addResponse( const protbuf::ServerResponse &resp ){
+        m_outputFrame->add_response()->MergeFrom(resp);
+    }
+
+    SharedClientCache cache() {
+        if(!m_cache)
+            m_cache = SharedClientCache(new ClientCache );
         return m_cache;
     }
 

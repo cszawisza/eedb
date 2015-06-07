@@ -3,6 +3,7 @@
 //#include "usermsgprocessor.h"
 
 #include <QDebug>
+#include "user.h"
 
 ClientWorker::ClientWorker(QObject *parent) :
     QObject(parent),
@@ -10,6 +11,7 @@ ClientWorker::ClientWorker(QObject *parent) :
     m_responseFrame( SharedResponses(new protbuf::ServerResponses )) /*,
     m_defaultProcessor(QSharedPointer<MessageHandler>(new UnknownMessageProcessor()))*/
 {
+    auto u = QSharedPointer<core::parsers::User>(new core::parsers::User());
 //    auto loginProcessor = QSharedPointer<LoginProcessor>(new LoginProcessor() );
 //    loginProcessor->setClientCache(m_cache);
 
@@ -18,6 +20,7 @@ ClientWorker::ClientWorker(QObject *parent) :
 
 //    m_messageProcessors.insert(MsgType::reqLogin, loginProcessor);
 //    m_messageProcessors.insert(MsgType::msgUserFullData, registerUser);
+    m_msgHandlers.insert( protbuf::ClientRequest::kMsgUserReq, u );
 }
 
 void ClientWorker::printMessageInfo(const protbuf::ClientRequest &request)
@@ -36,7 +39,7 @@ void ClientWorker::processMessages()
 {
     for(int msgId=0; msgId<m_inputFrame->request_size(); msgId++ ){
         printMessageInfo(m_inputFrame->request(msgId));
-        auto processor = m_messageProcessors.value(m_inputFrame->request(msgId).data_case(),  QSharedPointer<MessageHandler>(new MessageHandler()));
+        auto processor = m_msgHandlers.value(m_inputFrame->request(msgId).data_case(),  QSharedPointer<MessageHandler>(new MessageHandler()));
 
         processor->setInputData(m_inputFrame);
         processor->setOutputData(m_responseFrame);

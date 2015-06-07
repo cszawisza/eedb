@@ -34,22 +34,6 @@ void EEDB::incomingConnection()
         m_connectedClients.append(connection);
         connect(connection, SIGNAL(disconnected()),
                 this, SLOT(removeConnection()));
-//        if (thread){
-//            connect(thread, SIGNAL(finished()),
-//                    this, SLOT(collectDeadThread()));
-
-//            connect(ws, SIGNAL(binaryMessageReceived(QByteArray)),
-//                    thread, SLOT(recivedBinnaryMessage(QByteArray)));
-
-//            connect(thread, SIGNAL(sendBinaryMessage(QByteArray)),
-//                    this, SLOT(send(QByteArray)));
-
-//            connect(ws, SIGNAL(disconnected()),
-//                    thread, SLOT(quit()));
-
-//            thread->start();
-//            thread->setPriority(QThread::LowestPriority);
-//        }
     }
 }
 

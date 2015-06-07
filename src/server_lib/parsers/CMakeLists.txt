@@ -10,5 +10,5 @@ set(SOURCES
     user.cpp
 )
 
-add_library(parsers STATIC ${SOURCES} ${HEADERS} )
-target_link_libraries(parsers Core Messages Qt5::Core Qt5::WebSockets)
+add_library(Parsers STATIC ${SOURCES} ${HEADERS} )
+target_link_libraries(Parsers Messages Qt5::Core Qt5::WebSockets)

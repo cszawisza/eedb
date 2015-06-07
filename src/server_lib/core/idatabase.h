@@ -17,11 +17,12 @@ class DatabaseConnectionProvider;
 class PerformanceCounter
 {
 public:
-    PerformanceCounter();
+    PerformanceCounter(QString msg="");
     ~PerformanceCounter();
 
 private:
     QElapsedTimer timer;
+    QString m_additional;
 };
 
 class DatabaseConnection : public sqlpp::postgresql::connection
@@ -53,9 +54,38 @@ public:
     DatabaseConnectionProvider( const DatabasePool *parent );
     ~DatabaseConnectionProvider();
 
+    DatabaseConnection &connection(){
+        return *m_db.get();
+    }
+
+    //! start transaction
+    void start_transaction(){
+        return m_db->start_transaction();
+    }
+
+    //! commit transaction (or throw transaction if transaction has
+    // finished already)
+    void commit_transaction(){
+        return m_db->commit_transaction();
+    }
+
+    //! rollback transaction
+    void rollback_transaction(bool report){
+        return m_db->rollback_transaction(report);
+    }
+
+    //! report rollback failure
+    void report_rollback_failure(const std::string &message) noexcept;
+
+    template<typename T>
+    auto prepare(const T& t) -> decltype(m_db->prepare(t) ){
+        PerformanceCounter perf("Prepare");
+        return m_db->prepare(t);
+    }
+
     template<typename T>
     auto operator()(const T& t) -> decltype(m_db->operator()(t) ) {
-        PerformanceCounter perf;
+        PerformanceCounter perf();
         return m_db->operator()(t);
     }
 };

@@ -32,19 +32,19 @@ LoginDialog::LoginDialog(QWidget *parent) :
         doLogin();
     });
 
-//    connect(ui->registerNewUser, static_cast<void (QPushButton::*)(bool)>(&QPushButton::clicked),
-//            [=](){
-//        doReconnect();
-//        if(m_socket->state() == QAbstractSocket::ConnectedState){
-//            disconnect(m_socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));
-//            AddUserDialog *dialog = new AddUserDialog(m_socket, this);
-//            dialog->exec();
-//            connect(m_socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));
-//        }
-//        else{
-//            ui->connectResponseLabel->setText("peer disconnected");
-//        }
-//    });
+    connect(ui->registerNewUser, static_cast<void (QPushButton::*)(bool)>(&QPushButton::clicked),
+            [=](){
+        doReconnect();
+        if(m_socket->state() == QAbstractSocket::ConnectedState){
+            disconnect(m_socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));
+            AddUserDialog *dialog = new AddUserDialog(m_socket, this);
+            dialog->exec();
+            connect(m_socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));
+        }
+        else{
+            ui->connectResponseLabel->setText("peer disconnected");
+        }
+    });
 
     connect(this, &LoginDialog::loginFailure, [=](){
         ui->connectResponseLabel->setText("Autentification error");
