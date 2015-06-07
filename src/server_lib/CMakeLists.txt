@@ -1,6 +1,7 @@
-include_directories( ../messages/cpp )
+include_directories( ../common/messages )
 
 add_subdirectory(core)
+add_subdirectory(utils)
 
 set(SOURCES
     main.cpp

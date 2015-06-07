@@ -4,7 +4,7 @@
 #include <QSharedPointer>
 #include <QDebug>
 #include <QSharedPointer>
-#include "message_conteiner.pb.h"
+#include "pb_cpp/message_conteiner.pb.h"
 #include "clientcache.h"
 
 using protbuf::ClientRequest;

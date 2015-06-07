@@ -3,9 +3,9 @@
 #include "iprocessor.h"
 #include "idatabase.h"
 
-#include "user.pb.h"
+#include "pb_cpp/user.pb.h"
 
-namespace core {
+namespace eedb {
 namespace parsers {
 
 using namespace user;

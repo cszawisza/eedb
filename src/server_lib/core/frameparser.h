@@ -3,7 +3,7 @@
 #include <QByteArray>
 #include <QSharedPointer>
 
-#include "message_conteiner.pb.h"
+#include "pb_cpp/message_conteiner.pb.h"
 
 ///TODO remove if not needed
 

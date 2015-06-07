@@ -6,12 +6,12 @@
 #include "sql_schema/t_acl.h"
 #include "sql_schema/t_action.h"
 
-#include "user.pb.h"
+#include "pb_cpp/user.pb.h"
 
 #include <QCryptographicHash>
 #include <QDateTime>
 
-void core::parsers::User::process()
+void eedb::parsers::User::process()
 {
     // Check if this is the message that handler wants
     Q_ASSERT( getRequest().data_case() == protbuf::ClientRequest::kMsgUserReqFieldNumber );
@@ -46,7 +46,7 @@ void core::parsers::User::process()
     }
 }
 
-void core::parsers::User::parse_add(const user::MsgUserRequest_Add &msg)
+void eedb::parsers::User::parse_add(const user::MsgUserRequest_Add &msg)
 {
     DatabaseConnectionProvider db(this);
 
@@ -101,6 +101,7 @@ void core::parsers::User::parse_add(const user::MsgUserRequest_Add &msg)
             //            ??
 
             ///TODO save config
+            /// create a class that will handle all configuration options an return it as string
             //        if(msg.has_config()){
             //            conf.
             //        }
@@ -128,28 +129,28 @@ void core::parsers::User::parse_add(const user::MsgUserRequest_Add &msg)
     }
 }
 
-void core::parsers::User::parse_login(const user::MsgUserRequest_Login &loginMsg)
+void eedb::parsers::User::parse_login(const user::MsgUserRequest_Login &loginMsg)
 {
     DatabaseConnectionProvider db(this);
 
 }
 
-void core::parsers::User::parse_logout(const user::MsgUserRequest_Logout &logoutMsg)
+void eedb::parsers::User::parse_logout(const user::MsgUserRequest_Logout &logoutMsg)
 {
 
 }
 
-void core::parsers::User::parse_modify(const user::MsgUserRequest_Modify &modifyMsg)
+void eedb::parsers::User::parse_modify(const user::MsgUserRequest_Modify &modifyMsg)
 {
 
 }
 
-void core::parsers::User::parse_remove(const user::MsgUserRequest_Remove &delateMsg)
+void eedb::parsers::User::parse_remove(const user::MsgUserRequest_Remove &delateMsg)
 {
 
 }
 
-void core::parsers::User::parse_get(const user::MsgUserRequest_Get &getMsg)
+void eedb::parsers::User::parse_get(const user::MsgUserRequest_Get &getMsg)
 {
 
 }

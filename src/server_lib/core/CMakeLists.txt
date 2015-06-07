@@ -1,5 +1,5 @@
 include_directories( ../ )
-include_directories( ../../messages/cpp )
+include_directories( ../../common/messages )
 include_directories( sqlpp11_SOURCE_DIR )
 include_directories( ${sqlpp11-connector-postgresql_SOURCE_DIR}/include )
 include_directories( ${auto_generated_SOURCE_DIR}/protbuf)
