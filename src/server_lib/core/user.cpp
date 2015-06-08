@@ -3,15 +3,29 @@
 #include "sqlpp11/sqlpp11.h"
 
 #include "sql_schema/users.h"
-#include "sql_schema/t_acl.h"
-#include "sql_schema/t_action.h"
 
-#include "pb_cpp/user.pb.h"
+#include "utils/userconfig.h"
+#include "utils/hash_passwd.h"
 
-#include <QCryptographicHash>
-#include <QDateTime>
+#include "acl.h"
 
-void eedb::parsers::User::process()
+using eedb::utils::PasswordHash;
+
+schema::users u;
+
+template<typename T, typename C>
+void dynamic_cred( T &query, const C &cred){
+    if( cred.has_name())
+        query.where.add( u.name == cred.name() );
+    else if( cred.has_email() )
+        query.where.add( u.email == cred.email() );
+    else
+        query.where.add( u.c_uid == cred.id() );
+}
+
+
+
+void eedb::handlers::User::process()
 {
     // Check if this is the message that handler wants
     Q_ASSERT( getRequest().data_case() == protbuf::ClientRequest::kMsgUserReqFieldNumber );
@@ -23,22 +37,22 @@ void eedb::parsers::User::process()
     MsgUserRequest::DataCase msgType = req.data_case();
     switch ( msgType ) {
     case MsgUserRequest::kAdd:
-        parse_add( req.add() );
+        handle_add( req.add() );
         break;
     case MsgUserRequest::kLogin:
-        parse_login( req.login() );
+        handle_login( req.login() );
         break;
     case MsgUserRequest::kLogout:
-        parse_logout( req.logout() );
+        handle_logout( req.logout() );
         break;
     case MsgUserRequest::kGet:
-        parse_get( req.get() );
+        handle_get( req.get() );
         break;
     case MsgUserRequest::kRemove:
-        parse_remove( req.remove() );
+        handle_remove( req.remove() );
         break;
     case MsgUserRequest::kModify:
-        parse_modify( req.modify() );
+        handle_modify( req.modify() );
         break;
     case MsgUserRequest::DATA_NOT_SET:
         // send server error
@@ -46,65 +60,58 @@ void eedb::parsers::User::process()
     }
 }
 
-void eedb::parsers::User::parse_add(const user::MsgUserRequest_Add &msg)
+void eedb::handlers::User::handle_add(const user::MsgUserRequest_Add &msg)
 {
     DatabaseConnectionProvider db(this);
-
     ///TODO validate email address
     ///TODO validate rest of fields (lengths)
-
-//    if( verify)
 
     if(cache()->userStatus().isLogged()){
         ///TODO check if user can add another user
     }
     else
     {
-        schema::users u;
+        protbuf::ServerResponse res = protbuf::ServerResponse::default_instance();
+
+        auto add_resp = [&]( bool isError, Replay err_code){
+            auto code = res.add_codes();
+            code->set_error(isError);
+            code->set_code(err_code);
+            addResponse(res);
+        };
+
         const auto &det = msg.details();
         const auto &conf= msg.config();
 
-        bool e = db(select(count(u.c_uid))
-                    .from(u)
-                    .where(u.name == det.name() || u.email == det.email() )
-                    ).front().count > 0;
-
-        if( e ){
-            protbuf::ServerResponse res;
-            auto code = res.add_codes();
-            code->set_error(true);
-            code->set_code( user::Replay::UserAlreadyExists);
-
-            addResponse(res);
+        if( db(select(count(u.c_uid) )
+              .from(u)
+              .where(u.name == det.name() || u.email == det.email() )
+//              .group_by( u.c_uid )
+              ).front().count > 0)
+        {
+            add_resp(true, UserAlreadyExists );
         }
         else{
-            ///TODO salt password
-            auto timestamp = QDateTime::currentMSecsSinceEpoch();
-            auto salt = QCryptographicHash::hash( QByteArray(QString::number( timestamp ).toLatin1() ),
-                                                  QCryptographicHash::Sha3_512).toHex();
-            auto password = QByteArray::fromRawData(msg.password().data(), msg.password().length() ).toHex();
-            QByteArray hash = QCryptographicHash::hash(salt + password, QCryptographicHash::Sha3_512);
 
+            PasswordHash passwd;
+            passwd.setPassword( msg.password() );
+
+            eedb::utils::UserConfig userConfig( conf );
             auto query = dynamic_insert_into(db.connection(), u)
                     .dynamic_set(
                         u.name = parameter(u.name),
                         u.email = parameter(u.email),
-                        u.password = hash.toHex().toStdString(),
-                        u.salt = salt.toStdString(),
+                        u.password = passwd.hash(),
+                        u.salt = passwd.salt(),
                         u.address = parameter(u.address),
                         u.phonenumber = parameter(u.phonenumber),
-                        u.description = parameter(u.description)
+                        u.description = parameter(u.description),
+                        u.config = userConfig.toStdString() // must be a proper JSON document no need to parametrize
                     );
 
             ///TODO save avatar image
             //        if(det.has_avatar())
             //            ??
-
-            ///TODO save config
-            /// create a class that will handle all configuration options an return it as string
-            //        if(msg.has_config()){
-            //            conf.
-            //        }
 
             // run query
             auto pre = db.prepare(query);
@@ -120,38 +127,105 @@ void eedb::parsers::User::parse_add(const user::MsgUserRequest_Add &msg)
 
             try{
                 db(pre);
+                add_resp(false, UserAddOk);
             }
-            catch (sqlpp::exception e) {
-                qDebug() << QString::fromStdString(e.what());
+            catch (sqlpp::exception) {
+                ///TODO print error
+                add_resp(true, UserAlreadyExists);
+            }
+            catch ( ... ){
+                qDebug() << "Unknown error";
             }
 
         }
     }
 }
 
-void eedb::parsers::User::parse_login(const user::MsgUserRequest_Login &loginMsg)
+void eedb::handlers::User::handle_login(const user::MsgUserRequest_Login &loginMsg)
+{
+    protbuf::ServerResponse res = protbuf::ServerResponse::default_instance();
+
+    auto add_resp = [&]( bool isError, Replay err_code){
+        auto code = res.add_codes();
+        code->set_error(isError);
+        code->set_code(err_code);
+        addResponse(res);
+    };
+
+    if(cache()->userStatus().isLogged()){
+        add_resp(true, UserAlreadyLogged );
+    }
+    else
+    {
+        DatabaseConnectionProvider db(this);
+
+        quint64 c_uid, number;
+        bool exists = false;
+        auto s = dynamic_select(db.connection(), count(u.c_uid), u.c_uid )
+                .from(u)
+                .dynamic_where()
+                .dynamic_group_by(u.c_uid);
+
+        dynamic_cred(s,loginMsg.cred());
+
+        auto queryResult = db(s);
+
+        if (queryResult.empty()){
+            add_resp(true, UserDontExist );
+        }
+        else{
+        number = queryResult.front().count;
+        c_uid = queryResult.front().c_uid;
+
+        Q_ASSERT(number <= 1);
+        exists = number == 1;
+
+            ///TODO load user config to cache
+            auto cred = db(select(u.password, u.salt).from(u).where(u.c_uid == c_uid));
+
+            string salt = cred.front().salt;
+            string hash = cred.front().password;
+            string hashed_pass = PasswordHash::hashPassword( loginMsg.password(), salt );
+
+            if( hashed_pass == hash ){
+                add_resp(false, LoginPass);
+            }else{
+                add_resp(true, LoginDeny );
+                cache()->userStatus().setStatus(UserStatus::logged);
+
+            }
+        }
+    }
+}
+
+void eedb::handlers::User::handle_logout(const user::MsgUserRequest_Logout &logoutMsg)
 {
     DatabaseConnectionProvider db(this);
-
 }
 
-void eedb::parsers::User::parse_logout(const user::MsgUserRequest_Logout &logoutMsg)
+void eedb::handlers::User::handle_modify(const user::MsgUserRequest_Modify &modifyMsg)
 {
-
+    DatabaseConnectionProvider db(this);
 }
 
-void eedb::parsers::User::parse_modify(const user::MsgUserRequest_Modify &modifyMsg)
+void eedb::handlers::User::handle_remove(const user::MsgUserRequest_Remove &delateMsg)
 {
+    ///TODO remove user config
+    ///TODO remove user files/items etc
+    ///TODO check if user can remove user with cred
+    DatabaseConnectionProvider db(this);
+    auto cred = delateMsg.cred();
 
+    auto query = dynamic_remove(db.connection()).from(u).dynamic_where();
+    dynamic_cred(query, cred);
+
+    Acl acl;
+    acl.getUserPermissions(u, 32, 32);
+    db(query);
 }
 
-void eedb::parsers::User::parse_remove(const user::MsgUserRequest_Remove &delateMsg)
+void eedb::handlers::User::handle_get(const user::MsgUserRequest_Get &getMsg)
 {
-
-}
-
-void eedb::parsers::User::parse_get(const user::MsgUserRequest_Get &getMsg)
-{
-
+    DatabaseConnectionProvider db(this);
 }
 

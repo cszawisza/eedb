@@ -11,7 +11,7 @@ ClientWorker::ClientWorker(QObject *parent) :
     m_responseFrame( SharedResponses(new protbuf::ServerResponses )) /*,
     m_defaultProcessor(QSharedPointer<MessageHandler>(new UnknownMessageProcessor()))*/
 {
-    auto u = QSharedPointer<eedb::parsers::User>(new eedb::parsers::User());
+    auto u = QSharedPointer<eedb::handlers::User>(new eedb::handlers::User());
 //    auto loginProcessor = QSharedPointer<LoginProcessor>(new LoginProcessor() );
 //    loginProcessor->setClientCache(m_cache);
 

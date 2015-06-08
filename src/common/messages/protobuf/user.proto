@@ -26,6 +26,7 @@ enum Replay{
   UserNameToShort = 12;
   UserAlreadyExists=13;
   UserAddOk = 14;
+  UserDontExist = 15;
 
   UserAlreadyLogged = 21;
   LogoutOk = 22;
@@ -34,8 +35,7 @@ enum Replay{
   
 message MsgUserRequest{
 // USER MESSAGE STRUCTURE 
-  optional Action action = 1;
-  
+
   oneof data{
     Add add = 2;
     Login login = 3;
@@ -71,6 +71,7 @@ message MsgUserRequest{
   
   message Remove{
     required Credentials cred = 1;
+    optional string password = 2;
     //optional bool remove_config = 2;
     //optional bool remove_userdata = 3;
   }
@@ -115,7 +116,7 @@ message UserConfig{
   optional uint32 last_parameter_id = 4;
 }
 
-message UserStatis{
+message UserStats{
   optional uint32 magazineCount = 1; // number of magazines
   optional uint32 totalNumOfElements=2; // number of elements
   optional uint32 totalNumOfUniqueElements = 3; // number of different elements

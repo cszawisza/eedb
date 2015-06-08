@@ -25,7 +25,7 @@ public:
     ~Acl();
 
     template<class Acl>
-    vector<string> getUserPermissions(quint64 userid, quint64 objectid)
+    vector<string> getUserPermissions(Acl acl, quint64 userid, quint64 objectid)
     {
         constexpr int owner_read    = 1<<8;
         constexpr int owner_write   = 1<<7;
@@ -42,7 +42,6 @@ public:
         vector<string> result;
         DatabaseConnectionProvider db (this);
 
-        Acl acl;
         schema::users user;
         schema::t_action act;
         schema::t_implemented_action ia;

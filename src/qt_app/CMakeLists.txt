@@ -16,4 +16,4 @@ adduserdialog.h
 )
 
 add_executable( Client ${SRC} )
-target_link_libraries( Client Messages Qt5::Widgets Qt5::WebSockets)
+target_link_libraries( Client Common Qt5::Widgets Qt5::WebSockets)

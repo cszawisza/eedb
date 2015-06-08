@@ -67,7 +67,7 @@ void AddUserDialog::on_registerNewUser_clicked()
     auto loginReq = fullMessage.add_request();
 
     auto userMsg = loginReq->mutable_msguserreq();
-    userMsg->set_action(user::Action::Action_Add);
+//    userMsg->set_action(user::Action::Action_Add);
 
     auto login = userMsg->mutable_add();
     login->mutable_details()->set_name( ui->name->text().toStdString() );

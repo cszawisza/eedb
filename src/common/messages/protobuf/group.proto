@@ -8,23 +8,57 @@ import public "common.proto";
 //   optional uint32 totalElements=1;
 // }
 
-message GroupDetails{
-  optional string description = 1;
-  repeated uint32 parameters_id = 2;// parameters assosieted with group
-  required bool allow_sets = 3; 
-  required bool allow_items = 4;
-}
+message MsgGroupRequest{
+// USER MESSAGE STRUCTURE 
 
-// message contains information needed to build
-// group tree view
-message GroupBasicInfo{
-  required uint32 id = 1;
-  required string name =2;
-  required uint32 parent_id = 3; //
-}
-
-message GroupFullData{
-  optional GroupBasicInfo basic = 1;
-  optional GroupDetails details = 2;
-//   optional GroupStats stats = 3;
+  oneof data{
+    Add add = 2;
+    Remove remove = 5;
+    Modify modify = 6;
+    Get  get = 7;
+    ModifyParameters modifyParameters= 8;
+  }
+ 
+// INTERNAL MESSAGES ///////////////
+  message Add{
+    required uint32 id = 1;
+    required string name =2;
+    required uint32 parent_id = 3;
+    optional string description = 4;
+    repeated uint32 parameters_id = 5;// parameters assosieted with group
+    required bool allow_sets = 6 [default = true]; 
+    required bool allow_items = 7 [default = true];
+  }
+  
+  message Get{
+    optional bool get_ids = 1 [default = true]; // parent and child
+    optional bool get_name = 2 [default = true];
+    optional bool get_description = 3 [default = false];
+    optional bool include_children = 4 [default = true];
+    optional bool get_all_groups = 5 [default = true];
+    repeated uint32 get_only = 6; // filter to those ID's
+  }
+  
+  message Remove{
+    required uint32 group_id = 1;
+    optional bool remove_children = 2 [default = false];
+    optional bool remove_items = 3 [default = false];
+    optional bool only_hide = 4 [default = true];
+  }
+  
+  message Modify{
+    optional bool allow_sets = 3; 
+    optional bool allow_items = 4;
+  }
+  
+  message ModifyParameters{
+    message Modify{
+      required bool add = 1;
+      required uint32 parameter_id = 2;
+      required uint32 group_id = 3;
+      optional bool apply_to_children = 4;
+    }
+    
+    repeated Modify modify = 1;
+  }
 }

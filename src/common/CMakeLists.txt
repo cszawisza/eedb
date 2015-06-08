@@ -1,4 +1,9 @@
 project( Common )
 
-add_subdirectory(messages)
-add_subdirectory(utils)
+find_package(Qt5Core )
+
+file(GLOB_RECURSE SRC "*.h" "*.cc" "*.cpp" )
+file(GLOB protos "protobuf/*.proto")
+
+add_library( Common STATIC ${SRC} ${protos})
+target_link_libraries( Common ${PROTOBUF_LITE_LIBRARIES} Qt5::Core )

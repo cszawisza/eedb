@@ -126,7 +126,7 @@ void LoginDialog::doLogin()
 
 
     auto userMsg = loginReq->mutable_msguserreq();
-    userMsg->set_action(user::Action::Action_Login);
+//    userMsg->set_action(user::Action::Action_Login);
 
     auto login = userMsg->mutable_login();
     login->set_password(ui->userPassword->text().toStdString() );

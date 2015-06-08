@@ -6,7 +6,7 @@
 #include "pb_cpp/user.pb.h"
 
 namespace eedb {
-namespace parsers {
+namespace handlers {
 
 using namespace user;
 
@@ -21,12 +21,12 @@ public:
     void process();
 
 private:
-    void parse_add   (const MsgUserRequest_Add    &msg    );
-    void parse_login ( const MsgUserRequest_Login  &loginMsg  );
-    void parse_logout( const MsgUserRequest_Logout &logoutMsg );
-    void parse_modify( const MsgUserRequest_Modify &modifyMsg );
-    void parse_remove( const MsgUserRequest_Remove &delateMsg );
-    void parse_get   ( const MsgUserRequest_Get    &getMsg    );
+    void handle_add   (const MsgUserRequest_Add    &msg    );
+    void handle_login ( const MsgUserRequest_Login  &loginMsg  );
+    void handle_logout( const MsgUserRequest_Logout &logoutMsg );
+    void handle_modify( const MsgUserRequest_Modify &modifyMsg );
+    void handle_remove( const MsgUserRequest_Remove &delateMsg );
+    void handle_get   ( const MsgUserRequest_Get    &getMsg    );
 };
 
 }

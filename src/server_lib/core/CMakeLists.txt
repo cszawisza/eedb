@@ -1,9 +1,3 @@
-include_directories( ../ )
-include_directories( ../../common/messages )
-include_directories( sqlpp11_SOURCE_DIR )
-include_directories( ${sqlpp11-connector-postgresql_SOURCE_DIR}/include )
-include_directories( ${auto_generated_SOURCE_DIR}/protbuf)
-
 set(SOURCES
     acl.cpp
     clientcache.cpp
@@ -28,6 +22,6 @@ set(HEADERS
 )
 
 add_library(Core STATIC ${SOURCES} ${HEADERS})
-target_link_libraries(Core sqlpp-postgresql Messages ${PROTOBUF_LITE_LIBRARY})
+target_link_libraries(Core Common sqlpp-postgresql ${PROTOBUF_LITE_LIBRARY})
 qt5_use_modules(Core Core WebSockets)
 

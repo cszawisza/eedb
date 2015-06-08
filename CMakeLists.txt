@@ -1,6 +1,7 @@
 project(eedb)
 
-add_definitions(-std=c++11 -Wswitch )
+add_definitions(-std=c++11 -Wswitch  )
+#SET(GCC_COVERAGE_LINK_FLAGS    -flto)
 
 cmake_minimum_required(VERSION 3.0.2)
 #aux_source_directory(. SRC_LIST)
