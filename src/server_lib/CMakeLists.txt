@@ -4,8 +4,7 @@ include_directories( ../ )
 include_directories( ${Common_SOURCE_DIR}/messages )
 include_directories( ${Common_SOURCE_DIR} )
 
-file(GLOB SCHEMA_SRC "sql_schema/*.h")
-
+file(GLOB SCHEMA_SRC "sql_schema/*.h" "sql_schema/*.sql")
 set(SOURCES
     main.cpp
 )

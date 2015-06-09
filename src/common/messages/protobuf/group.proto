@@ -4,10 +4,6 @@ package protbuf;
 import public "parameters.proto";
 import public "common.proto";
 
-// message GroupStats{
-//   optional uint32 totalElements=1;
-// }
-
 message MsgGroupRequest{
 // USER MESSAGE STRUCTURE 
 
@@ -31,19 +27,23 @@ message MsgGroupRequest{
   }
   
   message Get{
-    optional bool get_ids = 1 [default = true]; // parent and child
-    optional bool get_name = 2 [default = true];
-    optional bool get_description = 3 [default = false];
-    optional bool include_children = 4 [default = true];
     optional bool get_all_groups = 5 [default = true];
     repeated uint32 get_only = 6; // filter to those ID's
+    optional bool include_children = 4 [default = true];
+
+    optional bool get_ids = 1 [default = true]; // both parent and child
+    optional bool get_name = 2 [default = true];
+    optional bool get_description = 3;
+    optional bool get_statistics = 10;
+    optional bool get_image = 11;
+    optional bool get_file_list = 12;
   }
   
   message Remove{
     required uint32 group_id = 1;
     optional bool remove_children = 2 [default = false];
     optional bool remove_items = 3 [default = false];
-    optional bool only_hide = 4 [default = true];
+    optional bool only_hide = 4 [default = true]; // only sets goup as hidden
   }
   
   message Modify{

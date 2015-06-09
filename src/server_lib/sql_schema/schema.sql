@@ -64,12 +64,10 @@ create table t_privilege (
     primary key(c_role, c_who, c_action, c_type, c_related_table, c_related_uid)
 );
 
-
-
-CREATE INDEX t_privilege_index       ON t_privilege ( c_action, c_type);
-CREATE INDEX privilege_related_table ON t_privilege (  c_related_table );
-CREATE INDEX privilege_action        ON t_privilege (  c_action );
-CREATE INDEX privilege_type 	     ON t_privilege (  c_type );
+CREATE INDEX t_privilege_index       ON t_privilege ( c_action, c_type) WITH ( FILLFACTOR=100 );
+CREATE INDEX privilege_related_table ON t_privilege ( c_related_table ) WITH ( FILLFACTOR=100 );
+CREATE INDEX privilege_action        ON t_privilege ( c_action )        WITH ( FILLFACTOR=100 );
+CREATE INDEX privilege_type 	     ON t_privilege ( c_type )          WITH ( FILLFACTOR=100 );
 
 
 COMMENT ON COLUMN t_privilege.c_role          IS 'specifies whether the privilege is granted to a user, a group, or in the case of an “object” privilege, the object’s owner or owner_group. A further special case, in my system, is “self.”';
@@ -79,26 +77,29 @@ COMMENT ON COLUMN t_privilege.c_type 	      IS 'specifies whether the privilege 
 COMMENT ON COLUMN t_privilege.c_related_table IS 'holds the name of the table to which the privilege applies. This is always required, though in the case of a “self” privilege it’s redundant because a “self” privilege always applies to the t_user table.';
 COMMENT ON COLUMN t_privilege.c_related_uid   IS 'stores the ID of the object to which the privilege applies, if it’s an object privilege. This has no meaning for table and global privileges, of course. The one applies to a table, not an object, and the second applies to all rows in a table, so an ID is immaterial. This is also not used for self privileges, because by definition a self privilege has to apply to the user requesting permission to do something.';
 
-CREATE TABLE users (
-    name VARCHAR(34) NOT NULL UNIQUE,
-    password CHAR(128) NOT NULL,
-    salt CHAR(128) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    phonenumber VARCHAR(32),
-    address TEXT,
-    description TEXT,
-    registrationdate TIMESTAMP DEFAULT now() NOT NULL,
-    lastlogin TIMESTAMP,
-    config json DEFAULT ('{}'),
-    CONSTRAINT users_pkey PRIMARY KEY (c_uid)
+CREATE TABLE t_users (
+    c_name VARCHAR(60)      NOT NULL UNIQUE,
+    c_password CHAR(128)    NOT NULL,
+    c_salt CHAR(128)        NOT NULL,
+    c_email VARCHAR(255)    NOT NULL UNIQUE,
+    c_phonenumber VARCHAR(32),
+    c_address TEXT,
+    c_description TEXT,
+    c_registrationdate TIMESTAMP DEFAULT now() NOT NULL,
+    c_lastlogin TIMESTAMP,
+    c_config json DEFAULT ('{}'),
+    CONSTRAINT t_users_pkey PRIMARY KEY (c_uid),
+    CONSTRAINT t_users_name_check CHECK( length(c_name) >= 2 ),
+    CONSTRAINT t_users_proper_email CHECK ( c_email ~* '^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+[.][A-Za-z]+$' )
+
 ) INHERITS (t_acl);
 
 
-CREATE TABLE files (
-    name VARCHAR(255) NOT NULL,
-    size BIGINT NOT NULL,
-    sha CHAR(512) NOT NULL,
-    mimetype VARCHAR(255) NOT NULL,
+CREATE TABLE t_files (
+    c_name VARCHAR(255) NOT NULL,
+    c_size BIGINT NOT NULL,
+    c_sha CHAR(512) NOT NULL,
+    c_mimetype VARCHAR(255) NOT NULL,
     CONSTRAINT files_pkey PRIMARY KEY (c_uid),
     CONSTRAINT fileownereowner_fk FOREIGN KEY (c_owner) REFERENCES users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (t_acl);
@@ -110,11 +111,14 @@ CREATE TABLE categories(
     creationDate TIMESTAMP DEFAULT NOW() NOT NULL,
     allow_recipe BOOLEAN DEFAULT false NOT NULL,
     allow_items BOOLEAN DEFAULT true NOT NULL,
+    hide BOOLEAN DEFAULT false,
     CONSTRAINT categories_pkey PRIMARY KEY (c_uid),
     CONSTRAINT categorieowner_fk FOREIGN KEY (c_owner) REFERENCES users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (t_acl);
 
-CREATE UNIQUE INDEX categories_unique ON categories ( parent_category_id, name );
+COMMENT ON COLUMN categories.hide IS 'hide group from user, when true'
+CREATE UNIQUE INDEX categories_unique_names  ON categories ( parent_category_id, name );
+CREATE UNIQUE INDEX categories_unique_parent ON categories ( parent_category_id, c_uid );
 
 CREATE TABLE category_files (
     category_id INTEGER NOT NULL REFERENCES categories,
@@ -194,7 +198,7 @@ create table In_Stock(
     amount numeric(10,10) NOT NULL DEFAULT 0
 );
 
-COMMENT ON TABLE In_Stock IS '';
+COMMENT ON TABLE In_Stock IS 'Table contains information about items being available in storage';
 
 create table Storage_Operations(
     name varchar(50) not null unique,
@@ -211,12 +215,14 @@ create table Storage_History(
     date timestamp not null default now()
 );
 
--- CREATE INDEX users_acl_index 		ON users 	(c_uid, c_owner, c_group, c_unixperms, c_status) WITH ( FILLFACTOR=100 );
+
+
+-- CREATE INDEX users_acl_index 	ON users 	(c_uid, c_owner, c_group, c_unixperms, c_status) WITH ( FILLFACTOR=100 );
 -- CREATE INDEX categories_acl_index 	ON categories 	(c_uid, c_owner, c_group, c_unixperms, c_status) WITH ( FILLFACTOR=100 );
 -- CREATE INDEX storages_acl_index 	ON storages 	(c_uid, c_owner, c_group, c_unixperms, c_status) WITH ( FILLFACTOR=100 );
--- CREATE INDEX files_acl_index 		ON files 	(c_uid, c_owner, c_group, c_unixperms, c_status) WITH ( FILLFACTOR=100 );
+-- CREATE INDEX files_acl_index 	ON files 	(c_uid, c_owner, c_group, c_unixperms, c_status) WITH ( FILLFACTOR=100 );
 -- CREATE INDEX packages_acl_index 	ON packages 	(c_uid, c_owner, c_group, c_unixperms, c_status) WITH ( FILLFACTOR=100 );
--- CREATE INDEX items_acl_index 		ON items 	(c_uid, c_owner, c_group, c_unixperms, c_status) WITH ( FILLFACTOR=100 );
+-- CREATE INDEX items_acl_index 	ON items 	(c_uid, c_owner, c_group, c_unixperms, c_status) WITH ( FILLFACTOR=100 );
 -- CREATE INDEX parameters_acl_index 	ON parameters 	(c_uid, c_owner, c_group, c_unixperms, c_status) WITH ( FILLFACTOR=100 );
 
 
@@ -254,7 +260,6 @@ BEGIN
 
 insert into t_implemented_action
         (c_table     ,c_action, c_status) values
-        ('users'     , 'register', 0),
         ('users'     , 'login' ,   0),
         ('users'     , 'update',   1),
         ('users'     , 'delete',   1),
@@ -478,7 +483,7 @@ or (pr.c_role = ''self'' and ' || userid || ' = obj.c_uid and '''|| m_tab || '''
 END $$
 LANGUAGE plpgsql  ;
 
--- insert usefool data into dataase
+-- insert needed data into dataase
 
 DO
 $$
