@@ -26,49 +26,58 @@ drop table if exists item_files cascade;
 drop table if exists category_files cascade;
 
 create table t_action (
-    c_title           varchar(100) not null primary key,
-    c_apply_object    boolean      not null
+    c_title           text      not null primary key,
+    c_apply_object    boolean   not null
+    CONSTRAINT action_title_length CHECK( length(c_title) >= 3 AND length(c_title) < 100 )
 );
+COMMENT ON COLUMN t_action.c_title          IS 'column contains name of action';
+COMMENT ON COLUMN t_action.c_apply_object   IS 'column specifies whether an action applies to objects or tables. Certain actions, like “create,” apply only to tables. I find the system is easier to manage if I choose my actions so they can only apply to one or the other, not both.';
 CREATE INDEX t_action_apply_object ON t_action (  c_apply_object );
 
-create table t_status (
-    c_uid             int not null primary key,
-    c_name            varchar(100) not null
-);
 
-COMMENT ON COLUMN t_action.c_apply_object   IS 'column specifies whether an action applies to objects or tables. Certain actions, like “create,” apply only to tables. I find the system is easier to manage if I choose my actions so they can only apply to one or the other, not both.';
-COMMENT ON COLUMN t_status.c_name           IS 'column contains name of status for rest of application';
+create table t_status (
+    c_name            text   not null  primary key,
+    CONSTRAINT status_title_length CHECK( length(c_name) >= 3 AND length(c_name) < 100 )
+);
+COMMENT ON COLUMN t_status.c_name   IS 'column contains name of status for rest of application';
 
 create table t_acl (
     c_uid             serial not null primary key,
     c_owner           int not null default 1,
     c_group           int not null default 1,
     c_unixperms       int not null default unix_to_numeric('764'),
-    c_status          int not null default 0
+    c_status          text not null references t_status default 'normal'
 );
+
+COMMENT ON COLUMN t_acl.c_uid       IS '';
+COMMENT ON COLUMN t_acl.c_owner     IS '';
+COMMENT ON COLUMN t_acl.c_group     IS '';
+COMMENT ON COLUMN t_acl.c_unixperms IS '';
+COMMENT ON COLUMN t_acl.c_status    IS '';
+
 
 create table t_implemented_action (
     c_table           varchar(100)    not null,
-    c_action          varchar(100)    not null,
-    c_status          int             not null default 0, -- TODO change to t_status reference
+    c_action          text            not null references t_action ON DELETE RESTRICT,
+    c_status          text            not null references t_status ON DELETE RESTRICT,
     primary key (c_table, c_action)
 );
 
+
 create table t_privilege (
-    c_role            varchar(30)     not null,
+    c_role            varchar(30)     not null, -- TODO change to enum
     c_who             int             not null default 0,
-    c_action          varchar(100)    not null references t_action,
+    c_action          text            not null references t_action ON DELETE RESTRICT,
     c_type            varchar(30)     not null, -- TODO change in future to enum
     c_related_table   varchar(100)    not null,
     c_related_uid     int             not null default 0,
     primary key(c_role, c_who, c_action, c_type, c_related_table, c_related_uid)
 );
 
-CREATE INDEX t_privilege_index       ON t_privilege ( c_action, c_type) WITH ( FILLFACTOR=100 );
-CREATE INDEX privilege_related_table ON t_privilege ( c_related_table ) WITH ( FILLFACTOR=100 );
-CREATE INDEX privilege_action        ON t_privilege ( c_action )        WITH ( FILLFACTOR=100 );
-CREATE INDEX privilege_type 	     ON t_privilege ( c_type )          WITH ( FILLFACTOR=100 );
-
+CREATE INDEX t_privilege_index         ON t_privilege ( c_action, c_type) WITH ( FILLFACTOR=100 );
+CREATE INDEX t_privilege_related_table ON t_privilege ( c_related_table ) WITH ( FILLFACTOR=100 );
+CREATE INDEX t_privilege_action        ON t_privilege ( c_action )        WITH ( FILLFACTOR=100 );
+CREATE INDEX t_privilege_type 	       ON t_privilege ( c_type )          WITH ( FILLFACTOR=100 );
 
 COMMENT ON COLUMN t_privilege.c_role          IS 'specifies whether the privilege is granted to a user, a group, or in the case of an “object” privilege, the object’s owner or owner_group. A further special case, in my system, is “self.”';
 COMMENT ON COLUMN t_privilege.c_who           IS 'is needed if c_role is user or group, and holds the user or group ID to which the privilege is granted.';
@@ -76,6 +85,7 @@ COMMENT ON COLUMN t_privilege.c_action 	      IS 'is the action the privilege gr
 COMMENT ON COLUMN t_privilege.c_type 	      IS 'specifies whether the privilege is “object”, “table”, or “global.”';
 COMMENT ON COLUMN t_privilege.c_related_table IS 'holds the name of the table to which the privilege applies. This is always required, though in the case of a “self” privilege it’s redundant because a “self” privilege always applies to the t_user table.';
 COMMENT ON COLUMN t_privilege.c_related_uid   IS 'stores the ID of the object to which the privilege applies, if it’s an object privilege. This has no meaning for table and global privileges, of course. The one applies to a table, not an object, and the second applies to all rows in a table, so an ID is immaterial. This is also not used for self privileges, because by definition a self privilege has to apply to the user requesting permission to do something.';
+
 
 CREATE TABLE t_users (
     c_name VARCHAR(60)      NOT NULL UNIQUE,
@@ -100,29 +110,31 @@ CREATE TABLE t_files (
     c_size BIGINT NOT NULL,
     c_sha CHAR(512) NOT NULL,
     c_mimetype VARCHAR(255) NOT NULL,
-    CONSTRAINT files_pkey PRIMARY KEY (c_uid),
-    CONSTRAINT fileownereowner_fk FOREIGN KEY (c_owner) REFERENCES users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
+    CONSTRAINT t_files_pkey PRIMARY KEY (c_uid),
+    CONSTRAINT t_fileownereowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (t_acl);
 
-CREATE TABLE categories(
-    parent_category_id INTEGER REFERENCES categories(c_uid),
-    name VARCHAR(64) NOT NULL,
-    description TEXT,
-    creationDate TIMESTAMP DEFAULT NOW() NOT NULL,
-    allow_recipe BOOLEAN DEFAULT false NOT NULL,
-    allow_items BOOLEAN DEFAULT true NOT NULL,
-    hide BOOLEAN DEFAULT false,
-    CONSTRAINT categories_pkey PRIMARY KEY (c_uid),
-    CONSTRAINT categorieowner_fk FOREIGN KEY (c_owner) REFERENCES users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
+CREATE TABLE t_categories(
+    c_parent_category_id INTEGER REFERENCES t_categories(c_uid),
+    c_name VARCHAR(64) NOT NULL,
+    c_description TEXT,
+    c_creationDate TIMESTAMP DEFAULT NOW() NOT NULL,
+    c_allow_recipe BOOLEAN DEFAULT false NOT NULL,
+    c_allow_items BOOLEAN DEFAULT true NOT NULL,
+    c_hide BOOLEAN DEFAULT false,
+    CONSTRAINT t_categories_pkey PRIMARY KEY (c_uid),
+    CONSTRAINT t_categorieowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (t_acl);
 
-COMMENT ON COLUMN categories.hide IS 'hide group from user, when true'
-CREATE UNIQUE INDEX categories_unique_names  ON categories ( parent_category_id, name );
-CREATE UNIQUE INDEX categories_unique_parent ON categories ( parent_category_id, c_uid );
+
+COMMENT ON COLUMN t_categories.c_hide IS 'hide group from user, when true';
+
+CREATE UNIQUE INDEX t_categories_unique_names  ON t_categories ( c_parent_category_id, c_name );
+CREATE UNIQUE INDEX t_categories_unique_parent ON t_categories ( c_parent_category_id, c_uid );
 
 CREATE TABLE category_files (
-    category_id INTEGER NOT NULL REFERENCES categories,
-    file_id INTEGER NOT NULL REFERENCES files,
+    category_id INTEGER NOT NULL REFERENCES t_categories,
+    file_id INTEGER NOT NULL REFERENCES t_files,
     CONSTRAINT category_files_pk PRIMARY KEY (category_id, file_id)
 );
 
@@ -136,7 +148,7 @@ CREATE TABLE packages (
 
 CREATE TABLE packages_files (
     package_id INTEGER NOT NULL REFERENCES packages,
-    file_id INTEGER NOT NULL REFERENCES files,
+    file_id INTEGER NOT NULL REFERENCES t_files,
     CONSTRAINT packages_files_pk PRIMARY KEY (package_id, file_id)
 );
 
@@ -147,14 +159,14 @@ CREATE TABLE parameters (
     description TEXT,
     CONSTRAINT parameters_pkey PRIMARY KEY (c_uid),
     c_unixperms int not null default unix_to_numeric('766'),
-    CONSTRAINT parametereowner_fk FOREIGN KEY (c_owner) REFERENCES users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
+    CONSTRAINT parametereowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (t_acl);
 
 CREATE UNIQUE INDEX parameters_unique ON public.parameters ( name, symbol );
 
 CREATE TABLE items (
     package_id INTEGER NOT NULL REFERENCES packages(c_uid),
-    category_id INTEGER NOT NULL REFERENCES categories(c_uid),
+    category_id INTEGER NOT NULL REFERENCES t_categories(c_uid),
     name VARCHAR(255) NOT NULL,
     symbol VARCHAR(255) NOT NULL,
     namespace VARCHAR(64) DEFAULT 'std' NOT NULL,
@@ -163,33 +175,33 @@ CREATE TABLE items (
     parameters json NOT NULL,
     description TEXT,
     CONSTRAINT items_pkey PRIMARY KEY (c_uid),
-    CONSTRAINT itemowner_fk FOREIGN KEY (c_owner) REFERENCES users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
+    CONSTRAINT itemowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (t_acl);
 
 CREATE UNIQUE INDEX items_unique ON items(name, symbol, namespace);
 
 CREATE TABLE Item_files (
     item_id INTEGER NOT NULL REFERENCES items,
-    file_id INTEGER NOT NULL REFERENCES files,
+    file_id INTEGER NOT NULL REFERENCES t_files,
     CONSTRAINT items_files_pk PRIMARY KEY (item_id, file_id)
 );
 
 CREATE TABLE Storages(
     name VARCHAR(255) NOT NULL UNIQUE,
     CONSTRAINT storages_pkey PRIMARY KEY (c_uid),
-    CONSTRAINT storageowner_fk FOREIGN KEY (c_owner) REFERENCES users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
+    CONSTRAINT storageowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (t_acl);
 
 CREATE TABLE User_Storages(
     storage_id INTEGER NOT NULL REFERENCES Storages,
-    user_id INTEGER NOT NULL REFERENCES Users,
+    user_id INTEGER NOT NULL REFERENCES t_users,
     CONSTRAINT User_Storages_pk PRIMARY KEY (storage_id, user_id)
 );
 
 CREATE TABLE Storage_Racks(
     storage_id INTEGER NOT NULL REFERENCES Storages,
     name varchar(100) NOT NULL UNIQUE,
-    CONSTRAINT rackOwner_fk FOREIGN KEY (c_owner) REFERENCES users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
+    CONSTRAINT rackOwner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (t_acl);
 
 create table In_Stock(
@@ -203,7 +215,7 @@ COMMENT ON TABLE In_Stock IS 'Table contains information about items being avail
 create table Storage_Operations(
     name varchar(50) not null unique,
     CONSTRAINT Storage_Operations_pkey PRIMARY KEY (c_uid),
-    CONSTRAINT OperationOwner_fk FOREIGN KEY (c_owner) REFERENCES users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
+    CONSTRAINT OperationOwner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS(t_acl);
 
 create table Storage_History(
@@ -211,7 +223,7 @@ create table Storage_History(
     storage_to_id INTEGER NOT NULL REFERENCES Storages,
     operation_id INTEGER NOT NULL REFERENCES Storage_Operations,
     amount NUMERIC(10,10),
-    
+
     date timestamp not null default now()
 );
 
@@ -231,16 +243,16 @@ DECLARE rootuserid int;
 DECLARE testuserid int;
 BEGIN
   -- root user MUST be insert as first in the whole database!
-  insert into users (name, password, email) values('ROOT','pass','email1@ww.ww') returning c_uid into rootuserid;
-  insert into categories(parent_category_id, name, allow_recipe, allow_items, c_owner) values(NULL, 'Root', false, false, rootuserid);
+  insert into t_users (c_name, c_password, c_salt, c_email) values('ROOT','pass','salt', 'email1@ww.ww') returning c_uid into rootuserid;
+  insert into t_categories(c_parent_category_id, c_name, c_allow_recipe, c_allow_items, c_owner) values(NULL, 'Root', false, false, rootuserid);
 
 
 
 -- can be deleted later, only for testing
-  insert into users (name, password, email) values
-  ('test_user','pass','test_email@ww.ww') returning c_uid into testuserid;
-  insert into users (name, password, email) values
-  ('test_user2','pass2','test_email2@ww.ww');
+  insert into t_users (c_name, c_password, c_salt, c_email) values
+  ('test_user','pass','salt','test_email@ww.ww') returning c_uid into testuserid;
+  insert into t_users (c_name, c_password, c_salt, c_email) values
+  ('test_user2','pass2','salt','test_email2@ww.ww');
 
   insert into t_action(c_title, c_apply_object) values
         ('register'     , true),
@@ -252,94 +264,30 @@ BEGIN
         ('activate'     , true),
         ('passwd_update', true),
         ('list_all'     , false);
-        
+
   insert into packages ( name ) values ('dummy');
   insert into t_privilege
         (c_role,  c_who     , c_action      , c_type    , c_related_table   , c_related_uid) values
         ('self' , 0         ,'passwd_update','object'   ,'users'            , 0);
 
-insert into t_implemented_action
-        (c_table     ,c_action, c_status) values
-        ('users'     , 'login' ,   0),
-        ('users'     , 'update',   1),
-        ('users'     , 'delete',   1),
+  insert into t_status (c_name) values
+        ('normal'),
+        ('user_signed_out'),
+        ('user_signed_in');
 
-        ('parameters', 'insert',   1),
-        ('parameters', 'update',   1),
+  insert into t_implemented_action
+        (c_table       ,c_action , c_status) values
+        ('t_users'     , 'login' , 'normal' ),
+        ('t_users'     , 'update', 'normal'),
 
-        ('files'     , 'activate', 2);
+        ('parameters'  , 'update', 'normal' ),
+
+        ('t_files'     , 'activate', 'normal');
 
 insert into items (c_unixperms, c_owner, package_id, category_id, name, symbol, update, parameters) values
-	(unix_to_numeric('400'), 1,5,2,'item_name','symbol',now(),'{}');
+        (unix_to_numeric('400'), 1,5,2,'item_name','symbol',now(),'{}');
 
 END $$;
-
-CREATE
-  OR REPLACE FUNCTION get_user_perrmssions_for_object (
-  userid INT
-  ,objectid INT
-  )
-RETURNS setof VARCHAR AS $$
-
-DECLARE usergroups INT;
-DECLARE groupsroot INT;
-DECLARE permissions_owner_read INT;
-DECLARE permissions_owner_write INT;
-DECLARE permissions_owner_delete INT;
-DECLARE permissions_group_read INT;
-DECLARE permissions_group_write INT;
-DECLARE permissions_group_delete INT;
-DECLARE permissions_other_read INT;
-DECLARE permissions_other_write INT;
-DECLARE permissions_other_delete INT;
-DECLARE tablename VARCHAR(255);
-
-BEGIN
-  SELECT c_group
-  FROM users
-  WHERE c_uid = userid
-  INTO usergroups;
-
-  SELECT tableoid::regclass::TEXT
-  FROM t_acl
-  WHERE c_uid = objectid
-  INTO tablename;
-  
-  groupsroot := 1;
-  permissions_owner_read := 256;
-  permissions_owner_write := 128;
-  permissions_owner_delete:= 64;
-  permissions_group_read:= 32;
-  permissions_group_write:= 16;
-  permissions_group_delete:= 8;
-  permissions_other_read:= 4;
-  permissions_other_write:= 2;
-  permissions_other_delete:= 1;
-
-  return query 
-      SELECT DISTINCT ac.c_title
-      FROM t_action AS ac
-      INNER JOIN t_acl AS obj ON obj.c_uid = objectid
-      INNER JOIN t_implemented_action AS ia ON ia.c_action = ac.c_title
-        AND ia.c_table = tablename::TEXT
-        AND ( (ia.c_status = 0) OR (ia.c_status & obj.c_status <> 0) )
-      LEFT JOIN t_privilege AS pr ON pr.c_related_table = c_table
-        AND pr.c_action = ac.c_title
-        AND (( pr.c_type = 'object' AND pr.c_related_uid = objectid ) OR pr.c_type = 'global' OR ( pr.c_role = 'self' AND userid = objectid AND tablename = 'users' ))
-        WHERE ac.c_apply_object
-        AND (
-        (usergroups & groupsroot <> 0)
-        OR ( ac.c_title = 'read'   AND ((obj.c_unixperms & permissions_other_read <> 0)  OR ((obj.c_unixperms & permissions_owner_read <> 0)  AND obj.c_owner = userid ) OR ((obj.c_unixperms & permissions_group_read <> 0)  AND (usergroups & obj.c_group <> 0))))
-        OR ( ac.c_title = 'write'  AND ((obj.c_unixperms & permissions_other_write <> 0) OR ((obj.c_unixperms & permissions_owner_write <> 0) AND obj.c_owner = userid ) OR ((obj.c_unixperms & permissions_group_write <> 0) AND (usergroups & obj.c_group <> 0))))
-        OR ( ac.c_title = 'delete' AND ((obj.c_unixperms & permissions_other_delete <> 0)OR ((obj.c_unixperms & permissions_owner_delete <> 0)AND obj.c_owner = userid ) OR ((obj.c_unixperms & permissions_group_delete <> 0)AND (usergroups & obj.c_group <> 0))))
-        OR ( pr.c_role = 'user'        AND pr.c_who = userid )
-        OR ( pr.c_role = 'owner'       AND obj.c_owner = userid )
-        OR ( pr.c_role = 'owner_group' AND (obj.c_group & usergroups <> 0))
-        OR ( pr.c_role = 'group'       AND (pr.c_who & usergroups <> 0))
-        )
-        OR pr.c_role = 'self';
-END $$
-LANGUAGE plpgsql;
 
 CREATE
   OR REPLACE FUNCTION get_user_perrmssions_for_table (
@@ -356,8 +304,8 @@ BEGIN
   WHERE c_uid = userid
   INTO usergroups;
 
-return query 
-  
+return query
+
       SELECT ac.c_title
       FROM t_action AS ac
       -- Privileges that apply to the table and grant the given action
@@ -399,7 +347,7 @@ BEGIN
   FROM users
   WHERE c_uid = userid
   INTO usergroups;
-  
+
   groupsroot := 1;
 
   FOR
@@ -407,7 +355,7 @@ BEGIN
 execute 'select distinct obj.c_uid
 from ' || m_tab ||' as obj
 inner join t_implemented_action as ia
-on ia.c_table ='''|| m_tab || ''' 
+on ia.c_table ='''|| m_tab || '''
 and ia.c_action = '''|| m_action ||'''
 and ((ia.c_status = 0) or (ia.c_status & obj.c_status <> 0))
 inner join t_action as ac
@@ -418,7 +366,7 @@ and pr.c_action =  '''|| m_action ||'''
 and (
 (pr.c_type = ''object'' and pr.c_related_uid = obj.c_uid)
 or pr.c_type = ''global''
-or (pr.c_role = ''self'' and ' || userid || ' = obj.c_uid and '''|| m_tab || ''' = ''users'')) 
+or (pr.c_role = ''self'' and ' || userid || ' = obj.c_uid and '''|| m_tab || ''' = ''users''))
   WHERE ac.c_apply_object
         AND (
           (' || usergroups || ' & ' || groupsroot || ' <> 0)
@@ -475,8 +423,8 @@ or (pr.c_role = ''self'' and ' || userid || ' = obj.c_uid and '''|| m_tab || '''
             AND (pr.c_who & ' || usergroups || ' <> 0)
             )
           )
-        OR pr.c_role = ''self'' ' 
-        
+        OR pr.c_role = ''self'' '
+
   LOOP
   RETURN NEXT r;
   end loop;
