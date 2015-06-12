@@ -193,7 +193,6 @@ void eedb::handlers::User::handle_login(const user::MsgUserRequest_Login &loginM
             }else{
                 add_resp(true, LoginDeny );
                 cache()->userStatus().setStatus(UserStatus::logged);
-
             }
         }
     }

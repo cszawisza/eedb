@@ -5,16 +5,16 @@ import public "stats.proto";
 import public "common.proto";
 
 // ENUM VALUES
-enum Action{
-  Action_Add = 1;
-  Action_Login = 2;
-  Action_Logout = 3;
-  Action_Remove = 4;
-  Action_Modify = 5;
-  Action_Get = 6;
-  Action_PasswdChange = 7;
-}
-  
+
+// enum Action{
+//   Action_Add = 1;
+//   Action_Login = 2;
+//   Action_Logout = 3;
+//   Action_Remove = 4;
+//   Action_Modify = 5;
+//   Action_Get = 6;
+// }
+
 enum Replay{
   LoginPass = 1;
   LoginDeny = 2;
