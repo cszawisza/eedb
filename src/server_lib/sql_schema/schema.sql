@@ -13,31 +13,39 @@ BEGIN
 END $$
 LANGUAGE plpgsql IMMUTABLE COST 1;
 
-drop table if exists t_status cascade;
-drop table if exists t_action cascade;
-drop table if exists t_acl cascade;
-drop table if exists t_implemented_action;
+-- update t_users set c_password = crypt('text', gen_salt('bf')) where c_uid = 1;
+-- select (c_password = crypt('text', c_password)) AS pswmatch FROM t_users where c_uid = 1;
+
+drop table if exists t_storage_history;
+drop table if exists t_storage_operations;
+drop table if exists t_in_stock;
+drop table if exists t_storage_racks;
+drop table if exists t_user_storages;
+drop table if exists t_storages;
+drop table if exists t_item_files;
+drop table if exists t_items;
+drop table if exists t_parameters;
+drop table if exists t_packages_files;
+drop table if exists t_packages;
+drop table if exists t_category_files;
+drop table if exists t_categories;
+drop table if exists t_files;
+drop table if exists t_users;
 drop table if exists t_privilege;
-drop table if exists User_Storages;
-drop table if exists Storage_History;
-drop table if exists In_Stock;
-drop table if exists packages_files cascade;
-drop table if exists item_files cascade;
-drop table if exists category_files cascade;
+drop table if exists t_implemented_action;
+drop table if exists t_acl;
+drop table if exists t_status;
+drop table if exists t_action;
 
 create table t_action (
-    c_title           text      not null primary key,
-    c_apply_object    boolean   not null
-    CONSTRAINT action_title_length CHECK( length(c_title) >= 3 AND length(c_title) < 100 )
+    c_title           text      NOT NULL PRIMARY KEY CHECK( length(c_title) >= 3 AND length(c_title) < 100 ),
+    c_apply_object    boolean   NOT NULL
 );
 COMMENT ON COLUMN t_action.c_title          IS 'column contains name of action';
 COMMENT ON COLUMN t_action.c_apply_object   IS 'column specifies whether an action applies to objects or tables. Certain actions, like “create,” apply only to tables. I find the system is easier to manage if I choose my actions so they can only apply to one or the other, not both.';
-CREATE INDEX t_action_apply_object ON t_action (  c_apply_object );
-
 
 create table t_status (
-    c_name            text   not null  primary key,
-    CONSTRAINT status_title_length CHECK( length(c_name) >= 3 AND length(c_name) < 100 )
+    c_name            text   NOT NULL PRIMARY KEY CHECK( length(c_name) >= 3 AND length(c_name) < 100 )
 );
 COMMENT ON COLUMN t_status.c_name   IS 'column contains name of status for rest of application';
 
@@ -49,17 +57,17 @@ create table t_acl (
     c_status          text not null references t_status default 'normal'
 );
 
-COMMENT ON COLUMN t_acl.c_uid       IS '';
-COMMENT ON COLUMN t_acl.c_owner     IS '';
-COMMENT ON COLUMN t_acl.c_group     IS '';
-COMMENT ON COLUMN t_acl.c_unixperms IS '';
-COMMENT ON COLUMN t_acl.c_status    IS '';
+COMMENT ON COLUMN t_acl.c_uid       IS 'unique uid for all objects in database';
+COMMENT ON COLUMN t_acl.c_owner     IS 'uid of object''s owner';
+COMMENT ON COLUMN t_acl.c_group     IS 'groups of object';
+COMMENT ON COLUMN t_acl.c_unixperms IS 'Unixpermissions';
+COMMENT ON COLUMN t_acl.c_status    IS 'status in which object is in (login, logout, removed etc)';
 
 
 create table t_implemented_action (
-    c_table           varchar(100)    not null,
-    c_action          text            not null references t_action ON DELETE RESTRICT,
-    c_status          text            not null references t_status ON DELETE RESTRICT,
+    c_table     text    not null,
+    c_action    text    not null references t_action ON DELETE RESTRICT,
+    c_status    text    not null references t_status ON DELETE RESTRICT,
     primary key (c_table, c_action)
 );
 
@@ -88,40 +96,38 @@ COMMENT ON COLUMN t_privilege.c_related_uid   IS 'stores the ID of the object to
 
 
 CREATE TABLE t_users (
-    c_name VARCHAR(60)      NOT NULL UNIQUE,
-    c_password CHAR(128)    NOT NULL,
-    c_salt CHAR(128)        NOT NULL,
-    c_email VARCHAR(255)    NOT NULL UNIQUE,
-    c_phonenumber VARCHAR(32),
-    c_address TEXT,
-    c_description TEXT,
-    c_registrationdate TIMESTAMP DEFAULT now() NOT NULL,
-    c_lastlogin TIMESTAMP,
-    c_config json DEFAULT ('{}'),
-    CONSTRAINT t_users_pkey PRIMARY KEY (c_uid),
-    CONSTRAINT t_users_name_check CHECK( length(c_name) >= 2 ),
-    CONSTRAINT t_users_proper_email CHECK ( c_email ~* '^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+[.][A-Za-z]+$' )
-
+    c_name              VARCHAR(72)     NOT NULL UNIQUE CHECK( length(c_name) >= 2 ),
+    c_password          CHAR(128)       NOT NULL,
+    c_salt              CHAR(128)       NOT NULL,
+    c_email             VARCHAR(255)    NOT NULL UNIQUE CHECK ( c_email ~* '^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+[.][A-Za-z]+$' ) ,
+    c_phonenumber       VARCHAR(20),
+    c_address           TEXT            CHECK( length(c_address) <= 1000 ),
+    c_description       TEXT            CHECK( length(c_description) <= 100000),   -- max size of description set to
+    c_registrationdate  TIMESTAMP       DEFAULT now() NOT NULL,
+    c_lastlogin         TIMESTAMP       CHECK( c_lastlogin <= now() ),
+    c_badpasswd         INT             DEFAULT 0,
+    c_config            jsonb            DEFAULT ('{}'),
+    CONSTRAINT t_users_pkey         PRIMARY KEY (c_uid)
 ) INHERITS (t_acl);
 
 
 CREATE TABLE t_files (
-    c_name VARCHAR(255) NOT NULL,
-    c_size BIGINT NOT NULL,
-    c_sha CHAR(512) NOT NULL,
-    c_mimetype VARCHAR(255) NOT NULL,
+    c_name      TEXT    NOT NULL CHECK(length(c_name) < 4096 ),
+    c_size      BIGINT  NOT NULL,
+    c_sha       TEXT    NOT NULL CHECK(length(c_sha) < 512 ),
+    c_mimetype  TEXT    NOT NULL CHECK(length(c_mimetype) < 256 ),
     CONSTRAINT t_files_pkey PRIMARY KEY (c_uid),
     CONSTRAINT t_fileownereowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (t_acl);
 
 CREATE TABLE t_categories(
-    c_parent_category_id INTEGER REFERENCES t_categories(c_uid),
-    c_name VARCHAR(64) NOT NULL,
-    c_description TEXT,
-    c_creationDate TIMESTAMP DEFAULT NOW() NOT NULL,
-    c_allow_recipe BOOLEAN DEFAULT false NOT NULL,
-    c_allow_items BOOLEAN DEFAULT true NOT NULL,
-    c_hide BOOLEAN DEFAULT false,
+    c_parent_category_id    INTEGER     REFERENCES t_categories(c_uid),
+    c_name                  TEXT        NOT NULL CHECK(length(c_name) < 100 ),
+    c_description           TEXT        CHECK(length(c_description) < 100000 ),
+    c_creationDate          TIMESTAMP   DEFAULT NOW() NOT NULL,
+    c_allow_recipe          BOOLEAN     DEFAULT false NOT NULL,
+    c_allow_items           BOOLEAN     DEFAULT true NOT NULL,
+    c_hide                  BOOLEAN     DEFAULT false,
     CONSTRAINT t_categories_pkey PRIMARY KEY (c_uid),
     CONSTRAINT t_categorieowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (t_acl);
@@ -132,102 +138,101 @@ COMMENT ON COLUMN t_categories.c_hide IS 'hide group from user, when true';
 CREATE UNIQUE INDEX t_categories_unique_names  ON t_categories ( c_parent_category_id, c_name );
 CREATE UNIQUE INDEX t_categories_unique_parent ON t_categories ( c_parent_category_id, c_uid );
 
-CREATE TABLE category_files (
-    category_id INTEGER NOT NULL REFERENCES t_categories,
-    file_id INTEGER NOT NULL REFERENCES t_files,
-    CONSTRAINT category_files_pk PRIMARY KEY (category_id, file_id)
+CREATE TABLE t_category_files (
+    c_category_id INTEGER NOT NULL REFERENCES t_categories,
+    c_file_id INTEGER NOT NULL REFERENCES t_files,
+    CONSTRAINT category_files_pk PRIMARY KEY (c_category_id, c_file_id)
 );
 
-CREATE TABLE packages (
-    name VARCHAR(255) NOT NULL,
-    pinNr INTEGER,
-    mountType VARCHAR(32),
-    config json,
+CREATE TABLE t_packages (
+    c_name          TEXT NOT NULL CHECK(length(c_name) < 256 ),
+    c_pinNr         INTEGER,
+    c_mountType     TEXT NOT NULL CHECK(length(c_mountType) < 100 ), -- TODO move to seperate table?
+    c_config json,
     CONSTRAINT packages_pkey PRIMARY KEY (c_uid)
 ) INHERITS (t_acl);
 
-CREATE TABLE packages_files (
-    package_id INTEGER NOT NULL REFERENCES packages,
-    file_id INTEGER NOT NULL REFERENCES t_files,
-    CONSTRAINT packages_files_pk PRIMARY KEY (package_id, file_id)
+CREATE TABLE t_packages_files (
+    c_package_id INTEGER NOT NULL REFERENCES t_packages,
+    c_file_id INTEGER NOT NULL REFERENCES t_files,
+    CONSTRAINT packages_files_pk PRIMARY KEY (c_package_id, c_file_id)
 );
 
-CREATE TABLE parameters (
-    name VARCHAR(64) NOT NULL,
-    symbol VARCHAR(16),
-    config json NOT NULL DEFAULT ('{}'),
-    description TEXT,
-    CONSTRAINT parameters_pkey PRIMARY KEY (c_uid),
+CREATE TABLE t_parameters (
+    c_name VARCHAR(64) NOT NULL,
+    c_symbol VARCHAR(16),
+    c_config json NOT NULL DEFAULT ('{}'),
+    c_description TEXT,
     c_unixperms int not null default unix_to_numeric('766'),
-    CONSTRAINT parametereowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
+    CONSTRAINT t_parameters_pkey PRIMARY KEY (c_uid),
+    CONSTRAINT t_parametereowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (t_acl);
 
-CREATE UNIQUE INDEX parameters_unique ON public.parameters ( name, symbol );
+CREATE UNIQUE INDEX t_parameters_unique ON t_parameters ( c_name, c_symbol );
 
-CREATE TABLE items (
-    package_id INTEGER NOT NULL REFERENCES packages(c_uid),
-    category_id INTEGER NOT NULL REFERENCES t_categories(c_uid),
-    name VARCHAR(255) NOT NULL,
-    symbol VARCHAR(255) NOT NULL,
-    namespace VARCHAR(64) DEFAULT 'std' NOT NULL,
-    creationDate TIMESTAMP DEFAULT now() NOT NULL,
-    update TIMESTAMP NOT NULL,
-    parameters json NOT NULL,
-    description TEXT,
-    CONSTRAINT items_pkey PRIMARY KEY (c_uid),
-    CONSTRAINT itemowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
+CREATE TABLE t_items (
+    c_package_id    INTEGER NOT NULL REFERENCES t_packages(c_uid),
+    c_category_id   INTEGER NOT NULL REFERENCES t_categories(c_uid),
+    c_name          VARCHAR(255) NOT NULL,
+    c_symbol        VARCHAR(255) NOT NULL,
+    c_namespace     VARCHAR(64) DEFAULT 'std' NOT NULL,
+    c_creationDate  TIMESTAMP DEFAULT now() NOT NULL,
+    c_update        TIMESTAMP NOT NULL,
+    c_parameters    json NOT NULL,
+    c_description   TEXT,
+    CONSTRAINT t_items_pkey PRIMARY KEY (c_uid),
+    CONSTRAINT t_itemowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (t_acl);
 
-CREATE UNIQUE INDEX items_unique ON items(name, symbol, namespace);
+CREATE UNIQUE INDEX t_items_unique ON t_items(c_name, c_symbol, c_namespace);
 
-CREATE TABLE Item_files (
-    item_id INTEGER NOT NULL REFERENCES items,
-    file_id INTEGER NOT NULL REFERENCES t_files,
-    CONSTRAINT items_files_pk PRIMARY KEY (item_id, file_id)
+CREATE TABLE t_item_files (
+    c_item_id INTEGER NOT NULL REFERENCES t_items,
+    c_file_id INTEGER NOT NULL REFERENCES t_files,
+    CONSTRAINT t_items_files_pk PRIMARY KEY (c_item_id, c_file_id)
 );
 
-CREATE TABLE Storages(
-    name VARCHAR(255) NOT NULL UNIQUE,
-    CONSTRAINT storages_pkey PRIMARY KEY (c_uid),
-    CONSTRAINT storageowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
+CREATE TABLE t_storages(
+    c_name VARCHAR(255) NOT NULL UNIQUE,
+    -- creation date, other info
+    CONSTRAINT t_storages_pkey PRIMARY KEY (c_uid),
+    CONSTRAINT t_storageowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (t_acl);
 
-CREATE TABLE User_Storages(
-    storage_id INTEGER NOT NULL REFERENCES Storages,
-    user_id INTEGER NOT NULL REFERENCES t_users,
-    CONSTRAINT User_Storages_pk PRIMARY KEY (storage_id, user_id)
+CREATE TABLE t_user_storages(
+    c_storage_id INTEGER NOT NULL REFERENCES t_storages,
+    c_user_id INTEGER NOT NULL REFERENCES t_users,
+    CONSTRAINT tuser_storages_pk PRIMARY KEY (c_storage_id, c_user_id)
 );
 
-CREATE TABLE Storage_Racks(
-    storage_id INTEGER NOT NULL REFERENCES Storages,
-    name varchar(100) NOT NULL UNIQUE,
+CREATE TABLE t_storage_racks(
+    c_storage_id INTEGER NOT NULL REFERENCES t_storages,
+    c_name varchar(100) NOT NULL UNIQUE,
     CONSTRAINT rackOwner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (t_acl);
 
-create table In_Stock(
-    item_id INTEGER NOT NULL REFERENCES items,
-    storage_id INTEGER NOT NULL REFERENCES Storages,
-    amount numeric(10,10) NOT NULL DEFAULT 0
+create table t_in_stock(
+    c_item_id INTEGER NOT NULL REFERENCES t_items,
+    c_storage_id INTEGER NOT NULL REFERENCES t_storages,
+    c_amount numeric(10,10) NOT NULL DEFAULT 0
 );
 
-COMMENT ON TABLE In_Stock IS 'Table contains information about items being available in storage';
+COMMENT ON TABLE t_in_stock IS 'Table contains information about items being available in storage';
 
-create table Storage_Operations(
-    name varchar(50) not null unique,
-    CONSTRAINT Storage_Operations_pkey PRIMARY KEY (c_uid),
+create table t_storage_operations(
+    c_name varchar(50) not null unique,
+    CONSTRAINT t_storage_operations_pkey PRIMARY KEY (c_uid),
     CONSTRAINT OperationOwner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS(t_acl);
 
-create table Storage_History(
-    storage_from_id INTEGER NOT NULL REFERENCES Storages,
-    storage_to_id INTEGER NOT NULL REFERENCES Storages,
-    operation_id INTEGER NOT NULL REFERENCES Storage_Operations,
-    amount NUMERIC(10,10),
+create table t_storage_history(
+    c_storage_from_id INTEGER NOT NULL REFERENCES t_storages,
+    c_storage_to_id INTEGER NOT NULL REFERENCES t_storages,
+    c_operation_id INTEGER NOT NULL REFERENCES t_storage_Operations,
+    c_amount NUMERIC(10,10),
 
     date timestamp not null default now()
 );
-
-
 
 -- CREATE INDEX users_acl_index 	ON users 	(c_uid, c_owner, c_group, c_unixperms, c_status) WITH ( FILLFACTOR=100 );
 -- CREATE INDEX categories_acl_index 	ON categories 	(c_uid, c_owner, c_group, c_unixperms, c_status) WITH ( FILLFACTOR=100 );
@@ -243,10 +248,11 @@ DECLARE rootuserid int;
 DECLARE testuserid int;
 BEGIN
   -- root user MUST be insert as first in the whole database!
-  insert into t_users (c_name, c_password, c_salt, c_email) values('ROOT','pass','salt', 'email1@ww.ww') returning c_uid into rootuserid;
-  insert into t_categories(c_parent_category_id, c_name, c_allow_recipe, c_allow_items, c_owner) values(NULL, 'Root', false, false, rootuserid);
+  insert into t_users (c_name, c_password, c_salt, c_email)
+        values('ROOT','pass','salt', 'email1@ww.ww') returning c_uid into rootuserid;
 
-
+  insert into t_categories(c_parent_category_id, c_name, c_allow_recipe, c_allow_items, c_owner) values
+        (NULL, 'Root', false, false, rootuserid);
 
 -- can be deleted later, only for testing
   insert into t_users (c_name, c_password, c_salt, c_email) values
@@ -255,36 +261,25 @@ BEGIN
   ('test_user2','pass2','salt','test_email2@ww.ww');
 
   insert into t_action(c_title, c_apply_object) values
-        ('register'     , true),
         ('login'        , true),
-        ('update'       , true),
-
-        ('show'         , true),
-        ('join'         , true),
-        ('activate'     , true),
-        ('passwd_update', true),
-        ('list_all'     , false);
-
-  insert into packages ( name ) values ('dummy');
-  insert into t_privilege
-        (c_role,  c_who     , c_action      , c_type    , c_related_table   , c_related_uid) values
-        ('self' , 0         ,'passwd_update','object'   ,'users'            , 0);
+        ('update_passwd', true),
+        ('remove_user'  , true);
 
   insert into t_status (c_name) values
-        ('normal'),
-        ('user_signed_out'),
-        ('user_signed_in');
+        ('normal');
 
   insert into t_implemented_action
         (c_table       ,c_action , c_status) values
         ('t_users'     , 'login' , 'normal' ),
-        ('t_users'     , 'update', 'normal'),
+        ('t_users'     , 'update', 'normal' );
 
-        ('parameters'  , 'update', 'normal' ),
+  insert into t_privilege
+        (c_role,  c_who     , c_action      , c_type     , c_related_table   , c_related_uid) values
+        ('self' , 0         ,'update_passwd', 'object'   ,'t_users'          , 0);
 
-        ('t_files'     , 'activate', 'normal');
-
-insert into items (c_unixperms, c_owner, package_id, category_id, name, symbol, update, parameters) values
+  insert into packages ( name ) values
+        ('dummy');
+  insert into items (c_unixperms, c_owner, package_id, category_id, name, symbol, update, parameters) values
         (unix_to_numeric('400'), 1,5,2,'item_name','symbol',now(),'{}');
 
 END $$;

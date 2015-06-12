@@ -92,7 +92,8 @@ void eedb::handlers::User::handle_add(const user::MsgUserRequest_Add &msg)
             add_resp(true, UserAlreadyExists );
         }
         else{
-
+            ///TODO move password/salt hash generation to database
+            /// using http://www.postgresql.org/docs/9.4/static/pgcrypto.html
             PasswordHash passwd;
             passwd.setPassword( msg.password() );
 

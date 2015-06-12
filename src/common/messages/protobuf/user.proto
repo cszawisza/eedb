@@ -12,6 +12,7 @@ enum Action{
   Action_Remove = 4;
   Action_Modify = 5;
   Action_Get = 6;
+  Action_PasswdChange = 7;
 }
   
 enum Replay{
@@ -42,7 +43,8 @@ message MsgUserRequest{
     Logout logout = 4; 
     Remove remove = 5;
     Modify modify = 6;
-    Get  get = 7;
+    Get get = 7;
+    ChangePass = 8;
   }
  
 // INTERNAL MESSAGES ///////////////
@@ -84,12 +86,19 @@ message MsgUserRequest{
     optional bytes description = 5; 
     optional bytes avatar = 6; 
   }
+
   message Get {
     optional bool basic_data = 1;
     optional bool config = 2;
     optional bool stats = 3;
     optional bool permissions = 4;
     optional bool details = 5;
+  }
+
+  message ChangePasswd{
+    optional string old = 1;
+    optional string new = 2;
+    optional bool resetPasswd = 3;
   }
 }
 
