@@ -2,7 +2,7 @@
 
 #include "sqlpp11/sqlpp11.h"
 
-#include "sql_schema/users.h"
+#include "sql_schema/t_users.h"
 
 #include "utils/userconfig.h"
 #include "utils/hash_passwd.h"
@@ -11,14 +11,14 @@
 
 using eedb::utils::PasswordHash;
 
-schema::users u;
+schema::t_users u;
 
 template<typename T, typename C>
 void dynamic_cred( T &query, const C &cred){
     if( cred.has_name())
-        query.where.add( u.name == cred.name() );
+        query.where.add( u.c_name == cred.name() );
     else if( cred.has_email() )
-        query.where.add( u.email == cred.email() );
+        query.where.add( u.c_email == cred.email() );
     else
         query.where.add( u.c_uid == cred.id() );
 }
@@ -65,7 +65,8 @@ void eedb::handlers::User::handle_add(const user::MsgUserRequest_Add &msg)
     DatabaseConnectionProvider db(this);
     ///TODO validate email address
     ///TODO validate rest of fields (lengths)
-
+    Acl acl;
+    auto can_add = acl.getUserPermissions(u,1,1);
     if(cache()->userStatus().isLogged()){
         ///TODO check if user can add another user
     }
@@ -85,7 +86,7 @@ void eedb::handlers::User::handle_add(const user::MsgUserRequest_Add &msg)
 
         if( db(select(count(u.c_uid) )
               .from(u)
-              .where(u.name == det.name() || u.email == det.email() )
+              .where(u.c_name == det.name() || u.c_email == det.email() )
 //              .group_by( u.c_uid )
               ).front().count > 0)
         {
@@ -100,14 +101,14 @@ void eedb::handlers::User::handle_add(const user::MsgUserRequest_Add &msg)
             eedb::utils::UserConfig userConfig( conf );
             auto query = dynamic_insert_into(db.connection(), u)
                     .dynamic_set(
-                        u.name = parameter(u.name),
-                        u.email = parameter(u.email),
-                        u.password = passwd.hash(),
-                        u.salt = passwd.salt(),
-                        u.address = parameter(u.address),
-                        u.phonenumber = parameter(u.phonenumber),
-                        u.description = parameter(u.description),
-                        u.config = userConfig.toStdString() // must be a proper JSON document no need to parametrize
+                        u.c_name = parameter(u.c_name),
+                        u.c_email = parameter(u.c_email),
+                        u.c_password = passwd.hash(),
+                        u.c_salt = passwd.salt(),
+                        u.c_address = parameter(u.c_address),
+                        u.c_phonenumber = parameter(u.c_phonenumber),
+                        u.c_description = parameter(u.c_description),
+                        u.c_config = userConfig.toStdString() // must be a proper JSON document no need to parametrize
                     );
 
             ///TODO save avatar image
@@ -116,15 +117,15 @@ void eedb::handlers::User::handle_add(const user::MsgUserRequest_Add &msg)
 
             // run query
             auto pre = db.prepare(query);
-            pre.params.name  = det.name();
-            pre.params.email = det.email();
+            pre.params.c_name  = det.name();
+            pre.params.c_email = det.email();
 
             if(det.has_address())
-                pre.params.address = det.address();
+                pre.params.c_address = det.address();
             if(det.has_phone_number())
-                pre.params.phonenumber = det.phone_number();
+                pre.params.c_phonenumber = det.phone_number();
             if(det.has_description())
-                pre.params.description = det.description();
+                pre.params.c_description = det.description();
 
             try{
                 db(pre);
@@ -182,10 +183,10 @@ void eedb::handlers::User::handle_login(const user::MsgUserRequest_Login &loginM
         exists = number == 1;
 
             ///TODO load user config to cache
-            auto cred = db(select(u.password, u.salt).from(u).where(u.c_uid == c_uid));
+            auto cred = db(select(u.c_password, u.c_salt).from(u).where(u.c_uid == c_uid));
 
-            string salt = cred.front().salt;
-            string hash = cred.front().password;
+            string salt = cred.front().c_salt;
+            string hash = cred.front().c_password;
             string hashed_pass = PasswordHash::hashPassword( loginMsg.password(), salt );
 
             if( hashed_pass == hash ){

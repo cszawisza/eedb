@@ -1,5 +1,5 @@
-#ifndef SCHEMA_STORAGE_HISTORY_H
-#define SCHEMA_STORAGE_HISTORY_H
+#ifndef SCHEMA_T_STORAGE_HISTORY_H
+#define SCHEMA_T_STORAGE_HISTORY_H
 
 #include <sqlpp11/table.h>
 #include <sqlpp11/char_sequence.h>
@@ -7,62 +7,62 @@
 
 namespace schema {
 
-	namespace storage_history_ {
+	namespace t_storage_history_ {
 
-		struct Storage_from_id {
+		struct C_storage_from_id {
 			struct _alias_t {
-				static constexpr const char _literal[] ="storage_from_id";
+				static constexpr const char _literal[] ="c_storage_from_id";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T storage_from_id;
-						T &operator()() { return storage_from_id; }
-						const T &operator()() const { return storage_from_id; }
+						T c_storage_from_id;
+						T &operator()() { return c_storage_from_id; }
+						const T &operator()() const { return c_storage_from_id; }
 					};
 			};
 
 			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::require_insert>;
 		};
 
-		struct Storage_to_id {
+		struct C_storage_to_id {
 			struct _alias_t {
-				static constexpr const char _literal[] ="storage_to_id";
+				static constexpr const char _literal[] ="c_storage_to_id";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T storage_to_id;
-						T &operator()() { return storage_to_id; }
-						const T &operator()() const { return storage_to_id; }
+						T c_storage_to_id;
+						T &operator()() { return c_storage_to_id; }
+						const T &operator()() const { return c_storage_to_id; }
 					};
 			};
 
 			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::require_insert>;
 		};
 
-		struct Operation_id {
+		struct C_operation_id {
 			struct _alias_t {
-				static constexpr const char _literal[] ="operation_id";
+				static constexpr const char _literal[] ="c_operation_id";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T operation_id;
-						T &operator()() { return operation_id; }
-						const T &operator()() const { return operation_id; }
+						T c_operation_id;
+						T &operator()() { return c_operation_id; }
+						const T &operator()() const { return c_operation_id; }
 					};
 			};
 
 			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::require_insert>;
 		};
 
-		struct Amount {
+		struct C_amount {
 			struct _alias_t {
-				static constexpr const char _literal[] ="amount";
+				static constexpr const char _literal[] ="c_amount";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T amount;
-						T &operator()() { return amount; }
-						const T &operator()() const { return amount; }
+						T c_amount;
+						T &operator()() { return c_amount; }
+						const T &operator()() const { return c_amount; }
 					};
 			};
 
@@ -85,21 +85,21 @@ namespace schema {
 		};
 	}
 
-	struct storage_history : sqlpp::table_t<storage_history,
-				storage_history_::Storage_from_id,
-				storage_history_::Storage_to_id,
-				storage_history_::Operation_id,
-				storage_history_::Amount,
-				storage_history_::Date> {
+	struct t_storage_history : sqlpp::table_t<t_storage_history,
+				t_storage_history_::C_storage_from_id,
+				t_storage_history_::C_storage_to_id,
+				t_storage_history_::C_operation_id,
+				t_storage_history_::C_amount,
+				t_storage_history_::Date> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {
-			static constexpr const char _literal[] = "storage_history";
+			static constexpr const char _literal[] = "t_storage_history";
 			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 			template<typename T>
 				struct _member_t {
-					T storage_history;
-					T &operator()() { return storage_history; }
-					const T &operator()() const { return storage_history; }
+					T t_storage_history;
+					T &operator()() { return t_storage_history; }
+					const T &operator()() const { return t_storage_history; }
 				};
 		};
 	};

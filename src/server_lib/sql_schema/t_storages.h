@@ -1,5 +1,5 @@
-#ifndef SCHEMA_STORAGE_RACKS_H
-#define SCHEMA_STORAGE_RACKS_H
+#ifndef SCHEMA_T_STORAGES_H
+#define SCHEMA_T_STORAGES_H
 
 #include <sqlpp11/table.h>
 #include <sqlpp11/char_sequence.h>
@@ -7,7 +7,7 @@
 
 namespace schema {
 
-	namespace storage_racks_ {
+	namespace t_storages_ {
 
 		struct C_uid {
 			struct _alias_t {
@@ -84,30 +84,15 @@ namespace schema {
 			using _traits = ::sqlpp::make_traits<::sqlpp::integer>;
 		};
 
-		struct Storage_id {
+		struct C_name {
 			struct _alias_t {
-				static constexpr const char _literal[] ="storage_id";
+				static constexpr const char _literal[] ="c_name";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T storage_id;
-						T &operator()() { return storage_id; }
-						const T &operator()() const { return storage_id; }
-					};
-			};
-
-			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::require_insert>;
-		};
-
-		struct Name {
-			struct _alias_t {
-				static constexpr const char _literal[] ="name";
-				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-				template<typename T>
-					struct _member_t {
-						T name;
-						T &operator()() { return name; }
-						const T &operator()() const { return name; }
+						T c_name;
+						T &operator()() { return c_name; }
+						const T &operator()() const { return c_name; }
 					};
 			};
 
@@ -115,23 +100,22 @@ namespace schema {
 		};
 	}
 
-	struct storage_racks : sqlpp::table_t<storage_racks,
-				storage_racks_::C_uid,
-				storage_racks_::C_owner,
-				storage_racks_::C_group,
-				storage_racks_::C_unixperms,
-				storage_racks_::C_status,
-				storage_racks_::Storage_id,
-				storage_racks_::Name> {
+	struct t_storages : sqlpp::table_t<t_storages,
+				t_storages_::C_uid,
+				t_storages_::C_owner,
+				t_storages_::C_group,
+				t_storages_::C_unixperms,
+				t_storages_::C_status,
+				t_storages_::C_name> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {
-			static constexpr const char _literal[] = "storage_racks";
+			static constexpr const char _literal[] = "t_storages";
 			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 			template<typename T>
 				struct _member_t {
-					T storage_racks;
-					T &operator()() { return storage_racks; }
-					const T &operator()() const { return storage_racks; }
+					T t_storages;
+					T &operator()() { return t_storages; }
+					const T &operator()() const { return t_storages; }
 				};
 		};
 	};

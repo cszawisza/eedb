@@ -1,5 +1,5 @@
-#ifndef SCHEMA_FILES_H
-#define SCHEMA_FILES_H
+#ifndef SCHEMA_T_PACKAGES_H
+#define SCHEMA_T_PACKAGES_H
 
 #include <sqlpp11/table.h>
 #include <sqlpp11/char_sequence.h>
@@ -7,7 +7,7 @@
 
 namespace schema {
 
-	namespace files_ {
+	namespace t_packages_ {
 
 		struct C_uid {
 			struct _alias_t {
@@ -84,86 +84,86 @@ namespace schema {
 			using _traits = ::sqlpp::make_traits<::sqlpp::integer>;
 		};
 
-		struct Name {
+		struct C_name {
 			struct _alias_t {
-				static constexpr const char _literal[] ="name";
+				static constexpr const char _literal[] ="c_name";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T name;
-						T &operator()() { return name; }
-						const T &operator()() const { return name; }
+						T c_name;
+						T &operator()() { return c_name; }
+						const T &operator()() const { return c_name; }
 					};
 			};
 
-			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::require_insert>;
+			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::require_insert>;
 		};
 
-		struct Size {
+		struct C_pinnr {
 			struct _alias_t {
-				static constexpr const char _literal[] ="size";
+				static constexpr const char _literal[] ="c_pinnr";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T size;
-						T &operator()() { return size; }
-						const T &operator()() const { return size; }
+						T c_pinnr;
+						T &operator()() { return c_pinnr; }
+						const T &operator()() const { return c_pinnr; }
 					};
 			};
 
-			using _traits = ::sqlpp::make_traits<::sqlpp::bigint, sqlpp::tag::require_insert>;
+			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::can_be_null>;
 		};
 
-		struct Sha {
+		struct C_mounttype {
 			struct _alias_t {
-				static constexpr const char _literal[] ="sha";
+				static constexpr const char _literal[] ="c_mounttype";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T sha;
-						T &operator()() { return sha; }
-						const T &operator()() const { return sha; }
+						T c_mounttype;
+						T &operator()() { return c_mounttype; }
+						const T &operator()() const { return c_mounttype; }
 					};
 			};
 
-			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::require_insert>;
+			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::can_be_null>;
 		};
 
-		struct Mimetype {
+		struct C_config {
 			struct _alias_t {
-				static constexpr const char _literal[] ="mimetype";
+				static constexpr const char _literal[] ="c_config";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T mimetype;
-						T &operator()() { return mimetype; }
-						const T &operator()() const { return mimetype; }
+						T c_config;
+						T &operator()() { return c_config; }
+						const T &operator()() const { return c_config; }
 					};
 			};
 
-			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::require_insert>;
+			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::can_be_null>;
 		};
 	}
 
-	struct files : sqlpp::table_t<files,
-				files_::C_uid,
-				files_::C_owner,
-				files_::C_group,
-				files_::C_unixperms,
-				files_::C_status,
-				files_::Name,
-				files_::Size,
-				files_::Sha,
-				files_::Mimetype> {
+	struct t_packages : sqlpp::table_t<t_packages,
+				t_packages_::C_uid,
+				t_packages_::C_owner,
+				t_packages_::C_group,
+				t_packages_::C_unixperms,
+				t_packages_::C_status,
+				t_packages_::C_name,
+				t_packages_::C_pinnr,
+				t_packages_::C_mounttype,
+				t_packages_::C_config> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {
-			static constexpr const char _literal[] = "files";
+			static constexpr const char _literal[] = "t_packages";
 			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 			template<typename T>
 				struct _member_t {
-					T files;
-					T &operator()() { return files; }
-					const T &operator()() const { return files; }
+					T t_packages;
+					T &operator()() { return t_packages; }
+					const T &operator()() const { return t_packages; }
 				};
 		};
 	};

@@ -34,7 +34,6 @@ drop table if exists t_users;
 drop table if exists t_privilege;
 drop table if exists t_implemented_action;
 drop table if exists t_acl;
-drop table if exists t_status;
 drop table if exists t_action;
 
 create table t_action (
@@ -44,17 +43,12 @@ create table t_action (
 COMMENT ON COLUMN t_action.c_title          IS 'column contains name of action';
 COMMENT ON COLUMN t_action.c_apply_object   IS 'column specifies whether an action applies to objects or tables. Certain actions, like “create,” apply only to tables. I find the system is easier to manage if I choose my actions so they can only apply to one or the other, not both.';
 
-create table t_status (
-    c_name            text   NOT NULL PRIMARY KEY CHECK( length(c_name) >= 3 AND length(c_name) < 100 )
-);
-COMMENT ON COLUMN t_status.c_name   IS 'column contains name of status for rest of application';
-
 create table t_acl (
     c_uid             serial not null primary key,
     c_owner           int not null default 1,
     c_group           int not null default 1,
     c_unixperms       int not null default unix_to_numeric('764'),
-    c_status          text not null references t_status default 'normal'
+    c_status          int not null default 0
 );
 
 COMMENT ON COLUMN t_acl.c_uid       IS 'unique uid for all objects in database';
@@ -66,8 +60,8 @@ COMMENT ON COLUMN t_acl.c_status    IS 'status in which object is in (login, log
 
 create table t_implemented_action (
     c_table     text    not null,
-    c_action    text    not null references t_action ON DELETE RESTRICT,
-    c_status    text    not null references t_status ON DELETE RESTRICT,
+    c_action    text    not null,
+    c_status    int     not null,
     primary key (c_table, c_action)
 );
 
@@ -106,7 +100,7 @@ CREATE TABLE t_users (
     c_registrationdate  TIMESTAMP       DEFAULT now() NOT NULL,
     c_lastlogin         TIMESTAMP       CHECK( c_lastlogin <= now() ),
     c_badpasswd         INT             DEFAULT 0,
-    c_config            jsonb            DEFAULT ('{}'),
+    c_config            json            DEFAULT ('{}'),
     CONSTRAINT t_users_pkey         PRIMARY KEY (c_uid)
 ) INHERITS (t_acl);
 
@@ -147,8 +141,8 @@ CREATE TABLE t_category_files (
 CREATE TABLE t_packages (
     c_name          TEXT NOT NULL CHECK(length(c_name) < 256 ),
     c_pinNr         INTEGER,
-    c_mountType     TEXT NOT NULL CHECK(length(c_mountType) < 100 ), -- TODO move to seperate table?
-    c_config json,
+    c_mountType     TEXT CHECK(length(c_mountType) < 100 ), -- TODO move to seperate table?
+    c_config        json,
     CONSTRAINT packages_pkey PRIMARY KEY (c_uid)
 ) INHERITS (t_acl);
 
@@ -261,26 +255,27 @@ BEGIN
   ('test_user2','pass2','salt','test_email2@ww.ww');
 
   insert into t_action(c_title, c_apply_object) values
+        ('read'         , true),
+        ('write'        , true),
+        ('delete'       , true),
         ('login'        , true),
         ('update_passwd', true),
         ('remove_user'  , true);
 
-  insert into t_status (c_name) values
-        ('normal');
-
   insert into t_implemented_action
         (c_table       ,c_action , c_status) values
-        ('t_users'     , 'login' , 'normal' ),
-        ('t_users'     , 'update', 'normal' );
+        ('t_users'     , 'read' , 0 ),
+        ('t_users'     , 'write', 0 ),
+        ('t_users'     , 'login' , 0 );
 
   insert into t_privilege
         (c_role,  c_who     , c_action      , c_type     , c_related_table   , c_related_uid) values
-        ('self' , 0         ,'update_passwd', 'object'   ,'t_users'          , 0);
+        ('self' , 0         ,'update_passwd', 'object'   ,'t_users'          , 0),
+        ('self' , 0         ,'write', 'object'   ,'t_users'          , 0),
+        ('self' , 0         ,'login', 'object'   ,'t_users'          , 0);
 
-  insert into packages ( name ) values
+  insert into t_packages ( c_name ) values
         ('dummy');
-  insert into items (c_unixperms, c_owner, package_id, category_id, name, symbol, update, parameters) values
-        (unix_to_numeric('400'), 1,5,2,'item_name','symbol',now(),'{}');
 
 END $$;
 

@@ -1,5 +1,5 @@
-#ifndef SCHEMA_STORAGES_H
-#define SCHEMA_STORAGES_H
+#ifndef SCHEMA_T_STORAGE_OPERATIONS_H
+#define SCHEMA_T_STORAGE_OPERATIONS_H
 
 #include <sqlpp11/table.h>
 #include <sqlpp11/char_sequence.h>
@@ -7,7 +7,7 @@
 
 namespace schema {
 
-	namespace storages_ {
+	namespace t_storage_operations_ {
 
 		struct C_uid {
 			struct _alias_t {
@@ -84,15 +84,15 @@ namespace schema {
 			using _traits = ::sqlpp::make_traits<::sqlpp::integer>;
 		};
 
-		struct Name {
+		struct C_name {
 			struct _alias_t {
-				static constexpr const char _literal[] ="name";
+				static constexpr const char _literal[] ="c_name";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T name;
-						T &operator()() { return name; }
-						const T &operator()() const { return name; }
+						T c_name;
+						T &operator()() { return c_name; }
+						const T &operator()() const { return c_name; }
 					};
 			};
 
@@ -100,22 +100,22 @@ namespace schema {
 		};
 	}
 
-	struct storages : sqlpp::table_t<storages,
-				storages_::C_uid,
-				storages_::C_owner,
-				storages_::C_group,
-				storages_::C_unixperms,
-				storages_::C_status,
-				storages_::Name> {
+	struct t_storage_operations : sqlpp::table_t<t_storage_operations,
+				t_storage_operations_::C_uid,
+				t_storage_operations_::C_owner,
+				t_storage_operations_::C_group,
+				t_storage_operations_::C_unixperms,
+				t_storage_operations_::C_status,
+				t_storage_operations_::C_name> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {
-			static constexpr const char _literal[] = "storages";
+			static constexpr const char _literal[] = "t_storage_operations";
 			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 			template<typename T>
 				struct _member_t {
-					T storages;
-					T &operator()() { return storages; }
-					const T &operator()() const { return storages; }
+					T t_storage_operations;
+					T &operator()() { return t_storage_operations; }
+					const T &operator()() const { return t_storage_operations; }
 				};
 		};
 	};

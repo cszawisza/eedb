@@ -13,7 +13,7 @@
 #include "sql_schema/t_action.h"
 #include "sql_schema/t_implemented_action.h"
 #include "sql_schema/t_privilege.h"
-#include "sql_schema/users.h"
+#include "sql_schema/t_users.h"
 
 using std::vector;
 using std::string;
@@ -42,7 +42,7 @@ public:
         vector<string> result;
         DatabaseConnectionProvider db (this);
 
-        schema::users user;
+        schema::t_users user;
         schema::t_action act;
         schema::t_implemented_action ia;
         schema::t_privilege pr;
@@ -53,7 +53,7 @@ public:
             usergroups = row.c_group;
         }
 
-        string tablename = "users";
+        string tablename = "t_users";
 
         auto res = db( sqlpp::select().flags(sqlpp::distinct).columns(act.c_title)
                        .from(act
