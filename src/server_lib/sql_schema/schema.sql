@@ -38,8 +38,9 @@ drop table if exists t_action;
 
 
 create table t_action (
-    c_title           text      NOT NULL PRIMARY KEY CHECK( length(c_title) >= 3 AND length(c_title) < 100 ),
-    c_apply_object    boolean   NOT NULL
+    c_title           text      NOT NULL  CHECK( length(c_title) >= 3 AND length(c_title) < 100 ),
+    c_apply_object    boolean   NOT NULL,
+    PRIMARY KEY (c_title, c_apply_object)
 );
 COMMENT ON COLUMN t_action.c_title          IS 'column contains name of action';
 COMMENT ON COLUMN t_action.c_apply_object   IS 'column specifies whether an action applies to objects or tables. Certain actions, like “create,” apply only to tables. I find the system is easier to manage if I choose my actions so they can only apply to one or the other, not both.';
@@ -61,7 +62,7 @@ COMMENT ON COLUMN t_acl.c_status    IS 'status in which object is in (login, log
 
 create table t_implemented_action (
     c_table     text    not null,
-    c_action    text    not null references t_action ON DELETE RESTRICT,
+    c_action    text    not null, -- TODO check if value is in t_action table
     c_status    int    not null,
     primary key (c_table, c_action)
 );
@@ -70,7 +71,7 @@ create table t_implemented_action (
 create table t_privilege (
     c_role            varchar(30)     not null, -- TODO change to enum
     c_who             int             not null default 0,
-    c_action          text            not null references t_action ON DELETE RESTRICT,
+    c_action          text            not null,
     c_type            varchar(30)     not null, -- TODO change in future to enum
     c_related_table   varchar(100)    not null,
     c_related_uid     int             not null default 0,
