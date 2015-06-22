@@ -40,7 +40,7 @@ set( Utils_H
 
 add_library(eedb_lib STATIC ${SOURCES} ${Core_CPP} ${Utils_H} ${Core_H} ${SCHEMA_SRC} )
 target_link_libraries(eedb_lib
-    pq sqlpp-postgresql
+    sqlpp-postgresql pq
     Common
     Qt5::Core Qt5::WebSockets
     ${PROTOBUF_LITE_LIBRARY}
