@@ -34,8 +34,8 @@ drop table if exists t_users;
 drop table if exists t_privilege;
 drop table if exists t_implemented_action;
 drop table if exists t_acl;
-drop table if exists t_status;
 drop table if exists t_action;
+
 
 create table t_action (
     c_title           text      NOT NULL PRIMARY KEY CHECK( length(c_title) >= 3 AND length(c_title) < 100 ),
@@ -44,17 +44,12 @@ create table t_action (
 COMMENT ON COLUMN t_action.c_title          IS 'column contains name of action';
 COMMENT ON COLUMN t_action.c_apply_object   IS 'column specifies whether an action applies to objects or tables. Certain actions, like “create,” apply only to tables. I find the system is easier to manage if I choose my actions so they can only apply to one or the other, not both.';
 
-create table t_status (
-    c_name            text   NOT NULL PRIMARY KEY CHECK( length(c_name) >= 3 AND length(c_name) < 100 )
-);
-COMMENT ON COLUMN t_status.c_name   IS 'column contains name of status for rest of application';
-
 create table t_acl (
     c_uid             serial not null primary key,
     c_owner           int not null default 1,
-    c_group           int not null default 1,
+    c_group           int not null default 2, -- 1 is a root usergroup, 2 is 'users' set as default
     c_unixperms       int not null default unix_to_numeric('764'),
-    c_status          text not null references t_status default 'normal'
+    c_status          int not null 0
 );
 
 COMMENT ON COLUMN t_acl.c_uid       IS 'unique uid for all objects in database';
@@ -67,7 +62,7 @@ COMMENT ON COLUMN t_acl.c_status    IS 'status in which object is in (login, log
 create table t_implemented_action (
     c_table     text    not null,
     c_action    text    not null references t_action ON DELETE RESTRICT,
-    c_status    text    not null references t_status ON DELETE RESTRICT,
+    c_status    int    not null,
     primary key (c_table, c_action)
 );
 
@@ -110,6 +105,11 @@ CREATE TABLE t_users (
     CONSTRAINT t_users_pkey         PRIMARY KEY (c_uid)
 ) INHERITS (t_acl);
 
+create table t_config(
+    c_conf_name TEXT    NOT NULL,
+    c_version   int     NOT NULL DEFAULT 1,
+    c_data      json    NOT NULL
+) INHERITS (t_acl);
 
 CREATE TABLE t_files (
     c_name      TEXT    NOT NULL CHECK(length(c_name) < 4096 ),
@@ -261,26 +261,42 @@ BEGIN
   ('test_user2','pass2','salt','test_email2@ww.ww');
 
   insert into t_action(c_title, c_apply_object) values
-        ('login'        , true),
-        ('update_passwd', true),
-        ('remove_user'  , true);
+        ('stat'         , true),
+        ('stat'         , false),
+        ('chmod'        , true),
+        ('chmod'        , false),
+        ('chgrp'        , true),
+        ('chgrp'        , false),
+        ('chown'        , true),
+        ('chown'        , false),
+        ('view_acl'     , true),
+        ('view_acl'     , false),
 
-  insert into t_status (c_name) values
-        ('normal');
+        ('read'         , true),
+        ('write'        , true),
+        ('delete'       , true),
+        ('read'         , false),
+        ('write'        , false),
+        ('login'        , true),
+        ('update_passwd', true);
 
   insert into t_implemented_action
-        (c_table       ,c_action , c_status) values
-        ('t_users'     , 'login' , 'normal' ),
-        ('t_users'     , 'update', 'normal' );
+        (c_table        , c_action       , c_status) values
+        ('t_users'      , 'login'        , 0 ),
+        ('t_users'      , 'update_passwd', 0 ),
+        ('t_users'      , 'read'         , 0 ),
+        ('t_users'      , 'write'        , 0 ),
+        ('t_users'      , 'delete'       , 0 ),
+        ('t_files'      , 'read'         , 0 ),
+        ('t_files'      , 'write'        , 0 ),
+        ('t_files'      , 'delete'       , 0 );
 
+-- c_role = user,owner, owner_group, group, self
+-- c_type = object, global
   insert into t_privilege
-        (c_role,  c_who     , c_action      , c_type     , c_related_table   , c_related_uid) values
-        ('self' , 0         ,'update_passwd', 'object'   ,'t_users'          , 0);
-
-  insert into packages ( name ) values
-        ('dummy');
-  insert into items (c_unixperms, c_owner, package_id, category_id, name, symbol, update, parameters) values
-        (unix_to_numeric('400'), 1,5,2,'item_name','symbol',now(),'{}');
+        (c_role, c_who, c_action       , c_type    , c_related_table, c_related_uid) values
+        ('self', 0    , 'update_passwd', 'object'  , 't_users'      , 0),
+        ('self', 0    , 'login'        , 'object'  , 't_users'      , 0);
 
 END $$;
 
