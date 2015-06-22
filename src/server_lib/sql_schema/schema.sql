@@ -16,12 +16,12 @@ LANGUAGE plpgsql IMMUTABLE COST 1;
 -- update t_users set c_password = crypt('text', gen_salt('bf')) where c_uid = 1;
 -- select (c_password = crypt('text', c_password)) AS pswmatch FROM t_users where c_uid = 1;
 
-drop table if exists t_storage_history;
-drop table if exists t_storage_operations;
+drop table if exists t_inventories_history;
+drop table if exists t_inventories_operations;
 drop table if exists t_in_stock;
-drop table if exists t_storage_racks;
-drop table if exists t_user_storages;
-drop table if exists t_storages;
+drop table if exists t_inventories_racks;
+drop table if exists t_user_inventories;
+drop table if exists t_inventories;
 drop table if exists t_item_files;
 drop table if exists t_items;
 drop table if exists t_parameters;
@@ -106,12 +106,6 @@ CREATE TABLE t_users (
     CONSTRAINT t_users_pkey         PRIMARY KEY (c_uid)
 ) INHERITS (t_acl);
 
-create table t_config(
-    c_conf_name TEXT    NOT NULL,
-    c_version   int     NOT NULL DEFAULT 1,
-    c_data      json    NOT NULL
-) INHERITS (t_acl);
-
 CREATE TABLE t_files (
     c_name      TEXT    NOT NULL CHECK(length(c_name) < 4096 ),
     c_size      BIGINT  NOT NULL,
@@ -193,43 +187,43 @@ CREATE TABLE t_item_files (
     CONSTRAINT t_items_files_pk PRIMARY KEY (c_item_id, c_file_id)
 );
 
-CREATE TABLE t_storages(
+CREATE TABLE t_inventories(
     c_name VARCHAR(255) NOT NULL UNIQUE,
     -- creation date, other info
-    CONSTRAINT t_storages_pkey PRIMARY KEY (c_uid),
-    CONSTRAINT t_storageowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
+    CONSTRAINT t_inventories_pkey PRIMARY KEY (c_uid),
+    CONSTRAINT t_inventoryowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (t_acl);
 
-CREATE TABLE t_user_storages(
-    c_storage_id INTEGER NOT NULL REFERENCES t_storages,
+CREATE TABLE t_user_inventories(
+    c_inventory_id INTEGER NOT NULL REFERENCES t_inventories,
     c_user_id INTEGER NOT NULL REFERENCES t_users,
-    CONSTRAINT tuser_storages_pk PRIMARY KEY (c_storage_id, c_user_id)
+    CONSTRAINT tuser_inventories_pk PRIMARY KEY (c_inventory_id, c_user_id)
 );
 
-CREATE TABLE t_storage_racks(
-    c_storage_id INTEGER NOT NULL REFERENCES t_storages,
+CREATE TABLE t_inventories_racks(
+    c_storage_id INTEGER NOT NULL REFERENCES t_inventories,
     c_name varchar(100) NOT NULL UNIQUE,
     CONSTRAINT rackOwner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (t_acl);
 
 create table t_in_stock(
     c_item_id INTEGER NOT NULL REFERENCES t_items,
-    c_storage_id INTEGER NOT NULL REFERENCES t_storages,
+    c_inventory_id INTEGER NOT NULL REFERENCES t_inventories,
     c_amount numeric(10,10) NOT NULL DEFAULT 0
 );
 
 COMMENT ON TABLE t_in_stock IS 'Table contains information about items being available in storage';
 
-create table t_storage_operations(
+create table t_inventories_operations(
     c_name varchar(50) not null unique,
-    CONSTRAINT t_storage_operations_pkey PRIMARY KEY (c_uid),
+    CONSTRAINT t_inventories_operations_pkey PRIMARY KEY (c_uid),
     CONSTRAINT OperationOwner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS(t_acl);
 
-create table t_storage_history(
-    c_storage_from_id INTEGER NOT NULL REFERENCES t_storages,
-    c_storage_to_id INTEGER NOT NULL REFERENCES t_storages,
-    c_operation_id INTEGER NOT NULL REFERENCES t_storage_Operations,
+create table t_inventories_history(
+    c_inventory_from_id INTEGER NOT NULL REFERENCES t_inventories,
+    c_inventory_to_id INTEGER NOT NULL REFERENCES t_inventories,
+    c_operation_id INTEGER NOT NULL REFERENCES t_inventories_Operations,
     c_amount NUMERIC(10,10),
 
     date timestamp not null default now()

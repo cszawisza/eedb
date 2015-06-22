@@ -1,5 +1,5 @@
-#ifndef SCHEMA_T_STORAGE_RACKS_H
-#define SCHEMA_T_STORAGE_RACKS_H
+#ifndef SCHEMA_T_INVENTORIES_RACKS_H
+#define SCHEMA_T_INVENTORIES_RACKS_H
 
 #include <sqlpp11/table.h>
 #include <sqlpp11/char_sequence.h>
@@ -7,7 +7,7 @@
 
 namespace schema {
 
-	namespace t_storage_racks_ {
+	namespace t_inventories_racks_ {
 
 		struct C_uid {
 			struct _alias_t {
@@ -115,23 +115,23 @@ namespace schema {
 		};
 	}
 
-	struct t_storage_racks : sqlpp::table_t<t_storage_racks,
-				t_storage_racks_::C_uid,
-				t_storage_racks_::C_owner,
-				t_storage_racks_::C_group,
-				t_storage_racks_::C_unixperms,
-				t_storage_racks_::C_status,
-				t_storage_racks_::C_storage_id,
-				t_storage_racks_::C_name> {
+	struct t_inventories_racks : sqlpp::table_t<t_inventories_racks,
+				t_inventories_racks_::C_uid,
+				t_inventories_racks_::C_owner,
+				t_inventories_racks_::C_group,
+				t_inventories_racks_::C_unixperms,
+				t_inventories_racks_::C_status,
+				t_inventories_racks_::C_storage_id,
+				t_inventories_racks_::C_name> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {
-			static constexpr const char _literal[] = "t_storage_racks";
+			static constexpr const char _literal[] = "t_inventories_racks";
 			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 			template<typename T>
 				struct _member_t {
-					T t_storage_racks;
-					T &operator()() { return t_storage_racks; }
-					const T &operator()() const { return t_storage_racks; }
+					T t_inventories_racks;
+					T &operator()() { return t_inventories_racks; }
+					const T &operator()() const { return t_inventories_racks; }
 				};
 		};
 	};

@@ -24,15 +24,15 @@ namespace schema {
 			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::require_insert>;
 		};
 
-		struct C_storage_id {
+		struct C_inventory_id {
 			struct _alias_t {
-				static constexpr const char _literal[] ="c_storage_id";
+				static constexpr const char _literal[] ="c_inventory_id";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T c_storage_id;
-						T &operator()() { return c_storage_id; }
-						const T &operator()() const { return c_storage_id; }
+						T c_inventory_id;
+						T &operator()() { return c_inventory_id; }
+						const T &operator()() const { return c_inventory_id; }
 					};
 			};
 
@@ -57,7 +57,7 @@ namespace schema {
 
 	struct t_in_stock : sqlpp::table_t<t_in_stock,
 				t_in_stock_::C_item_id,
-				t_in_stock_::C_storage_id,
+				t_in_stock_::C_inventory_id,
 				t_in_stock_::C_amount> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {
