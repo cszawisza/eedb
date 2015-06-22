@@ -20,4 +20,4 @@ set(MAIN_SRC main.cpp)
 file(GLOB_RECURSE TESTS_SRC common.h common/* server/* )
 add_executable(Tests ${MAIN_SRC} ${TESTS_SRC})
 
-target_link_libraries(Tests gtest eedb_lib )
+target_link_libraries(Tests gtest eedb_lib pq)

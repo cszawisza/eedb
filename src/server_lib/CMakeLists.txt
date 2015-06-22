@@ -43,5 +43,6 @@ target_link_libraries(eedb_lib
     sqlpp-postgresql pq
     Common
     Qt5::Core Qt5::WebSockets
+    pq
     ${PROTOBUF_LITE_LIBRARY}
 )

@@ -7,3 +7,4 @@ file(GLOB protos "messages/protobuf/*.proto")
 
 add_library( Common STATIC ${SRC} ${protos})
 target_link_libraries( Common ${PROTOBUF_LITE_LIBRARIES} Qt5::Core )
+add_subdirectory(messages)
