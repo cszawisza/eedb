@@ -1,5 +1,5 @@
-#ifndef SCHEMA_ITEMS_H
-#define SCHEMA_ITEMS_H
+#ifndef SCHEMA_T_CATEGORIES_H
+#define SCHEMA_T_CATEGORIES_H
 
 #include <sqlpp11/table.h>
 #include <sqlpp11/char_sequence.h>
@@ -7,7 +7,7 @@
 
 namespace schema {
 
-	namespace items_ {
+	namespace t_categories_ {
 
 		struct C_uid {
 			struct _alias_t {
@@ -84,166 +84,134 @@ namespace schema {
 			using _traits = ::sqlpp::make_traits<::sqlpp::integer>;
 		};
 
-		struct Package_id {
+		struct C_parent_category_id {
 			struct _alias_t {
-				static constexpr const char _literal[] ="package_id";
+				static constexpr const char _literal[] ="c_parent_category_id";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T package_id;
-						T &operator()() { return package_id; }
-						const T &operator()() const { return package_id; }
+						T c_parent_category_id;
+						T &operator()() { return c_parent_category_id; }
+						const T &operator()() const { return c_parent_category_id; }
 					};
 			};
 
-			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::require_insert>;
+			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::can_be_null>;
 		};
 
-		struct Category_id {
+		struct C_name {
 			struct _alias_t {
-				static constexpr const char _literal[] ="category_id";
+				static constexpr const char _literal[] ="c_name";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T category_id;
-						T &operator()() { return category_id; }
-						const T &operator()() const { return category_id; }
+						T c_name;
+						T &operator()() { return c_name; }
+						const T &operator()() const { return c_name; }
 					};
 			};
 
-			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::require_insert>;
+			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::require_insert>;
 		};
 
-		struct Name {
+		struct C_description {
 			struct _alias_t {
-				static constexpr const char _literal[] ="name";
+				static constexpr const char _literal[] ="c_description";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T name;
-						T &operator()() { return name; }
-						const T &operator()() const { return name; }
-					};
-			};
-
-			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::require_insert>;
-		};
-
-		struct Symbol {
-			struct _alias_t {
-				static constexpr const char _literal[] ="symbol";
-				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-				template<typename T>
-					struct _member_t {
-						T symbol;
-						T &operator()() { return symbol; }
-						const T &operator()() const { return symbol; }
-					};
-			};
-
-			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::require_insert>;
-		};
-
-		struct Namespace {
-			struct _alias_t {
-				static constexpr const char _literal[] ="namespace";
-				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-				template<typename T>
-					struct _member_t {
-						T namespace;
-						T &operator()() { return namespace; }
-						const T &operator()() const { return namespace; }
-					};
-			};
-
-			using _traits = ::sqlpp::make_traits<::sqlpp::varchar>;
-		};
-
-		struct Creationdate {
-			struct _alias_t {
-				static constexpr const char _literal[] ="creationdate";
-				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-				template<typename T>
-					struct _member_t {
-						T creationdate;
-						T &operator()() { return creationdate; }
-						const T &operator()() const { return creationdate; }
-					};
-			};
-
-			using _traits = ::sqlpp::make_traits<::sqlpp::varchar>;
-		};
-
-		struct Update {
-			struct _alias_t {
-				static constexpr const char _literal[] ="update";
-				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-				template<typename T>
-					struct _member_t {
-						T update;
-						T &operator()() { return update; }
-						const T &operator()() const { return update; }
-					};
-			};
-
-			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::require_insert>;
-		};
-
-		struct Parameters {
-			struct _alias_t {
-				static constexpr const char _literal[] ="parameters";
-				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-				template<typename T>
-					struct _member_t {
-						T parameters;
-						T &operator()() { return parameters; }
-						const T &operator()() const { return parameters; }
-					};
-			};
-
-			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::require_insert>;
-		};
-
-		struct Description {
-			struct _alias_t {
-				static constexpr const char _literal[] ="description";
-				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-				template<typename T>
-					struct _member_t {
-						T description;
-						T &operator()() { return description; }
-						const T &operator()() const { return description; }
+						T c_description;
+						T &operator()() { return c_description; }
+						const T &operator()() const { return c_description; }
 					};
 			};
 
 			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::can_be_null>;
 		};
+
+		struct C_creationdate {
+			struct _alias_t {
+				static constexpr const char _literal[] ="c_creationdate";
+				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+				template<typename T>
+					struct _member_t {
+						T c_creationdate;
+						T &operator()() { return c_creationdate; }
+						const T &operator()() const { return c_creationdate; }
+					};
+			};
+
+			using _traits = ::sqlpp::make_traits<::sqlpp::varchar>;
+		};
+
+		struct C_allow_recipe {
+			struct _alias_t {
+				static constexpr const char _literal[] ="c_allow_recipe";
+				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+				template<typename T>
+					struct _member_t {
+						T c_allow_recipe;
+						T &operator()() { return c_allow_recipe; }
+						const T &operator()() const { return c_allow_recipe; }
+					};
+			};
+
+			using _traits = ::sqlpp::make_traits<::sqlpp::boolean>;
+		};
+
+		struct C_allow_items {
+			struct _alias_t {
+				static constexpr const char _literal[] ="c_allow_items";
+				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+				template<typename T>
+					struct _member_t {
+						T c_allow_items;
+						T &operator()() { return c_allow_items; }
+						const T &operator()() const { return c_allow_items; }
+					};
+			};
+
+			using _traits = ::sqlpp::make_traits<::sqlpp::boolean>;
+		};
+
+		struct C_hide {
+			struct _alias_t {
+				static constexpr const char _literal[] ="c_hide";
+				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+				template<typename T>
+					struct _member_t {
+						T c_hide;
+						T &operator()() { return c_hide; }
+						const T &operator()() const { return c_hide; }
+					};
+			};
+
+			using _traits = ::sqlpp::make_traits<::sqlpp::boolean, sqlpp::tag::can_be_null>;
+		};
 	}
 
-	struct items : sqlpp::table_t<items,
-				items_::C_uid,
-				items_::C_owner,
-				items_::C_group,
-				items_::C_unixperms,
-				items_::C_status,
-				items_::Package_id,
-				items_::Category_id,
-				items_::Name,
-				items_::Symbol,
-				items_::Namespace,
-				items_::Creationdate,
-				items_::Update,
-				items_::Parameters,
-				items_::Description> {
+	struct t_categories : sqlpp::table_t<t_categories,
+				t_categories_::C_uid,
+				t_categories_::C_owner,
+				t_categories_::C_group,
+				t_categories_::C_unixperms,
+				t_categories_::C_status,
+				t_categories_::C_parent_category_id,
+				t_categories_::C_name,
+				t_categories_::C_description,
+				t_categories_::C_creationdate,
+				t_categories_::C_allow_recipe,
+				t_categories_::C_allow_items,
+				t_categories_::C_hide> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {
-			static constexpr const char _literal[] = "items";
+			static constexpr const char _literal[] = "t_categories";
 			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 			template<typename T>
 				struct _member_t {
-					T items;
-					T &operator()() { return items; }
-					const T &operator()() const { return items; }
+					T t_categories;
+					T &operator()() { return t_categories; }
+					const T &operator()() const { return t_categories; }
 				};
 		};
 	};

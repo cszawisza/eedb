@@ -49,7 +49,7 @@ create table t_acl (
     c_owner           int not null default 1,
     c_group           int not null default 2, -- 1 is a root usergroup, 2 is 'users' set as default
     c_unixperms       int not null default unix_to_numeric('764'),
-    c_status          int not null 0
+    c_status          int not null default 0
 );
 
 COMMENT ON COLUMN t_acl.c_uid       IS 'unique uid for all objects in database';
@@ -101,7 +101,7 @@ CREATE TABLE t_users (
     c_registrationdate  TIMESTAMP       DEFAULT now() NOT NULL,
     c_lastlogin         TIMESTAMP       CHECK( c_lastlogin <= now() ),
     c_badpasswd         INT             DEFAULT 0,
-    c_config            jsonb            DEFAULT ('{}'),
+    c_config            json            DEFAULT ('{}'),
     CONSTRAINT t_users_pkey         PRIMARY KEY (c_uid)
 ) INHERITS (t_acl);
 
@@ -147,8 +147,8 @@ CREATE TABLE t_category_files (
 CREATE TABLE t_packages (
     c_name          TEXT NOT NULL CHECK(length(c_name) < 256 ),
     c_pinNr         INTEGER,
-    c_mountType     TEXT NOT NULL CHECK(length(c_mountType) < 100 ), -- TODO move to seperate table?
-    c_config json,
+    c_mountType     TEXT CHECK(length(c_mountType) < 100 ), -- TODO move to seperate table?
+    c_config        json,
     CONSTRAINT packages_pkey PRIMARY KEY (c_uid)
 ) INHERITS (t_acl);
 

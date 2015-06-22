@@ -40,6 +40,7 @@ message ClientRequest{
 //    bytes binary_msg = 10;
 //    string json_msg = 11;
     user.MsgUserRequest msgUserReq = 12;
+    storage.MsgStorageRequest msgStorageReq = 13;
   }
 }
 
@@ -58,6 +59,7 @@ message ServerResponse {
 //    bytes binary_msg = 10;
 //    string json_msg = 11;
     user.MsgUserResponse msgUserRes = 13;
+    storage.MsgStorageResponse msgStorageRes = 14;
     
     ServerResponse msgServerResponse = 1000;
   }

@@ -51,7 +51,7 @@ namespace schema {
 					};
 			};
 
-			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::require_insert>;
+			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::require_insert>;
 		};
 
 		struct C_type {

@@ -21,7 +21,7 @@ namespace schema {
 					};
 			};
 
-			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::require_insert>;
+			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::require_insert>;
 		};
 
 		struct C_action {
@@ -36,7 +36,7 @@ namespace schema {
 					};
 			};
 
-			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::require_insert>;
+			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::require_insert>;
 		};
 
 		struct C_status {
@@ -51,7 +51,7 @@ namespace schema {
 					};
 			};
 
-			using _traits = ::sqlpp::make_traits<::sqlpp::integer>;
+			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::require_insert>;
 		};
 	}
 

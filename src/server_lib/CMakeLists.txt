@@ -18,6 +18,7 @@ set(Core_CPP
     core/idatabase.cpp
     core/user.cpp
     core/server.cpp
+    core/storage.cpp
 )
 
 set(Core_H
@@ -30,6 +31,7 @@ set(Core_H
     core/iprocessor.h
     core/user.h
     core/server.h
+    core/storage.h
 )
 
 set( Utils_H
