@@ -1,4 +1,10 @@
 #include "storage.h"
+
+#include "sql_schema/t_inventories.h"
+#include "sql_schema/t_inventories_history.h"
+#include "sql_schema/t_inventories_operations.h"
+#include "sql_schema/t_inventories_racks.h"
+
 void eedb::handlers::Storage::process(protbuf::ClientRequest &msg )
 {
     // Check if this is the message that handler wants
@@ -8,7 +14,6 @@ void eedb::handlers::Storage::process(protbuf::ClientRequest &msg )
     if (!cache()->user().isLogged())
         return;
 
-//    db.takeFromPool();
     auto req = msg.msgstoragereq();
 
     using storage::MsgStorageRequest;
@@ -30,8 +35,6 @@ void eedb::handlers::Storage::process(protbuf::ClientRequest &msg )
         // send server error
         break;
     }
-
-//    db.pushToPool();
 }
 
 void eedb::handlers::Storage::handle_add(const storage::MsgStorageRequest_Add &msgReq)

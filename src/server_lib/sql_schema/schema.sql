@@ -142,7 +142,7 @@ CREATE TABLE t_category_files (
 CREATE TABLE t_packages (
     c_name          TEXT NOT NULL CHECK(length(c_name) < 256 ),
     c_pinNr         INTEGER,
-    c_mountType     TEXT CHECK(length(c_mountType) < 100 ), -- TODO move to seperate table?
+    c_mountType     TEXT CHECK(length(c_mountType) < 100 ),
     c_config        json,
     CONSTRAINT packages_pkey PRIMARY KEY (c_uid)
 ) INHERITS (t_acl);

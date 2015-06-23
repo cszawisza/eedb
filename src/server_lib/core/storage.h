@@ -20,7 +20,6 @@ public:
     void process(protbuf::ClientRequest &msg);
 
 private:
-
     void handle_add(const MsgStorageRequest_Add &msgReq );
     void handle_get( const MsgStorageRequest_Get &msg);
     void handle_modify(const MsgStorageRequest_Modify &msg);
