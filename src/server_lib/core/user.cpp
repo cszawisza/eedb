@@ -3,8 +3,8 @@
 #include "sqlpp11/sqlpp11.h"
 
 #include "sql_schema/t_users.h"
-#include "sql_schema/t_storages.h"
-#include "sql_schema/t_user_storages.h"
+#include "sql_schema/t_inventories.h"
+#include "sql_schema/t_user_inventories.h"
 
 #include "utils/userconfig.h"
 #include "utils/hash_passwd.h"
@@ -14,8 +14,8 @@
 using eedb::utils::PasswordHash;
 
 schema::t_users u;
-schema::t_user_storages us;
-schema::t_storages s;
+schema::t_user_inventories us;
+schema::t_inventories s;
 
 template<typename T, typename C>
 void dynamic_cred( T &query, const C &cred){
