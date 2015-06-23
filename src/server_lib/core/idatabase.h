@@ -141,10 +141,10 @@ public:
 
     size_t execute(const std::string &str, bool singleShoot = false){
         auto db = takeFromPool();
-//        auto size = db->execute(str);
+        auto size = db->execute(str);
         if(!singleShoot)
             reserveTransaction(move(db));
-        return 4;
+        return size;
     }
 
     template<typename T>
