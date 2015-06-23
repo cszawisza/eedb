@@ -141,10 +141,10 @@ public:
 
     size_t execute(const std::string &str, bool singleShoot = false){
         auto db = takeFromPool();
-        auto size = db->execute(str);
+//        auto size = db->execute(str);
         if(!singleShoot)
             reserveTransaction(move(db));
-        return size;
+        return 4;
     }
 
     template<typename T>
@@ -159,6 +159,13 @@ public:
     auto operator()(const T& t) -> decltype(DbConnectionStack::getDatabase()->operator()(t) ) {
         auto db = takeFromPool();
         auto res = db->operator()(t);
+        reserveTransaction(move(db));
+        return res;
+    }
+
+    quint64 lastInsertId( const std::string & tablename, const std::string & column) {
+        auto db = takeFromPool();
+        auto res = db->last_insert_id(tablename, column);
         reserveTransaction(move(db));
         return res;
     }

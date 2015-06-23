@@ -3,6 +3,7 @@ package protbuf;
 import public "common.proto";
 
 import public "user.proto";
+import public "inventory.proto";
 
 /// message used for sending back code of operation 
 /// (operation succes or error)
@@ -40,7 +41,7 @@ message ClientRequest{
 //    bytes binary_msg = 10;
 //    string json_msg = 11;
     user.MsgUserRequest msgUserReq = 12;
-    storage.MsgStorageRequest msgStorageReq = 13;
+    inventory.MsgInventoryRequest msgInventoryReq = 13;
   }
 }
 
@@ -59,7 +60,7 @@ message ServerResponse {
 //    bytes binary_msg = 10;
 //    string json_msg = 11;
     user.MsgUserResponse msgUserRes = 13;
-    storage.MsgStorageResponse msgStorageRes = 14;
+    inventory.MsgInventoryResponse msgInventoryRes = 14;
     
     ServerResponse msgServerResponse = 1000;
   }

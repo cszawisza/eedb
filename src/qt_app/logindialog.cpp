@@ -72,7 +72,10 @@ LoginDialog::LoginDialog(QWidget *parent) :
 
 void LoginDialog::readyRead(QByteArray msg){
     //Server response handler code
-//    protbuf::ClientRequest mc;
+    qDebug()<< msg.toHex();
+    protbuf::ServerResponses sr;
+    sr.ParseFromArray(msg.data(), msg.size());
+
 //    mc.fromArray(msg);
 //    for(int i = 0; i<mc.capsules().size();++i)
 //        if(mc.getCapsule(i).msgtype() == MsgType::resLogin ){

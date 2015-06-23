@@ -188,8 +188,9 @@ CREATE TABLE t_item_files (
 );
 
 CREATE TABLE t_inventories(
-    c_name VARCHAR(255) NOT NULL UNIQUE,
+    c_name TEXT NOT NULL CHECK(length(c_name < 250)),
     -- creation date, other info
+    UNIQUE(c_uid, c_name),
     CONSTRAINT t_inventories_pkey PRIMARY KEY (c_uid),
     CONSTRAINT t_inventoryowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (t_acl);
@@ -200,10 +201,10 @@ CREATE TABLE t_user_inventories(
     CONSTRAINT tuser_inventories_pk PRIMARY KEY (c_inventory_id, c_user_id)
 );
 
-CREATE TABLE t_inventories_racks(
-    c_storage_id INTEGER NOT NULL REFERENCES t_inventories,
+CREATE TABLE t_inventories_shelfs(
+    c_inventory_id INTEGER NOT NULL REFERENCES t_inventories,
     c_name varchar(100) NOT NULL UNIQUE,
-    CONSTRAINT rackOwner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
+    CONSTRAINT shelfOwner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (t_acl);
 
 create table t_in_stock(

@@ -4,6 +4,8 @@
 #include <QDialog>
 #include <QWebSocket>
 
+///TODO description field: use https://github.com/Anchakor/MRichTextEditor
+
 namespace Ui {
 class AddUserDialog;
 }

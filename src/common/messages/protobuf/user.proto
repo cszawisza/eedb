@@ -1,6 +1,6 @@
 option optimize_for = LITE_RUNTIME;
 package user;
-import public "storage.proto";
+
 import public "stats.proto";
 import public "common.proto";
 

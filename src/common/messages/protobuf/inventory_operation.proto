@@ -1,0 +1,36 @@
+option optimize_for = LITE_RUNTIME;
+package inventory;
+import public "common.proto";
+
+// USER MESSAGE STRUCTURE
+message MsgInventoryOperationRequest {
+  oneof data{
+    AddItem add = 8;
+    MoveItem move= 9;
+    RemoveItem rm = 10;
+  }
+
+// ACTION MESSAGES /////////////////////
+    message AddItem{
+        required int32 storageId = 1;
+        required int32 itemId = 2;
+        optional Variant quantity = 3;
+    }
+
+    message MoveItem{
+        required int32 storageFromId = 1;
+        required int32 storageToId = 2;
+        required int32 itemId = 3;
+        optional Variant quantity = 4;
+    }
+
+    // remove dont only takes items from stack,
+    //  but also removes information about this item in inventory
+    message RemoveItem{
+    }
+}
+
+message MsgInventoryOperationResponse {
+  required ResponseCode code = 1;
+}
+

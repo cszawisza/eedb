@@ -17,6 +17,7 @@ AddUserDialog::AddUserDialog(QWebSocket *ws, QWidget *parent) :
 ///TODO add print error field, wher you can put all messages from server
 void AddUserDialog::readyRead(QByteArray msg){
 
+
 //    mc.fromArray(msg);
 //    for(int i = 0; i<mc.capsules().size();++i){
 //        if(mc.getCapsule(i).msgtype() == MsgType::resAddUser ){
@@ -65,81 +66,29 @@ void AddUserDialog::on_registerNewUser_clicked()
 {
     protbuf::ClientRequests fullMessage;
     auto loginReq = fullMessage.add_request();
-
     auto userMsg = loginReq->mutable_msguserreq();
-//    userMsg->set_action(user::Action::Action_Add);
-
     auto login = userMsg->mutable_add();
     login->mutable_details()->set_name( ui->name->text().toStdString() );
     login->mutable_details()->set_email(ui->email->text().toStdString() );
 
-    login->set_password( "ui-skjdhfsdj" );
+    if(! ui->description->toPlainText().isEmpty())
+        login->mutable_details()->set_description( ui->description->toHtml().toStdString() );
+    if(! ui->address->toPlainText().isEmpty() )
+        login->mutable_details()->set_address( ui->address->toPlainText().toStdString() );
+    if(! ui->phonenumber->text().isEmpty() )
+        login->mutable_details()->set_phone_number( ui->phonenumber->text().toStdString() );
+
+    bool ok, ok2;
+    QString passwd1 = QInputDialog::getText(this, "Wprowadź hasło","Wprowadź hasło",QLineEdit::Password,"",&ok);
+    QString passwd2 = QInputDialog::getText(this, "Wprowadź hasło","Wprowadź ponownie hasło",QLineEdit::Password,"",&ok2);
+
+    if (passwd1 != passwd2 )
+        return;
+    login->set_password( passwd1.toStdString() );
 
     QByteArray ba;
     ba.resize(fullMessage.ByteSize());
     fullMessage.SerializeToArray(ba.data(), ba.size() );
 
-    qDebug()<<" socket connected!: sending message: "<< QString(ba.toHex());
-
     socket->sendBinaryMessage(ba);
-
-
-//    UserRegistrationMessage reg;
-//    reg.Clear();
-//    MessagesContainer mc;
-
-//    bool hasErrors = false;
-
-//    if(ui->name->text().size()<4 || ui->name->text().size() > 34 )
-//    {
-//        ui->name->setStyleSheet("background-color : red;");
-//        hasErrors = true;
-//    }
-//    else{
-//        ui->name->setStyleSheet("background-color : white;");
-//    }
-
-//    if(ui->email->text().size()<7 || ui->email->text().size() > 255 ) /// TODO: add email validator
-//    {
-//        ui->email->setStyleSheet("background-color : red;");
-//        hasErrors = true;
-//    }
-//    else{
-//        ui->email->setStyleSheet("background-color : white;");
-//    }
-
-//    if (hasErrors)
-//        return;
-
-//    bool ok, ok2;
-//    QString passwd1 = QInputDialog::getText(this, "Wprowadź hasło","Wprowadź hasło",QLineEdit::Password,"",&ok);
-//    QString passwd2 = QInputDialog::getText(this, "Wprowadź hasło","Wprowadź ponownie hasło",QLineEdit::Password,"",&ok2);
-
-//    if (passwd1 != passwd2 )
-//        return;
-
-//    reg.set_name(ui->name->text() );
-//    reg.set_email(ui->email->text() );
-//    reg.set_password(passwd1);
-
-//    if(ui->address->toPlainText().size())
-//        reg.set_address(ui->address->toPlainText() );
-//    if(ui->description->toPlainText().size())
-//        reg.set_description(ui->description->toPlainText());
-//    if(ui->phonenumber->text().size())
-//        reg.set_phonenumber(ui->phonenumber->text());
-
-//    if(!reg.IsInitialized()){
-//        qDebug()<<" message is not initialized!";
-//        return;
-//    }
-//    if(reg.password().size()==0){
-//        qDebug()<<" password size is 0";
-//        return;
-//    }
-
-//    mc.addMessage(MsgType::addUser, reg.toArray());
-
-//    int bytesSent = socket->sendBinaryMessage(mc.toArray());
-//    qDebug()<<"Sent bytes: "<< bytesSent;
 }

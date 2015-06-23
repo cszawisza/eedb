@@ -1,7 +1,11 @@
 option optimize_for = LITE_RUNTIME;
-package protbuf;
+// package protbuf;
 import public "common.proto";
 
+message ParameterValues{
+  required int32 id = 1;
+  required Variant value = 2;
+}
 
 message Details{
   required string name =1;
