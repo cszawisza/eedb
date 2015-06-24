@@ -68,6 +68,11 @@ LoginDialog::LoginDialog(QWidget *parent) :
     });
 
     connect(m_socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));
+
+    connect(m_socket, &QWebSocket::stateChanged, [=](QAbstractSocket::SocketState s){
+        qDebug() << s;
+    });
+
 }
 
 void LoginDialog::readyRead(QByteArray msg){
@@ -127,9 +132,7 @@ void LoginDialog::doLogin()
     protbuf::ClientRequests fullMessage;
     auto loginReq = fullMessage.add_request();
 
-
     auto userMsg = loginReq->mutable_msguserreq();
-//    userMsg->set_action(user::Action::Action_Login);
 
     auto login = userMsg->mutable_login();
     login->set_password(ui->userPassword->text().toStdString() );

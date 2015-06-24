@@ -22,6 +22,7 @@ signals:
     void disconnected();
 public slots:
 
+    void sendData(QByteArray db);
 private:
     // socket can't be passed to other thread!
     QWebSocket *m_socket;

@@ -211,11 +211,7 @@ void eedb::handlers::User::handle_login(const user::MsgUserRequest_Login &loginM
             add_resp(true, UserDontExist );
         }
         else{
-            number = queryResult.front().count;
             c_uid = queryResult.front().c_uid;
-
-            Q_ASSERT(number <= 1);
-            exists = number == 1;
 
             auto cred = db(select(u.c_password, u.c_salt).from(u).where(u.c_uid == c_uid));
 
@@ -228,9 +224,11 @@ void eedb::handlers::User::handle_login(const user::MsgUserRequest_Login &loginM
                 cache()->user().data().id = c_uid;
                 cache()->user().setIsLogged();
                 loadUserCache();
-            }else{
-                add_resp(true, LoginDeny );
             }
+            else
+                add_resp(true, LoginDeny );
+
+
         }
     }
 }

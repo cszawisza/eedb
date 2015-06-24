@@ -12,13 +12,7 @@ ClientConnection::ClientConnection(QWebSocket *socket, QObject *parent) :
     });
 
     // when a frame can be send to client
-    connect(m_worker, &ClientWorker::binnaryMessageReadyToSend, [=](const QByteArray &frame){
-        m_bytesSend += frame.size();
-        m_socket->sendBinaryMessage(frame);
-        qDebug() << "request served in: " << timer.nsecsElapsed() / 1000.0 << " µs";
-//        qDebug() << "send: " << frame.size() << " Bytes";
-//        qDebug() << "Message sent: " << frame.toHex();
-    });
+    connect(m_worker, SIGNAL(binnaryMessageReadyToSend(QByteArray)), this, SLOT(sendData(QByteArray)));
 
     // increment recived data size
     connect(m_socket, &QWebSocket::binaryMessageReceived, [&](const QByteArray &frame){
@@ -37,6 +31,14 @@ ClientConnection::ClientConnection(QWebSocket *socket, QObject *parent) :
 
     m_worker->moveToThread(m_workerThread);
     m_workerThread->start();
+}
+
+void ClientConnection::sendData(QByteArray ba){
+    m_bytesSend += ba.size();
+    auto sent = m_socket->sendBinaryMessage(ba);
+    qDebug() << "request served in: " << timer.nsecsElapsed() / 1000.0 << " µs";
+    qDebug() << "send: " << sent << " Bytes";
+//        qDebug() << "Message sent: " << frame.toHex();
 }
 
 ClientConnection::~ClientConnection()
