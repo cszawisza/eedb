@@ -8,7 +8,7 @@
 
 #include "utils/userconfig.h"
 #include "utils/hash_passwd.h"
-
+#include <iostream>
 #include "acl.h"
 
 using eedb::utils::PasswordHash;
@@ -152,6 +152,14 @@ void eedb::handlers::User::loadUserCache()
 void eedb::handlers::User::setLastLogin()
 {
     ///TODO set last login date
+    DB db;
+    try{
+        db(update(u).set(u.c_lastlogin = sqlpp::verbatim<sqlpp::text>("now()")).where(u.c_uid == cache()->user().data().id ));
+    }
+    catch(sqlpp::exception e){
+        ///TODO log
+        std::cout << e.what();
+    }
 }
 
 void eedb::handlers::User::handle_add(const user::MsgUserRequest_Add &msg)
@@ -163,9 +171,6 @@ void eedb::handlers::User::handle_add(const user::MsgUserRequest_Add &msg)
         addResp(true, PasswordToShort);
         return;
     }
-//    if(){
-
-//    }
 
     if(cache()->user().isLogged()){
         ///TODO check if user can add another user
@@ -224,11 +229,10 @@ void eedb::handlers::User::handle_login(const user::MsgUserRequest_Login &loginM
                 cache()->user().data().id = c_uid;
                 cache()->user().setIsLogged();
                 loadUserCache();
+                setLastLogin();
             }
             else
                 add_resp(true, LoginDeny );
-
-
         }
     }
 }

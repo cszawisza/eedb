@@ -138,7 +138,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QTextEdit" name="description"/>
+      <widget class="MRichTextEdit" name="description"/>
      </item>
     </layout>
    </item>
@@ -207,6 +207,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MRichTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>mrichtextedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

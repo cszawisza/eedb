@@ -7,12 +7,15 @@ set(CMAKE_AUTOUIC ON)
 #file(GLOB SRC "*.cpp" "*.ui" "*.h")
 
 set(SRC main.cpp
-logindialog.h
-logindialog.cpp
-logindialog.ui
-adduserdialog.cpp
-adduserdialog.ui
-adduserdialog.h
+    logindialog.h
+    logindialog.cpp
+    logindialog.ui
+    adduserdialog.cpp
+    adduserdialog.ui
+    adduserdialog.h
+    mrichtextedit.cpp
+    mtextedit.cpp
+    mrichtextedit.ui
 )
 
 add_executable( Client ${SRC} )
