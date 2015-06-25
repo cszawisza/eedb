@@ -97,7 +97,7 @@ TEST(DB, multipleTransactionsInDifferentObjects){
     DB db;
     EXPECT_NO_THROW(db.start_transaction());
     {
-        DB db2; // should be the same connection as previouse
+        DB db2; // should be the same connection
 
         EXPECT_NO_THROW(db2.execute("create temporary table if not exists t_test (x int);"));
         EXPECT_NO_THROW(db2(insert_into(test).set(test.x = 5)));

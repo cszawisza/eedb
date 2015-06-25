@@ -1,6 +1,7 @@
 option optimize_for = LITE_RUNTIME;
 package inventory;
 import public "common.proto";
+import public "inventory.proto"
 
 // USER MESSAGE STRUCTURE
 message MsgInventoryOperationRequest {
@@ -15,13 +16,16 @@ message MsgInventoryOperationRequest {
         required int32 storageId = 1;
         required int32 itemId = 2;
         optional Variant quantity = 3;
+        optional int32 shelfId = 4;
     }
 
     message MoveItem{
         required int32 storageFromId = 1;
-        required int32 storageToId = 2;
-        required int32 itemId = 3;
-        optional Variant quantity = 4;
+        optional int32 shelfFromId = 2;
+        required int32 storageToId = 3;
+        optional int32 shelfToId = 4;
+        required int32 itemId = 5;
+        optional Variant quantity = 6;
     }
 
     // remove dont only takes items from stack,

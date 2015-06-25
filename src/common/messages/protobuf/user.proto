@@ -60,6 +60,7 @@ message MsgUserRequest{
   message Login{
     required Credentials cred = 1;
     required string password = 2;
+    optional string sys_info = 3;
   }
   message Logout{
     // option save_state = 1;
@@ -88,11 +89,12 @@ message MsgUserRequest{
   }
 
   message Get {
-    optional bool basic_data = 1;
-    optional bool config = 2;
-    optional bool stats = 3;
-    optional bool permissions = 4;
-    optional bool details = 5;
+    optional bool uid = 1;
+    optional bool name = 2;
+    optional bool address = 3;
+    optional bool phone_number = 4;
+    optional bool description = 5;
+    optional bool avatar = 6;
   }
 
   message ChangePasswd{

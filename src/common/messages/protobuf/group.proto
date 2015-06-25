@@ -27,28 +27,36 @@ message MsgGroupRequest{
   }
   
   message Get{
-    optional bool get_all_groups = 5 [default = true];
-    repeated uint32 get_only = 6; // filter to those ID's
-    optional bool include_children = 4 [default = true];
+    optional bool get_all_groups    = 5 [default = true];
+    repeated uint32 get_only        = 6; // filter to those ID's
+    optional bool include_children  = 4 [default = true];
 
-    optional bool get_ids = 1 [default = true]; // both parent and child
-    optional bool get_name = 2 [default = true];
-    optional bool get_description = 3;
-    optional bool get_statistics = 10;
-    optional bool get_image = 11;
-    optional bool get_file_list = 12;
+    optional bool get_ids           = 1 [default = true]; // both parent and child
+    optional bool get_name          = 2 [default = true];
+    optional bool get_description   = 3;
+    optional bool get_statistics    = 10;
+    optional bool get_image         = 11;
+    optional bool get_file_list     = 12;
   }
   
   message Remove{
-    required uint32 group_id = 1;
-    optional bool remove_children = 2 [default = false];
-    optional bool remove_items = 3 [default = false];
-    optional bool only_hide = 4 [default = true]; // only sets goup as hidden
+  /// this message should be modified for providing more options
+    required uint32 group_id        = 1;
+    optional bool remove_items      = 3 [default = false];
+    optional bool only_hide         = 4 [default = true]; // only sets goup as hidden
+    oneof remove_mode{
+      bool  remove_children   = 2;
+      int32 move_children_to = 5; // instruct serwer to move child groups to this id
+      bool  hide_children     = 6;
+    }
   }
   
   message Modify{
     optional bool allow_sets = 3; 
     optional bool allow_items = 4;
+    optional string name = 5;
+    optional string desc = 6;
+    optional int32 parent_id = 7;
   }
   
   message ModifyParameters{
