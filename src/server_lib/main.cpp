@@ -29,7 +29,7 @@ int keepassx_main_impl(int argc, char *argv[], int (*app_run)() )
     msg->append(QStringLiteral(__TIME__));
     msg->append(QStringLiteral("\nna kompilatorze GCC w wersji "));
     msg->append(QStringLiteral(__VERSION__));
-    msg->append(QStringLiteral("\nkożystając z QT w wersji "));
+    msg->append(QStringLiteral("\nkorzystając z QT w wersji "));
     msg->append(QT_VERSION_STR);
     qDebug() << msg->toUtf8();
 

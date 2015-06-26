@@ -11,6 +11,7 @@
 #include "utils/hash_passwd.h"
 #include <iostream>
 #include "acl.h"
+#include <QRegExp>
 
 using eedb::utils::PasswordHash;
 
@@ -166,13 +167,42 @@ void eedb::handlers::User::loadUserCache()
 
 void eedb::handlers::User::handle_add(user::MsgUserRequest_Add &msg)
 {
-    ///TODO validate email address
-    ///TODO validate rest of fields (lengths)
+    ///TODO create table that handles login actions taken by user
+    ///TODO save information about login in database
+    QRegExp mailREX("\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b");
+    bool error = false;
 
-    if(!msg.has_password() || msg.password().size() < 2 ){
-        addResp(true, PasswordToShort);
-        return;
+    mailREX.setCaseSensitivity(Qt::CaseInsensitive);
+    mailREX.setPatternSyntax(QRegExp::RegExp);
+
+    if(!msg.details().has_name() ||msg.details().has_email() || msg.has_password()){
+        addResp( true , EmailNotValidate); ///TODO set proper error
+        error = true;
     }
+
+    ///TODO validate rest of fields (lengths)
+    if( msg.details().name().length() > 72){
+        addResp(true, UserNameToLong);
+        error = true;
+    }
+
+    if(!mailREX.exactMatch(QString::fromStdString(msg.details().email()))){
+        addResp(true, EmailNotValidate);
+        error = true;
+    }
+
+    if( msg.details().email().length() > 255){
+        addResp(true, EmailAddressToLong);
+        error = true;
+    }
+
+    if( msg.password().size() < 2 ){
+        addResp(true, PasswordToShort);
+        error = true;
+    }
+
+    if (error)
+        return;
 
     if(cache()->user().isLogged()){
         auth::AccesControl acl(cache()->user().data().id);
@@ -246,6 +276,7 @@ void eedb::handlers::User::handle_login(const user::MsgUserRequest_Login &loginM
             }
             else{
                 log_action(db, c_uid, "wrong password");
+                ///TODO auth try in database
                 add_resp(true, LoginDeny );
             }
         }
@@ -278,7 +309,7 @@ void eedb::handlers::User::handle_remove(const user::MsgUserRequest_Remove &dela
 
 void eedb::handlers::User::handle_get(const user::MsgUserRequest_Get &getMsg)
 {
-    ///TODO get data that user wants
+    ///TODO
 }
 
 void eedb::handlers::User::handle_changePasswd(const user::MsgUserRequest_ChangePasswd &changePasswd)
