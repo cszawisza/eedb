@@ -34,7 +34,6 @@ private:
     void addUser(const user::MsgUserRequest_Add &msg);
     void addResp(bool isError, Replay err_code);
     void loadUserCache();
-    void setLastLogin();
 };
 
 }

@@ -9,7 +9,7 @@
 namespace eedb {
 namespace handlers {
 
-using namespace inventory;
+using namespace pb;
 class Inventory : public MessageHandler
 {
 public:
@@ -27,9 +27,9 @@ private:
     void handle_remove( const MsgInventoryRequest_Remove &msg );
     void handle_addShelf( const MsgInventoryRequest_AddShelf &msg);
 
-    void insertStorage(const inventory::MsgInventoryRequest_Add &msgReq);
+    void insertStorage(const MsgInventoryRequest_Add &msgReq);
     void linkInventoryWithUser(DB &db, bool &error, quint64 inventoryId);
-    quint64 doInsert(DB &db, bool &error, const inventory::MsgInventoryRequest_Add &msgReq);
+    quint64 doInsert(DB &db, bool &error, const MsgInventoryRequest_Add &msgReq);
 };
 
 }

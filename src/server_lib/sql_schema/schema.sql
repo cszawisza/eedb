@@ -19,7 +19,8 @@ LANGUAGE plpgsql IMMUTABLE COST 1;
 drop table if exists t_inventories_history;
 drop table if exists t_inventories_operations;
 drop table if exists t_in_stock;
-drop table if exists t_inventories_racks;
+drop table if exists t_inventories_shelfs;
+drop table if exists t_user_history;
 drop table if exists t_user_inventories;
 drop table if exists t_inventories;
 drop table if exists t_item_files;
@@ -99,12 +100,24 @@ CREATE TABLE t_users (
     c_phonenumber       VARCHAR(20),
     c_address           TEXT            CHECK( length(c_address) <= 1000 ),
     c_description       TEXT            CHECK( length(c_description) <= 100000),   -- max size of description set to
-    c_registrationdate  TIMESTAMP       DEFAULT now() NOT NULL,
-    c_lastlogin         TIMESTAMP       CHECK( c_lastlogin <= now() ),
-    c_badpasswd         INT             DEFAULT 0,
     c_config            json            DEFAULT ('{}'),
     CONSTRAINT t_users_pkey         PRIMARY KEY (c_uid)
 ) INHERITS (t_acl);
+-- removed columns
+-- c_registrationdate  TIMESTAMP       DEFAULT now() NOT NULL,
+-- c_lastlogin         TIMESTAMP       CHECK( c_lastlogin <= now() ),
+-- c_badpasswd         INT             DEFAULT 0,
+-- columns lastlogin, registration and badpassword can be "calculated" from t_login_history, there is no need to store it in seperate database
+
+---TODO create proper indexes on t_login_history table
+CREATE TABLE t_user_history (
+    c_uid int REFERENCES t_users(c_uid) DEFERRABLE INITIALLY IMMEDIATE,
+    c_action TEXT,
+    c_when TIMESTAMP DEFAULT(now()),
+    CONSTRAINT t_user_history_pkey PRIMARY KEY (c_uid, c_action, c_when)
+);
+
+COMMENT ON TABLE t_user_history IS 'saves user actions like login/logout';
 
 CREATE TABLE t_files (
     c_name      TEXT    NOT NULL CHECK(length(c_name) < 4096 ),
@@ -127,8 +140,10 @@ CREATE TABLE t_categories(
     CONSTRAINT t_categorieowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (t_acl);
 
-
+COMMENT ON TABLE t_categories IS 'those are the items categories';
 COMMENT ON COLUMN t_categories.c_hide IS 'hide group from user, when true';
+COMMENT ON COLUMN t_categories.c_allow_recipe IS 'Shows that category can take recipie';
+COMMENT ON COLUMN t_categories.c_allow_items IS 'hide group from user, when true';
 
 CREATE UNIQUE INDEX t_categories_unique_names  ON t_categories ( c_parent_category_id, c_name );
 CREATE UNIQUE INDEX t_categories_unique_parent ON t_categories ( c_parent_category_id, c_uid );
@@ -188,7 +203,7 @@ CREATE TABLE t_item_files (
 );
 
 CREATE TABLE t_inventories(
-    c_name TEXT NOT NULL CHECK(length(c_name < 250)),
+    c_name TEXT NOT NULL CHECK(length(c_name) < 250),
     -- creation date, other info
     UNIQUE(c_uid, c_name),
     CONSTRAINT t_inventories_pkey PRIMARY KEY (c_uid),
@@ -215,6 +230,7 @@ create table t_in_stock(
 
 COMMENT ON TABLE t_in_stock IS 'Table contains information about items being available in storage';
 
+--- should it be saved in database or in application?
 create table t_inventories_operations(
     c_name varchar(50) not null unique,
     CONSTRAINT t_inventories_operations_pkey PRIMARY KEY (c_uid),

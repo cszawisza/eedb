@@ -50,11 +50,14 @@ message DateTime{
     optional uint32 sec = 6;
   }
   
-  oneof d {
-    Unix unix = 1;
-    Text text = 2;
-    Date date = 3;
-  }
+  optional Unix unix = 1;
+  optional Text text = 2;
+  optional Date date = 3;
+}
+
+message HistoryEntry{
+  required DateTime when = 1;
+  required string what = 2;
 }
 
 //message Event{
@@ -92,4 +95,9 @@ message File{
     optional string sha = 3;
     optional string mime = 4;
     optional Acl acl=5;
+}
+
+message FileData{
+    optional int32 fileId = 1;
+    optional bytes data = 2;
 }

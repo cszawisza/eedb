@@ -1,11 +1,11 @@
 option optimize_for = LITE_RUNTIME;
 package inventory;
 import public "common.proto";
-import public "inventory.proto"
+import public "inventory.proto";
 
 // USER MESSAGE STRUCTURE
 message MsgInventoryOperationRequest {
-  oneof data{
+  oneof action{
     AddItem add = 8;
     MoveItem move= 9;
     RemoveItem rm = 10;
@@ -31,6 +31,9 @@ message MsgInventoryOperationRequest {
     // remove dont only takes items from stack,
     //  but also removes information about this item in inventory
     message RemoveItem{
+        required int32 itemId = 1;
+        required int32 storageId = 2;
+        required int32 shelfId =3;
     }
 }
 

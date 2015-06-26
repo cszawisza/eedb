@@ -37,7 +37,7 @@ enum Replay{
 message MsgUserRequest{
 // USER MESSAGE STRUCTURE 
 
-  oneof data{
+  oneof action{
     Add add = 2;
     Login login = 3;
     Logout logout = 4; 
@@ -95,6 +95,7 @@ message MsgUserRequest{
     optional bool phone_number = 4;
     optional bool description = 5;
     optional bool avatar = 6;
+    optional bool history = 7;
   }
 
   message ChangePasswd{
@@ -106,9 +107,11 @@ message MsgUserRequest{
 
 message MsgUserResponse {
   required ResponseCode code = 1;
-  // optional UserDetails details = 2;
-  // optional UserConfig config = 3;
-  // optional UserStats stats = 4;
+
+  optional UserDetails details = 2;
+  optional UserConfig config = 3;
+  optional UserStats stats = 4;
+  optional UserHistory history = 5;
 }
 
 message UserDetails{
@@ -125,6 +128,8 @@ message UserConfig{
   optional uint32 last_group_id = 2;
   optional uint32 last_item_id = 3;
   optional uint32 last_parameter_id = 4;
+  // introduce more user optionas, and ask them at user creation time
+  // e.g. save login history? etc.
 }
 
 message UserStats{
@@ -134,8 +139,12 @@ message UserStats{
   optional uint32 totalNumOfRequests = 4; // number of requests to server
   optional uint32 totalModifiedItems = 5; // total number of modified elements by user
   optional uint32 totalAddItems = 6; // total items that user add to groups
-  optional fixed64 last_login = 7;  // last login date
-  optional fixed64 registration_date = 8; // registration date
+  optional DateTime last_login = 7;  // last login date
+  optional DateTime registration_date = 8; // registration date
+}
+
+message UserHistory{
+  repeated HistoryEntry entry = 1;
 }
 
 message UserFullInfo{
@@ -143,4 +152,5 @@ message UserFullInfo{
   optional UserConfig config = 2;
   optional UserStats stats = 3;
   optional int32 status = 4;
+  optional UserHistory history = 5;
 }

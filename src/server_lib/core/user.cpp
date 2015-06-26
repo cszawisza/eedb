@@ -5,6 +5,7 @@
 #include "sql_schema/t_users.h"
 #include "sql_schema/t_inventories.h"
 #include "sql_schema/t_user_inventories.h"
+#include "sql_schema/t_user_history.h"
 
 #include "utils/userconfig.h"
 #include "utils/hash_passwd.h"
@@ -16,6 +17,17 @@ using eedb::utils::PasswordHash;
 schema::t_users u;
 schema::t_user_inventories us;
 schema::t_inventories s;
+schema::t_user_history uh;
+
+void log_action(DB& db, quint64 uid, const string &action){
+    try{
+        db(insert_into(uh).set(uh.c_uid = uid, uh.c_action = action ));
+    }
+    catch(sqlpp::exception e){
+        ///TODO log
+        std::cout << e.what();
+    }
+}
 
 template<typename T, typename C>
 void dynamic_cred( T &query, const C &cred){
@@ -39,7 +51,7 @@ void eedb::handlers::User::process(protbuf::ClientRequest &msgReq)
     auto req = msgReq.msguserreq();
 
     using user::MsgUserRequest;
-    MsgUserRequest::DataCase msgType = req.data_case();
+    MsgUserRequest::ActionCase msgType = req.action_case();
     switch ( msgType ) {
     case MsgUserRequest::kAdd:
         handle_add( req.add() );
@@ -62,7 +74,7 @@ void eedb::handlers::User::process(protbuf::ClientRequest &msgReq)
     case MsgUserRequest::kChangePasswd:
         handle_changePasswd( req.changepasswd());
         break;
-    case MsgUserRequest::DATA_NOT_SET:
+    case MsgUserRequest::ACTION_NOT_SET:
         // send server error
         break;
     }
@@ -149,19 +161,6 @@ void eedb::handlers::User::loadUserCache()
 
 }
 
-void eedb::handlers::User::setLastLogin()
-{
-    ///TODO set last login date
-    DB db;
-    try{
-        db(update(u).set(u.c_lastlogin = sqlpp::verbatim<sqlpp::text>("now()")).where(u.c_uid == cache()->user().data().id ));
-    }
-    catch(sqlpp::exception e){
-        ///TODO log
-        std::cout << e.what();
-    }
-}
-
 void eedb::handlers::User::handle_add(const user::MsgUserRequest_Add &msg)
 {
     ///TODO validate email address
@@ -225,20 +224,24 @@ void eedb::handlers::User::handle_login(const user::MsgUserRequest_Login &loginM
             string hashed_pass = PasswordHash::hashPassword( loginMsg.password(), salt );
 
             if( hashed_pass == hash ){
+                log_action(db, c_uid, "login");
                 add_resp(false, LoginPass);
                 cache()->user().data().id = c_uid;
                 cache()->user().setIsLogged();
                 loadUserCache();
-                setLastLogin();
             }
-            else
+            else{
+                log_action(db, c_uid, "wrong password");
                 add_resp(true, LoginDeny );
+            }
         }
     }
 }
 
 void eedb::handlers::User::handle_logout(const user::MsgUserRequest_Logout &logoutMsg)
 {
+    DB db;
+    log_action(db, cache()->user().data().id, "logout");
 }
 
 void eedb::handlers::User::handle_modify(const user::MsgUserRequest_Modify &modifyMsg)
@@ -267,6 +270,8 @@ void eedb::handlers::User::handle_get(const user::MsgUserRequest_Get &getMsg)
 void eedb::handlers::User::handle_changePasswd(const user::MsgUserRequest_ChangePasswd &changePasswd)
 {
     ///TODO
+//    DB db;
+//    log_action(db, c_uid, "change password");
 }
 
 bool eedb::handlers::User::userExists(string name, string email)

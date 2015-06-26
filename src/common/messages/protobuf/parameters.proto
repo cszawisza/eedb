@@ -1,6 +1,20 @@
 option optimize_for = LITE_RUNTIME;
-// package protbuf;
+package pb;
 import public "common.proto";
+
+message MsgParameterRequest{
+    oneof action{
+        Add add =1;
+    };
+
+    message Add {
+        required string name = 1;
+    }
+}
+
+message MsgParameterResponse{
+
+}
 
 message ParameterValues{
   required int32 id = 1;

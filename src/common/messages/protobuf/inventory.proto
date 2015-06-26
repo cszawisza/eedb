@@ -1,10 +1,10 @@
 option optimize_for = LITE_RUNTIME;
-package inventory;
+package pb;
 import public "common.proto";
 
 // USER MESSAGE STRUCTURE
 message MsgInventoryRequest {
-  oneof data{
+  oneof action{
     Add add = 2;
     Remove remove = 5;
     Modify modify = 6;
@@ -12,7 +12,7 @@ message MsgInventoryRequest {
     AddShelf addShelf = 15;
 //    RmShelf rmShelf = 16;
 //    MoveShelf mvShelf = 17;
-  }
+  };
 
 // ACTION MESSAGES /////////////////////
   message Add{

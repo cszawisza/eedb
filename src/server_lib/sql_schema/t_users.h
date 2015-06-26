@@ -189,51 +189,6 @@ namespace schema {
 			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::can_be_null>;
 		};
 
-		struct C_registrationdate {
-			struct _alias_t {
-				static constexpr const char _literal[] ="c_registrationdate";
-				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-				template<typename T>
-					struct _member_t {
-						T c_registrationdate;
-						T &operator()() { return c_registrationdate; }
-						const T &operator()() const { return c_registrationdate; }
-					};
-			};
-
-			using _traits = ::sqlpp::make_traits<::sqlpp::varchar>;
-		};
-
-		struct C_lastlogin {
-			struct _alias_t {
-				static constexpr const char _literal[] ="c_lastlogin";
-				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-				template<typename T>
-					struct _member_t {
-						T c_lastlogin;
-						T &operator()() { return c_lastlogin; }
-						const T &operator()() const { return c_lastlogin; }
-					};
-			};
-
-			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::can_be_null>;
-		};
-
-		struct C_badpasswd {
-			struct _alias_t {
-				static constexpr const char _literal[] ="c_badpasswd";
-				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-				template<typename T>
-					struct _member_t {
-						T c_badpasswd;
-						T &operator()() { return c_badpasswd; }
-						const T &operator()() const { return c_badpasswd; }
-					};
-			};
-
-			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::can_be_null>;
-		};
-
 		struct C_config {
 			struct _alias_t {
 				static constexpr const char _literal[] ="c_config";
@@ -263,9 +218,6 @@ namespace schema {
 				t_users_::C_phonenumber,
 				t_users_::C_address,
 				t_users_::C_description,
-				t_users_::C_registrationdate,
-				t_users_::C_lastlogin,
-				t_users_::C_badpasswd,
 				t_users_::C_config> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {

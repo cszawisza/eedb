@@ -1,5 +1,5 @@
 option optimize_for = LITE_RUNTIME;
-package protbuf;
+package pb;
 
 import public "parameters.proto";
 import public "common.proto";
@@ -7,7 +7,7 @@ import public "common.proto";
 message MsgGroupRequest{
 // USER MESSAGE STRUCTURE 
 
-  oneof data{
+  oneof action{
     Add add = 2;
     Remove remove = 5;
     Modify modify = 6;
@@ -69,4 +69,8 @@ message MsgGroupRequest{
     
     repeated Modify modify = 1;
   }
+}
+
+message MsgGroupResponse{
+
 }

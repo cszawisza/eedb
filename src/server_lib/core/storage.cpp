@@ -11,6 +11,7 @@
 schema::t_inventories i;
 schema::t_user_inventories ui;
 
+using namespace pb;
 void eedb::handlers::Inventory::process(protbuf::ClientRequest &msg )
 {
     // Check if this is the message that handler wants
@@ -22,8 +23,7 @@ void eedb::handlers::Inventory::process(protbuf::ClientRequest &msg )
 
     auto req = msg.msginventoryreq();
 
-    using inventory::MsgInventoryRequest;
-    MsgInventoryRequest::DataCase msgType = req.data_case();
+    MsgInventoryRequest::ActionCase msgType = req.action_case();
     switch ( msgType ) {
     case MsgInventoryRequest::kAdd:
         handle_add( req.add() );
@@ -40,13 +40,13 @@ void eedb::handlers::Inventory::process(protbuf::ClientRequest &msg )
     case MsgInventoryRequest::kAddShelf:
         handle_addShelf( req.addshelf() );
         break;
-    case MsgInventoryRequest::DATA_NOT_SET:
-        // send server error
+    case MsgInventoryRequest::ACTION_NOT_SET:
+        // should not be here...
         break;
     }
 }
 
-void eedb::handlers::Inventory::handle_add(const inventory::MsgInventoryRequest_Add &msgReq)
+void eedb::handlers::Inventory::handle_add(const MsgInventoryRequest_Add &msgReq)
 {
     ///TODO check fields lengths
     ///TODO check if user can add storage
@@ -62,7 +62,7 @@ void eedb::handlers::Inventory::handle_add(const inventory::MsgInventoryRequest_
     }
 }
 
-quint64 eedb::handlers::Inventory::doInsert(DB &db, bool &error, const inventory::MsgInventoryRequest_Add &msgReq)
+quint64 eedb::handlers::Inventory::doInsert(DB &db, bool &error, const MsgInventoryRequest_Add &msgReq)
 {
     auto insert = insert_into(i).set(
                 i.c_name = parameter(i.c_name),
@@ -97,7 +97,7 @@ void eedb::handlers::Inventory::linkInventoryWithUser(DB &db, bool &error, quint
     }
 }
 
-void eedb::handlers::Inventory::insertStorage( const inventory::MsgInventoryRequest_Add &msgReq ){
+void eedb::handlers::Inventory::insertStorage( const MsgInventoryRequest_Add &msgReq ){
     DB db;
 
     db.start_transaction();
@@ -112,22 +112,22 @@ void eedb::handlers::Inventory::insertStorage( const inventory::MsgInventoryRequ
         db.commit_transaction();
 }
 
-void eedb::handlers::Inventory::handle_get(const inventory::MsgInventoryRequest_Get &msg)
+void eedb::handlers::Inventory::handle_get(const MsgInventoryRequest_Get &msg)
 {
     ///TODO implement
 }
 
-void eedb::handlers::Inventory::handle_modify(const inventory::MsgInventoryRequest_Modify &msg)
+void eedb::handlers::Inventory::handle_modify(const MsgInventoryRequest_Modify &msg)
 {
     ///TODO implement
 }
 
-void eedb::handlers::Inventory::handle_remove(const inventory::MsgInventoryRequest_Remove &msg)
+void eedb::handlers::Inventory::handle_remove(const MsgInventoryRequest_Remove &msg)
 {
     ///TODO implement
 }
 
-void eedb::handlers::Inventory::handle_addShelf(const inventory::MsgInventoryRequest_AddShelf &msg)
+void eedb::handlers::Inventory::handle_addShelf(const MsgInventoryRequest_AddShelf &msg)
 {
     ///TODO implement
 }
