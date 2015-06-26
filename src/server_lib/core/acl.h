@@ -17,14 +17,10 @@ using std::string;
 
 namespace auth {
 class AccesControl {
-
-    template<class Data>
-    void getAcl(Acl& acl, const Data &aclInfo){
-        acl.set_uid       ( aclInfo.front().c_uid         );
-        acl.set_owner     ( aclInfo.front().c_owner       );
-        acl.set_unixperms ( aclInfo.front().c_unixperms   );
-        acl.set_status    ( aclInfo.front().c_status      );
-        acl.set_group     ( aclInfo.front().c_group       );
+public:
+    AccesControl( quint64 uid ):
+        m_userId(uid)
+    {
     }
 
     bool checkUserAction(const string &action, quint64 objectid){
@@ -70,8 +66,8 @@ class AccesControl {
 
 
         auto aclInfo = db( sqlpp::select( sqlpp::all_of(acl) )
-                                   .from(acl)
-                                   .where( acl.c_uid == m_userId || acl.c_uid == objectid ) );
+                           .from(acl)
+                           .where( acl.c_uid == m_userId || acl.c_uid == objectid ) );
         if(aclInfo.empty())
             return false; // no object found
 
@@ -111,14 +107,25 @@ class AccesControl {
                            )
                        );
 
-//        for (const auto& row: res)
-//            result.push_back(row.c_title);
+        //        for (const auto& row: res)
+        //            result.push_back(row.c_title);
 
-//        return result;
+        //        return result;
         return false;
     }
 
 private:
+
+
+    template<class Data>
+    void getAcl(Acl& acl, const Data &aclInfo){
+        acl.set_uid       ( aclInfo.front().c_uid         );
+        acl.set_owner     ( aclInfo.front().c_owner       );
+        acl.set_unixperms ( aclInfo.front().c_unixperms   );
+        acl.set_status    ( aclInfo.front().c_status      );
+        acl.set_group     ( aclInfo.front().c_group       );
+    }
+
     quint64 m_userId;
     Acl m_userAcl;
 };

@@ -98,6 +98,21 @@ namespace schema {
 
 			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::require_insert>;
 		};
+
+		struct C_description {
+			struct _alias_t {
+				static constexpr const char _literal[] ="c_description";
+				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+				template<typename T>
+					struct _member_t {
+						T c_description;
+						T &operator()() { return c_description; }
+						const T &operator()() const { return c_description; }
+					};
+			};
+
+			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::can_be_null>;
+		};
 	}
 
 	struct t_inventories : sqlpp::table_t<t_inventories,
@@ -106,7 +121,8 @@ namespace schema {
 				t_inventories_::C_group,
 				t_inventories_::C_unixperms,
 				t_inventories_::C_status,
-				t_inventories_::C_name> {
+				t_inventories_::C_name,
+				t_inventories_::C_description> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {
 			static constexpr const char _literal[] = "t_inventories";

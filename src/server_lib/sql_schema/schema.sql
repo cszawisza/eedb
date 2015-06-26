@@ -204,6 +204,7 @@ CREATE TABLE t_item_files (
 
 CREATE TABLE t_inventories(
     c_name TEXT NOT NULL CHECK(length(c_name) < 250),
+    c_description TEXT CHECK(length(c_description)< 100000),
     -- creation date, other info
     UNIQUE(c_uid, c_name),
     CONSTRAINT t_inventories_pkey PRIMARY KEY (c_uid),

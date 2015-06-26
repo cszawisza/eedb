@@ -3,13 +3,16 @@
 #include "sql_schema/t_inventories.h"
 #include "sql_schema/t_inventories_history.h"
 #include "sql_schema/t_inventories_operations.h"
-#include "sql_schema/t_inventories_racks.h"
+#include "sql_schema/t_inventories_shelfs.h"
 #include "sql_schema/t_user_inventories.h"
+
+#include "sqlpp11/sqlpp11.h"
 
 #include <iostream>
 
 schema::t_inventories i;
-schema::t_user_inventories ui;
+schema::t_user_inventories u_i;
+schema::t_inventories_shelfs i_s;
 
 using namespace pb;
 void eedb::handlers::Inventory::process(protbuf::ClientRequest &msg )
@@ -87,9 +90,9 @@ quint64 eedb::handlers::Inventory::doInsert(DB &db, bool &error, const MsgInvent
 void eedb::handlers::Inventory::linkInventoryWithUser(DB &db, bool &error, quint64 inventoryId)
 {
     try{
-        db(insert_into(ui).set(
-           ui.c_inventory_id = inventoryId,
-           ui.c_user_id = cache()->user().data().id ) );
+        db(insert_into(u_i).set(
+           u_i.c_inventory_id = inventoryId,
+           u_i.c_user_id = cache()->user().data().id ) );
     }
     catch(sqlpp::exception e){
         std::cout << e.what();
@@ -114,7 +117,73 @@ void eedb::handlers::Inventory::insertStorage( const MsgInventoryRequest_Add &ms
 
 void eedb::handlers::Inventory::handle_get(const MsgInventoryRequest_Get &msg)
 {
+    ///TODO check if inventory with id exists!
+    auto &where = msg.where();
+
+    if(!cache()->user().isLogged()){
+        ///TODO add error resp
+        return;
+    }
+
+    quint64 uid = cache()->user().data().id;
+
     ///TODO implement
+    DB db;
+    auth::AccesControl acl(uid);
+    const int oid = msg.id();
+
+    if(where.has_user_id()){
+        // get all user inventories
+        auto dyn_sel = dynamic_select( db.connection())
+                .dynamic_columns(i.c_uid)
+                .from(i)
+                .dynamic_where( i.c_uid == oid );
+
+        if( msg.has_acl() && msg.acl()){
+            dyn_sel.selected_columns.add(i.c_uid);
+            dyn_sel.selected_columns.add(i.c_owner);
+            dyn_sel.selected_columns.add(i.c_group);
+            dyn_sel.selected_columns.add(i.c_unixperms);
+            dyn_sel.selected_columns.add(i.c_status);
+        }
+        else if (msg.has_id() && msg.id() )
+            dyn_sel.selected_columns.add(i.c_uid);
+
+        if( msg.has_name() && msg.name())
+            dyn_sel.selected_columns.add(i.c_name);
+        if( msg.has_description() && msg.description())
+            dyn_sel.selected_columns.add(i.c_description);
+
+        ///TODO get all storage shelfs
+    }
+    else if(where.has_inventory_id() ){
+        // get inventory with given ID
+    }
+
+//    if(acl.checkUserAction("read", msg.id() )){
+//        ///TODO get data
+//        auto dyn_sel = dynamic_select( db.connection())
+//                .dynamic_columns(i.c_uid)
+//                .from(i)
+//                .dynamic_where( i.c_uid == oid );
+//        if( msg.has_acl() && msg.acl() == true ){
+//            dyn_sel.selected_columns.add(i.c_owner);
+//            dyn_sel.selected_columns.add(i.c_group);
+//            dyn_sel.selected_columns.add(i.c_unixperms);
+//            dyn_sel.selected_columns.add(i.c_status);
+//        }
+//        if( msg.has_description() && msg.description() == true )
+//            dyn_sel.selected_columns.add(i.c_description);
+//        if( msg.has_name() && msg.name() == true )
+//            dyn_sel.selected_columns.add(i.c_name);
+//        if( msg.has_shelfs() && msg.shelfs() == true){
+//            ///TODO another query for getting shelfs
+//        }
+//    }
+//    else{
+//        ///TODO add error resp
+//    }
+
 }
 
 void eedb::handlers::Inventory::handle_modify(const MsgInventoryRequest_Modify &msg)
