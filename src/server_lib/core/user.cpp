@@ -175,7 +175,7 @@ void eedb::handlers::User::handle_add(user::MsgUserRequest_Add &msg)
     mailREX.setCaseSensitivity(Qt::CaseInsensitive);
     mailREX.setPatternSyntax(QRegExp::RegExp);
 
-    if(!msg.details().has_name() ||msg.details().has_email() || msg.has_password()){
+    if(!msg.details().has_name() || !msg.details().has_email() || !msg.has_password()){
         addResp( true , EmailNotValidate); ///TODO set proper error
         error = true;
     }
