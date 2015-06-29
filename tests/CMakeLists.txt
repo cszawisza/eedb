@@ -1,7 +1,7 @@
 include_directories( ${gmock_SOURCE_DIR}/gtest/include )
 include_directories( ${gmock_SOURCE_DIR}/include )
 
-INCLUDE_DIRECTORIES( ${Common_SOURCE_DIR}/messages )
+include_directories(${ProtobufIncludePath})
 INCLUDE_DIRECTORIES( ${Common_SOURCE_DIR} )
 INCLUDE_DIRECTORIES( ${EEDB_SERVER_SOURCE_DIR} )
 

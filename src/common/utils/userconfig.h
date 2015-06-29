@@ -3,7 +3,7 @@
 #include <QJsonObject>
 #include <string>
 
-#include "messages/pb_cpp/user.pb.h"
+#include "user.pb.h"
 
 namespace eedb {
 namespace utils {

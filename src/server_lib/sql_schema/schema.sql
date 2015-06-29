@@ -313,51 +313,6 @@ BEGIN
 
 END $$;
 
-CREATE
-  OR REPLACE FUNCTION get_user_perrmssions_for_table (
-  userid INT
-  ,tablename VARCHAR(255)
-  )
-RETURNS setof VARCHAR AS $$
-
-DECLARE usergroups INT;
-
-BEGIN
-  SELECT c_group
-  FROM t_acl
-  WHERE c_uid = userid
-  INTO usergroups;
-
-return query
-
-      SELECT ac.c_title
-      FROM t_action AS ac
-      -- Privileges that apply to the table and grant the given action
-      -- Not an inner join because the action may be granted even if there is no
-      -- privilege granting it. For example, root users can take all actions.
-      LEFT JOIN t_privilege AS pr ON pr.c_related_table = tablename
-        AND pr.c_action = ac.c_title
-        AND pr.c_type = 'table'
-      WHERE
-        -- The action must apply to tables (NOT apply to objects)
-        (ac.c_apply_object = false)
-        AND (
-          -- Members of the 'root' group are always allowed to do everything
-          (usergroups & 1 <> 0)
-          -- user privileges
-          OR (
-            pr.c_role = 'user'
-            AND pr.c_who = userid
-            )
-          -- group privileges
-          OR (
-            pr.c_role = 'group'
-            AND (pr.c_who & usergroups <> 0)
-            )
-          );
-END $$
-LANGUAGE plpgsql;
-
 CREATE OR REPLACE FUNCTION objects_with_action (m_tab VARCHAR, m_action varchar, userid int)
 RETURNS setof int AS $$
 

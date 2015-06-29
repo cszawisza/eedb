@@ -7,17 +7,25 @@
 
 #include "../../common.h"
 
+#include "sql_schema/t_users.h"
+#include "sql_schema/t_user_history.h"
+
 class userLoginTest : public ::testing::Test
 {
 public:
    userLoginTest() {
-       createBackup("t_users");
-       createBackup("t_login_history");
+       schema::t_users u;
+       schema::t_user_history uh;
+       createBackup(u);
+       createBackup(uh);
    }
 
    ~userLoginTest(){
-       restoreBackup("t_users");
-       restoreBackup("t_login_history");
+       schema::t_users u;
+       schema::t_user_history uh;
+
+       restoreBackup(u);
+       restoreBackup(uh);
    }
 
    const ResponseCode &sendRequest( user::MsgUserRequest_Add &msg){

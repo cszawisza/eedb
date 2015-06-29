@@ -1,8 +1,8 @@
 #include "adduserdialog.h"
 #include "ui_adduserdialog.h"
 
-#include "pb_cpp/user.pb.h"
-#include "pb_cpp/message_conteiner.pb.h"
+#include "messages/user.pb.h"
+#include "messages/message_conteiner.pb.h"
 #include <QInputDialog>
 
 AddUserDialog::AddUserDialog(QWebSocket *ws, QWidget *parent) :

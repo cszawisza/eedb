@@ -11,7 +11,7 @@
 #include "sql_schema/t_implemented_action.h"
 #include "sql_schema/t_privilege.h"
 
-#include "pb_cpp/common.pb.h" // for acl message
+#include "common.pb.h" // for acl message
 
 using std::vector;
 using std::string;
@@ -38,18 +38,18 @@ public:
     {
     }
 
+
     template<typename TAB>
-    bool checkUserAction(const string &action, TAB){
+    bool checkUserAction(DB &db, const string &action){
         const auto &tablename = sqlpp::name_of<TAB>::char_ptr();
 
-        schema::t_acl acl;
         schema::t_action ac;
         schema::t_privilege pr;
         schema::t_users u;
 
         ///TODO read group from cache
         quint64 userGroups = 0;
-        DB db;
+
 
         auto aclInfo = db( sqlpp::select( u.c_group )
                            .from(u)
@@ -78,7 +78,13 @@ public:
     }
 
     template<typename TAB>
-    bool checkUserAction(const string &action, TAB, quint64 objectid){
+    bool checkUserAction(const string &action){
+        DB db;
+        return checkUserAction<TAB>(db, action);
+    }
+
+    template<typename TAB>
+    bool checkUserAction(DB &db, const string &action, quint64 objectid){
         const string &tablename = sqlpp::name_of<TAB>::char_ptr();
 
         // check if root, and return true if so (root can everything :) )
@@ -86,12 +92,11 @@ public:
             return true;
 
         Acl objectAcl;
-        schema::t_acl acl;
+        TAB acl;
         schema::t_action act;
         schema::t_implemented_action ia;
         schema::t_privilege pr;
 
-        DB db;
         ///TODO
         /// 1: save the acl info in chace and update it only once a while to prevent db roundtrips
         ///    according to this a simple 'todo' list
@@ -153,7 +158,7 @@ public:
                            (act.c_title == action) and
                            act.c_apply_object
                            and ((
-                                       ( pr.c_role == "user"        and pr.c_who == m_userId )
+                                    (    pr.c_role == "user"        and pr.c_who == m_userId )
                                     or ( pr.c_role == "owner"       and acl.c_owner == m_userId )
                                     or ( pr.c_role == "owner_group" and ((acl.c_group & m_userAcl.group()) != 0))
                                     or ( pr.c_role == "group"       and ((pr.c_who & m_userAcl.group()) != 0))
@@ -167,6 +172,12 @@ public:
                 return true;
 
         return false;
+    }
+
+    template<typename TAB>
+    bool checkUserAction(const string &action, quint64 objectid){
+        DB db;
+        return checkUserAction<TAB>(db, action, objectid);
     }
 
 private:

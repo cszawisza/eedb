@@ -3,8 +3,8 @@
 #include "iprocessor.h"
 #include "idatabase.h"
 
-#include "pb_cpp/inventory.pb.h"
-#include "pb_cpp/inventory_operation.pb.h"
+#include "inventory.pb.h"
+#include "inventory_operation.pb.h"
 
 namespace eedb {
 namespace handlers {

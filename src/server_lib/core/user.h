@@ -3,7 +3,7 @@
 #include "iprocessor.h"
 #include "idatabase.h"
 
-#include "pb_cpp/user.pb.h"
+#include "user.pb.h"
 
 namespace eedb {
 namespace handlers {

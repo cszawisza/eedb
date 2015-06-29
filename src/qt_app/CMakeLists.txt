@@ -1,4 +1,4 @@
-include_directories( ${Common_SOURCE_DIR}/messages )
+include_directories( ${Common_BINARY_DIR} )
 
 find_package(Qt5Widgets)
 

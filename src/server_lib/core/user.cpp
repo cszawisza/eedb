@@ -94,10 +94,10 @@ void eedb::handlers::User::addUser(const user::MsgUserRequest_Add &msg)
     eedb::utils::UserConfig userConfig( conf );
     auto query = insert_into(u)
             .set(
-                u.c_group = msg.acl().group(),
-                u.c_unixperms = msg.acl().unixperms(),
-                u.c_owner = msg.acl().owner(),
-                u.c_status = msg.acl().status(),
+                u.c_group = msg.acl().has_group() ? msg.acl().group() : 2, // default to user group
+                u.c_unixperms = msg.acl().has_unixperms() ? msg.acl().unixperms() : 484,
+                u.c_owner = msg.acl().has_owner() ? msg.acl().owner() : 1,
+                u.c_status = msg.acl().has_status() ? msg.acl().status() : 0 ,
                 u.c_name = parameter(u.c_name),
                 u.c_email = parameter(u.c_email),
                 u.c_password = passwd.hash(),
@@ -206,24 +206,20 @@ void eedb::handlers::User::handle_add(user::MsgUserRequest_Add &msg)
 
     if(cache()->user().isLogged()){
         auth::AccesControl acl(cache()->user().data().id);
-        schema::t_users u;
-        if(acl.checkUserAction("create",u))
+
+        if(acl.checkUserAction<schema::t_users>("create"))
             addUser(msg);
         else{
-            // no acces :(
+            ///TODO response: no acces
         }
     }
     else
     {
         if( userExists( msg.details().name(), msg.details().email() ) )
             addResp(true, UserAlreadyExists );
-        else{
-            msg.mutable_acl()->set_unixperms( 484 ); // rwdr--r--
-            msg.mutable_acl()->set_owner( 1 ); ///TODO set owner to self?
-            msg.mutable_acl()->set_status( 0 );
-            msg.mutable_acl()->set_group( 2 ); ///TODO provide user groups
+        else
             addUser(msg);
-        }
+
     }
 }
 
@@ -293,17 +289,26 @@ void eedb::handlers::User::handle_modify(const user::MsgUserRequest_Modify &modi
 {
 }
 
-void eedb::handlers::User::handle_remove(const user::MsgUserRequest_Remove &delateMsg)
+void eedb::handlers::User::handle_remove(const user::MsgUserRequest_Remove &msg)
 {
+    if(!msg.has_cred()){
+        ///TODO add response
+        //        addResp(true, );
+        return;
+    }
+
     ///TODO remove user config
     ///TODO remove user files/items etc
     ///TODO check if user can remove user with cred
-    auto cred = delateMsg.cred();
+    auto cred = msg.cred();
     DB db;
+    auth::AccesControl acl(cache()->user().data().id);
     auto query = dynamic_remove(db.connection()).from(u).dynamic_where();
     dynamic_cred(query, cred);
 
-//    getUserPermissions(u, 32);
+    if (acl.checkUserAction<schema::t_users>("delete", msg.cred().id())){
+//        remove
+    }
     db(query);
 }
 

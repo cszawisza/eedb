@@ -4,7 +4,7 @@
 #include <QSharedPointer>
 #include <QDebug>
 #include <QSharedPointer>
-#include "pb_cpp/message_conteiner.pb.h"
+#include "message_conteiner.pb.h"
 #include "clientcache.h"
 #include "idatabase.h"
 #include "acl.h"

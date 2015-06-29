@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
+
 #include "utils/userconfig.h"
-#include "messages/pb_cpp/user.pb.h"
+#include "user.pb.h"
 
 #include <QJsonDocument>
 #include <QJsonObject>

@@ -3,8 +3,8 @@
 #include <QSharedPointer>
 #include <string>
 
-#include "pb_cpp/user.pb.h"
-#include "pb_cpp/common.pb.h" // for acl
+#include "user.pb.h"
+#include "common.pb.h" // for acl
 
 using namespace std;
 
