@@ -32,6 +32,11 @@ enum Replay{
   UserAlreadyLogged = 21;
   LogoutOk = 22;
   UserNotLogged = 23;
+
+    AddressToLong = 24;
+    DescriptionToLong = 25;
+    MissingRequiredField = 26;
+    BadPhoneNumber = 27;
 }
   
 message MsgUserRequest{
@@ -86,10 +91,16 @@ message MsgUserRequest{
     optional string address = 3;
     optional bytes phone_number = 4;
     optional bytes description = 5; 
-    optional bytes avatar = 6; 
+    optional bytes avatar = 6;
+    optional Acl acl = 7;
   }
 
   message Get {
+    message Where {
+      optional bool self = 1; // check only logged user
+      optional int32 uid = 2; // check this uid
+      optional int32 group = 3; // get all from group
+    }
     optional bool uid = 1;
     optional bool name = 2;
     optional bool address = 3;
@@ -97,12 +108,17 @@ message MsgUserRequest{
     optional bool description = 5;
     optional bool avatar = 6;
     optional bool history = 7;
+    optional Where where = 8;
   }
 
   message ChangePasswd{
-    optional string old = 1;
-    optional string new = 2;
-    optional bool resetPasswd = 3;
+    oneof Where{
+        bool self = 1;
+        int32 uid = 2;
+    }
+    optional string old = 3;
+    optional string new = 4;
+    optional bool resetPasswd = 5;
   }
 }
 

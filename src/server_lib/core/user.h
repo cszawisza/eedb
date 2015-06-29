@@ -27,7 +27,7 @@ private:
     void handle_modify( const MsgUserRequest_Modify &modifyMsg );
     void handle_remove( const MsgUserRequest_Remove &delateMsg );
     void handle_get   ( const MsgUserRequest_Get    &getMsg    );
-    void handle_changePasswd (const MsgUserRequest_ChangePasswd &changePasswd );
+    void handle_changePasswd (const MsgUserRequest_ChangePasswd &msg );
 
 
     bool userExists( string name, string email );

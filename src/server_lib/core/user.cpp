@@ -167,37 +167,49 @@ void eedb::handlers::User::loadUserCache()
 
 void eedb::handlers::User::handle_add(user::MsgUserRequest_Add &msg)
 {
-    ///TODO create table that handles login actions taken by user
     ///TODO save information about login in database
     QRegExp mailREX("\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b");
     bool error = false;
 
     mailREX.setCaseSensitivity(Qt::CaseInsensitive);
     mailREX.setPatternSyntax(QRegExp::RegExp);
+    const auto &det = msg.details();
 
-    if(!msg.details().has_name() || !msg.details().has_email() || !msg.has_password()){
-        addResp( true , EmailNotValidate); ///TODO set proper error
+    if(!det.has_name() || !det.has_email() || !msg.has_password()){
+        addResp( true, MissingRequiredField);
+        error = true;
+        return;
+    }
+    // check required fields
+    if( msg.password().length() < 2 ){
+        addResp(true, PasswordToShort);
         error = true;
     }
-
-    ///TODO validate rest of fields (lengths)
-    if( msg.details().name().length() > 72){
+    if( det.name().length() > 72){
         addResp(true, UserNameToLong);
         error = true;
     }
-
-    if(!mailREX.exactMatch(QString::fromStdString(msg.details().email()))){
-        addResp(true, EmailNotValidate);
-        error = true;
-    }
-
-    if( msg.details().email().length() > 255){
+    if( det.email().length() > 255 ){
         addResp(true, EmailAddressToLong);
         error = true;
     }
+    if(!mailREX.exactMatch(QString::fromStdString(det.email()))){
+        addResp(true, EmailNotValidate);
+        error = true;
+    }
+    // check optional fields
 
-    if( msg.password().size() < 2 ){
-        addResp(true, PasswordToShort);
+
+    if( det.has_address() && det.address().length() >= 1000 ){
+        addResp(true, AddressToLong);
+        error = true;
+    }
+    if( det.has_description() && det.description().length() >= 100000 ){
+        addResp(true, DescriptionToLong);
+        error = true;
+    }
+    if( det.has_phone_number() && det.phone_number().length() >= 20 ){
+        addResp(true, BadPhoneNumber);
         error = true;
     }
 
@@ -215,11 +227,10 @@ void eedb::handlers::User::handle_add(user::MsgUserRequest_Add &msg)
     }
     else
     {
-        if( userExists( msg.details().name(), msg.details().email() ) )
+        if( userExists( det.name(), det.email() ) )
             addResp(true, UserAlreadyExists );
         else
             addUser(msg);
-
     }
 }
 
@@ -272,7 +283,6 @@ void eedb::handlers::User::handle_login(const user::MsgUserRequest_Login &loginM
             }
             else{
                 log_action(db, c_uid, "wrong password");
-                ///TODO auth try in database
                 add_resp(true, LoginDeny );
             }
         }
@@ -314,13 +324,23 @@ void eedb::handlers::User::handle_remove(const user::MsgUserRequest_Remove &msg)
 
 void eedb::handlers::User::handle_get(const user::MsgUserRequest_Get &getMsg)
 {
-    ///TODO
+    ///TODO check if user is logged
+    ///TODO check if can read from users table
 }
 
-void eedb::handlers::User::handle_changePasswd(const user::MsgUserRequest_ChangePasswd &changePasswd)
+void eedb::handlers::User::handle_changePasswd(const user::MsgUserRequest_ChangePasswd &msg)
 {
-    ///TODO
-//    DB db;
+    ///TODO check if is logged in
+    ///TODO check if want to reset passwd or to change passwd
+    ///TODO change passwd to self or to someone else
+
+    DB db;
+    auth::AccesControl acl(cache()->user().data().id);
+
+    if(acl.checkUserAction<schema::t_users>(db,"change_password",msg.uid())){
+
+    }
+
 //    log_action(db, c_uid, "change password");
 }
 
