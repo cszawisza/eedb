@@ -11,12 +11,25 @@ class AccesControl_test : public testing::Test
 {
 public:
     AccesControl_test(){
-        createBackup("t_acl");
-        createBackup("t_users");
-
         DB db;
+
         schema::t_users u;
         schema::t_acl acl;
+        bool error = false;
+        try{
+            db.start_transaction();
+            createBackup(db, u);
+            createBackup(db, acl);
+        }
+        catch( sqlpp::exception ){
+            error = true;
+        }
+
+        if(error)
+            db.rollback_transaction(false);
+        else
+            db.commit_transaction();
+
 
         //create test user
         db(insert_into(u)
@@ -56,11 +69,15 @@ public:
                  acl.c_unixperms = 4  // 644 ------r--
                 ));
         m_other = m_uid +4;
+
     }
 
     ~AccesControl_test(){
-        restoreBackup("t_acl");
-        restoreBackup("t_users");
+        schema::t_users u;
+        schema::t_acl acl;
+        DB db;
+        restoreBackup(db,u);
+        restoreBackup(db,acl);
     }
 
     quint64 m_uid;
@@ -69,44 +86,55 @@ public:
 
 TEST_F(AccesControl_test, simple_permissions ){
     AccesControl acl(m_uid);
+    schema::t_acl a;
 
     // can't do anything with root's object
-    EXPECT_FALSE( acl.checkUserAction("read"  , m_root_obj, "t_acl") );
-    EXPECT_FALSE( acl.checkUserAction("write" , m_root_obj, "t_acl") );
-    EXPECT_FALSE( acl.checkUserAction("delete", m_root_obj, "t_acl") );
+    EXPECT_FALSE( acl.checkUserAction("read"  , a, m_root_obj) );
+    EXPECT_FALSE( acl.checkUserAction("write" , a, m_root_obj) );
+    EXPECT_FALSE( acl.checkUserAction("delete", a, m_root_obj) );
 
     // can read and write if in group
-    EXPECT_TRUE ( acl.checkUserAction("read"  , m_common_group, "t_acl") );
-    EXPECT_TRUE ( acl.checkUserAction("write" , m_common_group, "t_acl") );
-    EXPECT_FALSE( acl.checkUserAction("delete", m_common_group, "t_acl") );
+    EXPECT_TRUE ( acl.checkUserAction("read"  , a, m_common_group) );
+    EXPECT_TRUE ( acl.checkUserAction("write" , a, m_common_group) );
+    EXPECT_FALSE( acl.checkUserAction("delete", a, m_common_group) );
 
-    EXPECT_TRUE ( acl.checkUserAction("read"  , m_user_obj, "t_acl") );
-    EXPECT_TRUE ( acl.checkUserAction("write" , m_user_obj, "t_acl") );
-    EXPECT_FALSE( acl.checkUserAction("delete", m_user_obj, "t_acl") );
+    EXPECT_TRUE ( acl.checkUserAction("read"  , a, m_user_obj) );
+    EXPECT_TRUE ( acl.checkUserAction("write" , a, m_user_obj) );
+    EXPECT_FALSE( acl.checkUserAction("delete", a, m_user_obj) );
 
-    EXPECT_TRUE ( acl.checkUserAction("read"  , m_other, "t_acl") );
-    EXPECT_FALSE( acl.checkUserAction("write" , m_other, "t_acl") );
-    EXPECT_FALSE( acl.checkUserAction("delete", m_other, "t_acl") );
+    EXPECT_TRUE ( acl.checkUserAction("read"  , a, m_other) );
+    EXPECT_FALSE( acl.checkUserAction("write" , a, m_other) );
+    EXPECT_FALSE( acl.checkUserAction("delete", a, m_other) );
 }
 
 TEST_F(AccesControl_test, root_can_everything ){
     AccesControl acl(1);
+    schema::t_acl a;
 
     // can't do anything with root's object
-    EXPECT_TRUE ( acl.checkUserAction("read"  , m_root_obj, "t_acl") );
-    EXPECT_TRUE ( acl.checkUserAction("write" , m_root_obj, "t_acl") );
-    EXPECT_TRUE ( acl.checkUserAction("delete", m_root_obj, "t_acl") );
+    EXPECT_TRUE ( acl.checkUserAction("read"  , a, m_root_obj) );
+    EXPECT_TRUE ( acl.checkUserAction("write" , a, m_root_obj) );
+    EXPECT_TRUE ( acl.checkUserAction("delete", a, m_root_obj) );
 
     // can read and write if in group
-    EXPECT_TRUE ( acl.checkUserAction("read"  , m_common_group, "t_acl") );
-    EXPECT_TRUE ( acl.checkUserAction("write" , m_common_group, "t_acl") );
-    EXPECT_TRUE ( acl.checkUserAction("delete", m_common_group, "t_acl") );
+    EXPECT_TRUE ( acl.checkUserAction("read"  , a, m_common_group) );
+    EXPECT_TRUE ( acl.checkUserAction("write" , a, m_common_group) );
+    EXPECT_TRUE ( acl.checkUserAction("delete", a, m_common_group) );
 
-    EXPECT_TRUE ( acl.checkUserAction("read"  , m_user_obj, "t_acl") );
-    EXPECT_TRUE ( acl.checkUserAction("write" , m_user_obj, "t_acl") );
-    EXPECT_TRUE ( acl.checkUserAction("delete", m_user_obj, "t_acl") );
+    EXPECT_TRUE ( acl.checkUserAction("read"  , a, m_user_obj) );
+    EXPECT_TRUE ( acl.checkUserAction("write" , a, m_user_obj) );
+    EXPECT_TRUE ( acl.checkUserAction("delete", a, m_user_obj) );
 
-    EXPECT_TRUE ( acl.checkUserAction("read"  , m_other, "t_acl") );
-    EXPECT_TRUE ( acl.checkUserAction("write" , m_other, "t_acl") );
-    EXPECT_TRUE ( acl.checkUserAction("delete", m_other, "t_acl") );
+    EXPECT_TRUE ( acl.checkUserAction("read"  , a, m_other) );
+    EXPECT_TRUE ( acl.checkUserAction("write" , a, m_other) );
+    EXPECT_TRUE ( acl.checkUserAction("delete", a, m_other) );
+}
+
+TEST_F(AccesControl_test, table_acl){
+    AccesControl acl(m_uid);
+    schema::t_users u;
+    schema::t_acl a;
+
+    EXPECT_FALSE( acl.checkUserAction("read", u) );
+    EXPECT_FALSE( acl.checkUserAction("write", a) );
 }

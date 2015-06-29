@@ -17,6 +17,20 @@ using std::vector;
 using std::string;
 
 namespace auth {
+
+constexpr int owner_read    = 1<<8;
+constexpr int owner_write   = 1<<7;
+constexpr int owner_delete  = 1<<6;
+constexpr int group_read    = 1<<5;
+constexpr int group_write   = 1<<4;
+constexpr int group_delete  = 1<<3;
+constexpr int other_read    = 1<<2;
+constexpr int other_write   = 1<<1;
+constexpr int other_delete  = 1<<0;
+
+constexpr int groupsroot = 1;
+constexpr int rootId = 1;
+
 class AccesControl {
 public:
     AccesControl( quint64 uid ):
@@ -24,27 +38,54 @@ public:
     {
     }
 
-    bool checkUserAction(const string &action, quint64 objectid, string tablename){
-        constexpr int owner_read    = 1<<8;
-        constexpr int owner_write   = 1<<7;
-        constexpr int owner_delete  = 1<<6;
-        constexpr int group_read    = 1<<5;
-        constexpr int group_write   = 1<<4;
-        constexpr int group_delete  = 1<<3;
-        constexpr int other_read    = 1<<2;
-        constexpr int other_write   = 1<<1;
-        constexpr int other_delete  = 1<<0;
+    template<typename TAB>
+    bool checkUserAction(const string &action, TAB){
+        const auto &tablename = sqlpp::name_of<TAB>::char_ptr();
 
-        constexpr int groupsroot = 1;
-        constexpr int rootId = 1;
+        schema::t_acl acl;
+        schema::t_action ac;
+        schema::t_privilege pr;
+        schema::t_users u;
+
+        ///TODO read group from cache
+        quint64 userGroups = 0;
+        DB db;
+
+        auto aclInfo = db( sqlpp::select( u.c_group )
+                           .from(u)
+                           .where( u.c_uid == m_userId ) );
+        if(aclInfo.empty())
+            return false; // no user
+        userGroups = aclInfo.front().c_group;
+
+        auto res = db(sqlpp::select(ac.c_title)
+           .from(ac.left_outer_join(pr).on(pr.c_related_table == tablename
+                                           and pr.c_action == ac.c_title
+                                           and pr.c_type == "table" ))
+           .where( ac.c_apply_object == sqlpp::verbatim<sqlpp::boolean>( "FALSE " )
+                   and (sqlpp::verbatim<sqlpp::boolean>( (( userGroups & groupsroot ) != 0)  ? "TRUE " : "FALSE " )
+                        or (pr.c_role == "user" and pr.c_who == m_userId )
+                        or (pr.c_role == "group" and (pr.c_who & userGroups) != 0 )
+                        )
+                   )
+           );
+
+        for (const auto& row: res)
+            if(row.c_title == action )
+                return true;
+
+        return false;
+    }
+
+    template<typename TAB>
+    bool checkUserAction(const string &action, TAB, quint64 objectid){
+        const string &tablename = sqlpp::name_of<TAB>::char_ptr();
 
         // check if root, and return true if so (root can everything :) )
         if(m_userId == rootId )
             return true;
 
         Acl objectAcl;
-
-
         schema::t_acl acl;
         schema::t_action act;
         schema::t_implemented_action ia;

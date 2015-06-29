@@ -11,11 +11,13 @@ class userCreateTest : public ::testing::Test
 {
 public:
     userCreateTest() {
-        createBackup("t_users");
+        schema::t_users u;
+        createBackup(u);
     }
 
     ~userCreateTest(){
-        restoreBackup("t_users");
+        schema::t_users u;
+        restoreBackup(u);
     }
 
     const ResponseCode &sendRequest( user::MsgUserRequest_Add &msg){
