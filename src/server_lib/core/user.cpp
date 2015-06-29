@@ -54,7 +54,7 @@ void eedb::handlers::User::process(protbuf::ClientRequest &msgReq)
     MsgUserRequest::ActionCase msgType = req.action_case();
     switch ( msgType ) {
     case MsgUserRequest::kAdd:
-        handle_add( req.add() );
+        handle_add( *req.mutable_add() );
         break;
     case MsgUserRequest::kLogin:
         handle_login( req.login() );
@@ -93,7 +93,10 @@ void eedb::handlers::User::addUser(const user::MsgUserRequest_Add &msg)
     eedb::utils::UserConfig userConfig( conf );
     auto query = insert_into(u)
             .set(
-                u.c_group = 2, ///FIXME set to usergroups
+                u.c_group = msg.acl().group(),
+                u.c_unixperms = msg.acl().unixperms(),
+                u.c_owner = msg.acl().owner(),
+                u.c_status = msg.acl().status(),
                 u.c_name = parameter(u.c_name),
                 u.c_email = parameter(u.c_email),
                 u.c_password = passwd.hash(),
@@ -161,7 +164,7 @@ void eedb::handlers::User::loadUserCache()
 
 }
 
-void eedb::handlers::User::handle_add(const user::MsgUserRequest_Add &msg)
+void eedb::handlers::User::handle_add(user::MsgUserRequest_Add &msg)
 {
     ///TODO validate email address
     ///TODO validate rest of fields (lengths)
@@ -172,14 +175,25 @@ void eedb::handlers::User::handle_add(const user::MsgUserRequest_Add &msg)
     }
 
     if(cache()->user().isLogged()){
-        ///TODO check if user can add another user
+        auth::AccesControl acl(cache()->user().data().id);
+        schema::t_users u;
+        if(acl.checkUserAction("create",u))
+            addUser(msg);
+        else{
+            // no acces :(
+        }
     }
     else
     {
         if( userExists( msg.details().name(), msg.details().email() ) )
             addResp(true, UserAlreadyExists );
-        else
+        else{
+            msg.mutable_acl()->set_unixperms( 484 ); // rwdr--r--
+            msg.mutable_acl()->set_owner( 1 ); ///TODO set owner to self?
+            msg.mutable_acl()->set_status( 0 );
+            msg.mutable_acl()->set_group( 2 ); ///TODO provide user groups
             addUser(msg);
+        }
     }
 }
 

@@ -70,6 +70,7 @@ message MsgUserRequest{
     required UserDetails details = 1;
     optional UserConfig config = 2;
     optional string password = 3;
+    optional Acl acl = 4;
   }
   
   message Remove{

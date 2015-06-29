@@ -21,7 +21,7 @@ public:
     void process(protbuf::ClientRequest &msgReq );
 
 private:
-    void handle_add   ( const MsgUserRequest_Add    &msg    );
+    void handle_add   ( MsgUserRequest_Add    &msg    );
     void handle_login ( const MsgUserRequest_Login  &loginMsg  );
     void handle_logout( const MsgUserRequest_Logout &logoutMsg );
     void handle_modify( const MsgUserRequest_Modify &modifyMsg );
