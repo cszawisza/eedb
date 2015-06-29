@@ -140,14 +140,11 @@ void eedb::handlers::Inventory::handle_get(const MsgInventoryRequest_Get &msg)
                 .dynamic_where( i.c_uid == oid );
 
         if( msg.has_acl() && msg.acl()){
-            dyn_sel.selected_columns.add(i.c_uid);
             dyn_sel.selected_columns.add(i.c_owner);
             dyn_sel.selected_columns.add(i.c_group);
             dyn_sel.selected_columns.add(i.c_unixperms);
             dyn_sel.selected_columns.add(i.c_status);
         }
-        else if (msg.has_id() && msg.id() )
-            dyn_sel.selected_columns.add(i.c_uid);
 
         if( msg.has_name() && msg.name())
             dyn_sel.selected_columns.add(i.c_name);

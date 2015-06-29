@@ -32,7 +32,6 @@ public:
     eedb::handlers::User handler;
 };
 
-
 TEST_F( userCreateTest, user_no_name_and_email){
     user::MsgUserRequest_Add req;
 

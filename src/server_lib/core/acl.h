@@ -4,6 +4,7 @@
 #include <string>
 #include "idatabase.h"
 
+#include "sqlpp11/sqlpp11.h"
 #include "sql_schema/t_acl.h"
 #include "sql_schema/t_users.h"
 #include "sql_schema/t_action.h"
@@ -23,7 +24,7 @@ public:
     {
     }
 
-    bool checkUserAction(const string &action, quint64 objectid){
+    bool checkUserAction(const string &action, quint64 objectid, string tablename){
         constexpr int owner_read    = 1<<8;
         constexpr int owner_write   = 1<<7;
         constexpr int owner_delete  = 1<<6;
@@ -45,7 +46,6 @@ public:
 
 
         schema::t_acl acl;
-        schema::t_users user;
         schema::t_action act;
         schema::t_implemented_action ia;
         schema::t_privilege pr;
@@ -79,38 +79,52 @@ public:
             aclInfo.pop_front();
         }
 
-        string tablename = "t_users";
-
         if ((m_userAcl.group() & groupsroot) != 0)
             return true;
+        if( (action == "read") && (((objectAcl.unixperms() & other_read) != 0) || (((objectAcl.unixperms() & owner_read) != 0) && objectAcl.owner() == m_userId ) || (( (objectAcl.unixperms() & group_read) != 0) && ( (objectAcl.group() & m_userAcl.group()) != 0 )))  ){
+            return true;
+        }
+        if( (action == "write") && (((objectAcl.unixperms() & other_write) != 0) || (((objectAcl.unixperms() & owner_write) != 0) && objectAcl.owner() == m_userId ) || (( (objectAcl.unixperms() & group_write) != 0) && ( (objectAcl.group() & m_userAcl.group()) != 0 )))  ){
+            return true;
+        }
+        if( (action == "delete") && (((objectAcl.unixperms() & other_delete) != 0) || (((objectAcl.unixperms() & owner_delete) != 0) && objectAcl.owner() == m_userId ) || (( (objectAcl.unixperms() & group_delete) != 0) && ( (objectAcl.group() & m_userAcl.group()) != 0 )))  ){
+            return true;
+        }
 
         auto res = db( sqlpp::select().flags(sqlpp::distinct).columns(act.c_title)
                        .from(act
                              .inner_join(acl).on(acl.c_uid == objectid)
-                             .inner_join(ia).on(ia.c_action == act.c_title and ia.c_table == tablename and (ia.c_status == 0 or ((ia.c_status & acl.c_status) != 0)) )
-                             .left_outer_join(pr).on(pr.c_related_table == tablename and pr.c_action == act.c_title and ((pr.c_type == "object" and pr.c_related_uid == objectid) or (pr.c_type == "global") or ( (pr.c_role == "self") and sqlpp::verbatim<sqlpp::boolean>((m_userId == objectid) ? "TRUE " : "FALSE ") and sqlpp::verbatim<sqlpp::boolean>( (tablename == "users") ? "TRUE " : "FALSE "))))
+                             .inner_join(ia).on(ia.c_action == act.c_title
+                                                and ia.c_table == tablename
+                                                and (ia.c_status == 0 or ((ia.c_status & acl.c_status) != 0))
+                                                )
+                             .left_outer_join(pr).on(pr.c_related_table == tablename
+                                                     and pr.c_action == act.c_title
+                                                     and (   (  pr.c_type == "object" and pr.c_related_uid == objectid)
+                                                          or (  pr.c_type == "global" )
+                                                          or ( (pr.c_role == "self")
+                                                               and sqlpp::verbatim<sqlpp::boolean>( (m_userId  == objectid ) ? "TRUE " : "FALSE ")
+                                                               and sqlpp::verbatim<sqlpp::boolean>( (tablename == "t_users") ? "TRUE " : "FALSE "))
+                                                          )
+                                                     )
                              )
                        .where(
                            (act.c_title == action) and
                            act.c_apply_object
                            and ((
-                                    (    act.c_title == "read"   and (( (acl.c_unixperms & other_read)   != 0 ) or (( (acl.c_unixperms & owner_read)   != 0)  and acl.c_owner == m_userId ) or (( (acl.c_unixperms & group_read)   != 0) and ( (acl.c_group & m_userAcl.group()) != 0 ))) )
-                                    or ( act.c_title == "write"  and (( (acl.c_unixperms & other_write)  != 0 ) or (( (acl.c_unixperms & owner_write)  != 0)  and acl.c_owner == m_userId ) or (( (acl.c_unixperms & group_write)  != 0) and ( (acl.c_group & m_userAcl.group()) != 0 ))) )
-                                    or ( act.c_title == "delete" and (( (acl.c_unixperms & other_delete) != 0 ) or (( (acl.c_unixperms & owner_delete) != 0)  and acl.c_owner == m_userId ) or (( (acl.c_unixperms & group_delete) != 0) and ( (acl.c_group & m_userAcl.group()) != 0 ))) )
-                                    or ( pr.c_role == "user"        and pr.c_who == m_userId )
+                                       ( pr.c_role == "user"        and pr.c_who == m_userId )
                                     or ( pr.c_role == "owner"       and acl.c_owner == m_userId )
                                     or ( pr.c_role == "owner_group" and ((acl.c_group & m_userAcl.group()) != 0))
                                     or ( pr.c_role == "group"       and ((pr.c_who & m_userAcl.group()) != 0))
-                                    /*or ( sqlpp::verbatim<sqlpp::boolean>(((usergroups & groupsroot) != 0) ? "TRUE " : "FALSE " ))*/ // we can say that wthout roundtrip to database
                                     )
                                 or (pr.c_role == "self"))
                            )
                        );
 
-        //        for (const auto& row: res)
-        //            result.push_back(row.c_title);
+        for (const auto& row: res)
+            if(row.c_title == action )
+                return true;
 
-        //        return result;
         return false;
     }
 

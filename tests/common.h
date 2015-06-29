@@ -1,8 +1,11 @@
 #pragma once
 
 #include <string>
+#include "core/idatabase.h"
 
-void createBackup( string table){
+using std::string;
+
+inline void createBackup( string table){
     DB db;
     string copy = table +"_copy";
 
@@ -15,7 +18,7 @@ void createBackup( string table){
     db.execute("ALTER TABLE " + copy + " ALTER c_uid SET DEFAULT nextval('" + copy + "_id_seq');");
 }
 
-void restoreBackup( string table ){
+inline void restoreBackup( string table ){
     DB db;
     string copy = table+ "_copy";
     db.execute("delete from "+ table + " where c_uid not in ( select c_uid from "+ copy + " );");
@@ -25,7 +28,7 @@ void restoreBackup( string table ){
 }
 
 
-std::string random_string( size_t length )
+inline std::string random_string( size_t length )
 {
     auto randchar = []() -> char
     {
