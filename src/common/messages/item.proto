@@ -1,0 +1,54 @@
+option optimize_for = LITE_RUNTIME;
+
+package pb;
+
+import public "user.proto";
+import public "group.proto";
+import public "package.proto";
+import public "parameters.proto";
+import public "common.proto";
+
+message MsgItemRequest{
+    oneof action{
+      Add add = 2;
+      Remove remove = 5;
+      Modify modify = 6;
+      Get get = 7;
+    }
+
+    message Add{
+        required string name = 1;
+        optional string symbol = 2;
+        optional string namespace = 3;
+        optional string description = 4;
+        repeated ParameterValues parameters = 6;
+        optional Package packageId = 7;
+        repeated File files = 8; // only id and namel
+        repeated Parameter nerParameters = 9;
+        optional Acl acl = 10;
+    }
+
+    message Remove {
+        required int32 id = 1;
+        optional bool hide = 2;
+    }
+
+    message Modify{
+        required int32 id = 1;
+        optional string name = 2;
+        optional string symbol = 3;
+        optional string namespace = 4;
+        optional string description = 5;
+        repeated ParameterValues parameters = 6;
+        optional Acl acl = 7;
+    }
+
+    message Get{
+        optional int32 groupId = 1;
+        optional Limits limits = 10;
+    }
+}
+
+message MsgItemResponse{
+
+}

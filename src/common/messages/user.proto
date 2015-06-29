@@ -1,0 +1,157 @@
+option optimize_for = LITE_RUNTIME;
+package user;
+
+import public "stats.proto";
+import public "common.proto";
+
+// ENUM VALUES
+
+// enum Action{
+//   Action_Add = 1;
+//   Action_Login = 2;
+//   Action_Logout = 3;
+//   Action_Remove = 4;
+//   Action_Modify = 5;
+//   Action_Get = 6;
+// }
+
+enum Replay{
+  LoginPass = 1;
+  LoginDeny = 2;
+
+  EmailExists = 3;
+  EmailAddressToLong = 4;
+  EmailNotValidate = 5;
+  PasswordToShort = 6;
+  UserNameToLong = 11;
+  UserNameToShort = 12;
+  UserAlreadyExists=13;
+  UserAddOk = 14;
+  UserDontExist = 15;
+
+  UserAlreadyLogged = 21;
+  LogoutOk = 22;
+  UserNotLogged = 23;
+}
+  
+message MsgUserRequest{
+// USER MESSAGE STRUCTURE 
+
+  oneof action{
+    Add add = 2;
+    Login login = 3;
+    Logout logout = 4; 
+    Remove remove = 5;
+    Modify modify = 6;
+    Get get = 7;
+    ChangePasswd changePasswd = 8;
+  }
+ 
+// INTERNAL MESSAGES ///////////////
+  message Credentials{
+    oneof login_id{
+      uint32 id = 1;
+      string name = 2;
+      string email = 3;
+    }
+  }
+  
+// ACTION MESSAGES /////////////////////
+  message Login{
+    required Credentials cred = 1;
+    required string password = 2;
+    optional string sys_info = 3;
+  }
+  message Logout{
+    // option save_state = 1;
+  }
+  
+  message Add{
+    required UserDetails details = 1;
+    optional UserConfig config = 2;
+    optional string password = 3;
+    optional Acl acl = 4;
+  }
+  
+  message Remove{
+    required Credentials cred = 1;
+    optional string password = 2;
+    optional bool remove_config = 4;
+    optional bool remove_userdata = 5;
+  }
+  
+  message Modify{
+    optional string email = 1;
+    optional string name = 2;
+    optional string address = 3;
+    optional bytes phone_number = 4;
+    optional bytes description = 5; 
+    optional bytes avatar = 6; 
+  }
+
+  message Get {
+    optional bool uid = 1;
+    optional bool name = 2;
+    optional bool address = 3;
+    optional bool phone_number = 4;
+    optional bool description = 5;
+    optional bool avatar = 6;
+    optional bool history = 7;
+  }
+
+  message ChangePasswd{
+    optional string old = 1;
+    optional string new = 2;
+    optional bool resetPasswd = 3;
+  }
+}
+
+message MsgUserResponse {
+  required ResponseCode code = 1;
+
+  optional UserDetails details = 2;
+  optional UserConfig config = 3;
+  optional UserStats stats = 4;
+  optional UserHistory history = 5;
+}
+
+message UserDetails{
+  required string email = 1;
+  required string name = 2;
+  optional string address = 3;
+  optional bytes phone_number = 4;
+  optional bytes description = 5; 
+  optional bytes avatar = 6;
+}
+
+message UserConfig{
+  optional uint32 last_storage_id = 1;
+  optional uint32 last_group_id = 2;
+  optional uint32 last_item_id = 3;
+  optional uint32 last_parameter_id = 4;
+  // introduce more user optionas, and ask them at user creation time
+  // e.g. save login history? etc.
+}
+
+message UserStats{
+  optional uint32 magazineCount = 1; // number of magazines
+  optional uint32 totalNumOfElements=2; // number of elements
+  optional uint32 totalNumOfUniqueElements = 3; // number of different elements
+  optional uint32 totalNumOfRequests = 4; // number of requests to server
+  optional uint32 totalModifiedItems = 5; // total number of modified elements by user
+  optional uint32 totalAddItems = 6; // total items that user add to groups
+  optional DateTime last_login = 7;  // last login date
+  optional DateTime registration_date = 8; // registration date
+}
+
+message UserHistory{
+  repeated HistoryEntry entry = 1;
+}
+
+message UserFullInfo{
+  optional UserDetails details = 1;
+  optional UserConfig config = 2;
+  optional UserStats stats = 3;
+  optional int32 status = 4;
+  optional UserHistory history = 5;
+}
