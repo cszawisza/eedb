@@ -48,32 +48,41 @@ void eedb::handlers::User::process(protbuf::ClientRequest &msgReq)
 //    db.takeFromPool();
     auto req = msgReq.msguserreq();
 
-    MsgUserRequest::ActionCase msgType = req.action_case();
-    switch ( msgType ) {
-    case MsgUserRequest::kAdd:
-        handle_add( *req.mutable_add() );
-        break;
-    case MsgUserRequest::kLogin:
-        handle_login( req.login() );
-        break;
-    case MsgUserRequest::kLogout:
-        handle_logout( req.logout() );
-        break;
-    case MsgUserRequest::kGet:
-        handle_get( req.get() );
-        break;
-    case MsgUserRequest::kRemove:
-        handle_remove( req.remove() );
-        break;
-    case MsgUserRequest::kModify:
-        handle_modify( req.modify() );
-        break;
-    case MsgUserRequest::kChangePasswd:
-        handle_changePasswd( req.changepasswd());
-        break;
-    case MsgUserRequest::ACTION_NOT_SET:
-        // send server error
-        break;
+    if(user()->isOffline()){
+        MsgUserRequest::ActionCase msgType = req.action_case();
+        if ( msgType == MsgUserRequest::kAdd )
+            handle_add( *req.mutable_add() );
+        else if( msgType == MsgUserRequest::kLogin)
+            handle_login( req.login() );
+    }
+    else{
+        MsgUserRequest::ActionCase msgType = req.action_case();
+        switch ( msgType ) {
+        case MsgUserRequest::kAdd:
+            handle_add( *req.mutable_add() );
+            break;
+        case MsgUserRequest::kLogin:
+            handle_login( req.login() );
+            break;
+        case MsgUserRequest::kLogout:
+            handle_logout( req.logout() );
+            break;
+        case MsgUserRequest::kGet:
+            handle_get( req.get() );
+            break;
+        case MsgUserRequest::kRemove:
+            handle_remove( req.remove() );
+            break;
+        case MsgUserRequest::kModify:
+            handle_modify( req.modify() );
+            break;
+        case MsgUserRequest::kChangePasswd:
+            handle_changePasswd( req.changepasswd());
+            break;
+        case MsgUserRequest::ACTION_NOT_SET:
+            // send server error
+            break;
+        }
     }
 }
 
@@ -100,17 +109,20 @@ void eedb::handlers::User::addUser(DB &db, const MsgUserRequest_Add &msg)
                 u.c_address = parameter(u.c_address),
                 u.c_phonenumber = parameter(u.c_phonenumber),
                 u.c_description = parameter(u.c_description),
-                u.c_config = userConfig.toStdString() // must be a proper JSON document no need to parametrize
+                u.c_config = userConfig.toStdString(), // must be a proper JSON document no need to parametrize
+                u.c_avatar = parameter(u.c_avatar)
             );
-
-    ///TODO save avatar image
-    //        if(det.has_avatar())
-    //            ??
 
     // run query
     auto pre = db.prepare(query);
     pre.params.c_name  = basic.name();
     pre.params.c_email = basic.email();
+
+    if(basic.has_avatar()){
+        QByteArray ba = QByteArray::fromRawData(basic.avatar().data(), basic.avatar().size() );
+        pre.params.c_avatar = ba.toBase64().toStdString();
+    }
+
     if(basic.has_description())
         pre.params.c_description = basic.description();
     if(det.has_address())
@@ -121,12 +133,10 @@ void eedb::handlers::User::addUser(DB &db, const MsgUserRequest_Add &msg)
     try{
         db(pre);
         addResp(false, UserAddOk);
+        ///TODO log_action(db, UID, "register" );
     }
     catch (sqlpp::exception) {
         addResp(true, UserAlreadyExists);
-    }
-    catch ( ... ){
-        qDebug() << "Unknown error";
     }
 }
 
@@ -138,22 +148,44 @@ void eedb::handlers::User::addResp( bool isError, Replay err_code){
     addResponse(res);
 }
 
-void eedb::handlers::User::loadUserCache()
+void eedb::handlers::User::loadUserCache(DB &db, quint64 uid)
 {
-    ///TODO load user config to cache
-    ///TODO get acl?
-
-    Q_ASSERT(user().id() > 0);
-    Q_ASSERT(user().isOnline() );
-
-    auto uid = user().id();
-    DB db;
     constexpr t_users u;
-    auto userData = db(sqlpp::select(u.c_name, u.c_email, u.c_config, u.c_owner, u.c_status, u.c_group, u.c_unixperms )
-       .from(u)
-       .where(u.c_uid == uid ));
+//    constexpr t_inventories i;
+//    constexpr t_user_inventories ui;
 
-//    auto userStorages = db(select(s.c_uid, s.c_owner, s.c_group, s.c_unixperms, s.c_status, s.c_name )
+    auto &ud = db(sqlpp::select(
+                      u.c_name,
+                      u.c_email,
+                      u.c_config,
+
+                      u.c_address,
+                      u.c_description,
+                      u.c_phonenumber,
+
+                      u.c_owner,
+                      u.c_status,
+                      u.c_group,
+                      u.c_unixperms)
+       .from(u)
+       .where(u.c_uid == uid )).front();
+
+    auto basic = user()->mutable_basic();
+    auto acl   = user()->mutable_acl();
+
+    basic->set_id   ( uid );
+    basic->set_name ( ud.c_name );
+    basic->set_email( ud.c_email );
+    basic->set_description( ud.c_description );
+
+    acl->set_uid(uid);
+    acl->set_group(ud.c_group);
+    acl->set_status( ud.c_status );
+    acl->set_unixperms( ud.c_unixperms );
+
+    ///TODO get config
+
+//    auto userInventories = db(select(s.c_uid, s.c_owner, s.c_group, s.c_unixperms, s.c_status, s.c_name )
 //                           .from(s.inner_join(us)
 //                                 .on(us.c_storage_id == s.c_uid) )
 //                           .where(us.c_user_id == uid ));
@@ -212,8 +244,8 @@ void eedb::handlers::User::handle_add(MsgUserRequest_Add &msg)
         return;
 
     DB db;
-    if(user().isOnline()){
-        auth::AccesControl acl(user().id());
+    if(user()->isOnline()){
+        auth::AccesControl acl(user()->id());
 
         if(acl.checkUserAction<t_users>("create"))
             addUser(db, msg);
@@ -230,25 +262,25 @@ void eedb::handlers::User::handle_add(MsgUserRequest_Add &msg)
     }
 }
 
+void eedb::handlers::User::goToOnlineState(DB &db, quint64 uid)
+{
+    log_action(db, uid, "login");
+    addResp(false, LoginPass);
+
+    user()->goOnline();
+
+    loadUserCache(db, uid);
+}
+
 void eedb::handlers::User::handle_login(const MsgUserRequest_Login &loginMsg)
 {
-    protbuf::ServerResponse res = protbuf::ServerResponse::default_instance();
-
-    auto add_resp = [&]( bool isError, Replay err_code){
-        auto code = res.add_codes();
-        code->set_error(isError);
-        code->set_code(err_code);
-        addResponse(res);
-    };
-
-    if(user().isOnline()){
-        add_resp(true, UserAlreadyLogged );
+    if(user()->isOnline()){
+        addResp(true, UserAlreadyLogged );
     }
     else
     {
         DB db;
-        quint64 c_uid, number;
-        bool exists = false;
+        quint64 c_uid;
         constexpr t_users u;
         auto s = dynamic_select(db.connection(), count(u.c_uid), u.c_uid )
                 .from(u)
@@ -260,7 +292,7 @@ void eedb::handlers::User::handle_login(const MsgUserRequest_Login &loginMsg)
         auto queryResult = db(s);
 
         if (queryResult.empty()){
-            add_resp(true, UserDontExist );
+            addResp(true, UserDontExist );
         }
         else{
             c_uid = queryResult.front().c_uid;
@@ -271,16 +303,11 @@ void eedb::handlers::User::handle_login(const MsgUserRequest_Login &loginMsg)
             string hash = cred.front().c_password;
             string hashed_pass = PasswordHash::hashPassword( loginMsg.password(), salt );
 
-            if( hashed_pass == hash ){
-                log_action(db, c_uid, "login");
-                add_resp(false, LoginPass);
-                user().mutable_basic().set_id(c_uid);
-                user().goOnline();
-                loadUserCache();
-            }
+            if( hashed_pass == hash )
+                goToOnlineState(db, c_uid);
             else{
                 log_action(db, c_uid, "wrong password");
-                add_resp(true, LoginDeny );
+                addResp(true, LoginDeny );
             }
         }
     }
@@ -289,7 +316,8 @@ void eedb::handlers::User::handle_login(const MsgUserRequest_Login &loginMsg)
 void eedb::handlers::User::handle_logout(const MsgUserRequest_Logout &logoutMsg)
 {
     DB db;
-    log_action(db, user().id(), "logout");
+    log_action(db, user()->id(), "logout");
+    user()->goOffLine();
 }
 
 void eedb::handlers::User::handle_modify(const MsgUserRequest_Modify &msg)
@@ -299,47 +327,42 @@ void eedb::handlers::User::handle_modify(const MsgUserRequest_Modify &msg)
 void eedb::handlers::User::handle_remove(const MsgUserRequest_Remove &msg)
 {
     if(!msg.has_cred()){
-        ///TODO add response
-        //        addResp(true, );
+        addResp(true, MissingRequiredField);
         return;
     }
 
     ///TODO remove user config
-    ///TODO remove user files/items etc
+    ///TODO remove user files/items/history etc
     ///TODO check if user can remove user with cred
     auto cred = msg.cred();
     DB db;
     constexpr t_users u;
-    auth::AccesControl acl(user().id());
+    auth::AccesControl acl(user()->id());
     auto query = dynamic_remove(db.connection()).from(u).dynamic_where();
     dynamic_cred(query, cred);
 
     if (acl.checkUserAction<schema::t_users>("delete", msg.cred().id())){
-//        remove
+        ///TODO remove user from database
     }
     db(query);
 }
 
 void eedb::handlers::User::handle_get(const MsgUserRequest_Get &getMsg)
 {
-    ///TODO check if user is logged
-    ///TODO check if can read from users table
+    ///TODO check if can read from users table/user
 }
 
 void eedb::handlers::User::handle_changePasswd(const MsgUserRequest_ChangePasswd &msg)
 {
-    ///TODO check if is logged in
     ///TODO check if want to reset passwd or to change passwd
-    ///TODO change passwd to self or to someone else
+    ///TODO change passwd for 'self' or to someone else
 
     DB db;
-    auth::AccesControl acl(user().id());
+    auth::AccesControl acl(user()->id());
 
-    if(acl.checkUserAction<schema::t_users>(db,"change_password",msg.uid())){
-
+    if(acl.checkUserAction<schema::t_users>(db,"change_password",msg.uid()))
+    {
     }
-
-//    log_action(db, c_uid, "change password");
 }
 
 bool eedb::handlers::User::userExists(string name, string email)
@@ -349,9 +372,10 @@ bool eedb::handlers::User::userExists(string name, string email)
     DB db;
     constexpr t_users u;
     auto q = select( count(u.c_uid) )
-                 .from(u)
-                 .where(u.c_name == parameter(u.c_name) || u.c_email == parameter(u.c_email) )
-                 .group_by( u.c_uid ).limit(1);
+            .from(u)
+            .where(u.c_name == parameter(u.c_name) || u.c_email == parameter(u.c_email) )
+            .group_by( u.c_uid )
+            .limit(1);
     auto query = db.prepare(q);
     query.params.c_name = name;
     query.params.c_email = email;

@@ -21,7 +21,7 @@ void eedb::handlers::Inventory::process(protbuf::ClientRequest &msg )
     Q_ASSERT( msg.data_case() == protbuf::ClientRequest::kMsgInventoryReq );
     Q_ASSERT( msg.has_msginventoryreq() );
 
-    if (!user().isOnline())
+    if (!user()->isOnline())
         return;
 
     auto req = msg.msginventoryreq();
@@ -57,7 +57,7 @@ void eedb::handlers::Inventory::handle_add(const MsgInventoryRequest_Add &msgReq
     ///TODO add to inventories
     ///TODO link with user
 
-    if(user().isOnline()){
+    if(user()->isOnline()){
         insertStorage(msgReq);
     }
     else{
@@ -92,7 +92,7 @@ void eedb::handlers::Inventory::linkInventoryWithUser(DB &db, bool &error, quint
     try{
         db(insert_into(u_i).set(
            u_i.c_inventory_id = inventoryId,
-           u_i.c_user_id = user().id() ) );
+           u_i.c_user_id = user()->id() ) );
     }
     catch(sqlpp::exception e){
         std::cout << e.what();
@@ -120,12 +120,12 @@ void eedb::handlers::Inventory::handle_get(const MsgInventoryRequest_Get &msg)
     ///TODO check if inventory with id exists!
     auto &where = msg.where();
 
-    if(!user().isOnline()){
+    if(!user()->isOnline()){
         ///TODO add error resp
         return;
     }
 
-    quint64 uid = user().id() ;
+    quint64 uid = user()->id() ;
 
     ///TODO implement
     DB db;

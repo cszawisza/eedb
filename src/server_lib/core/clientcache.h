@@ -19,10 +19,12 @@ public:
         m_status(UserOffline)
     {
         m_basicData.Clear();
+        m_acl.Clear();
     }
     bool isOnline() const { return m_status == UserOnline; }
-    void goOnline() { m_status == UserOnline; }
-    void goOffLine() { m_status == UserOffline; }
+    bool isOffline() const { return m_status == UserOffline; }
+    void goOnline() { m_status = UserOnline; }
+    void goOffLine() { m_status = UserOffline; }
 
     quint64 id() const {
         if(m_basicData.has_id())
@@ -31,13 +33,18 @@ public:
             return 0;
     }
 
-    pb::UserBasic &mutable_basic(){
-        return m_basicData;
+    pb::UserBasic *mutable_basic(){
+        return &m_basicData;
+    }
+
+    Acl *mutable_acl(){
+        return &m_acl;
     }
 
 private:
     Status m_status;
     pb::UserBasic m_basicData;
+    Acl m_acl;
 };
 
 class ClientCache

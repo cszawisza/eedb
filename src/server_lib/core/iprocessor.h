@@ -52,10 +52,10 @@ public:
     }
 
 protected:
-    UserData &user(){
+    UserData *user(){
         if(!m_userData)
             m_userData = SharedUserData(new UserData() );
-        return *m_userData;
+        return m_userData.data();
     }
 
     const bool addResponse( const protbuf::ServerResponse &resp ){
