@@ -35,8 +35,8 @@ public:
      * @brief setClientCache
      * @param cache: sets a pointer to common cache (containing user status information and session stuf)
      */
-    void setClientCache( SharedClientCache cache){
-        m_cache.swap(cache);
+    void setUserData( SharedUserData userData){
+        m_userData.swap(userData);
     }
 
     /**
@@ -52,6 +52,11 @@ public:
     }
 
 protected:
+    UserData &user(){
+        if(!m_userData)
+            m_userData = SharedUserData(new UserData() );
+        return *m_userData;
+    }
 
     const bool addResponse( const protbuf::ServerResponse &resp ){
         if(!m_outputFrame)
@@ -59,13 +64,7 @@ protected:
         m_outputFrame->add_response()->MergeFrom(resp);
     }
 
-    SharedClientCache cache() {
-        if(!m_cache)
-            m_cache = SharedClientCache(new ClientCache );
-        return m_cache;
-    }
-
 private:
-    SharedClientCache m_cache;
+    SharedUserData m_userData;
     SharedResponses m_outputFrame;
 };

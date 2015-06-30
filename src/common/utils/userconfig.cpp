@@ -13,7 +13,7 @@ eedb::utils::UserConfig::UserConfig(std::string json)
     m_config = QJsonDocument::fromJson(QByteArray::fromRawData(json.data(), json.size())).object();
 }
 
-eedb::utils::UserConfig::UserConfig(const user::UserConfig &conf)
+eedb::utils::UserConfig::UserConfig(const pb::UserConfig &conf)
 {
     m_conf.CopyFrom(conf);
 }

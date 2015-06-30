@@ -8,39 +8,42 @@
 
 using namespace std;
 
-struct UserData{
-    qint64 id;
-    string name;
-};
-
-class User{
+class UserData{
 public:
     enum Status{
-        logged,
-        notLogged
+        UserOnline,
+        UserOffline
     };
 
-    User():
-        m_status(notLogged){}
-    bool isLogged() const { return m_status == logged; }
-    void setIsLogged() { setStatus(logged);}
-    void setStatus(Status s){ m_status = s; }
+    UserData():
+        m_status(UserOffline)
+    {
+        m_basicData.Clear();
+    }
+    bool isOnline() const { return m_status == UserOnline; }
+    void goOnline() { m_status == UserOnline; }
+    void goOffLine() { m_status == UserOffline; }
 
-    UserData &data(){ return m_data; }
+    quint64 id() const {
+        if(m_basicData.has_id())
+            return m_basicData.id();
+        else
+            return 0;
+    }
+
+    pb::UserBasic &mutable_basic(){
+        return m_basicData;
+    }
+
 private:
-    UserData m_data;
     Status m_status;
+    pb::UserBasic m_basicData;
 };
 
 class ClientCache
 {
 public:
     ClientCache();
-    
-    User &user() {return m_userStatus;}
-    
-private:
-    User m_userStatus;
 };
 
-typedef QSharedPointer<ClientCache> SharedClientCache;
+using SharedUserData = QSharedPointer<UserData>;

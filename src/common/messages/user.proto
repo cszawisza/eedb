@@ -1,19 +1,8 @@
 option optimize_for = LITE_RUNTIME;
-package user;
+package pb;
 
 import public "stats.proto";
 import public "common.proto";
-
-// ENUM VALUES
-
-// enum Action{
-//   Action_Add = 1;
-//   Action_Login = 2;
-//   Action_Logout = 3;
-//   Action_Remove = 4;
-//   Action_Modify = 5;
-//   Action_Get = 6;
-// }
 
 enum Replay{
   LoginPass = 1;
@@ -33,10 +22,10 @@ enum Replay{
   LogoutOk = 22;
   UserNotLogged = 23;
 
-    AddressToLong = 24;
-    DescriptionToLong = 25;
-    MissingRequiredField = 26;
-    BadPhoneNumber = 27;
+  AddressToLong = 24;
+  DescriptionToLong = 25;
+  MissingRequiredField = 26;
+  BadPhoneNumber = 27;
 }
   
 message MsgUserRequest{
@@ -72,10 +61,11 @@ message MsgUserRequest{
   }
   
   message Add{
-    required UserDetails details = 1;
+    required UserBasic basic = 1;
     optional UserConfig config = 2;
     optional string password = 3;
     optional Acl acl = 4;
+    optional UserDetails details = 5;
   }
   
   message Remove{
@@ -125,19 +115,24 @@ message MsgUserRequest{
 message MsgUserResponse {
   required ResponseCode code = 1;
 
-  optional UserDetails details = 2;
+  optional UserBasic basic = 2;
   optional UserConfig config = 3;
   optional UserStats stats = 4;
   optional UserHistory history = 5;
+  optional UserDetails details = 6;
+}
+
+message UserBasic{
+  optional int32 id = 7;
+  optional string email = 1;
+  optional string name = 2;
+  optional bytes description = 5; 
+  optional bytes avatar = 6;
 }
 
 message UserDetails{
-  required string email = 1;
-  required string name = 2;
   optional string address = 3;
   optional bytes phone_number = 4;
-  optional bytes description = 5; 
-  optional bytes avatar = 6;
 }
 
 message UserConfig{
@@ -165,9 +160,10 @@ message UserHistory{
 }
 
 message UserFullInfo{
-  optional UserDetails details = 1;
+  optional UserBasic basic = 1;
   optional UserConfig config = 2;
   optional UserStats stats = 3;
   optional int32 status = 4;
   optional UserHistory history = 5;
+  optional UserDetails details = 6;
 }

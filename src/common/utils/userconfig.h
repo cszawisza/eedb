@@ -14,7 +14,7 @@ class UserConfig
 {
 public:
     explicit UserConfig( string json );
-    UserConfig(const user::UserConfig &conf);
+    UserConfig(const pb::UserConfig &conf);
 
     QString toString() const;
     string toStdString() const;
@@ -22,7 +22,7 @@ public:
 private:
     QByteArray getJson() const ;
     QJsonObject m_config; ///TODO replace with protbuf message
-    user::UserConfig m_conf;
+    pb::UserConfig m_conf;
 };
 
 }

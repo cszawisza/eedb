@@ -68,11 +68,11 @@ void AddUserDialog::on_registerNewUser_clicked()
     auto loginReq = fullMessage.add_request();
     auto userMsg = loginReq->mutable_msguserreq();
     auto login = userMsg->mutable_add();
-    login->mutable_details()->set_name( ui->name->text().toStdString() );
-    login->mutable_details()->set_email(ui->email->text().toStdString() );
+    login->mutable_basic()->set_name( ui->name->text().toStdString() );
+    login->mutable_basic()->set_email(ui->email->text().toStdString() );
 
     if(! ui->description->toPlainText().isEmpty())
-        login->mutable_details()->set_description( ui->description->toHtml().toStdString() );
+        login->mutable_basic()->set_description( ui->description->toHtml().toStdString() );
     if(! ui->address->toPlainText().isEmpty() )
         login->mutable_details()->set_address( ui->address->toPlainText().toStdString() );
     if(! ui->phonenumber->text().isEmpty() )

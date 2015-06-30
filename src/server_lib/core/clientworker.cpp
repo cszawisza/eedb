@@ -6,20 +6,13 @@
 
 ClientWorker::ClientWorker(QObject *parent) :
     QObject(parent),
-    m_cache(QSharedPointer<ClientCache>(new ClientCache() )),
+    m_cache( SharedUserData (new UserData() )),
     m_responseFrame( SharedResponses(new protbuf::ServerResponses )) /*,
     m_defaultProcessor(QSharedPointer<MessageHandler>(new UnknownMessageProcessor()))*/
 {
     auto u = QSharedPointer<eedb::handlers::User>(new eedb::handlers::User());
     auto s = QSharedPointer<eedb::handlers::Inventory>( new eedb::handlers::Inventory() );
-//    auto loginProcessor = QSharedPointer<LoginProcessor>(new LoginProcessor() );
-//    loginProcessor->setClientCache(m_cache);
 
-//    auto registerUser = QSharedPointer<UserMsgProcessor>(new UserMsgProcessor() );
-//    registerUser->setClientCache(m_cache);
-
-//    m_messageProcessors.insert(MsgType::reqLogin, loginProcessor);
-//    m_messageProcessors.insert(MsgType::msgUserFullData, registerUser);
     m_msgHandlers.insert( protbuf::ClientRequest::kMsgUserReq, u );
     m_msgHandlers.insert( protbuf::ClientRequest::kMsgInventoryReq, s);
 }

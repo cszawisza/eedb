@@ -43,7 +43,7 @@ message ClientRequest{
   oneof data {
 //    bytes binary_msg = 10;
 //    string json_msg = 11;
-    user.MsgUserRequest             msgUserReq = 12;
+    pb.MsgUserRequest             msgUserReq = 12;
     pb.MsgInventoryRequest    msgInventoryReq = 13;
     pb.MsgItemRequest         msgItemReq = 14;
     pb.MsgGroupRequest        msgGroupReq = 15;
@@ -65,7 +65,7 @@ message ServerResponse {
   oneof data {
 //    bytes binary_msg = 10;
 //    string json_msg = 11;
-    user.MsgUserResponse            msgUserRes = 12;
+    pb.MsgUserResponse            msgUserRes = 12;
     pb.MsgInventoryResponse   msgInventoryRes = 13;
     pb.MsgItemResponse        msgItemRes = 14;
     pb.MsgGroupResponse       msgGroupRes = 15;

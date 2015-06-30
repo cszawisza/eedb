@@ -28,7 +28,7 @@ public:
        restoreBackup(uh);
    }
 
-   const ResponseCode &sendRequest( user::MsgUserRequest_Add &msg){
+   const ResponseCode &sendRequest( pb::MsgUserRequest_Add &msg){
        protbuf::ClientRequest req;
 
        auto userReq = req.mutable_msguserreq();
