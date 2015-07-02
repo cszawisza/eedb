@@ -60,14 +60,6 @@ message HistoryEntry{
   required string what = 2;
 }
 
-//message Event{
-//  required fixed64 timestamp = 1;
-//}
-
-//message TimeLine{
-//  repeated Event event = 1;
-//}
-
 message Acl{
   optional int32 uid = 1;
   optional int32 owner = 2;

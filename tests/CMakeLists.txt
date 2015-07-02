@@ -17,7 +17,7 @@ find_package(Qt5WebSockets)
 
 set(MAIN_SRC main.cpp)
 #
-file(GLOB_RECURSE TESTS_SRC common.h DbCon/* common/* server/* )
+file(GLOB_RECURSE TESTS_SRC common.h common/* DbCon/* server/* )
 add_executable(Tests ${MAIN_SRC} ${TESTS_SRC})
 
 target_link_libraries(Tests gtest eedb_lib pq)

@@ -8,24 +8,24 @@ enum Replay{
   LoginPass = 1;
   LoginDeny = 2;
 
-  EmailExists = 3;
+  LogoutOk = 3;
+
   EmailAddressToLong = 4;
   EmailNotValidate = 5;
-  PasswordToShort = 6;
-  UserNameToLong = 11;
-  UserNameToShort = 12;
-  UserAlreadyExists=13;
-  UserAddOk = 14;
-  UserDontExist = 15;
+  UserNameToLong = 6;
 
-  UserAlreadyLogged = 21;
-  LogoutOk = 22;
-  UserNotLogged = 23;
+  UserAlreadyExists=7;
+  UserAddOk = 8;
+  UserDontExist = 9;
+  UserOnline = 10;
 
-  AddressToLong = 24;
-  DescriptionToLong = 25;
-  MissingRequiredField = 26;
-  BadPhoneNumber = 27;
+  PasswordToShort = 11;
+
+  AddressToLong = 12;
+  DescriptionToLong = 13;
+  BadPhoneNumber = 14;
+
+  MissingRequiredField = 15;
 }
   
 message MsgUserRequest{
@@ -57,7 +57,7 @@ message MsgUserRequest{
     optional string sys_info = 3;
   }
   message Logout{
-    // option save_state = 1;
+    // optional bool save_state = 1;
   }
   
   message Add{

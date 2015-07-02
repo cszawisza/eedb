@@ -101,6 +101,7 @@ CREATE TABLE t_users (
     c_address           TEXT            CHECK( length(c_address) <= 1000 ),
     c_description       TEXT            CHECK( length(c_description) <= 100000),   -- max size of description set to
     c_config            json            DEFAULT ('{}'),
+    c_avatar            TEXT,
     CONSTRAINT t_users_pkey         PRIMARY KEY (c_uid)
 ) INHERITS (t_acl);
 -- removed columns

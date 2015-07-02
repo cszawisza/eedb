@@ -275,7 +275,7 @@ void eedb::handlers::User::goToOnlineState(DB &db, quint64 uid)
 void eedb::handlers::User::handle_login(const MsgUserRequest_Login &loginMsg)
 {
     if(user()->isOnline()){
-        addResp(true, UserAlreadyLogged );
+        addResp(true, UserOnline );
     }
     else
     {
