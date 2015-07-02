@@ -72,6 +72,30 @@ TEST_F( userCreateTest, user_name_to_long ){
     EXPECT_TRUE(res.error());
 }
 
+TEST_F( userCreateTest, user_duplicated ){
+    pb::MsgUserRequest_Add req;
+
+    string name = "RANDOM_USER_NAME";
+    string email= "RANDOM_USER_NAME@email.com";
+
+    req.set_password("passwd");
+    req.mutable_basic()->set_name( name );
+    req.mutable_basic()->set_email( email );
+    auto res = sendRequest(req);
+    EXPECT_FALSE(res.error());
+
+    req.mutable_basic()->set_name("different_name");
+    res.Clear();
+    res = sendRequest(req);
+    EXPECT_TRUE(res.error()); // different name but the same email
+
+    req.mutable_basic()->set_name( name );
+    req.mutable_basic()->set_email( "DIFFERENTEMAIL@asdfg.sa");
+    res.Clear();
+    res = sendRequest(req);
+    EXPECT_TRUE(res.error()); // different email but the same name
+}
+
 TEST_F( userCreateTest, full_data ){
     pb::MsgUserRequest_Add add_msg;
 
@@ -83,7 +107,7 @@ TEST_F( userCreateTest, full_data ){
     det->set_address( random_string(100) );
     det->set_phone_number( random_string(10) );
     basic->set_description( random_string(10000) );
-    basic->set_avatar( random_string(80*1000) ); // a text base representation of file
+    basic->set_avatar( random_string(64e3) ); // a text base representation of file (64k bytes)
 
     auto res = sendRequest(add_msg);
 

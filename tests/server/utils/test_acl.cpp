@@ -29,7 +29,12 @@ public:
                 ));
 
         m_uid = db(sqlpp::select(u.c_uid).from(u).where(u.c_name == "test_user_x")).front().c_uid;
-
+        auto q = select( u.c_uid )
+                .from(u)
+                .where(u.c_name == parameter(u.c_name) );
+        auto query = db.prepare(q);
+        query.params.c_name = "test_user_x";
+        m_uid = db(query).front().c_uid;
         db(insert_into(acl)
            .set( acl.c_owner = 1,
                  acl.c_group = 4,

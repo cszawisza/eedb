@@ -117,32 +117,34 @@ void test_thread(){
     db.execute("select avg(i) from generate_series(12345,1234500) as i");
 }
 
-//TEST(DB, eachThreadHaveOwnConnection){
-//    static const int t = 1;
-//    std::thread threads[t];
+SQLPP_ALIAS_PROVIDER(i)
 
-//    for(int i=0;i<t;i++){
-//        threads[i] = std::thread(test_thread);
-//    }
+TEST(DB, eachThreadHaveOwnConnection){
+    static const int t = 1;
+    std::thread threads[t];
 
-//    std::thread threads2[t];
+    for(int i=0;i<t;i++){
+        threads[i] = std::thread(test_thread);
+    }
 
-//    for(int i=0;i<t;i++){
-//        threads2[i] = std::thread(test_thread);
-//    }
+    std::thread threads2[t];
+
+    for(int i=0;i<t;i++){
+        threads2[i] = std::thread(test_thread);
+    }
 
 
-//    DB db;
-//    // "big" query
-//    db.execute("select avg(i) from generate_series(12345,12346) as i");
+    DB db;
+    // "big" query
+    db( select( sqlpp::avg(sqlpp::verbatim<sqlpp::integer>("generate_series(12345,12346)").as(i)) ).where(true));
 
-//    for(int i=0;i<t;i++){
-//        threads[i].join();
-//    }
-//    for(int i=0;i<t;i++){
-//        threads2[i].join();
-//    }
-//}
+    for(int i=0;i<t;i++){
+        threads[i].join();
+    }
+    for(int i=0;i<t;i++){
+        threads2[i].join();
+    }
+}
 
 SQLPP_ALIAS_PROVIDER(aaa)
 void test2_thread(){

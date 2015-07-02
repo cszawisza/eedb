@@ -255,7 +255,7 @@ void eedb::handlers::User::handle_add(MsgUserRequest_Add &msg)
     }
     else
     {
-        if( userExists( basic.name(), basic.email() ) )
+        if( userExists( db, basic.name(), basic.email() ) )
             addResp(true, UserAlreadyExists );
         else
             addUser(db, msg);
@@ -365,23 +365,18 @@ void eedb::handlers::User::handle_changePasswd(const MsgUserRequest_ChangePasswd
     }
 }
 
-bool eedb::handlers::User::userExists(string name, string email)
+bool eedb::handlers::User::userExists(DB &db, string name, string email)
 {
-    ///FIXME change to exists
-    /// fix when driver bugfix is avalible
-    DB db;
     constexpr t_users u;
-    auto q = select( count(u.c_uid) )
+    auto q = sqlpp::select(exists(sqlpp::select( u.c_uid )
             .from(u)
             .where(u.c_name == parameter(u.c_name) || u.c_email == parameter(u.c_email) )
-            .group_by( u.c_uid )
-            .limit(1);
+            ));
     auto query = db.prepare(q);
     query.params.c_name = name;
     query.params.c_email = email;
     auto result = db(query);
-    if(result.empty())
-        return false;
-    return result.front().count > 0;
+
+    return result.front().exists;
 }
 

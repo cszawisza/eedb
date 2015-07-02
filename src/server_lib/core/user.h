@@ -31,7 +31,7 @@ private:
 
 
     void goToOnlineState(DB &db, quint64 uid);
-    bool userExists( string name, string email );
+    bool userExists(DB &db, string name, string email );
     void addUser(DB &db, const MsgUserRequest_Add &msg);
     void addResp(bool isError, Replay err_code);
     void loadUserCache(DB &db, quint64 uid);

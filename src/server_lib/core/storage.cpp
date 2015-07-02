@@ -15,14 +15,17 @@ schema::t_user_inventories u_i;
 schema::t_inventories_shelfs i_s;
 
 using namespace pb;
+using namespace schema;
 void eedb::handlers::Inventory::process(protbuf::ClientRequest &msg )
 {
     // Check if this is the message that handler wants
     Q_ASSERT( msg.data_case() == protbuf::ClientRequest::kMsgInventoryReq );
     Q_ASSERT( msg.has_msginventoryreq() );
 
-    if (!user()->isOnline())
+    if (!user()->isOnline()){
+        ///TODO add response
         return;
+    }
 
     auto req = msg.msginventoryreq();
 
@@ -57,12 +60,12 @@ void eedb::handlers::Inventory::handle_add(const MsgInventoryRequest_Add &msgReq
     ///TODO add to inventories
     ///TODO link with user
 
-    if(user()->isOnline()){
+    auth::AccesControl acl( user()->id() );
+    if(acl.checkUserAction<t_inventories>("write") )
         insertStorage(msgReq);
-    }
-    else{
-        ///TODO return error: user not logged
-    }
+    else
+    {} ///TODO add resp
+
 }
 
 quint64 eedb::handlers::Inventory::doInsert(DB &db, bool &error, const MsgInventoryRequest_Add &msgReq)
@@ -119,11 +122,6 @@ void eedb::handlers::Inventory::handle_get(const MsgInventoryRequest_Get &msg)
 {
     ///TODO check if inventory with id exists!
     auto &where = msg.where();
-
-    if(!user()->isOnline()){
-        ///TODO add error resp
-        return;
-    }
 
     quint64 uid = user()->id() ;
 
