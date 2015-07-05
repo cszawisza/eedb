@@ -15,7 +15,7 @@
 class RequestsDecoder
 {
 public:
-    typedef QSharedPointer<protbuf::ClientRequests> SharedRequests;
+    typedef QSharedPointer<pb::ClientRequests> SharedRequests;
 
     explicit RequestsDecoder(QByteArray ba);
     bool decodeTo( SharedRequests &frame );

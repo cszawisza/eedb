@@ -9,8 +9,8 @@
 #include "idatabase.h"
 #include "acl.h"
 
-using protbuf::ClientRequest;
-using protbuf::ClientRequests;
+using pb::ClientRequest;
+using pb::ClientRequests;
 /**
  * @brief The IProcessor class
  */
@@ -18,12 +18,12 @@ using protbuf::ClientRequests;
 class MessageHandler
 {
 public:
-    typedef QSharedPointer<protbuf::ClientRequests> SharedRequests;
-    typedef QSharedPointer<protbuf::ServerResponses> SharedResponses;
+    typedef QSharedPointer<pb::ClientRequests> SharedRequests;
+    typedef QSharedPointer<pb::ServerResponses> SharedResponses;
     MessageHandler(){}
     virtual ~MessageHandler(){;}
 
-    protbuf::ServerResponse getLastResponse(){
+    pb::ServerResponse getLastResponse(){
         return m_outputFrame->response(m_outputFrame->response_size()-1);
     }
 
@@ -42,13 +42,18 @@ public:
     /**
      * @brief process data given in setWorkingCapsule;
      */
-    virtual void process(protbuf::ClientRequest &req){
+    virtual void process(pb::ClientRequest &req){
         auto msg = m_outputFrame->add_response();
-        msg->CopyFrom( protbuf::ServerResponse::default_instance() );
+        msg->CopyFrom( pb::ServerResponse::default_instance() );
         msg->set_responseid( req.requestid() );
         ResponseCode *codes = msg->mutable_msgserverresponse()->add_codes();
         codes->set_error(true);
-        codes->set_code( protbuf::ServerErrorCodes::Error_MsgUnknown );
+        codes->set_code( pb::ServerErrorCodes::Error_MsgUnknown );
+    }
+
+    void clear(){
+        m_userData.clear();
+        m_outputFrame.clear();
     }
 
 protected:
@@ -58,9 +63,9 @@ protected:
         return m_userData.data();
     }
 
-    const bool addResponse( const protbuf::ServerResponse &resp ){
+    const bool addResponse( const pb::ServerResponse &resp ){
         if(!m_outputFrame)
-            m_outputFrame = SharedResponses(new protbuf::ServerResponses);
+            m_outputFrame = SharedResponses(new pb::ServerResponses);
         m_outputFrame->add_response()->MergeFrom(resp);
     }
 

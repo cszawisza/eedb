@@ -39,10 +39,10 @@ void dynamic_cred( T &query, const C &cred){
         query.where.add( u.c_uid == cred.id() );
 }
 
-void eedb::handlers::User::process(protbuf::ClientRequest &msgReq)
+void eedb::handlers::User::process(pb::ClientRequest &msgReq)
 {
     // Check if this is the message that handler wants
-    Q_ASSERT( msgReq.data_case() == protbuf::ClientRequest::kMsgUserReqFieldNumber );
+    Q_ASSERT( msgReq.data_case() == pb::ClientRequest::kMsgUserReqFieldNumber );
     Q_ASSERT( msgReq.has_msguserreq() );
 
 //    db.takeFromPool();
@@ -132,8 +132,9 @@ void eedb::handlers::User::addUser(DB &db, const MsgUserRequest_Add &msg)
 
     try{
         db(pre);
+        auto uid = db(select(u.c_uid).from(u).where(u.c_name == basic.name())).front().c_uid;
         addResp(false, UserAddOk);
-        ///TODO log_action(db, UID, "register" );
+        log_action(db, uid, "register" );
     }
     catch (sqlpp::exception) {
         addResp(true, UserAlreadyExists);
@@ -141,7 +142,7 @@ void eedb::handlers::User::addUser(DB &db, const MsgUserRequest_Add &msg)
 }
 
 void eedb::handlers::User::addResp( bool isError, Replay err_code){
-    protbuf::ServerResponse res = protbuf::ServerResponse::default_instance();
+    pb::ServerResponse res = pb::ServerResponse::default_instance();
     auto code = res.add_codes();
     code->set_error(isError);
     code->set_code(err_code);
@@ -250,7 +251,7 @@ void eedb::handlers::User::handle_add(MsgUserRequest_Add &msg)
         if(acl.checkUserAction<t_users>("create"))
             addUser(db, msg);
         else{
-            ///TODO response: no acces
+            /// TODO add server error code addResp(true, Error_AccesDeny);
         }
     }
     else

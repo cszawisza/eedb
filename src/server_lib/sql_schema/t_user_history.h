@@ -9,6 +9,21 @@ namespace schema {
 
 	namespace t_user_history_ {
 
+		struct C_id {
+			struct _alias_t {
+				static constexpr const char _literal[] ="c_id";
+				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+				template<typename T>
+					struct _member_t {
+						T c_id;
+						T &operator()() { return c_id; }
+						const T &operator()() const { return c_id; }
+					};
+			};
+
+			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::must_not_insert, sqlpp::tag::must_not_update>;
+		};
+
 		struct C_uid {
 			struct _alias_t {
 				static constexpr const char _literal[] ="c_uid";
@@ -21,7 +36,7 @@ namespace schema {
 					};
 			};
 
-			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::require_insert>;
+			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::can_be_null>;
 		};
 
 		struct C_action {
@@ -36,7 +51,7 @@ namespace schema {
 					};
 			};
 
-			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::require_insert>;
+			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::can_be_null>;
 		};
 
 		struct C_when {
@@ -51,11 +66,12 @@ namespace schema {
 					};
 			};
 
-			using _traits = ::sqlpp::make_traits<::sqlpp::varchar>;
+			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::can_be_null>;
 		};
 	}
 
 	struct t_user_history : sqlpp::table_t<t_user_history,
+				t_user_history_::C_id,
 				t_user_history_::C_uid,
 				t_user_history_::C_action,
 				t_user_history_::C_when> {

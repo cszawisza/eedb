@@ -18,7 +18,7 @@ public:
 
     // MessageHandler interface
 public:
-    void process(protbuf::ClientRequest &msgReq );
+    void process(pb::ClientRequest &msgReq );
 
 private:
     void handle_add   (MsgUserRequest_Add    &msg    );

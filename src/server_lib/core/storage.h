@@ -18,7 +18,7 @@ public:
 
     // MessageHandler interface
 public:
-    void process(protbuf::ClientRequest &msg);
+    void process(pb::ClientRequest &msg);
 
 private:
     void handle_add(const MsgInventoryRequest_Add &msgReq );
@@ -30,6 +30,14 @@ private:
     void insertStorage(const MsgInventoryRequest_Add &msgReq);
     void linkInventoryWithUser(DB &db, bool &error, quint64 inventoryId);
     quint64 doInsert(DB &db, bool &error, const MsgInventoryRequest_Add &msgReq);
+
+    void addResp(bool isError, int err_code){
+        pb::ServerResponse res = pb::ServerResponse::default_instance();
+        auto code = res.add_codes();
+        code->set_error(isError);
+        code->set_code(err_code);
+        addResponse(res);
+    }
 };
 
 }

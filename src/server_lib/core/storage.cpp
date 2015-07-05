@@ -16,14 +16,14 @@ schema::t_inventories_shelfs i_s;
 
 using namespace pb;
 using namespace schema;
-void eedb::handlers::Inventory::process(protbuf::ClientRequest &msg )
+void eedb::handlers::Inventory::process(pb::ClientRequest &msg )
 {
     // Check if this is the message that handler wants
-    Q_ASSERT( msg.data_case() == protbuf::ClientRequest::kMsgInventoryReq );
+    Q_ASSERT( msg.data_case() == pb::ClientRequest::kMsgInventoryReq );
     Q_ASSERT( msg.has_msginventoryreq() );
 
     if (!user()->isOnline()){
-        ///TODO add response
+        addResp(true, Error_AccesDeny);
         return;
     }
 
@@ -47,7 +47,7 @@ void eedb::handlers::Inventory::process(protbuf::ClientRequest &msg )
         handle_addShelf( req.addshelf() );
         break;
     case MsgInventoryRequest::ACTION_NOT_SET:
-        // should not be here...
+        addResp(true, Error_NoActionChoosen);
         break;
     }
 }
@@ -64,7 +64,7 @@ void eedb::handlers::Inventory::handle_add(const MsgInventoryRequest_Add &msgReq
     if(acl.checkUserAction<t_inventories>("write") )
         insertStorage(msgReq);
     else
-    {} ///TODO add resp
+        addResp(true, Error_AccesDeny);
 
 }
 

@@ -78,19 +78,19 @@ LoginDialog::LoginDialog(QWidget *parent) :
 void LoginDialog::readyRead(QByteArray msg){
     //Server response handler code
     qDebug()<< msg.toHex();
-    protbuf::ServerResponses sr;
+    pb::ServerResponses sr;
     sr.ParseFromArray(msg.data(), msg.size());
 
 //    mc.fromArray(msg);
 //    for(int i = 0; i<mc.capsules().size();++i)
 //        if(mc.getCapsule(i).msgtype() == MsgType::resLogin ){
 //            qDebug()<<" got login response";
-//            protbuf::LoginResponse res;
+//            pb::LoginResponse res;
 //            res.ParseFromString(mc.getCapsule(i).data());
-//            if(res.replay() == protbuf::Replay::LoginPass){
+//            if(res.replay() == pb::Replay::LoginPass){
 //                emit loginOk();
 //            }
-//            else if(res.replay() == protbuf::Replay::LoginDeny ){
+//            else if(res.replay() == pb::Replay::LoginDeny ){
 //                emit loginFailure();
 //            }
 //        }
@@ -129,7 +129,7 @@ void LoginDialog::doReconnect(){
 
 void LoginDialog::doLogin()
 {
-    protbuf::ClientRequests fullMessage;
+    pb::ClientRequests fullMessage;
     auto loginReq = fullMessage.add_request();
 
     auto userMsg = loginReq->mutable_msguserreq();

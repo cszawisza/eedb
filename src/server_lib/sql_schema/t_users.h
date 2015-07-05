@@ -204,20 +204,20 @@ namespace schema {
 			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::can_be_null>;
 		};
 
-        struct C_avatar {
-            struct _alias_t {
-                static constexpr const char _literal[] ="c_avatar";
-                using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-                template<typename T>
-                    struct _member_t {
-                        T c_avatar;
-                        T &operator()() { return c_avatar; }
-                        const T &operator()() const { return c_avatar; }
-                    };
-            };
+		struct C_avatar {
+			struct _alias_t {
+				static constexpr const char _literal[] ="c_avatar";
+				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+				template<typename T>
+					struct _member_t {
+						T c_avatar;
+						T &operator()() { return c_avatar; }
+						const T &operator()() const { return c_avatar; }
+					};
+			};
 
-            using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::can_be_null>;
-        };
+			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::can_be_null>;
+		};
 	}
 
 	struct t_users : sqlpp::table_t<t_users,
@@ -233,8 +233,8 @@ namespace schema {
 				t_users_::C_phonenumber,
 				t_users_::C_address,
 				t_users_::C_description,
-                t_users_::C_config,
-                t_users_::C_avatar> {
+				t_users_::C_config,
+				t_users_::C_avatar> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {
 			static constexpr const char _literal[] = "t_users";

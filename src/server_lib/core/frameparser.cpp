@@ -6,7 +6,7 @@ RequestsDecoder::RequestsDecoder(QByteArray ba):
 
 bool RequestsDecoder::decodeTo(SharedRequests &frame){
     if(!frame)
-        frame = SharedRequests(new protbuf::ClientRequests );
+        frame = SharedRequests(new pb::ClientRequests );
     return frame->ParseFromArray(m_rawMessage.data(), m_rawMessage.size() );
 }
 

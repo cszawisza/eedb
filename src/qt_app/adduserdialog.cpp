@@ -22,31 +22,31 @@ void AddUserDialog::readyRead(QByteArray msg){
 //    for(int i = 0; i<mc.capsules().size();++i){
 //        if(mc.getCapsule(i).msgtype() == MsgType::resAddUser ){
 //            qDebug()<<" got add user response";
-//            protbuf::RegisterResponse res;
+//            pb::RegisterResponse res;
 //            res.ParseFromString(mc.getCapsule(i).data());
 //            for(int j = 0 ; j<res.replay_size();j++){
-//                if(res.replay(j) == protbuf::Replay::EmailExists){
+//                if(res.replay(j) == pb::Replay::EmailExists){
 //                    ui->status->setText("User email exists");
 //                }
-//                else if(res.replay(j) == protbuf::Replay::EmailAddressToLong ){
+//                else if(res.replay(j) == pb::Replay::EmailAddressToLong ){
 //                    ui->status->setText("Email to long");
 //                }
-//                else if(res.replay(j) == protbuf::Replay::EmailNotValidate){
+//                else if(res.replay(j) == pb::Replay::EmailNotValidate){
 //                    ui->status->setText("Email not validate");
 //                }
-//                else if(res.replay(j) == protbuf::Replay::UserNameToLong){
+//                else if(res.replay(j) == pb::Replay::UserNameToLong){
 //                    ui->status->setText("User name to long");
 //                }
-//                else if(res.replay(j) == protbuf::Replay::UserNameToShort){
+//                else if(res.replay(j) == pb::Replay::UserNameToShort){
 //                    ui->status->setText("User name to short");
 //                }
-//                else if(res.replay(j) == protbuf::Replay::PasswordToShort){
+//                else if(res.replay(j) == pb::Replay::PasswordToShort){
 //                    ui->status->setText("User has to short password");
 //                }
-//                else if(res.replay(j) == protbuf::Replay::UserAlreadyExists){
+//                else if(res.replay(j) == pb::Replay::UserAlreadyExists){
 //                    ui->status->setText("User name exists");
 //                }
-//                else if (res.replay(j) == protbuf::Replay::UserAddOk ){
+//                else if (res.replay(j) == pb::Replay::UserAddOk ){
 //                    ui->status->setText("USER CREATED!!");
 //                }
 //            }
@@ -64,7 +64,7 @@ AddUserDialog::~AddUserDialog()
 
 void AddUserDialog::on_registerNewUser_clicked()
 {
-    protbuf::ClientRequests fullMessage;
+    pb::ClientRequests fullMessage;
     auto loginReq = fullMessage.add_request();
     auto userMsg = loginReq->mutable_msguserreq();
     auto login = userMsg->mutable_add();

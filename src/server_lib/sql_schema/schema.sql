@@ -112,10 +112,10 @@ CREATE TABLE t_users (
 
 ---TODO create proper indexes on t_login_history table
 CREATE TABLE t_user_history (
-    c_uid int REFERENCES t_users(c_uid) DEFERRABLE INITIALLY IMMEDIATE,
+    c_id serial not null primary key,
+    c_uid int REFERENCES t_users(c_uid) ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE,
     c_action TEXT,
-    c_when TIMESTAMP DEFAULT(now()),
-    CONSTRAINT t_user_history_pkey PRIMARY KEY (c_uid, c_action, c_when)
+    c_when TIMESTAMP DEFAULT(now())
 );
 
 COMMENT ON TABLE t_user_history IS 'saves user actions like login/logout';
@@ -126,7 +126,7 @@ CREATE TABLE t_files (
     c_sha       TEXT    NOT NULL CHECK(length(c_sha) < 512 ),
     c_mimetype  TEXT    NOT NULL CHECK(length(c_mimetype) < 256 ),
     CONSTRAINT t_files_pkey PRIMARY KEY (c_uid),
-    CONSTRAINT t_fileownereowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
+    CONSTRAINT t_fileownereowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (t_acl);
 
 CREATE TABLE t_categories(

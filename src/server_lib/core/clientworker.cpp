@@ -7,17 +7,17 @@
 ClientWorker::ClientWorker(QObject *parent) :
     QObject(parent),
     m_cache( SharedUserData (new UserData() )),
-    m_responseFrame( SharedResponses(new protbuf::ServerResponses )) /*,
+    m_responseFrame( SharedResponses(new pb::ServerResponses )) /*,
     m_defaultProcessor(QSharedPointer<MessageHandler>(new UnknownMessageProcessor()))*/
 {
     auto u = QSharedPointer<eedb::handlers::User>(new eedb::handlers::User());
     auto s = QSharedPointer<eedb::handlers::Inventory>( new eedb::handlers::Inventory() );
 
-    m_msgHandlers.insert( protbuf::ClientRequest::kMsgUserReq, u );
-    m_msgHandlers.insert( protbuf::ClientRequest::kMsgInventoryReq, s);
+    m_msgHandlers.insert( pb::ClientRequest::kMsgUserReq, u );
+    m_msgHandlers.insert( pb::ClientRequest::kMsgInventoryReq, s);
 }
 
-void ClientWorker::printMessageInfo(const protbuf::ClientRequest &request)
+void ClientWorker::printMessageInfo(const pb::ClientRequest &request)
 {
     qDebug() << "recived message id: " << request.requestid()
     << "\ntype: " << request.data_case()
