@@ -113,7 +113,7 @@ message MsgUserRequest{
 }
 
 message MsgUserResponse {
-  required ResponseCode code = 1;
+  repeated ResponseCode code = 1;
 
   optional UserBasic basic = 2;
   optional UserConfig config = 3;

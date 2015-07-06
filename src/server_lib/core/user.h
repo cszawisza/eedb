@@ -33,8 +33,11 @@ private:
     void goToOnlineState(DB &db, quint64 uid);
     bool userExists(DB &db, string name, string email );
     void addUser(DB &db, const MsgUserRequest_Add &msg);
-    void addResp(bool isError, Replay err_code);
+    void addErrorCode(bool isError, Replay err);
     void loadUserCache(DB &db, quint64 uid);
+    void addResponseMessage();
+
+    pb::MsgUserResponse m_response;
 };
 
 }

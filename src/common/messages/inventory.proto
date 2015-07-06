@@ -2,6 +2,7 @@ option optimize_for = LITE_RUNTIME;
 package pb;
 import public "common.proto";
 
+
 // USER MESSAGE STRUCTURE
 message MsgInventoryRequest {
   oneof action{

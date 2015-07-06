@@ -41,11 +41,11 @@ void dynamic_cred( T &query, const C &cred){
 
 void eedb::handlers::User::process(pb::ClientRequest &msgReq)
 {
+    m_response.Clear();
     // Check if this is the message that handler wants
     Q_ASSERT( msgReq.data_case() == pb::ClientRequest::kMsgUserReqFieldNumber );
     Q_ASSERT( msgReq.has_msguserreq() );
 
-//    db.takeFromPool();
     auto req = msgReq.msguserreq();
 
     if(user()->isOffline()){
@@ -84,6 +84,8 @@ void eedb::handlers::User::process(pb::ClientRequest &msgReq)
             break;
         }
     }
+    addResponseMessage();
+//    addErrorCode(m_response);
 }
 
 void eedb::handlers::User::addUser(DB &db, const MsgUserRequest_Add &msg)
@@ -133,20 +135,19 @@ void eedb::handlers::User::addUser(DB &db, const MsgUserRequest_Add &msg)
     try{
         db(pre);
         auto uid = db(select(u.c_uid).from(u).where(u.c_name == basic.name())).front().c_uid;
-        addResp(false, UserAddOk);
+        addErrorCode(false, UserAddOk);
         log_action(db, uid, "register" );
     }
     catch (sqlpp::exception) {
-        addResp(true, UserAlreadyExists);
+        addErrorCode(true, UserAlreadyExists);
     }
 }
 
-void eedb::handlers::User::addResp( bool isError, Replay err_code){
-    pb::ServerResponse res = pb::ServerResponse::default_instance();
-    auto code = res.add_codes();
+void eedb::handlers::User::addErrorCode(bool isError, Replay err)
+{
+    auto code = m_response.add_code();
     code->set_error(isError);
-    code->set_code(err_code);
-    addResponse(res);
+    code->set_code(static_cast<int>(err));
 }
 
 void eedb::handlers::User::loadUserCache(DB &db, quint64 uid)
@@ -193,6 +194,13 @@ void eedb::handlers::User::loadUserCache(DB &db, quint64 uid)
 
 }
 
+void eedb::handlers::User::addResponseMessage()
+{
+    pb::ServerResponse res = pb::ServerResponse::default_instance();
+    res.mutable_msguserres()->CopyFrom(m_response);
+    addResponse(res);
+}
+
 void eedb::handlers::User::handle_add(MsgUserRequest_Add &msg)
 {
     QRegExp mailREX("\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b");
@@ -204,40 +212,40 @@ void eedb::handlers::User::handle_add(MsgUserRequest_Add &msg)
     const auto &det = msg.details();
 
     if(!basic.has_name() || !basic.has_email() || !msg.has_password()){
-        addResp( true, MissingRequiredField);
+        addErrorCode( true, MissingRequiredField);
         error = true;
         return;
     }
 
     // check required fields
     if( msg.password().length() < 2 ){
-        addResp(true, PasswordToShort);
+        addErrorCode(true, PasswordToShort);
         error = true;
     }
     if( basic.name().length() > 72){
-        addResp(true, UserNameToLong);
+        addErrorCode(true, UserNameToLong);
         error = true;
     }
     if( basic.email().length() > 255 ){
-        addResp(true, EmailAddressToLong);
+        addErrorCode(true, EmailAddressToLong);
         error = true;
     }
     if(!mailREX.exactMatch(QString::fromStdString(basic.email()))){
-        addResp(true, EmailNotValidate);
+        addErrorCode(true, EmailNotValidate);
         error = true;
     }
 
     // check optional fields
     if( det.has_address() && det.address().length() >= 1000 ){
-        addResp(true, AddressToLong);
+        addErrorCode(true, AddressToLong);
         error = true;
     }
     if( basic.has_description() && basic.description().length() >= 100000 ){
-        addResp(true, DescriptionToLong);
+        addErrorCode(true, DescriptionToLong);
         error = true;
     }
     if( det.has_phone_number() && det.phone_number().length() >= 20 ){
-        addResp(true, BadPhoneNumber);
+        addErrorCode(true, BadPhoneNumber);
         error = true;
     }
 
@@ -257,7 +265,7 @@ void eedb::handlers::User::handle_add(MsgUserRequest_Add &msg)
     else
     {
         if( userExists( db, basic.name(), basic.email() ) )
-            addResp(true, UserAlreadyExists );
+            addErrorCode(true, UserAlreadyExists );
         else
             addUser(db, msg);
     }
@@ -266,7 +274,7 @@ void eedb::handlers::User::handle_add(MsgUserRequest_Add &msg)
 void eedb::handlers::User::goToOnlineState(DB &db, quint64 uid)
 {
     log_action(db, uid, "login");
-    addResp(false, LoginPass);
+    addErrorCode(false, LoginPass);
 
     user()->goOnline();
 
@@ -276,7 +284,7 @@ void eedb::handlers::User::goToOnlineState(DB &db, quint64 uid)
 void eedb::handlers::User::handle_login(const MsgUserRequest_Login &loginMsg)
 {
     if(user()->isOnline()){
-        addResp(true, UserOnline );
+        addErrorCode(true, UserOnline );
     }
     else
     {
@@ -293,7 +301,7 @@ void eedb::handlers::User::handle_login(const MsgUserRequest_Login &loginMsg)
         auto queryResult = db(s);
 
         if (queryResult.empty()){
-            addResp(true, UserDontExist );
+            addErrorCode(true, UserDontExist );
         }
         else{
             c_uid = queryResult.front().c_uid;
@@ -308,7 +316,7 @@ void eedb::handlers::User::handle_login(const MsgUserRequest_Login &loginMsg)
                 goToOnlineState(db, c_uid);
             else{
                 log_action(db, c_uid, "wrong password");
-                addResp(true, LoginDeny );
+                addErrorCode(true, LoginDeny );
             }
         }
     }
@@ -328,7 +336,7 @@ void eedb::handlers::User::handle_modify(const MsgUserRequest_Modify &msg)
 void eedb::handlers::User::handle_remove(const MsgUserRequest_Remove &msg)
 {
     if(!msg.has_cred()){
-        addResp(true, MissingRequiredField);
+        addErrorCode(true, MissingRequiredField);
         return;
     }
 
@@ -358,11 +366,13 @@ void eedb::handlers::User::handle_changePasswd(const MsgUserRequest_ChangePasswd
     ///TODO check if want to reset passwd or to change passwd
     ///TODO change passwd for 'self' or to someone else
 
-    DB db;
     auth::AccesControl acl(user()->id());
 
-    if(acl.checkUserAction<schema::t_users>(db,"change_password",msg.uid()))
+    if(acl.checkUserAction<schema::t_users>("change_password",msg.uid()))
     {
+    }
+    else{
+
     }
 }
 

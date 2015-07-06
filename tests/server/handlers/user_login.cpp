@@ -38,7 +38,7 @@ public:
 
        handler.process(req);
 
-       return handler.getLastResponse().codes(0);
+       return handler.getLastResponse().msguserres().code(0);
    }
 
    const ResponseCode &requestLogin( pb::MsgUserRequest_Login &msg){
@@ -49,7 +49,7 @@ public:
 
        handler.process(req);
 
-       return handler.getLastResponse().codes(0);
+       return handler.getLastResponse().msguserres().code(0);
    }
 
    eedb::handlers::User handler;

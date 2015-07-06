@@ -27,6 +27,7 @@ enum MsgTypeId{
 }
 
 enum ServerErrorCodes{
+  No_Error = 0;
   Error_MsgUnknown = 1;
   Error_AccesDeny = 2;
   Error_UnhandledMessage = 3;
@@ -59,7 +60,7 @@ message ServerResponses{
 }
 
 message ServerResponse {
-  repeated ResponseCode codes = 1;
+  optional ServerErrorCodes code        = 1 [default = No_Error];
   optional uint32	responseId	= 2 [default = 0]; 
 //  required MsgCoding	msgCoding 	= 3 [default = msgProtbuf]; // type that is stored in data field
 //  optional MsgTypeId	msgTypeId 	= 4; // used only for not protbuf type messages
@@ -74,7 +75,7 @@ message ServerResponse {
     pb.MsgGroupResponse       msgGroupRes = 15;
     pb.MsgParameterResponse   msgParameterRes = 16;
     
-    ServerResponse msgServerResponse = 1000;
+//    ServerResponse msgServerResponse = 1000;
   }
 }
 

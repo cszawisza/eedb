@@ -16,7 +16,11 @@ schema::t_inventories_shelfs i_s;
 
 using namespace pb;
 using namespace schema;
-void eedb::handlers::Inventory::process(pb::ClientRequest &msg )
+
+namespace eedb{
+namespace handlers{
+
+void Inventory::process(pb::ClientRequest &msg )
 {
     // Check if this is the message that handler wants
     Q_ASSERT( msg.data_case() == pb::ClientRequest::kMsgInventoryReq );
@@ -52,23 +56,42 @@ void eedb::handlers::Inventory::process(pb::ClientRequest &msg )
     }
 }
 
-void eedb::handlers::Inventory::handle_add(const MsgInventoryRequest_Add &msgReq)
+void Inventory::handle_add(const MsgInventoryRequest_Add &msg)
 {
-    ///TODO check fields lengths
-    ///TODO check if user can add storage
-    ///TODO check if acl in msgReq has owner fields (if not, set owner as this user)
-    ///TODO add to inventories
-    ///TODO link with user
+    if(msg.name().length() > 250 ){
 
+    }
+    if(msg.description().length() > 100000 ){
+//        addResp(true, );
+    }
+
+    ///TODO check if acl in msgReq has owner fields (if not, set owner as this user)
+
+    DB db;
     auth::AccesControl acl( user()->id() );
-    if(acl.checkUserAction<t_inventories>("write") )
-        insertStorage(msgReq);
+    if(acl.checkUserAction<t_acl>(db, "write")){
+        // can modify acl
+    }
+
+    if(acl.checkUserAction<t_inventories>(db, "write") ){
+        bool error=false;
+        try{
+            db.start_transaction();
+            insertStorage(db, msg);
+        }
+        catch(sqlpp::exception e){
+            error = true;
+            db.rollback_transaction(false);
+        }
+        if(!error)
+            db.commit_transaction();
+    }
     else
         addResp(true, Error_AccesDeny);
 
 }
 
-quint64 eedb::handlers::Inventory::doInsert(DB &db, bool &error, const MsgInventoryRequest_Add &msgReq)
+quint64 Inventory::doInsert(DB &db, const MsgInventoryRequest_Add &msgReq)
 {
     auto insert = insert_into(i).set(
                 i.c_name = parameter(i.c_name),
@@ -78,47 +101,26 @@ quint64 eedb::handlers::Inventory::doInsert(DB &db, bool &error, const MsgInvent
             );
     auto query = db.prepare(insert);
 
-    try{
-        query.params.c_name = msgReq.name();
-    }
-    catch( sqlpp::exception e){
-        std::cout << e.what();
-        error = true;
-    }
+    query.params.c_name = msgReq.name();
+    db(query);
 
     ///TODO change to .RETURNING when implemented
     return db.lastInsertId("t_inventories", "c_uid");
 }
 
-void eedb::handlers::Inventory::linkInventoryWithUser(DB &db, bool &error, quint64 inventoryId)
+void Inventory::linkInventoryWithUser(DB &db, quint64 inventoryId)
 {
-    try{
         db(insert_into(u_i).set(
            u_i.c_inventory_id = inventoryId,
            u_i.c_user_id = user()->id() ) );
-    }
-    catch(sqlpp::exception e){
-        std::cout << e.what();
-        error = true;
-    }
 }
 
-void eedb::handlers::Inventory::insertStorage( const MsgInventoryRequest_Add &msgReq ){
-    DB db;
-
-    db.start_transaction();
-    bool error = false;
-
-    auto inventoryId = doInsert(db, error, msgReq);
-    linkInventoryWithUser(db, error, inventoryId);
-
-    if(error)
-        db.rollback_transaction(false);
-    else
-        db.commit_transaction();
+void Inventory::insertStorage(DB &db, const MsgInventoryRequest_Add &msgReq ){
+    quint64 inventoryId = doInsert(db, msgReq);
+    linkInventoryWithUser(db,  inventoryId);
 }
 
-void eedb::handlers::Inventory::handle_get(const MsgInventoryRequest_Get &msg)
+void Inventory::handle_get(const MsgInventoryRequest_Get &msg)
 {
     ///TODO check if inventory with id exists!
     auto &where = msg.where();
@@ -181,17 +183,19 @@ void eedb::handlers::Inventory::handle_get(const MsgInventoryRequest_Get &msg)
 
 }
 
-void eedb::handlers::Inventory::handle_modify(const MsgInventoryRequest_Modify &msg)
+void Inventory::handle_modify(const MsgInventoryRequest_Modify &msg)
 {
     ///TODO implement
 }
 
-void eedb::handlers::Inventory::handle_remove(const MsgInventoryRequest_Remove &msg)
+void Inventory::handle_remove(const MsgInventoryRequest_Remove &msg)
 {
     ///TODO implement
 }
 
-void eedb::handlers::Inventory::handle_addShelf(const MsgInventoryRequest_AddShelf &msg)
+void Inventory::handle_addShelf(const MsgInventoryRequest_AddShelf &msg)
 {
     ///TODO implement
+}
+}
 }

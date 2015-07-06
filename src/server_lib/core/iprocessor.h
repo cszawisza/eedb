@@ -20,10 +20,14 @@ class MessageHandler
 public:
     typedef QSharedPointer<pb::ClientRequests> SharedRequests;
     typedef QSharedPointer<pb::ServerResponses> SharedResponses;
-    MessageHandler(){}
+    MessageHandler(){
+        m_outputFrame = SharedResponses(new pb::ServerResponses );
+    }
     virtual ~MessageHandler(){;}
 
     pb::ServerResponse getLastResponse(){
+        if(m_outputFrame->response_size() == 0 )
+            return pb::ServerResponse::default_instance();
         return m_outputFrame->response(m_outputFrame->response_size()-1);
     }
 
@@ -46,9 +50,7 @@ public:
         auto msg = m_outputFrame->add_response();
         msg->CopyFrom( pb::ServerResponse::default_instance() );
         msg->set_responseid( req.requestid() );
-        ResponseCode *codes = msg->mutable_msgserverresponse()->add_codes();
-        codes->set_error(true);
-        codes->set_code( pb::ServerErrorCodes::Error_MsgUnknown );
+        msg->set_code(pb::Error_MsgUnknown);
     }
 
     void clear(){
@@ -66,7 +68,7 @@ protected:
     const bool addResponse( const pb::ServerResponse &resp ){
         if(!m_outputFrame)
             m_outputFrame = SharedResponses(new pb::ServerResponses);
-        m_outputFrame->add_response()->MergeFrom(resp);
+        m_outputFrame->add_response()->CopyFrom(resp);
     }
 
 private:
