@@ -90,8 +90,6 @@ void Inventory::handle_add( MsgInventoryRequest_Add &msgReq)
     else
         addResp(true, Error_AccesDeny);
 
-    } ///TODO add resp
-
 }
 
 quint64 Inventory::doInsert(DB &db, bool &error, MsgInventoryRequest_Add &msgReq)
@@ -121,6 +119,7 @@ void Inventory::linkInventoryWithUser(DB &db, quint64 inventoryId)
 void Inventory::insertStorage(DB &db, const MsgInventoryRequest_Add &msgReq ){
     quint64 inventoryId = doInsert(db, msgReq);
     linkInventoryWithUser(db,  inventoryId);
+
     constexpr schema::t_inventories i;
 
     auto insert_statement = insert_into(s).columns(
@@ -129,19 +128,14 @@ void Inventory::insertStorage(DB &db, const MsgInventoryRequest_Add &msgReq ){
                 s.c_description
                 );
 
-    for( const auto &shelf : msg.shelfs() )
-        insert_statement.values.add(
-                    s.c_name = shelf.name(),
-                    s.c_owner = user()->id(),
-                    s.c_description = shelf.description() );
-///TODO remove try catch block
-    try{
-        db(insert_statement);
-    }
-    catch (sqlpp::exception e){
-        error = true;
-        std::cout << e.what();
-    }
+//    for( const auto &shelf : msg.shelfs() ){
+//        insert_statement.values.add(
+//                    s.c_name = shelf.name(),
+//                    s.c_owner = user()->id(),
+//                    s.c_description = shelf.description() );
+//        db(insert_statement);
+//    }
+
 }
 
 void Inventory::insertStorage( MsgInventoryRequest_Add &msgReq ){
