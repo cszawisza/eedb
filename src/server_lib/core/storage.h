@@ -21,11 +21,11 @@ public:
     void process(pb::ClientRequest &msg);
 
 private:
-    void handle_add( MsgInventoryRequest_Add &msgReq );
-    void handle_get(  MsgInventoryRequest_Get &msg);
-    void handle_modify( MsgInventoryRequest_Modify &msg);
-    void handle_remove(  MsgInventoryRequest_Remove &msg );
-    void handle_addShelf(  MsgInventoryRequest_AddShelf &msg);
+    void handle_add( MsgInventoryRequest_Add &msg );
+    void handle_get( const MsgInventoryRequest_Get &msg);
+    void handle_modify(const MsgInventoryRequest_Modify &msg);
+    void handle_remove( const MsgInventoryRequest_Remove &msg );
+    void handle_addShelf( const MsgInventoryRequest_AddShelf &msg);
 
     void insertStorage(DB &db, const MsgInventoryRequest_Add &msgReq);
     void linkInventoryWithUser(DB &db, quint64 inventoryId);

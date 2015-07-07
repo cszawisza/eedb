@@ -21,7 +21,7 @@ using namespace schema;
 namespace eedb{
 namespace handlers{
 
-void Inventory::process(protbuf::ClientRequest &msg )
+void Inventory::process(pb::ClientRequest &msg )
 {
     // Check if this is the message that handler wants
     Q_ASSERT( msg.data_case() == pb::ClientRequest::kMsgInventoryReq );
@@ -57,7 +57,7 @@ void Inventory::process(protbuf::ClientRequest &msg )
     }
 }
 
-void Inventory::handle_add( MsgInventoryRequest_Add &msgReq)
+void Inventory::handle_add( MsgInventoryRequest_Add &msg)
 {
     if(msg.name().length() > 250 ){
 
@@ -92,7 +92,7 @@ void Inventory::handle_add( MsgInventoryRequest_Add &msgReq)
 
 }
 
-quint64 Inventory::doInsert(DB &db, bool &error, MsgInventoryRequest_Add &msgReq)
+quint64 Inventory::doInsert(DB &db, const MsgInventoryRequest_Add &msgReq)
 {
     auto insert = insert_into(i).set(
                 i.c_name = parameter(i.c_name),
@@ -122,10 +122,10 @@ void Inventory::insertStorage(DB &db, const MsgInventoryRequest_Add &msgReq ){
 
     constexpr schema::t_inventories i;
 
-    auto insert_statement = insert_into(s).columns(
-                s.c_name,
-                s.c_owner,
-                s.c_description
+    auto insert_statement = insert_into(i).columns(
+                i.c_name,
+                i.c_owner,
+                i.c_description
                 );
 
 //    for( const auto &shelf : msg.shelfs() ){
@@ -138,11 +138,7 @@ void Inventory::insertStorage(DB &db, const MsgInventoryRequest_Add &msgReq ){
 
 }
 
-void Inventory::insertStorage( MsgInventoryRequest_Add &msgReq ){
-    insertShelfs(db, error, msgReq );
-}
-
-void Inventory::handle_get( MsgInventoryRequest_Get &msg)
+void Inventory::handle_get( const MsgInventoryRequest_Get &msg)
 {
     ///TODO check if inventory with id exists!
 //    if(db(select(exists(select(c_uid)))))
@@ -157,6 +153,7 @@ void Inventory::handle_get( MsgInventoryRequest_Get &msg)
 
     if(where.has_user_id()){
         // get all user inventories
+
         auto dyn_sel = dynamic_select( db.connection())
                 .dynamic_columns(i.c_uid)
                 .from(i)
@@ -178,6 +175,10 @@ void Inventory::handle_get( MsgInventoryRequest_Get &msg)
     }
     else if(where.has_inventory_id() ){
         // get inventory with given ID
+        if(!acl.checkUserAction<t_inventories>("read", where.inventory_id() )){
+            ///TODO acces deny
+            return;
+        }
     }
 
 //    if(acl.checkUserAction("read", msg.id() )){
@@ -206,17 +207,17 @@ void Inventory::handle_get( MsgInventoryRequest_Get &msg)
 
 }
 
-void Inventory::handle_modify( MsgInventoryRequest_Modify &msg)
+void Inventory::handle_modify( const MsgInventoryRequest_Modify &msg)
 {
     ///TODO implement
 }
 
-void Inventory::handle_remove( MsgInventoryRequest_Remove &msg)
+void Inventory::handle_remove( const MsgInventoryRequest_Remove &msg)
 {
     ///TODO implement
 }
 
-void Inventory::handle_addShelf( MsgInventoryRequest_AddShelf &msg)
+void Inventory::handle_addShelf( const MsgInventoryRequest_AddShelf &msg)
 {
     ///TODO implement
 }
