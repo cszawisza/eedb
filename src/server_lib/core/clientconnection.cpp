@@ -29,6 +29,10 @@ ClientConnection::ClientConnection(QWebSocket *socket, QObject *parent) :
         ///TODO save all panding values in database (last group, item etc)
     });
 
+    connect(m_socket, &QWebSocket::stateChanged, [=](QAbstractSocket::SocketState state ){
+        qDebug() << m_socket->peerAddress().toString() << " : state changed to :" << state;
+    });
+
     m_worker->moveToThread(m_workerThread);
     m_workerThread->start();
 }
