@@ -1,9 +1,11 @@
 include_directories( ${gmock_SOURCE_DIR}/gtest/include )
 include_directories( ${gmock_SOURCE_DIR}/include )
 
-include_directories(${ProtobufIncludePath})
+include_directories( ${ProtobufIncludePath})
 INCLUDE_DIRECTORIES( ${Common_SOURCE_DIR} )
 INCLUDE_DIRECTORIES( ${EEDB_SERVER_SOURCE_DIR} )
+
+INCLUDE_DIRECTORIES( ../server_lib )
 
 find_library( CPPUNIT_LIBRARY_DEBUG NAMES sqlpp-postgresql
             PATHS   /usr/lib

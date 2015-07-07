@@ -18,6 +18,13 @@ using std::string;
 
 namespace auth {
 
+enum Groups {
+    GROUP_root  = 1<<1,
+    GROUP_users = 1<<2,
+    GROUP_inventories = 1<<3
+};
+
+
 constexpr int owner_read    = 1<<8;
 constexpr int owner_write   = 1<<7;
 constexpr int owner_delete  = 1<<6;

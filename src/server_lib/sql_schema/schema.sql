@@ -20,6 +20,7 @@ drop table if exists t_inventories_history;
 drop table if exists t_inventories_operations;
 drop table if exists t_in_stock;
 drop table if exists t_inventories_shelfs;
+drop table if exists t_shelfs;
 drop table if exists t_user_history;
 drop table if exists t_user_inventories;
 drop table if exists t_inventories;
@@ -218,11 +219,18 @@ CREATE TABLE t_user_inventories(
     CONSTRAINT tuser_inventories_pk PRIMARY KEY (c_inventory_id, c_user_id)
 );
 
+CREATE TABLE t_shelfs(
+    c_name varchar(100) NOT NULL,
+    c_description TEXT CHECK( length( c_description ) < 100000),
+    CONSTRAINT shelf_owner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE,
+    CONSTRAINT t_shelfs_pkey PRIMARY KEY (c_uid)
+) INHERITS (t_acl);
+
 CREATE TABLE t_inventories_shelfs(
     c_inventory_id INTEGER NOT NULL REFERENCES t_inventories,
-    c_name varchar(100) NOT NULL UNIQUE,
-    CONSTRAINT shelfOwner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
-) INHERITS (t_acl);
+    c_shelf INTEGER NOT NULL REFERENCES t_shelfs,
+    CONSTRAINT unique_shelf UNIQUE (c_inventory_id, c_shelf)
+);
 
 create table t_in_stock(
     c_item_id INTEGER NOT NULL REFERENCES t_items,

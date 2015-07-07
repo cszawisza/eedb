@@ -5,6 +5,7 @@
 #include "sql_schema/t_inventories_operations.h"
 #include "sql_schema/t_inventories_shelfs.h"
 #include "sql_schema/t_user_inventories.h"
+#include "sql_schema/t_shelfs.h"
 
 #include "sqlpp11/sqlpp11.h"
 
@@ -20,7 +21,7 @@ using namespace schema;
 namespace eedb{
 namespace handlers{
 
-void Inventory::process(pb::ClientRequest &msg )
+void Inventory::process(protbuf::ClientRequest &msg )
 {
     // Check if this is the message that handler wants
     Q_ASSERT( msg.data_case() == pb::ClientRequest::kMsgInventoryReq );
@@ -36,19 +37,19 @@ void Inventory::process(pb::ClientRequest &msg )
     MsgInventoryRequest::ActionCase msgType = req.action_case();
     switch ( msgType ) {
     case MsgInventoryRequest::kAdd:
-        handle_add( req.add() );
+        handle_add( *req.mutable_add() );
         break;
     case MsgInventoryRequest::kGet:
-        handle_get( req.get() );
+        handle_get( *req.mutable_get() );
         break;
     case MsgInventoryRequest::kRemove:
-        handle_remove( req.remove() );
+        handle_remove( *req.mutable_remove() );
         break;
     case MsgInventoryRequest::kModify:
-        handle_modify( req.modify() );
+        handle_modify( *req.mutable_modify() );
         break;
     case MsgInventoryRequest::kAddShelf:
-        handle_addShelf( req.addshelf() );
+        handle_addShelf( *req.mutable_addshelf() );
         break;
     case MsgInventoryRequest::ACTION_NOT_SET:
         addResp(true, Error_NoActionChoosen);
@@ -56,7 +57,7 @@ void Inventory::process(pb::ClientRequest &msg )
     }
 }
 
-void Inventory::handle_add(const MsgInventoryRequest_Add &msg)
+void Inventory::handle_add( MsgInventoryRequest_Add &msgReq)
 {
     if(msg.name().length() > 250 ){
 
@@ -89,15 +90,17 @@ void Inventory::handle_add(const MsgInventoryRequest_Add &msg)
     else
         addResp(true, Error_AccesDeny);
 
+    } ///TODO add resp
+
 }
 
-quint64 Inventory::doInsert(DB &db, const MsgInventoryRequest_Add &msgReq)
+quint64 Inventory::doInsert(DB &db, bool &error, MsgInventoryRequest_Add &msgReq)
 {
     auto insert = insert_into(i).set(
                 i.c_name = parameter(i.c_name),
-                i.c_owner = msgReq.acl().owner(),
-                i.c_group = msgReq.acl().group(),
-                i.c_unixperms = msgReq.acl().unixperms()
+                i.c_owner = user()->id(),
+                i.c_group = (int)auth::GROUP_inventories,
+                i.c_unixperms = 494 ///TODO check
             );
     auto query = db.prepare(insert);
 
@@ -118,16 +121,42 @@ void Inventory::linkInventoryWithUser(DB &db, quint64 inventoryId)
 void Inventory::insertStorage(DB &db, const MsgInventoryRequest_Add &msgReq ){
     quint64 inventoryId = doInsert(db, msgReq);
     linkInventoryWithUser(db,  inventoryId);
+    constexpr schema::t_inventories i;
+
+    auto insert_statement = insert_into(s).columns(
+                s.c_name,
+                s.c_owner,
+                s.c_description
+                );
+
+    for( const auto &shelf : msg.shelfs() )
+        insert_statement.values.add(
+                    s.c_name = shelf.name(),
+                    s.c_owner = user()->id(),
+                    s.c_description = shelf.description() );
+///TODO remove try catch block
+    try{
+        db(insert_statement);
+    }
+    catch (sqlpp::exception e){
+        error = true;
+        std::cout << e.what();
+    }
 }
 
-void Inventory::handle_get(const MsgInventoryRequest_Get &msg)
+void Inventory::insertStorage( MsgInventoryRequest_Add &msgReq ){
+    insertShelfs(db, error, msgReq );
+}
+
+void Inventory::handle_get( MsgInventoryRequest_Get &msg)
 {
     ///TODO check if inventory with id exists!
+//    if(db(select(exists(select(c_uid)))))
+
     auto &where = msg.where();
 
     quint64 uid = user()->id() ;
 
-    ///TODO implement
     DB db;
     auth::AccesControl acl(uid);
     const int oid = msg.id();
@@ -183,19 +212,21 @@ void Inventory::handle_get(const MsgInventoryRequest_Get &msg)
 
 }
 
-void Inventory::handle_modify(const MsgInventoryRequest_Modify &msg)
+void Inventory::handle_modify( MsgInventoryRequest_Modify &msg)
 {
     ///TODO implement
 }
 
-void Inventory::handle_remove(const MsgInventoryRequest_Remove &msg)
+void Inventory::handle_remove( MsgInventoryRequest_Remove &msg)
 {
     ///TODO implement
 }
 
-void Inventory::handle_addShelf(const MsgInventoryRequest_AddShelf &msg)
+void Inventory::handle_addShelf( MsgInventoryRequest_AddShelf &msg)
 {
     ///TODO implement
 }
+
+
 }
 }
