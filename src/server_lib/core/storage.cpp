@@ -140,16 +140,13 @@ void Inventory::insertStorage(DB &db, const MsgInventoryRequest_Add &msgReq ){
 
 void Inventory::handle_get( const MsgInventoryRequest_Get &msg)
 {
-    ///TODO check if inventory with id exists!
-//    if(db(select(exists(select(c_uid)))))
-
     auto &where = msg.where();
 
     quint64 uid = user()->id() ;
-
-    DB db;
     auth::AccesControl acl(uid);
     const int oid = msg.id();
+
+    DB db;
 
     if(where.has_user_id()){
         // get all user inventories
@@ -171,13 +168,19 @@ void Inventory::handle_get( const MsgInventoryRequest_Get &msg)
         if( msg.has_description() && msg.description())
             dyn_sel.selected_columns.add(i.c_description);
 
+
         ///TODO get all storage shelfs
     }
     else if(where.has_inventory_id() ){
         // get inventory with given ID
-        if(!acl.checkUserAction<t_inventories>("read", where.inventory_id() )){
-            ///TODO acces deny
+        if(! db(sqlpp::select(exists(sqlpp::select(i.c_uid).from(i).where(i.c_uid == where.inventory_id() )))).front().exists){
+            ///TODO return information that ID dont exist in db
             return;
+        } else {
+            if(!acl.checkUserAction<t_inventories>("read", where.inventory_id() )){
+                ///FIXME sendAccesDeny();
+                return;
+            }
         }
     }
 
