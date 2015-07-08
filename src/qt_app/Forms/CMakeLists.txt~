@@ -1,0 +1,27 @@
+include_directories( ${Common_BINARY_DIR} )
+
+find_package(Qt5Widgets)
+
+set(CMAKE_AUTOUIC ON)
+
+#file(GLOB SRC "*.cpp" "*.ui" "*.h")
+add_subdirectory(Source)
+add_subdirectory(Include)
+add_subdirectory(Ui)
+
+set(SRC main.cpp
+    logindialog.h
+    logindialog.cpp
+    logindialog.ui
+    adduserdialog.cpp
+    adduserdialog.ui
+    adduserdialog.h
+    mrichtextedit.cpp
+    mtextedit.cpp
+    mrichtextedit.ui
+    qsciencespinbox.h
+    qsciencespinbox.cpp
+)
+
+add_executable( Client ${SRC} )
+target_link_libraries( Client Common Qt5::Widgets Qt5::WebSockets)

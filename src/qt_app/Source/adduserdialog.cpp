@@ -49,7 +49,7 @@ void AddUserDialog::readyRead(QByteArray msg){
 //                else if (res.replay(j) == pb::Replay::UserAddOk ){
 //                    ui->status->setText("USER CREATED!!");
 //                }
-//            }
+//            }cmake project(auto_generated)
 //        }
 //    }
 
