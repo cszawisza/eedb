@@ -84,9 +84,10 @@ public:
                    )
            );
 
-        for (const auto& row: res)
+        for (const auto& row: res){
             if(row.c_title == action )
                 return true;
+        }
 
         return false;
     }

@@ -31,14 +31,12 @@ private:
     void linkInventoryWithUser(DB &db, quint64 inventoryId);
     quint64 insertInventory(DB &db, const MsgInventoryRequest_Add &msgReq);
 
-    void addResp(bool isError, int err_code){
-//        pb::ServerResponse res = pb::ServerResponse::default_instance();
-//        auto code = res.add_codes();
-//        code->set_error(isError);
-//        code->set_code(err_code);
-//        addResponse(res);
+    void addErrorCode( MsgInventoryResponse_Error code ){
+        m_response.mutable_msginventoryres()->add_code(code);
     }
     quint64 doInsert(DB &db, const MsgInventoryRequest_Add &msgReq);
+
+    pb::ServerResponse m_response;
 };
 
 }

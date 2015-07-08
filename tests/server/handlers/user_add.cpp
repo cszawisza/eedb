@@ -40,7 +40,6 @@ TEST_F( userCreateTest, user_no_name_and_email){
     req.set_password("passwd");
     auto res = sendRequest(req);
     EXPECT_TRUE(res.error());
-
 }
 
 TEST_F( userCreateTest, user_no_email){

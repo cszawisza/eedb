@@ -58,17 +58,23 @@ public:
         m_outputFrame.clear();
     }
 
-protected:
-    UserData *user(){
+    SharedUserData user(){
         if(!m_userData)
             m_userData = SharedUserData(new UserData() );
-        return m_userData.data();
+        return m_userData;
     }
 
-    const bool addResponse( const pb::ServerResponse &resp ){
+protected:
+    bool addResponse( const pb::ServerResponse &resp ){
         if(!m_outputFrame)
             m_outputFrame = SharedResponses(new pb::ServerResponses);
         m_outputFrame->add_response()->CopyFrom(resp);
+    }
+
+    void sendAccesDeny(){
+        pb::ServerResponse resp;
+        resp.set_code( pb::Error_AccesDeny );
+        addResponse( resp );
     }
 
 private:
