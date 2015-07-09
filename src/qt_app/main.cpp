@@ -2,7 +2,7 @@
 #include <QFile>
 #include <QDebug>
 #include <QTimer>
-#include <logindialog.h>
+#include <LoginDialog.hpp>
 
 namespace
 {

@@ -535,7 +535,7 @@
   <customwidget>
    <class>MTextEdit</class>
    <extends>QTextEdit</extends>
-   <header>mtextedit.h</header>
+   <header>MTextEdit.hpp</header>
   </customwidget>
  </customwidgets>
  <tabstops>

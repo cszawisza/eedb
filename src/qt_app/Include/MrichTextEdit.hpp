@@ -25,7 +25,7 @@
 #define _MRICHTEXTEDIT_H_
 
 #include <QPointer>
-#include "ui_mrichtextedit.h"
+#include "ui_MrichTextEdit.h"
 
 /**
  * @Brief A simple rich-text editor

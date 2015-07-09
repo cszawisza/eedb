@@ -1,4 +1,4 @@
-#include "mtextedit.h"
+#include "MTextEdit.hpp"
 #include <QTextDocument>
 #include <QTextCursor>
 #include <QImage>

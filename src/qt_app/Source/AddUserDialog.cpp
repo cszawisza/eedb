@@ -1,5 +1,5 @@
-#include "adduserdialog.h"
-#include "ui_adduserdialog.h"
+#include "AddUserDialog.hpp"
+#include "ui_AddUserDialog.h"
 
 #include "user.pb.h"
 #include "message_conteiner.pb.h"

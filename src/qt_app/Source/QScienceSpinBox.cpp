@@ -1,4 +1,4 @@
-#include "qsciencespinbox.h"
+#include "QScienceSpinBox.hpp"
 
 #include <limits>
 
