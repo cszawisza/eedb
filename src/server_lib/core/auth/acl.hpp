@@ -1,17 +1,17 @@
 #pragma once
 
 #include <vector>
-#include <string>
-#include "idatabase.h"
 
-#include "sqlpp11/sqlpp11.h"
+#include "utils/sqlpp_helper.hpp"
+#include "../idatabase.h"
+
 #include "sql_schema/t_acl.h"
 #include "sql_schema/t_users.h"
 #include "sql_schema/t_action.h"
 #include "sql_schema/t_implemented_action.h"
 #include "sql_schema/t_privilege.h"
 
-#include "common.pb.h" // for acl message
+#include "common.pb.h"
 
 using std::vector;
 using std::string;
@@ -38,6 +38,8 @@ constexpr int other_delete  = 1<<0;
 constexpr int groupsroot = 1;
 constexpr int rootId = 1;
 
+using std::string;
+
 class AccesControl {
 public:
     AccesControl( quint64 uid ):
@@ -45,6 +47,11 @@ public:
     {
     }
 
+    template<typename TAB>
+    bool checkUserAction(const string &action){
+        DB db;
+        return checkUserAction<TAB>(db, action);
+    }
 
     template<typename TAB>
     bool checkUserAction(DB &db, const string &action){
@@ -69,8 +76,8 @@ public:
            .from(ac.left_outer_join(pr).on(pr.c_related_table == tablename
                                            and pr.c_action == ac.c_title
                                            and pr.c_type == "table" ))
-           .where( ac.c_apply_object == sqlpp::verbatim<sqlpp::boolean>( "FALSE " )
-                   and (sqlpp::verbatim<sqlpp::boolean>( (( userGroups & groupsroot ) != 0)  ? "TRUE " : "FALSE " )
+           .where( ac.c_apply_object == toBool(false)
+                   and ( toBool(( userGroups & groupsroot ) != 0)
                         or (pr.c_role == "user" and pr.c_who == m_userId )
                         or (pr.c_role == "group" and (pr.c_who & userGroups) != 0 )
                         )
@@ -85,24 +92,69 @@ public:
     }
 
     template<typename TAB>
-    bool checkUserAction(const string &action){
+    bool checkUserAction(const string &action, quint64 objectid){
         DB db;
-        return checkUserAction<TAB>(db, action);
+        return checkUserAction<TAB>(db, action, objectid);
     }
 
     template<typename TAB>
     bool checkUserAction(DB &db, const string &action, quint64 objectid){
         const string &tablename = sqlpp::name_of<TAB>::char_ptr();
 
+        TAB acl;
+        schema::t_action act;
+        schema::t_implemented_action ia;
+        schema::t_privilege pr;
+
+        if( checkBasicPerms(db,action,objectid) )
+            return true;
+
+        auto res = db( sqlpp::select().flags(sqlpp::distinct).columns(act.c_title)
+                       .from(act
+                             .inner_join(acl).on(acl.c_uid == objectid)
+                             .inner_join(ia).on(ia.c_action == act.c_title
+                                                and ia.c_table == tablename
+                                                and (ia.c_status == 0 or ((ia.c_status & acl.c_status) != 0))
+                                                )
+                             .left_outer_join(pr).on(pr.c_related_table == tablename
+                                                     and pr.c_action == act.c_title
+                                                     and (   (  pr.c_type == "object" and pr.c_related_uid == objectid)
+                                                          or (  pr.c_type == "global" )
+                                                          or ( (pr.c_role == "self")
+                                                               and toBool(m_userId  == objectid )
+                                                               and toBool(tablename == "t_users"))
+                                                          )
+                                                     )
+                             )
+                       .where(
+                           (act.c_title == action) and
+                           act.c_apply_object
+                           and ((
+                                    (    pr.c_role == "user"        and pr.c_who == m_userId )
+                                    or ( pr.c_role == "owner"       and acl.c_owner == m_userId )
+                                    or ( pr.c_role == "owner_group" and ((acl.c_group & m_userAcl.group()) != 0))
+                                    or ( pr.c_role == "group"       and ((pr.c_who & m_userAcl.group()) != 0))
+                                    )
+                                or (pr.c_role == "self"))
+                           )
+                       );
+
+        for (const auto& row: res)
+            if(row.c_title == action )
+                return true;
+
+        return false;
+    }
+
+
+private:
+
+    bool checkBasicPerms(DB &db, const string &action, quint64 objectid){
         // check if root, and return true if so (root can everything :) )
         if(m_userId == rootId )
             return true;
 
         Acl objectAcl;
-        TAB acl;
-        schema::t_action act;
-        schema::t_implemented_action ia;
-        schema::t_privilege pr;
 
         ///TODO
         /// 1: save the acl info in chace and update it only once a while to prevent db roundtrips
@@ -117,7 +169,7 @@ public:
         /// 3: Provide a GLOBAL cache, and synchronize writes to that one object in whole system(and take 1)
         ///     but without date chacking
 
-
+        schema::t_acl acl;
         auto aclInfo = db( sqlpp::select( sqlpp::all_of(acl) )
                            .from(acl)
                            .where( acl.c_uid == m_userId || acl.c_uid == objectid ) );
@@ -144,50 +196,8 @@ public:
             return true;
         }
 
-        auto res = db( sqlpp::select().flags(sqlpp::distinct).columns(act.c_title)
-                       .from(act
-                             .inner_join(acl).on(acl.c_uid == objectid)
-                             .inner_join(ia).on(ia.c_action == act.c_title
-                                                and ia.c_table == tablename
-                                                and (ia.c_status == 0 or ((ia.c_status & acl.c_status) != 0))
-                                                )
-                             .left_outer_join(pr).on(pr.c_related_table == tablename
-                                                     and pr.c_action == act.c_title
-                                                     and (   (  pr.c_type == "object" and pr.c_related_uid == objectid)
-                                                          or (  pr.c_type == "global" )
-                                                          or ( (pr.c_role == "self")
-                                                               and sqlpp::verbatim<sqlpp::boolean>( (m_userId  == objectid ) ? "TRUE " : "FALSE ")
-                                                               and sqlpp::verbatim<sqlpp::boolean>( (tablename == "t_users") ? "TRUE " : "FALSE "))
-                                                          )
-                                                     )
-                             )
-                       .where(
-                           (act.c_title == action) and
-                           act.c_apply_object
-                           and ((
-                                    (    pr.c_role == "user"        and pr.c_who == m_userId )
-                                    or ( pr.c_role == "owner"       and acl.c_owner == m_userId )
-                                    or ( pr.c_role == "owner_group" and ((acl.c_group & m_userAcl.group()) != 0))
-                                    or ( pr.c_role == "group"       and ((pr.c_who & m_userAcl.group()) != 0))
-                                    )
-                                or (pr.c_role == "self"))
-                           )
-                       );
-
-        for (const auto& row: res)
-            if(row.c_title == action )
-                return true;
-
         return false;
     }
-
-    template<typename TAB>
-    bool checkUserAction(const string &action, quint64 objectid){
-        DB db;
-        return checkUserAction<TAB>(db, action, objectid);
-    }
-
-private:
 
 
     template<class Data>
