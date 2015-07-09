@@ -16,16 +16,17 @@ LANGUAGE plpgsql IMMUTABLE COST 1;
 -- update t_users set c_password = crypt('text', gen_salt('bf')) where c_uid = 1;
 -- select (c_password = crypt('text', c_password)) AS pswmatch FROM t_users where c_uid = 1;
 
+drop table if exists t_user_inventories;
 drop table if exists t_inventories_history;
 drop table if exists t_inventories_operations;
 drop table if exists t_in_stock;
 drop table if exists t_inventories_shelfs;
 drop table if exists t_shelfs;
 drop table if exists t_user_history;
-drop table if exists t_user_inventories;
 drop table if exists t_inventories;
 drop table if exists t_item_files;
 drop table if exists t_items;
+drop table if exists t_parameter_conversions;
 drop table if exists t_parameters;
 drop table if exists t_packages_files;
 drop table if exists t_packages;
@@ -170,26 +171,32 @@ CREATE TABLE t_packages_files (
     CONSTRAINT packages_files_pk PRIMARY KEY (c_package_id, c_file_id)
 );
 
-
 CREATE TABLE t_parameters (
     c_name VARCHAR(100) NOT NULL,
     c_symbol VARCHAR(20),
     c_quantity_name VARCHAR(100),
     c_parent INTEGER REFERENCES t_parameters(c_uid),
-    c_conversion_rules TEXT,
-    c_description TEXT,
+    c_description TEXT CHECK(length(c_description) < 100000),
     CONSTRAINT t_parameters_pkey PRIMARY KEY (c_uid),
-    CONSTRAINT t_parametereowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
+    CONSTRAINT t_parametereowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE,
+    CONSTRAINT t_parameters_unique UNIQUE(c_name, c_symbol)
 ) INHERITS (t_acl);
 
-COMMENT ON COLUMN t_parameters.c_name IS ''
-COMMENT ON COLUMN t_parameters.c_symbol IS ''
-COMMENT ON COLUMN t_parameters.c_quantity_name IS ''
-COMMENT ON COLUMN t_parameters.c_parent IS ''
-COMMENT ON COLUMN t_parameters.c_conversion_rules IS ''
-COMMENT ON COLUMN t_parameters.c_description IS ''
+COMMENT ON COLUMN t_parameters.c_name IS 'Parameter name e.g. Ampere';
+COMMENT ON COLUMN t_parameters.c_symbol IS 'Parameter symbol e.g. A';
+COMMENT ON COLUMN t_parameters.c_quantity_name IS 'Quantity name e.g. "electric current"';
+COMMENT ON COLUMN t_parameters.c_parent IS 'A unit parent unit e.g. parent of kA is A';
+COMMENT ON COLUMN t_parameters.c_description IS 'Simple description';
 
-CREATE UNIQUE INDEX t_parameters_unique ON t_parameters ( c_name, c_symbol );
+CREATE TABLE t_parameter_conversions(
+    c_from  INTEGER NOT NULL REFERENCES t_parameters(c_uid),
+    c_to    INTEGER NOT NULL REFERENCES t_parameters(c_uid),
+    c_equation TEXT NOT NULL,
+    CONSTRAINT t_parameter_conversions_unique UNIQUE (c_from, c_to)
+);
+
+COMMENT ON TABLE t_parameter_conversions IS 'This table contains a mathematical equation for converting one parameter to other, more info available at http://www.partow.net/programming/exprtk/index.html';
+COMMENT ON COLUMN t_parameter_conversions.c_equation IS 'this equation should be a proper exprtk equation';
 
 CREATE TABLE t_items (
     c_package_id    INTEGER NOT NULL REFERENCES t_packages(c_uid),
@@ -214,10 +221,10 @@ CREATE TABLE t_item_files (
 );
 
 CREATE TABLE t_inventories(
-    c_name TEXT NOT NULL CHECK(length(c_name) < 250),
+    c_name TEXT NOT NULL UNIQUE CHECK(length(c_name) < 250),
     c_description TEXT CHECK(length(c_description)< 100000),
-    -- creation date, other info
-    UNIQUE(c_uid, c_name),
+    c_creation_date TIMESTAMP DEFAULT(now()),
+    -- other info
     CONSTRAINT t_inventories_pkey PRIMARY KEY (c_uid),
     CONSTRAINT t_inventoryowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (t_acl);
@@ -225,12 +232,13 @@ CREATE TABLE t_inventories(
 CREATE TABLE t_user_inventories(
     c_inventory_id INTEGER NOT NULL REFERENCES t_inventories,
     c_user_id INTEGER NOT NULL REFERENCES t_users,
-    CONSTRAINT tuser_inventories_pk PRIMARY KEY (c_inventory_id, c_user_id)
+    CONSTRAINT t_user_inventories_pk PRIMARY KEY (c_inventory_id, c_user_id)
 );
 
 CREATE TABLE t_shelfs(
     c_name varchar(100) NOT NULL,
     c_description TEXT CHECK( length( c_description ) < 100000),
+    c_creation_date TIMESTAMP DEFAULT(now()),
     CONSTRAINT shelf_owner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE,
     CONSTRAINT t_shelfs_pkey PRIMARY KEY (c_uid)
 ) INHERITS (t_acl);
@@ -284,12 +292,6 @@ BEGIN
 
   insert into t_categories(c_parent_category_id, c_name, c_allow_recipe, c_allow_items, c_owner) values
         (NULL, 'Root', false, false, rootuserid);
-
--- can be deleted later, only for testing
-  insert into t_users (c_name, c_password, c_salt, c_email) values
-  ('test_user','pass','salt','test_email@ww.ww') returning c_uid into testuserid;
-  insert into t_users (c_name, c_password, c_salt, c_email) values
-  ('test_user2','pass2','salt','test_email2@ww.ww');
 
   insert into t_action(c_title, c_apply_object) values
         ('stat'         , true),

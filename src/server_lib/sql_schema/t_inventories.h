@@ -113,6 +113,21 @@ namespace schema {
 
 			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::can_be_null>;
 		};
+
+		struct C_creation_date {
+			struct _alias_t {
+				static constexpr const char _literal[] ="c_creation_date";
+				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+				template<typename T>
+					struct _member_t {
+						T c_creation_date;
+						T &operator()() { return c_creation_date; }
+						const T &operator()() const { return c_creation_date; }
+					};
+			};
+
+			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::can_be_null>;
+		};
 	}
 
 	struct t_inventories : sqlpp::table_t<t_inventories,
@@ -122,7 +137,8 @@ namespace schema {
 				t_inventories_::C_unixperms,
 				t_inventories_::C_status,
 				t_inventories_::C_name,
-				t_inventories_::C_description> {
+				t_inventories_::C_description,
+				t_inventories_::C_creation_date> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {
 			static constexpr const char _literal[] = "t_inventories";

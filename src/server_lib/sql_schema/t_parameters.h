@@ -114,19 +114,34 @@ namespace schema {
 			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::can_be_null>;
 		};
 
-		struct C_config {
+		struct C_quantity_name {
 			struct _alias_t {
-				static constexpr const char _literal[] ="c_config";
+				static constexpr const char _literal[] ="c_quantity_name";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T c_config;
-						T &operator()() { return c_config; }
-						const T &operator()() const { return c_config; }
+						T c_quantity_name;
+						T &operator()() { return c_quantity_name; }
+						const T &operator()() const { return c_quantity_name; }
 					};
 			};
 
-			using _traits = ::sqlpp::make_traits<::sqlpp::varchar>;
+			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::can_be_null>;
+		};
+
+		struct C_parent {
+			struct _alias_t {
+				static constexpr const char _literal[] ="c_parent";
+				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+				template<typename T>
+					struct _member_t {
+						T c_parent;
+						T &operator()() { return c_parent; }
+						const T &operator()() const { return c_parent; }
+					};
+			};
+
+			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::can_be_null>;
 		};
 
 		struct C_description {
@@ -153,7 +168,8 @@ namespace schema {
 				t_parameters_::C_status,
 				t_parameters_::C_name,
 				t_parameters_::C_symbol,
-				t_parameters_::C_config,
+				t_parameters_::C_quantity_name,
+				t_parameters_::C_parent,
 				t_parameters_::C_description> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {
