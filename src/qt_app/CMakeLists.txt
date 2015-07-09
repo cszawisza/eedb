@@ -1,8 +1,6 @@
 include_directories( ${Common_BINARY_DIR} )
 include_directories(${ProtobufIncludePath})
 
-message(${ProtobufIncludePath})
-
 find_package(Qt5Widgets)
 
 set(CMAKE_AUTOUIC ON)
