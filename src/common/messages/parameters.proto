@@ -9,6 +9,8 @@ message MsgParameterRequest{
 
     message Add {
         required string name = 1;
+        optional string symbol = 2;
+        optional string quantity_name = 3;
     }
 }
 

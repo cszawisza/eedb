@@ -1,4 +1,7 @@
 include_directories( ${Common_BINARY_DIR} )
+include_directories(${ProtobufIncludePath})
+
+message(${ProtobufIncludePath})
 
 find_package(Qt5Widgets)
 
@@ -19,4 +22,4 @@ set(SRC main.cpp
 )
 
 add_executable( Client ${SRC} )
-target_link_libraries( Client Common Qt5::Widgets Qt5::WebSockets)
+target_link_libraries( Client Common Qt5::Widgets Qt5::WebSockets ${PROTOBUF_LITE_LIBRARY} )

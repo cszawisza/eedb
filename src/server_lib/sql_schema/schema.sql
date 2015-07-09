@@ -170,23 +170,32 @@ CREATE TABLE t_packages_files (
     CONSTRAINT packages_files_pk PRIMARY KEY (c_package_id, c_file_id)
 );
 
+
 CREATE TABLE t_parameters (
-    c_name VARCHAR(64) NOT NULL,
-    c_symbol VARCHAR(16),
-    c_config json NOT NULL DEFAULT ('{}'),
+    c_name VARCHAR(100) NOT NULL,
+    c_symbol VARCHAR(20),
+    c_quantity_name VARCHAR(100),
+    c_parent INTEGER REFERENCES t_parameters(c_uid),
+    c_conversion_rules TEXT,
     c_description TEXT,
-    c_unixperms int not null default unix_to_numeric('766'),
     CONSTRAINT t_parameters_pkey PRIMARY KEY (c_uid),
     CONSTRAINT t_parametereowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (t_acl);
+
+COMMENT ON COLUMN t_parameters.c_name IS ''
+COMMENT ON COLUMN t_parameters.c_symbol IS ''
+COMMENT ON COLUMN t_parameters.c_quantity_name IS ''
+COMMENT ON COLUMN t_parameters.c_parent IS ''
+COMMENT ON COLUMN t_parameters.c_conversion_rules IS ''
+COMMENT ON COLUMN t_parameters.c_description IS ''
 
 CREATE UNIQUE INDEX t_parameters_unique ON t_parameters ( c_name, c_symbol );
 
 CREATE TABLE t_items (
     c_package_id    INTEGER NOT NULL REFERENCES t_packages(c_uid),
     c_category_id   INTEGER NOT NULL REFERENCES t_categories(c_uid),
-    c_name          VARCHAR(255) NOT NULL,
-    c_symbol        VARCHAR(255) NOT NULL,
+    c_name          VARCHAR(300) NOT NULL,
+    c_symbol        VARCHAR(300) NOT NULL,
     c_namespace     VARCHAR(64) DEFAULT 'std' NOT NULL,
     c_creationDate  TIMESTAMP DEFAULT now() NOT NULL,
     c_update        TIMESTAMP NOT NULL,
