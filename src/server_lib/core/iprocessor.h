@@ -7,7 +7,7 @@
 #include "message_conteiner.pb.h"
 #include "clientcache.h"
 #include "idatabase.h"
-#include "acl.h"
+#include "auth/acl.hpp"
 
 using pb::ClientRequest;
 using pb::ClientRequests;

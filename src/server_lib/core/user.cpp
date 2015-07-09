@@ -10,7 +10,7 @@
 #include "utils/userconfig.h"
 #include "utils/hash_passwd.h"
 #include <iostream>
-#include "acl.h"
+#include "auth/acl.hpp"
 #include <QRegExp>
 
 using eedb::utils::PasswordHash;

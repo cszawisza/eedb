@@ -10,7 +10,9 @@ set(SOURCES
 )
 
 set(Core_CPP
-    core/acl.cpp
+    core/auth/acl.cpp
+    core/auth/action.cpp
+    core/auth/implementedaction.cpp
     core/clientcache.cpp
     core/clientconnection.cpp
     core/clientworker.cpp
@@ -22,7 +24,9 @@ set(Core_CPP
 )
 
 set(Core_H
-    core/acl.h
+    core/auth/acl.hpp
+    core/auth/action.hpp
+    core/auth/implementedaction.hpp
     core/clientcache.h
     core/clientconnection.h
     core/clientworker.h
@@ -36,6 +40,7 @@ set(Core_H
 
 set( Utils_H
     utils/hash_passwd.h
+    utils/sqlpp_helper.hpp
 )
 
 add_library(eedb_lib STATIC ${SOURCES} ${Core_CPP} ${Utils_H} ${Core_H} ${SCHEMA_SRC} )
