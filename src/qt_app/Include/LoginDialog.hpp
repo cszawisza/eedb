@@ -4,6 +4,7 @@
 #include <QSettings>
 #include <QAbstractSocket>
 #include <QWebSocket>
+#include <CommunicationManager.hpp>
 
 //#include "messages/user.h"
 
@@ -39,5 +40,6 @@ private slots:
 private:
     //    User user;
     QWebSocket *m_socket;
+    CommunicationManager m_communicationManager;
 };
 

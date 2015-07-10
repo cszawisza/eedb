@@ -8,7 +8,6 @@
 #include "user.pb.h"
 
 #include "AddUserDialog.hpp"
-#include "CommunicationManager.hpp"
 
 LoginDialog::LoginDialog(QWidget *parent) :
     QDialog(parent),

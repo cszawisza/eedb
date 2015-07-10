@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QTimer>
 #include <LoginDialog.hpp>
+#include <CommunicationManager.hpp>
 
 namespace
 {
