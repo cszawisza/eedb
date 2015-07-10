@@ -8,11 +8,13 @@
 #include "user.pb.h"
 
 #include "AddUserDialog.hpp"
+#include "CommunicationManager.hpp"
 
 LoginDialog::LoginDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::LoginDialog),
-    m_socket(new QWebSocket("EKatalog client"))
+    m_socket(new QWebSocket("EKatalog client")),
+    m_communicationManager{}
 {
     ui->setupUi(this);
     ui->connection_groupbox->setChecked(false);
@@ -65,6 +67,7 @@ LoginDialog::LoginDialog(QWidget *parent) :
 
     connect(m_socket, &QWebSocket::connected, [=]() {
         qDebug()<< " peer connected";
+        m_communicationManager.handle();
     });
 
     connect(m_socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));

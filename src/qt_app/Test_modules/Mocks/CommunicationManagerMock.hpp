@@ -1,9 +1,10 @@
-//#pragma once
+#pragma once
 
-//#include <ICommunicationManager.hpp>
+#include <ICommunicationManager.hpp>
+#include <CommunicationManager.hpp>
 
-//class CountersProxyMock : public ICountersProxy
-//{
-//public:
-//    MOCK_METHOD0(handle, void());
-//};
+class CommunicationManagerMock : public ICommunicationManager
+{
+public:
+    MOCK_METHOD0(handle, void());
+};
