@@ -1,5 +1,5 @@
 FILE(GLOB TEST_SRC_FILES *.cpp)
-FILE(GLOB TEST_MOCK_FILES/Mocks/*.hpp)
+FILE(GLOB TEST_MOCK_FILES Mocks/*.hpp)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Mocks)
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})

@@ -1,5 +1,4 @@
-#ifndef LOGINDIALOG_H
-#define LOGINDIALOG_H
+#pragma once
 
 #include <QDialog>
 #include <QSettings>
@@ -8,7 +7,8 @@
 
 //#include "messages/user.h"
 
-namespace Ui {
+namespace Ui
+{
 class LoginDialog;
 }
 
@@ -37,8 +37,7 @@ private slots:
     void doReconnect();
     void doLogin();
 private:
-//    User user;
+    //    User user;
     QWebSocket *m_socket;
 };
 
-#endif // LOGINDIALOG_H

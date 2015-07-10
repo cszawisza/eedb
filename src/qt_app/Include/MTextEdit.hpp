@@ -1,22 +1,21 @@
-#ifndef _MTEXTEDIT_H_
-#define _MTEXTEDIT_H_
+#pragma once
 
 #include <QTextEdit>
 #include <QMimeData>
 #include <QImage>
 
-class MTextEdit : public QTextEdit {
+class MTextEdit : public QTextEdit
+{
     Q_OBJECT
-  public:
+public:
     MTextEdit(QWidget *parent);
 
     void        dropImage(const QImage& image, const QString& format);
 
-  protected:
+protected:
     bool        canInsertFromMimeData(const QMimeData *source) const;
     void        insertFromMimeData(const QMimeData *source);
     QMimeData  *createMimeDataFromSelection() const;
 
 };
 
-#endif
