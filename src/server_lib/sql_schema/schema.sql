@@ -67,7 +67,7 @@ create table t_implemented_action (
     c_table     text    not null,
     c_action    text    not null, -- TODO check if value is in t_action table
     c_status    int    not null,
-    primary key (c_table, c_action)
+    primary key (c_table, c_action, c_status)
 );
 
 

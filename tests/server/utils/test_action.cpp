@@ -1,33 +1,39 @@
 #include <gtest/gtest.h>
 #include "core/idatabase.h"
-#include "core/auth/implementedaction.hpp"
+#include "core/auth/action.hpp"
 
 using namespace auth;
 
-class ImplementedActionTest : public testing::Test
+class ActionTest : public testing::Test
 {
 public:
-    ImplementedActionTest(){
+    ActionTest(){
         db.start_transaction();
     }
 
-    ~ImplementedActionTest(){
+    ~ActionTest(){
         db.rollback_transaction(false);
     }
 
     DB db;
 };
 
-TEST_F(ImplementedActionTest, checkIfExist){
-//    Action act ("new_action_not_existing_in_db", Object );
+TEST_F(ActionTest, checkIfExist){
+    Action act ("new_action_not_existing_in_db", Object );
 
-//    EXPECT_FALSE( act.actionExists(db));
+    EXPECT_FALSE( act.actionExists(db));
 }
 
-TEST_F(ImplementedActionTest, createNewAction){
+TEST_F(ActionTest, createNewAction){
+    Action act ("new_action", Object );
+
+    EXPECT_TRUE( act.save(db) );
+    EXPECT_TRUE( act.actionExists(db) );
+}
+
+//TEST_F(ActionTest, doubleSaving){
 //    Action act ("new_action", Object );
 
 //    EXPECT_TRUE( act.save(db) );
-//    EXPECT_TRUE( act.actionExists(db) );
-}
-
+//    EXPECT_FALSE( act.save(db) );
+//}
