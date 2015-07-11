@@ -130,7 +130,7 @@ void LoginDialog::doReconnect(){
         timer->setSingleShot(1000);
         connect(timer, SIGNAL(timeout()), &pause, SLOT(quit()));
         connect(m_socket, SIGNAL( connected() ), &pause, SLOT(quit()));
-        pause.exec();
+//        pause.exec();
     }
 }
 

@@ -19,23 +19,9 @@ class TestGui: public QObject
 {
     Q_OBJECT
 
-private slots:
-    void testGui();
-
 };
 
-void TestGui::testGui()
-{
-    LoginDialog l_Dialog{};
-//    l_Dialog.show();
 
-    //QTest::keyClicks(l_Dialog.getUi(), "hello world");
-    QTest::mouseClick(l_Dialog.getUi()->login, Qt::LeftButton);
-
-//    QEventLoop::loop
-
-    EXPECT_FALSE(false);
-}
 
 struct LoginDialogTestSuite : public ::testing::Test
 {
@@ -45,9 +31,19 @@ struct LoginDialogTestSuite : public ::testing::Test
 
 TEST_F(LoginDialogTestSuite, FailTest)
 {
-    //l_Dialog.exec();
-    //EXPECT_CALL(communicationManagerMock, handle());
-    EXPECT_FALSE(false);
+    LoginDialog l_Dialog{};
+
+    // spy on this signal
+    QSignalSpy buttonSpy(l_Dialog.getUi()->login, SIGNAL(clicked(bool)));
+    QSignalSpy dialogSpy(&l_Dialog, SIGNAL(loginOk()));
+
+    // add some funny text
+    QTest::keyClicks(l_Dialog.getUi()->userLogin, "hello world");
+    // emulate a user click
+    QTest::mouseClick(l_Dialog.getUi()->login, Qt::LeftButton);
+
+    EXPECT_EQ(1, buttonSpy.count() );
+    EXPECT_EQ(0, dialogSpy.count() );
 }
 
 #include "LoginDialogTestSuite.moc"
