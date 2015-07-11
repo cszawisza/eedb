@@ -2,6 +2,9 @@
 #include <gmock/gmock.h>
 
 #include <LoginDialog.hpp>
+#include <ui_LoginDialog.h> // to get loginDialog UI definition
+#include <QTest>
+
 #include <CommunicationManagerMock.hpp>
 
 
@@ -27,7 +30,9 @@ void TestGui::testGui()
 //    l_Dialog.show();
 
     //QTest::keyClicks(l_Dialog.getUi(), "hello world");
-    QTest::mouseClick(&l_Dialog.getUi()->login, Qt::LeftButton);
+    QTest::mouseClick(l_Dialog.getUi()->login, Qt::LeftButton);
+
+//    QEventLoop::loop
 
     EXPECT_FALSE(false);
 }

@@ -6,6 +6,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Mocks)
 include_directories(../Include)
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 include_directories(${gmock_SOURCE_DIR}/include ${gmock_SOURCE_DIR})
+INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/src/qt_app )
 include_directories(${ProtobufIncludePath})
 
 add_executable(ClientTests ${TEST_SRC_FILES} ${TEST_MOCK_FILES})
