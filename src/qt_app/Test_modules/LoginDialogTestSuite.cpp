@@ -48,7 +48,6 @@ TEST_F(LoginDialogTestSuite, FailAfterStateChangeServerConnection)
     QSignalSpy buttonSpy(m_sut.getUi()->login, SIGNAL(clicked(bool)));
     QTest::mouseClick(m_sut.getUi()->login, Qt::LeftButton);
 
-    EXPECT_CALL(communicationManagerMock, handle()).Times(0);
     emit webSocketMock.stateChanged(QAbstractSocket::ConnectingState);
     EXPECT_EQ(1, buttonSpy.count());
 }
@@ -58,7 +57,6 @@ TEST_F(LoginDialogTestSuite, FailServerConnection)
     QSignalSpy buttonSpy(m_sut.getUi()->login, SIGNAL(clicked(bool)));
     QTest::mouseClick(m_sut.getUi()->login, Qt::LeftButton);
 
-    EXPECT_CALL(communicationManagerMock, handle()).Times(0);
     EXPECT_EQ(1, buttonSpy.count());
 }
 
