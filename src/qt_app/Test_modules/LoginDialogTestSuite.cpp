@@ -4,7 +4,33 @@
 #include <LoginDialog.hpp>
 #include <CommunicationManagerMock.hpp>
 
+
 using namespace testing;
+
+
+#include <QtTest/QtTest>
+#include <QtGui>
+
+
+class TestGui: public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testGui();
+
+};
+
+void TestGui::testGui()
+{
+    LoginDialog l_Dialog{};
+//    l_Dialog.show();
+
+    //QTest::keyClicks(l_Dialog.getUi(), "hello world");
+    QTest::mouseClick(&l_Dialog.getUi()->login, Qt::LeftButton);
+
+    EXPECT_FALSE(false);
+}
 
 struct LoginDialogTestSuite : public ::testing::Test
 {
@@ -18,3 +44,5 @@ TEST_F(LoginDialogTestSuite, FailTest)
     //EXPECT_CALL(communicationManagerMock, handle());
     EXPECT_FALSE(false);
 }
+
+#include "LoginDialogTestSuite.moc"

@@ -23,14 +23,16 @@ public:
 
     QWebSocket *socket() const;
     void setSocket(QWebSocket *socket);
+    Ui::LoginDialog *getUi();
 
 public slots:
     void readyRead(QByteArray msg);
 signals:
     void loginOk();
     void loginFailure();
-private:
+protected:
     Ui::LoginDialog *ui;
+private:
     QSettings setup;
 
 private slots:

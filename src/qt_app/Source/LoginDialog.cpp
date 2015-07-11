@@ -77,6 +77,11 @@ LoginDialog::LoginDialog(QWidget *parent) :
 
 }
 
+Ui::LoginDialog *LoginDialog::getUi()
+{
+    return ui;
+}
+
 void LoginDialog::readyRead(QByteArray msg){
     //Server response handler code
     qDebug()<< msg.toHex();
