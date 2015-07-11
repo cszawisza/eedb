@@ -4,7 +4,7 @@
 CommunicationManager::CommunicationManager()
 { }
 
-void CommunicationManager::handle()
+void CommunicationManager::handle() const
 {
     std::cout << "Handluje" << std::endl;
 }

@@ -3,17 +3,21 @@
 
 #include <QAbstractSocket>
 #include <QTimer>
+#include <QWebSocket>
 
 #include "message_conteiner.pb.h"
 #include "user.pb.h"
 
 #include "AddUserDialog.hpp"
+#include <ICommunicationManager.hpp>
 
-LoginDialog::LoginDialog(QWidget *parent) :
+LoginDialog::LoginDialog(const ICommunicationManager & p_communicationManager,
+                         QWebSocket & p_webSocket,
+                         QWidget *parent) :
     QDialog(parent),
     ui(new Ui::LoginDialog),
-    m_socket(new QWebSocket("EKatalog client")),
-    m_communicationManager{}
+    m_communicationManager(p_communicationManager),
+    m_socket(p_webSocket)
 {
     ui->setupUi(this);
     ui->connection_groupbox->setChecked(false);
@@ -36,11 +40,11 @@ LoginDialog::LoginDialog(QWidget *parent) :
     connect(ui->registerNewUser, static_cast<void (QPushButton::*)(bool)>(&QPushButton::clicked),
             [=](){
         doReconnect();
-        if(m_socket->state() == QAbstractSocket::ConnectedState){
-            disconnect(m_socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));
-            AddUserDialog *dialog = new AddUserDialog(m_socket, this);
+        if(m_socket.state() == QAbstractSocket::ConnectedState){
+            disconnect(&m_socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));
+            AddUserDialog *dialog = new AddUserDialog(&m_socket, this);
             dialog->exec();
-            connect(m_socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));
+            connect(&m_socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));
         }
         else{
             ui->connectResponseLabel->setText("peer disconnected");
@@ -59,20 +63,23 @@ LoginDialog::LoginDialog(QWidget *parent) :
         this->accept();
     });
 
-    connect(m_socket, &QWebSocket::disconnected, [=](){
+    connect(&m_socket, &QWebSocket::disconnected, [=](){
         qDebug()<<" peer disconnected";
         ui->connectResponseLabel->setText("peer disconnected");
     });
 
-    connect(m_socket, &QWebSocket::connected, [=]() {
+    connect(&m_socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));
+
+    connect(&m_socket, &QWebSocket::connected, [=]() {
         qDebug()<< " peer connected";
         m_communicationManager.handle();
     });
-
-    connect(m_socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));
-
-    connect(m_socket, &QWebSocket::stateChanged, [=](QAbstractSocket::SocketState s){
-        qDebug() << s;
+    connect(&m_socket, &QWebSocket::stateChanged, [=](QAbstractSocket::SocketState p_state){
+        if (p_state == QAbstractSocket::ConnectedState)
+        {
+            m_communicationManager.handle();
+        }
+        qDebug() << p_state;
     });
 
 }
@@ -120,16 +127,16 @@ void LoginDialog::doReconnect(){
         port = url.port();
         host = url.host();
         qDebug() << "closing socket";
-        m_socket->close();
+        m_socket.close();
     }
 
-    if(m_socket->state() == QAbstractSocket::UnconnectedState){
-        m_socket->open(url);
+    if(m_socket.state() == QAbstractSocket::UnconnectedState){
+        m_socket.open(url);
         QEventLoop pause;
         QTimer *timer = new QTimer();
         timer->setSingleShot(1000);
         connect(timer, SIGNAL(timeout()), &pause, SLOT(quit()));
-        connect(m_socket, SIGNAL( connected() ), &pause, SLOT(quit()));
+        connect(&m_socket, SIGNAL( connected() ), &pause, SLOT(quit()));
 //        pause.exec();
     }
 }
@@ -151,18 +158,12 @@ void LoginDialog::doLogin()
 
     qDebug()<<" socket connected!: sending message: "<< QString(ba.toHex());
 
-    m_socket->sendBinaryMessage(ba);
+    m_socket.sendBinaryMessage(ba);
 }
 QWebSocket *LoginDialog::socket() const
 {
-    return m_socket;
+    return &m_socket;
 }
-
-void LoginDialog::setSocket(QWebSocket *socket)
-{
-    m_socket = socket;
-}
-
 
 LoginDialog::~LoginDialog()
 {
@@ -192,4 +193,3 @@ void LoginDialog::doConnectTest()
     qDebug()<<" try to connect to " << url.toString();
     socket->open(url);
 }
-

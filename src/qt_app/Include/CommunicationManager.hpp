@@ -6,5 +6,5 @@ class CommunicationManager : public ICommunicationManager
 {
 public:
     CommunicationManager();
-    void handle() override;
+    void handle() const override;
 };

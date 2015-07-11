@@ -4,6 +4,7 @@
 #include <QTimer>
 #include <LoginDialog.hpp>
 #include <CommunicationManager.hpp>
+#include <QWebSocket>
 
 namespace
 {
@@ -31,7 +32,9 @@ void showHelloMessage(const char *argv)
 
 void showLoginDialog(QApplication &a)
 {
-    LoginDialog lDialog{};
+    CommunicationManager l_communicationManager{};
+    QWebSocket l_webSocket("EKatalog client");
+    LoginDialog lDialog(l_communicationManager, l_webSocket);
     if(!lDialog.exec())
     {
         QTimer::singleShot(1,&a,SLOT(quit()));

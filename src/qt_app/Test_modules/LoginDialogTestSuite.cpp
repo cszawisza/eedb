@@ -1,49 +1,65 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <QWebSocket>
+#include <QtTest/QtTest>
 
 #include <LoginDialog.hpp>
-#include <ui_LoginDialog.h> // to get loginDialog UI definition
-#include <QTest>
-
 #include <CommunicationManagerMock.hpp>
-
+#include <ui_LoginDialog.h> // to get loginDialog UI definition
 
 using namespace testing;
 
-
-#include <QtTest/QtTest>
-#include <QtGui>
-
-
-class TestGui: public QObject
-{
-    Q_OBJECT
-
-};
-
-
-
 struct LoginDialogTestSuite : public ::testing::Test
 {
-//    CommunicationManagerMock communicationManagerMock{};
-    LoginDialog l_Dialog{};
+    LoginDialogTestSuite();
+    StrictMock<CommunicationManagerMock> communicationManagerMock;
+    StrictMock<QWebSocket> webSocketMock;
+    LoginDialog m_sut;
 };
 
-TEST_F(LoginDialogTestSuite, FailTest)
+LoginDialogTestSuite::LoginDialogTestSuite()
+    : communicationManagerMock{},
+      webSocketMock{},
+      m_sut(communicationManagerMock, webSocketMock)
+{}
+
+TEST_F(LoginDialogTestSuite, SuccesServerConnection)
 {
-    LoginDialog l_Dialog{};
+    QSignalSpy buttonSpy(m_sut.getUi()->login, SIGNAL(clicked(bool)));
+    QTest::mouseClick(m_sut.getUi()->login, Qt::LeftButton);
 
-    // spy on this signal
-    QSignalSpy buttonSpy(l_Dialog.getUi()->login, SIGNAL(clicked(bool)));
-    QSignalSpy dialogSpy(&l_Dialog, SIGNAL(loginOk()));
+    EXPECT_CALL(communicationManagerMock, handle());
+    emit webSocketMock.connected();
+    EXPECT_EQ(1, buttonSpy.count());
+}
 
-    // add some funny text
-    QTest::keyClicks(l_Dialog.getUi()->userLogin, "hello world");
-    // emulate a user click
-    QTest::mouseClick(l_Dialog.getUi()->login, Qt::LeftButton);
+TEST_F(LoginDialogTestSuite, SuccesAfterStateChangeServerConnection)
+{
+    QSignalSpy buttonSpy(m_sut.getUi()->login, SIGNAL(clicked(bool)));
+    QTest::mouseClick(m_sut.getUi()->login, Qt::LeftButton);
 
-    EXPECT_EQ(1, buttonSpy.count() );
-    EXPECT_EQ(0, dialogSpy.count() );
+    EXPECT_CALL(communicationManagerMock, handle());
+    emit webSocketMock.stateChanged(QAbstractSocket::ConnectedState);
+    EXPECT_EQ(1, buttonSpy.count());
+}
+
+TEST_F(LoginDialogTestSuite, FailAfterStateChangeServerConnection)
+{
+    QSignalSpy buttonSpy(m_sut.getUi()->login, SIGNAL(clicked(bool)));
+    QTest::mouseClick(m_sut.getUi()->login, Qt::LeftButton);
+
+    EXPECT_CALL(communicationManagerMock, handle()).Times(0);
+    emit webSocketMock.stateChanged(QAbstractSocket::ConnectingState);
+    EXPECT_EQ(1, buttonSpy.count());
+}
+
+TEST_F(LoginDialogTestSuite, FailServerConnection)
+{
+    QSignalSpy buttonSpy(m_sut.getUi()->login, SIGNAL(clicked(bool)));
+    QTest::mouseClick(m_sut.getUi()->login, Qt::LeftButton);
+
+    EXPECT_CALL(communicationManagerMock, handle()).Times(0);
+    EXPECT_EQ(1, buttonSpy.count());
 }
 
 #include "LoginDialogTestSuite.moc"

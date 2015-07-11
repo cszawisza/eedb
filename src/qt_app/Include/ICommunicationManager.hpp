@@ -4,5 +4,5 @@ class ICommunicationManager
 {
 public:
     virtual ~ICommunicationManager() {}
-    virtual void handle() = 0;
+    virtual void handle() const = 0;
 };

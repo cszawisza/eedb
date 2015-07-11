@@ -3,26 +3,26 @@
 #include <QDialog>
 #include <QSettings>
 #include <QAbstractSocket>
-#include <QWebSocket>
-#include <CommunicationManager.hpp>
-
-//#include "messages/user.h"
 
 namespace Ui
 {
 class LoginDialog;
 }
 
+class ICommunicationManager;
+class QWebSocket;
+
 class LoginDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit LoginDialog(QWidget *parent = 0);
+    explicit LoginDialog(const ICommunicationManager & p_communicationManager,
+                         QWebSocket & p_webSocket,
+                         QWidget *parent = 0);
     ~LoginDialog();
 
     QWebSocket *socket() const;
-    void setSocket(QWebSocket *socket);
     Ui::LoginDialog *getUi();
 
 public slots:
@@ -41,7 +41,7 @@ private slots:
     void doLogin();
 private:
     //    User user;
-    QWebSocket *m_socket;
-    CommunicationManager m_communicationManager;
+    QWebSocket & m_socket;
+    const ICommunicationManager & m_communicationManager;
 };
 
