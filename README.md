@@ -17,7 +17,9 @@ Quite long time ago I noticed that electronic parts that I buy are often duplica
 ## Application dependencies
 
 * QT5
+
 * cmake 3.0.2
+
 * protbuf 2.6.2
 
 * Server
