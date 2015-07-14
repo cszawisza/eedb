@@ -13,11 +13,8 @@ set(Core_CPP
     core/auth/acl.cpp
     core/auth/action.cpp
     core/auth/implementedaction.cpp
-<<<<<<< HEAD
     core/auth/privilege.cpp
     core/database/initialize.cpp
-=======
->>>>>>> origin/master
     core/clientcache.cpp
     core/clientconnection.cpp
     core/clientworker.cpp
@@ -32,11 +29,8 @@ set(Core_H
     core/auth/acl.hpp
     core/auth/action.hpp
     core/auth/implementedaction.hpp
-<<<<<<< HEAD
     core/auth/privilege.hpp
     core/database/initialize.hpp
-=======
->>>>>>> origin/master
     core/clientcache.h
     core/clientconnection.h
     core/clientworker.h

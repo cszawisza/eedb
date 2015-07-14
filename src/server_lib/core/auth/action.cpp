@@ -1,20 +1,14 @@
 #include "action.hpp"
-<<<<<<< HEAD
-#include <iostream>
-=======
 
->>>>>>> origin/master
+#include <iostream>
+
 #include "utils/sqlpp_helper.hpp"
 #include "sql_schema/t_action.h"
 
 #include "../idatabase.h"
 
-<<<<<<< HEAD
-
 using sqlpp::toBool;
 
-=======
->>>>>>> origin/master
 namespace auth{
 
 bool Action::save(DB &db){
@@ -34,21 +28,13 @@ bool Action::save(DB &db){
     return ok;
 }
 
-<<<<<<< HEAD
 bool Action::exists(DB &db) const
-=======
-bool Action::actionExists(DB &db) const
->>>>>>> origin/master
 {
     static constexpr schema::t_action a;
     auto exist = false;
     try{
         exist = db(select(
-<<<<<<< HEAD
                        sqlpp::exists(
-=======
-                       exists(
->>>>>>> origin/master
                            select(a.c_title)
                            .from(a)
                            .where(a.c_title == title() and

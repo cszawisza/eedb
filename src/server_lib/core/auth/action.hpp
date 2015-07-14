@@ -27,11 +27,7 @@ public:
     inline bool applyToTable() const;
 
     bool save(DB &db);
-<<<<<<< HEAD
     bool exists(DB &db) const;
-=======
-    bool actionExists(DB &db) const;
->>>>>>> origin/master
 
 private:
     string m_title;
