@@ -74,6 +74,7 @@ LoginDialog::LoginDialog(const ICommunicationManager & p_communicationManager,
         qDebug()<< " peer connected";
         m_communicationManager.handle();
     });
+
     connect(&m_socket, &QWebSocket::stateChanged, [=](QAbstractSocket::SocketState p_state){
         if (p_state == QAbstractSocket::ConnectedState)
         {

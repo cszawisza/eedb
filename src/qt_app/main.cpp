@@ -2,9 +2,11 @@
 #include <QFile>
 #include <QDebug>
 #include <QTimer>
+#include <QByteArray>
 #include <LoginDialog.hpp>
 #include <CommunicationManager.hpp>
 #include <QWebSocket>
+#include <ProtobufConverters.hpp>
 
 namespace
 {
@@ -32,8 +34,18 @@ void showHelloMessage(const char *argv)
 
 void showLoginDialog(QApplication &a)
 {
-    CommunicationManager l_communicationManager{};
     QWebSocket l_webSocket("EKatalog client");
+    auto l_protobufToQbyteArrayConverter = [](const pb::ClientRequests & p_clientRequests)
+    {
+        return convertProtobufMsgToQByteArray(p_clientRequests);
+    };
+    auto l_qbyteArrayToProtobufConverter = [](const QByteArray & p_serverResponse)
+    {
+        return convertQByteArrayToProtobufMsg(p_serverResponse);
+    };
+    CommunicationManager l_communicationManager(l_webSocket,
+                                                l_protobufToQbyteArrayConverter,
+                                                l_qbyteArrayToProtobufConverter);
     LoginDialog lDialog(l_communicationManager, l_webSocket);
     if(!lDialog.exec())
     {
