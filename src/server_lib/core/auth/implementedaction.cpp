@@ -4,6 +4,7 @@
 
 namespace auth {
 
+<<<<<<< HEAD
 bool ImplementedAction::save(DB &db){
     static constexpr schema::t_implemented_action ia;
     bool ok = false;
@@ -29,4 +30,6 @@ bool ImplementedAction::exists(DB &db) const {
               ).front().exists;
 }
 
+=======
+>>>>>>> origin/master
 }

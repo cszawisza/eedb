@@ -7,8 +7,6 @@
 #include <QDebug>
 #include <QString>
 
-
-
 class QScienceSpinBox : public QDoubleSpinBox
 {
 Q_OBJECT
@@ -25,7 +23,6 @@ private:
     int dispDecimals;
     QChar delimiter, thousand;
     QDoubleValidator * v;
-
 
 private:
     void initLocalValues(QWidget *parent);

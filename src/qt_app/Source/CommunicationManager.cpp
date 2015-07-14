@@ -1,7 +1,10 @@
 #include <CommunicationManager.hpp>
 #include <iostream>
 
-void CommunicationManager::handle()
+CommunicationManager::CommunicationManager()
+{ }
+
+void CommunicationManager::handle() const
 {
     std::cout << "Handluje" << std::endl;
 }

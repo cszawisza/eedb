@@ -11,7 +11,10 @@
 #include "sql_schema/t_implemented_action.h"
 #include "sql_schema/t_privilege.h"
 
+<<<<<<< HEAD:src/server_lib/core/auth/acl.hpp
 
+=======
+>>>>>>> origin/master:src/server_lib/core/auth/acl.hpp
 #include "common.pb.h"
 
 using std::vector;
@@ -87,9 +90,10 @@ public:
                    )
            );
 
-        for (const auto& row: res)
+        for (const auto& row: res){
             if(row.c_title == action )
                 return true;
+        }
 
         return false;
     }
@@ -144,6 +148,51 @@ public:
             if(row.c_title == action )
                 return true;
 
+<<<<<<< HEAD:src/server_lib/core/auth/acl.hpp
+=======
+        TAB acl;
+        schema::t_action act;
+        schema::t_implemented_action ia;
+        schema::t_privilege pr;
+
+        if( checkBasicPerms(db,action,objectid) )
+            return true;
+
+        auto res = db( sqlpp::select().flags(sqlpp::distinct).columns(act.c_title)
+                       .from(act
+                             .inner_join(acl).on(acl.c_uid == objectid)
+                             .inner_join(ia).on(ia.c_action == act.c_title
+                                                and ia.c_table == tablename
+                                                and (ia.c_status == 0 or ((ia.c_status & acl.c_status) != 0))
+                                                )
+                             .left_outer_join(pr).on(pr.c_related_table == tablename
+                                                     and pr.c_action == act.c_title
+                                                     and (   (  pr.c_type == "object" and pr.c_related_uid == objectid)
+                                                          or (  pr.c_type == "global" )
+                                                          or ( (pr.c_role == "self")
+                                                               and toBool(m_userId  == objectid )
+                                                               and toBool(tablename == "t_users"))
+                                                          )
+                                                     )
+                             )
+                       .where(
+                           (act.c_title == action) and
+                           act.c_apply_object
+                           and ((
+                                    (    pr.c_role == "user"        and pr.c_who == m_userId )
+                                    or ( pr.c_role == "owner"       and acl.c_owner == m_userId )
+                                    or ( pr.c_role == "owner_group" and ((acl.c_group & m_userAcl.group()) != 0))
+                                    or ( pr.c_role == "group"       and ((pr.c_who & m_userAcl.group()) != 0))
+                                    )
+                                or (pr.c_role == "self"))
+                           )
+                       );
+
+        for (const auto& row: res)
+            if(row.c_title == action )
+                return true;
+
+>>>>>>> origin/master:src/server_lib/core/auth/acl.hpp
         return false;
     }
 

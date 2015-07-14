@@ -23,12 +23,13 @@ namespace handlers{
 
 void Inventory::process(pb::ClientRequest &msg )
 {
+    m_response.Clear();
     // Check if this is the message that handler wants
     Q_ASSERT( msg.data_case() == pb::ClientRequest::kMsgInventoryReq );
     Q_ASSERT( msg.has_msginventoryreq() );
 
     if (!user()->isOnline()){
-        addResp(true, Error_AccesDeny);
+//        addErrorCode(  );
         return;
     }
 
@@ -52,27 +53,35 @@ void Inventory::process(pb::ClientRequest &msg )
         handle_addShelf( *req.mutable_addshelf() );
         break;
     case MsgInventoryRequest::ACTION_NOT_SET:
-        addResp(true, Error_NoActionChoosen);
+        //addResp(true, Error_NoActionChoosen);
         break;
     }
+
+    addResponse(m_response);
 }
 
 void Inventory::handle_add( MsgInventoryRequest_Add &msg)
 {
+    bool error = false;
     if(msg.name().length() > 250 ){
-
+        error = true;
+        addErrorCode( MsgInventoryResponse_Error_NameToLong);
+    }
+    if(msg.name().length() < 1 ){
+        error = true;
+        addErrorCode( MsgInventoryResponse_Error_NameEmpty);
     }
     if(msg.description().length() > 100000 ){
-//        addResp(true, );
+        error = true;
+        addErrorCode( MsgInventoryResponse_Error_DescriptionToLong );
     }
 
+    if(error)
+        return;
     ///TODO check if acl in msgReq has owner fields (if not, set owner as this user)
 
     DB db;
     auth::AccesControl acl( user()->id() );
-    if(acl.checkUserAction<t_acl>(db, "write")){
-        // can modify acl
-    }
 
     if(acl.checkUserAction<t_inventories>(db, "write") ){
         bool error=false;
@@ -80,15 +89,18 @@ void Inventory::handle_add( MsgInventoryRequest_Add &msg)
             db.start_transaction();
             insertStorage(db, msg);
         }
-        catch(sqlpp::exception e){
+        catch(sqlpp::exception){
             error = true;
             db.rollback_transaction(false);
+            addErrorCode(MsgInventoryResponse_Error_DbAccesError);
         }
-        if(!error)
+        if(!error){
             db.commit_transaction();
+            addErrorCode(MsgInventoryResponse_Error_No_Error);
+        }
     }
     else
-        addResp(true, Error_AccesDeny);
+        sendAccesDeny();
 
 }
 
@@ -106,7 +118,7 @@ quint64 Inventory::doInsert(DB &db, const MsgInventoryRequest_Add &msgReq)
     db(query);
 
     ///TODO change to .RETURNING when implemented
-    return db.lastInsertId("t_inventories", "c_uid");
+    return db.lastInsertId(sqlpp::name_of<t_acl>::char_ptr(), "c_uid" );
 }
 
 void Inventory::linkInventoryWithUser(DB &db, quint64 inventoryId)

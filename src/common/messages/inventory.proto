@@ -55,7 +55,15 @@ message MsgInventoryRequest {
 }
 
 message MsgInventoryResponse {
-  required ResponseCode code = 1;
+    enum Error {
+      No_Error = 0;
+      NameToLong = 1;
+      NameEmpty = 2;
+      DescriptionToLong = 3;
+      DbAccesError = 100;
+    }
+
+  repeated Error code = 1;
 }
 
 message PositionOfItemOnShelf {

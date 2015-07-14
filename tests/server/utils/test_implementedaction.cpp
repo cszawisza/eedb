@@ -1,9 +1,15 @@
 #include <gtest/gtest.h>
 
 #include "core/idatabase.h"
+<<<<<<< HEAD
 #include "core/auth/implementedaction.hpp"
 
 #include "sql_schema/t_users.h"
+=======
+
+#include "core/auth/implementedaction.hpp"
+
+>>>>>>> origin/master
 using namespace auth;
 
 class ImplementedActionTest : public testing::Test
@@ -20,6 +26,7 @@ public:
     DB db;
 };
 
+<<<<<<< HEAD
 TEST_F(ImplementedActionTest, ctor){
     ImplementedAction action1;
     ImplementedAction action2("new_implemented_action");
@@ -82,3 +89,13 @@ TEST_F(ImplementedActionTest, differentStatuses ){
 
 //    EXPECT_TRUE( action1.save(db) );
 //}
+=======
+//TEST_F(ImplementedActionTest, checkIfExist){
+
+//}
+
+//TEST_F(ImplementedActionTest, createNew){
+
+//}
+
+>>>>>>> origin/master

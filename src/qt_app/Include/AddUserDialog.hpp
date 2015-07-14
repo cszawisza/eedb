@@ -1,12 +1,12 @@
-#ifndef ADDUSERDIALOG_H
-#define ADDUSERDIALOG_H
+#pragma once
 
 #include <QDialog>
 #include <QWebSocket>
 
 ///TODO description field: use https://github.com/Anchakor/MRichTextEditor
 
-namespace Ui {
+namespace Ui
+{
 class AddUserDialog;
 }
 
@@ -27,5 +27,3 @@ private:
     Ui::AddUserDialog *ui;
     QWebSocket *socket;
 };
-
-#endif // ADDUSERDIALOG_H

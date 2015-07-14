@@ -1,35 +1,38 @@
-#ifndef LOGINDIALOG_H
-#define LOGINDIALOG_H
+#pragma once
 
 #include <QDialog>
 #include <QSettings>
 #include <QAbstractSocket>
-#include <QWebSocket>
 
-//#include "messages/user.h"
-
-namespace Ui {
+namespace Ui
+{
 class LoginDialog;
 }
+
+class ICommunicationManager;
+class QWebSocket;
 
 class LoginDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit LoginDialog(QWidget *parent = 0);
+    explicit LoginDialog(const ICommunicationManager & p_communicationManager,
+                         QWebSocket & p_webSocket,
+                         QWidget *parent = 0);
     ~LoginDialog();
 
     QWebSocket *socket() const;
-    void setSocket(QWebSocket *socket);
+    Ui::LoginDialog *getUi();
 
 public slots:
     void readyRead(QByteArray msg);
 signals:
     void loginOk();
     void loginFailure();
-private:
+protected:
     Ui::LoginDialog *ui;
+private:
     QSettings setup;
 
 private slots:
@@ -37,8 +40,8 @@ private slots:
     void doReconnect();
     void doLogin();
 private:
-//    User user;
-    QWebSocket *m_socket;
+    //    User user;
+    QWebSocket & m_socket;
+    const ICommunicationManager & m_communicationManager;
 };
 
-#endif // LOGINDIALOG_H

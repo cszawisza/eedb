@@ -100,7 +100,7 @@ void eedb::handlers::User::addUser(DB &db, const MsgUserRequest_Add &msg)
     eedb::utils::UserConfig userConfig( conf );
     auto query = insert_into(u)
             .set(
-                u.c_group = msg.acl().has_group() ? msg.acl().group() : 2, // default to user group
+                u.c_group = msg.acl().has_group() ? msg.acl().group() : auth::GROUP_users | auth::GROUP_inventories, // default to user group
                 u.c_unixperms = msg.acl().has_unixperms() ? msg.acl().unixperms() : 484,
                 u.c_owner = msg.acl().has_owner() ? msg.acl().owner() : 1,
                 u.c_status = msg.acl().has_status() ? msg.acl().status() : 0 ,
@@ -305,15 +305,19 @@ void eedb::handlers::User::handle_add(MsgUserRequest_Add &msg)
         if(acl.checkUserAction<t_users>("create"))
             addUser(db, msg);
         else{
-            /// TODO add server error code addResp(true, Error_AccesDeny);
+            sendAccesDeny();
         }
     }
-    else
-    {
+    else{
         if( userExists( db, basic.name(), basic.email() ) )
             addErrorCode(true, UserAlreadyExists );
         else
+        {
+            if(msg.has_acl())
+                msg.clear_acl(); // force default values
+
             addUser(db, msg);
+        }
     }
 }
 
@@ -386,20 +390,20 @@ void eedb::handlers::User::handle_remove(const MsgUserRequest_Remove &msg)
         return;
     }
 
-    ///TODO remove user config
     ///TODO remove user files/items/history etc
     ///TODO check if user can remove user with cred
     auto cred = msg.cred();
     DB db;
     constexpr t_users u;
     auth::AccesControl acl(user()->id());
-    auto query = dynamic_remove(db.connection()).from(u).dynamic_where();
-    dynamic_cred(query, cred);
 
     if (acl.checkUserAction<schema::t_users>("delete", msg.cred().id())){
-        ///TODO remove user from database
+        auto query = dynamic_remove(db.connection()).from(u).dynamic_where();
+        dynamic_cred(query, cred);
+        db(query);
     }
-    db(query);
+    else
+        sendAccesDeny();
 }
 
 void eedb::handlers::User::handle_get(const MsgUserRequest_Get &getMsg)
@@ -409,16 +413,23 @@ void eedb::handlers::User::handle_get(const MsgUserRequest_Get &getMsg)
 
 void eedb::handlers::User::handle_changePasswd(const MsgUserRequest_ChangePasswd &msg)
 {
-    ///TODO check if want to reset passwd or to change passwd
-    ///TODO change passwd for 'self' or to someone else
-
     auth::AccesControl acl(user()->id());
 
-    if(acl.checkUserAction<schema::t_users>("change_password",msg.uid()))
-    {
+    if(msg.has_resetpasswd() && msg.resetpasswd() ){
+        ///TODO reset passwd
     }
-    else{
 
+    else{
+        if(acl.checkUserAction<schema::t_users>("change_password",msg.uid())){
+            ///TODO check if old pass is same as new
+            ///TODO set new passwd
+//            DB db;
+//            PasswordHash passwd;
+//            passwd.setPassword( msg.new_() );
+//            db(update)
+        }
+        else
+            sendAccesDeny();
     }
 }
 
