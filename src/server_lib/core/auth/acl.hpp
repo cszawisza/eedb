@@ -11,10 +11,13 @@
 #include "sql_schema/t_implemented_action.h"
 #include "sql_schema/t_privilege.h"
 
+
 #include "common.pb.h"
 
 using std::vector;
 using std::string;
+using sqlpp::toBool;
+using sqlpp::tableName;
 
 namespace auth {
 
@@ -99,8 +102,6 @@ public:
 
     template<typename TAB>
     bool checkUserAction(DB &db, const string &action, quint64 objectid){
-        const string &tablename = sqlpp::name_of<TAB>::char_ptr();
-
         TAB acl;
         schema::t_action act;
         schema::t_implemented_action ia;
@@ -113,16 +114,16 @@ public:
                        .from(act
                              .inner_join(acl).on(acl.c_uid == objectid)
                              .inner_join(ia).on(ia.c_action == act.c_title
-                                                and ia.c_table == tablename
+                                                and ia.c_table == tableName<TAB>()
                                                 and (ia.c_status == 0 or ((ia.c_status & acl.c_status) != 0))
                                                 )
-                             .left_outer_join(pr).on(pr.c_related_table == tablename
+                             .left_outer_join(pr).on(pr.c_related_table == tableName<TAB>()
                                                      and pr.c_action == act.c_title
                                                      and (   (  pr.c_type == "object" and pr.c_related_uid == objectid)
                                                           or (  pr.c_type == "global" )
                                                           or ( (pr.c_role == "self")
                                                                and toBool(m_userId  == objectid )
-                                                               and toBool(tablename == "t_users"))
+                                                               and toBool(tableName<TAB>() == tableName<schema::t_users>() ))
                                                           )
                                                      )
                              )

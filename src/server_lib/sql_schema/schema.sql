@@ -325,7 +325,7 @@ BEGIN
         ('t_files'      , 'delete'       , 0 );
 
 -- c_role = user,owner, owner_group, group, self
--- c_type = object, global
+-- c_type = object, table or global
   insert into t_privilege
         (c_role, c_who, c_action       , c_type    , c_related_table, c_related_uid) values
         ('self', 0    , 'update_passwd', 'object'  , 't_users'      , 0),

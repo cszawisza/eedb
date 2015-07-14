@@ -1,9 +1,12 @@
 #include "action.hpp"
-
+#include <iostream>
 #include "utils/sqlpp_helper.hpp"
 #include "sql_schema/t_action.h"
 
 #include "../idatabase.h"
+
+
+using sqlpp::toBool;
 
 namespace auth{
 

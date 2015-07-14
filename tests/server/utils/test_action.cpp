@@ -31,9 +31,9 @@ TEST_F(ActionTest, createNewAction){
     EXPECT_TRUE( act.actionExists(db) );
 }
 
-//TEST_F(ActionTest, doubleSaving){
-//    Action act ("new_action", Object );
+TEST_F(ActionTest, doubleSaving){
+    Action act ("new_action", Object );
 
-//    EXPECT_TRUE( act.save(db) );
-//    EXPECT_FALSE( act.save(db) );
-//}
+    EXPECT_TRUE( act.save(db) );
+    EXPECT_FALSE( act.save(db) );
+}

@@ -21,9 +21,14 @@ public:
 };
 
 TEST_F(ImplementedActionTest, ctor){
-    ImplementedAction<schema::t_users> action1;
-    ImplementedAction<schema::t_users> action2("new_implemented_action");
-    ImplementedAction<schema::t_users> action3("new_implemented_action", auth::Status_Normal);
+    ImplementedAction action1;
+    ImplementedAction action2("new_implemented_action");
+    ImplementedAction action3("new_implemented_action", auth::Status_Normal);
+
+    action1.setRelatedTable<schema::t_users>();
+    action2.setRelatedTable<schema::t_users>();
+    action3.setRelatedTable<schema::t_users>();
+
     action1.setTitle("new_implemented_action");
     action1.setStatus(auth::Status_Normal);
 
@@ -38,27 +43,33 @@ TEST_F(ImplementedActionTest, ctor){
 }
 
 TEST_F(ImplementedActionTest, createNew){
-    ImplementedAction<schema::t_users> action("new_implemented_action");
+    ImplementedAction action("new_implemented_action");
+    action.setRelatedTable<schema::t_users>();
 
     EXPECT_TRUE( action.save(db) );
 }
 
 TEST_F(ImplementedActionTest, notExists){
-    ImplementedAction<schema::t_users> action("new_implemented_action");
+    ImplementedAction action("new_implemented_action");
+    action.setRelatedTable<schema::t_users>();
 
     EXPECT_FALSE( action.exists(db) );
 }
 
 TEST_F(ImplementedActionTest, createNewAndCheckIfExists){
-    ImplementedAction<schema::t_users> action("new_implemented_action");
+    ImplementedAction action("new_implemented_action");
+    action.setRelatedTable<schema::t_users>();
 
     EXPECT_TRUE( action.save(db) );
     EXPECT_TRUE( action.exists(db) );
 }
 
 TEST_F(ImplementedActionTest, differentStatuses ){
-    ImplementedAction<schema::t_users> action1("new_implemented_action", auth::Status_Normal );
-    ImplementedAction<schema::t_users> action2("new_implemented_action", auth::Status_Deleted);
+    ImplementedAction action1("new_implemented_action", auth::Status_Normal );
+    ImplementedAction action2("new_implemented_action", auth::Status_Deleted);
+
+    action1.setRelatedTable<schema::t_users>();
+    action2.setRelatedTable<schema::t_users>();
 
     EXPECT_TRUE( action1.save(db) );
     EXPECT_TRUE( action2.save(db) );

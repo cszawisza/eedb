@@ -1,5 +1,7 @@
 #pragma once
 #include <sqlpp11/sqlpp11.h>
+#include "utils/sqlpp_helper.hpp"
+#include "core/idatabase.h"
 #include "sql_schema/t_implemented_action.h"
 #include <iostream>
 class DB;
@@ -14,60 +16,54 @@ enum Status{
 using std::string;
 using std::vector;
 
-template<typename T>
 class ImplementedAction{
 public:
 //    static_assert // is table
     ImplementedAction():
-        m_title(""), m_status(Status_Normal)
+        m_title(""), m_status(Status_Normal), m_tablename("")
     {
     }
-
     ImplementedAction(const string &title):
-        m_title(title), m_status(Status_Normal)
+        m_title(title), m_status(Status_Normal), m_tablename("")
+    {
+    }
+    ImplementedAction(const string &title, Status status):
+        m_title(title), m_status(status), m_tablename("")
+    {
+    }
+    ImplementedAction(const string &title, Status status, const string &related_table):
+        m_title(title), m_status(status), m_tablename(related_table)
     {
     }
 
-    ImplementedAction(const string &title, Status status):
-        m_title(title), m_status(status){}
-
-    constexpr const char *tableName() const {
-        return sqlpp::name_of<T>::char_ptr();
+    template<typename T>
+    void setRelatedTable(){
+        m_tablename = sqlpp::tableName<T>();
     }
 
+    string tableName() const {
+        return m_tablename;
+    }
 
-    void setTitle(const string &title){ m_title = title; }
-    void setStatus(Status s){ m_status = s;}
+    void setTitle(const string &title){
+        m_title = title;
+    }
+
+    const string &title() const{
+        return m_title;
+    }
+
+    void setStatus(Status s){
+        m_status = s;
+    }
     Status status() const { return m_status; }
 
-    const string &title() const{ return m_title; }
+    bool save(DB &db);
 
-    bool save(DB &db){
-        static constexpr schema::t_implemented_action ia;
-        bool ok = false;
-        try{
-            db(insert_into(ia).set(ia.c_table = tableName(), ia.c_action = m_title, ia.c_status = (int)m_status ));
-            ok = true;
-        }
-        catch(sqlpp::exception e){
-            ///TODO log exception
-            std::cout << e.what();
-        }
-
-        return ok;
-    }
-
-    bool exists(DB &db) const {
-        static constexpr schema::t_implemented_action ia;
-        return db(sqlpp::select(sqlpp::exists(sqlpp::select(ia.c_action)
-                         .from(ia)
-                         .where(ia.c_table == tableName() and ia.c_action == m_title and ia.c_status == (int)m_status )
-                         )
-                  )
-           ).front().exists;
-    }
+    bool exists(DB &db) const;
 
 private:
+    string m_tablename;
     string m_title;
     Status m_status;
 };
