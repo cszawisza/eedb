@@ -3,6 +3,8 @@
 #include <QWebSocket>
 #include <QPointer>
 
+#include "database/initialize.hpp"
+
 EEDB::EEDB(QObject *parent) :
     QWebSocketServer(QStringLiteral("EKATALOG"),QWebSocketServer::NonSecureMode, parent)
 {
@@ -10,6 +12,10 @@ EEDB::EEDB(QObject *parent) :
 
 void EEDB::startServer()
 {
+    DB db;
+    eedb::DBInitialize dbinit;
+    dbinit.initializeDB( db );
+
     quint16 port = setup.value("listenPort", 6666).toUInt();
     if(!this->listen(QHostAddress::Any, port)){
         throw std::runtime_error("Can't listen on port: " + std::to_string(port));

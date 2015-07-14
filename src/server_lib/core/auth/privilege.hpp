@@ -1,7 +1,6 @@
 #pragma once
 
 #include "core/idatabase.h"
-#include "core/exception.hpp"
 
 #include "implementedaction.hpp"
 #include "action.hpp"

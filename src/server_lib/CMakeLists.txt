@@ -14,6 +14,7 @@ set(Core_CPP
     core/auth/action.cpp
     core/auth/implementedaction.cpp
     core/auth/privilege.cpp
+    core/database/initialize.cpp
     core/clientcache.cpp
     core/clientconnection.cpp
     core/clientworker.cpp
@@ -29,6 +30,7 @@ set(Core_H
     core/auth/action.hpp
     core/auth/implementedaction.hpp
     core/auth/privilege.hpp
+    core/database/initialize.hpp
     core/clientcache.h
     core/clientconnection.h
     core/clientworker.h

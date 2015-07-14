@@ -38,7 +38,16 @@ drop table if exists t_privilege;
 drop table if exists t_implemented_action;
 drop table if exists t_acl;
 drop table if exists t_action;
+drop table if exists t_system_info;
 
+create table t_system_info(
+    c_id serial not null primary key,
+    c_name text,
+    c_value text
+);
+
+CREATE INDEX t_system_info_name ON t_schema_info ( c_name ) WITH ( FILLFACTOR=100 );
+COMMENT ON TABLE t_system_info IS 'table introduced to save information about system e.g. actual db version etc'
 
 create table t_action (
     c_title           text      NOT NULL  CHECK( length(c_title) >= 3 AND length(c_title) < 100 ),
@@ -287,49 +296,48 @@ DECLARE rootuserid int;
 DECLARE testuserid int;
 BEGIN
   -- root user MUST be insert as first in the whole database!
-  insert into t_users (c_name, c_password, c_salt, c_email)
-        values('ROOT','pass','salt', 'email1@ww.ww') returning c_uid into rootuserid;
+--  insert into t_users (c_name, c_password, c_salt, c_email)
+--        values('ROOT','pass','salt', 'email1@ww.ww') returning c_uid into rootuserid;
 
-  insert into t_categories(c_parent_category_id, c_name, c_allow_recipe, c_allow_items, c_owner) values
-        (NULL, 'Root', false, false, rootuserid);
+--  insert into t_categories(c_parent_category_id, c_name, c_allow_recipe, c_allow_items, c_owner) values
+--        (NULL, 'Root', false, false, rootuserid);
 
-  insert into t_action(c_title, c_apply_object) values
-        ('stat'         , true),
-        ('stat'         , false),
-        ('chmod'        , true),
-        ('chmod'        , false),
-        ('chgrp'        , true),
-        ('chgrp'        , false),
-        ('chown'        , true),
-        ('chown'        , false),
-        ('view_acl'     , true),
-        ('view_acl'     , false),
+--  insert into t_action(c_title, c_apply_object) values
+--        ('stat'         , true),
+--        ('stat'         , false),
+--        ('chmod'        , true),
+--        ('chmod'        , false),
+--        ('chgrp'        , true),
+--        ('chgrp'        , false),
+--        ('chown'        , true),
+--        ('chown'        , false),
+--        ('view_acl'     , true),
+--        ('view_acl'     , false),
+--        ('read'         , true),
+--        ('write'        , true),
+--        ('delete'       , true),
+--        ('read'         , false),
+--        ('write'        , false),
+--        ('login'        , true),
+--        ('update_passwd', true);
 
-        ('read'         , true),
-        ('write'        , true),
-        ('delete'       , true),
-        ('read'         , false),
-        ('write'        , false),
-        ('login'        , true),
-        ('update_passwd', true);
-
-  insert into t_implemented_action
-        (c_table        , c_action       , c_status) values
-        ('t_users'      , 'login'        , 0 ),
-        ('t_users'      , 'update_passwd', 0 ),
-        ('t_users'      , 'read'         , 0 ),
-        ('t_users'      , 'write'        , 0 ),
-        ('t_users'      , 'delete'       , 0 ),
-        ('t_files'      , 'read'         , 0 ),
-        ('t_files'      , 'write'        , 0 ),
-        ('t_files'      , 'delete'       , 0 );
+--  insert into t_implemented_action
+--        (c_table        , c_action       , c_status) values
+--        ('t_users'      , 'login'        , 0 ),
+--        ('t_users'      , 'update_passwd', 0 ),
+--        ('t_users'      , 'read'         , 0 ),
+--        ('t_users'      , 'write'        , 0 ),
+--        ('t_users'      , 'delete'       , 0 ),
+--        ('t_files'      , 'read'         , 0 ),
+--        ('t_files'      , 'write'        , 0 ),
+--        ('t_files'      , 'delete'       , 0 );
 
 -- c_role = user,owner, owner_group, group, self
 -- c_type = object, table or global
-  insert into t_privilege
-        (c_role, c_who, c_action       , c_type    , c_related_table, c_related_uid) values
-        ('self', 0    , 'update_passwd', 'object'  , 't_users'      , 0),
-        ('self', 0    , 'login'        , 'object'  , 't_users'      , 0);
+--  insert into t_privilege
+--        (c_role, c_who, c_action       , c_type    , c_related_table, c_related_uid) values
+--        ('self', 0    , 'update_passwd', 'object'  , 't_users'      , 0),
+--        ('self', 0    , 'login'        , 'object'  , 't_users'      , 0);
 
 END $$;
 
