@@ -20,6 +20,7 @@ public:
 public:
     void process(pb::ClientRequest &msgReq );
 
+    static void insertUser(DB &db, const MsgUserRequest_Add msg);
 private:
     void handle_add   (MsgUserRequest_Add    &msg    );
     void handle_login ( const MsgUserRequest_Login  &loginMsg  );
@@ -30,9 +31,9 @@ private:
     void handle_changePasswd (const MsgUserRequest_ChangePasswd &msg );
 
 
+    void addUser(DB &db, const MsgUserRequest_Add &msg);
     void goToOnlineState(DB &db, quint64 uid);
     bool userExists(DB &db, string name, string email );
-    void addUser(DB &db, const MsgUserRequest_Add &msg);
     void addErrorCode(bool isError, Replay err);
     void loadUserCache(DB &db, quint64 uid);
     void addResponseMessage();

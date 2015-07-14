@@ -2,16 +2,16 @@
 #include "utils/hash_passwd.h"
 #include "../../common.h"
 
-#include "core/acl.h"
+#include "core/auth/acl.hpp"
 
 
 using namespace auth;
 using namespace schema;
 
-class AccesControl_test : public testing::Test
+class ACL_test : public testing::Test
 {
 public:
-    AccesControl_test(){
+    ACL_test(){
 
         schema::t_users u;
         schema::t_acl acl;
@@ -65,7 +65,7 @@ public:
 
     }
 
-    ~AccesControl_test(){
+    ~ACL_test(){
         db.rollback_transaction(false);
     }
 
@@ -75,7 +75,7 @@ public:
     quint64 m_root_obj, m_user_obj, m_common_group, m_other;
 };
 
-TEST_F(AccesControl_test, simple_permissions ){
+TEST_F(ACL_test, simple_permissions ){
     AccesControl acl(m_uid);
 
     // can't do anything with root's object
@@ -97,7 +97,7 @@ TEST_F(AccesControl_test, simple_permissions ){
     EXPECT_FALSE( acl.checkUserAction<t_acl>(db,"delete", m_other) );
 }
 
-TEST_F(AccesControl_test, root_can_everything ){
+TEST_F(ACL_test, root_can_everything ){
     AccesControl acl(1);
 
     // can't do anything with root's object
@@ -119,7 +119,7 @@ TEST_F(AccesControl_test, root_can_everything ){
     EXPECT_TRUE ( acl.checkUserAction<t_acl>(db,"delete", m_other) );
 }
 
-TEST_F(AccesControl_test, table_acl){
+TEST_F(ACL_test, table_acl){
     AccesControl acl(m_uid);
 
     EXPECT_FALSE( acl.checkUserAction<t_users>(db,"read") );

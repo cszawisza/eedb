@@ -65,7 +65,14 @@ private:
     static map<thread::id, unique_ptr<DbConnection>> m_reserved;
 };
 
-// To make this class muvable, don't hold pointer to database in it!
+struct deleter {
+  void operator()( DbConnection *ptr ) {
+    if (ptr != nullptr);
+//      freeaddrinfo(ptr);
+  }
+};
+
+// To make this class movable, don't hold pointer to database in it!
 class DB
 {
     bool hasReservedConnection() {
@@ -101,72 +108,74 @@ public:
 
     //! start transaction
     void start_transaction() {
-        auto db = takeFromPool();
+        auto deleter = [&]( DbConnection *db ){
+            reserveTransaction( move(unique_ptr<DbConnection>(db)) );
+        };
+
+        unique_ptr<DbConnection, decltype(deleter)> db ( takeFromPool().release(), deleter );
         db->start_transaction();
-        reserveTransaction( move(db) );
     }
 
     //! commit transaction (or throw transaction if transaction has finished already)
     void commit_transaction() {
-        /// Throw error when no reserved are available
-        /// or create a new connection and wait for "not started" transaction then?
-        auto db = takeFromPool();
-        try{
-            db->commit_transaction();
-        }
-        catch (sqlpp::exception e){
-            reserveTransaction(move(db));
-            throw e;
-        }
-        reserveTransaction( move(db));
+        auto deleter = [&]( DbConnection *db ){
+            reserveTransaction( move(unique_ptr<DbConnection>(db)) );
+        };
+
+        unique_ptr<DbConnection, decltype(deleter)> db ( takeFromPool().release(), deleter );
+        db->commit_transaction();
     }
 
     //! rollback transaction
     void rollback_transaction(bool report) {
-        /// Throw error when no reserved are available
-        /// or create a new connection and wait for "not started" transaction then?
-        auto db = takeFromPool();
-        try{
-            db->rollback_transaction(report);
-        }
-        catch (sqlpp::exception e){
-            reserveTransaction(move(db));
-            throw e;
-        }
-        reserveTransaction(move(db));
+        auto deleter = [&]( DbConnection *db ){
+            reserveTransaction( move(unique_ptr<DbConnection>(db)) );
+        };
+
+        unique_ptr<DbConnection, decltype(deleter)> db ( takeFromPool().release(), deleter );
+        db->rollback_transaction(report);
     }
 
     //! report rollback failure
     void report_rollback_failure(const std::string &message) noexcept;
 
-    size_t execute(const std::string &str, bool singleShoot = false){
+    size_t execute(const std::string &str, bool singleShoot = 0 ){
         auto db = takeFromPool();
         auto res = db->execute(str);
         if(!singleShoot)
             reserveTransaction(move(db));
-        return 0; ///FIXME
+        return 0 ; ///FIXME res->result->affected_rows();
     }
+
+
 
     template<typename T>
     auto prepare(const T& t) -> decltype(DbConnectionStack::getDatabase()->prepare(t) ){
-        auto db = takeFromPool();
-        auto res = db->prepare(t);
-        reserveTransaction( move(db));
-        return res;
+        auto deleter = [&]( DbConnection *db ){
+            reserveTransaction( move(unique_ptr<DbConnection>(db)) );
+        };
+
+        unique_ptr<DbConnection, decltype(deleter)> db ( takeFromPool().release(), deleter );
+        return db->prepare(t);
     }
 
     template<typename T>
     auto operator()(const T& t) -> decltype(DbConnectionStack::getDatabase()->operator()(t) ) {
-        auto db = takeFromPool();
-        auto res = db->operator()(t);
-        reserveTransaction(move(db));
-        return res;
+        auto deleter = [&]( DbConnection *db ){
+            reserveTransaction( move(unique_ptr<DbConnection>(db)) );
+        };
+
+        unique_ptr<DbConnection, decltype(deleter)> db ( takeFromPool().release(), deleter );
+        return db->operator()(t);
+
     }
 
     quint64 lastInsertId( const std::string & tablename, const std::string & column) {
-        auto db = takeFromPool();
-        auto res = db->last_insert_id(tablename, column);
-        reserveTransaction(move(db));
-        return res;
+        auto deleter = [&]( DbConnection *db ){
+            reserveTransaction( move(unique_ptr<DbConnection>(db)) );
+        };
+
+        unique_ptr<DbConnection, decltype(deleter)> db ( takeFromPool().release(), deleter );
+        return db->last_insert_id(tablename, column);
     }
 };
