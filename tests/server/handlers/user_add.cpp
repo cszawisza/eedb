@@ -2,7 +2,7 @@
 
 #include <sqlpp11/sqlpp11.h>
 #include "core/user.h"
-#include <core/idatabase.h>
+#include <core/database/idatabase.h>
 #include <memory>
 
 #include "../../common.h"

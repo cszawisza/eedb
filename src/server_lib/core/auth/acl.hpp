@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "utils/sqlpp_helper.hpp"
-#include "../idatabase.h"
+#include "database/idatabase.h"
 
 #include "sql_schema/t_acl.h"
 #include "sql_schema/t_users.h"

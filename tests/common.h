@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "core/idatabase.h"
+#include "core/database/idatabase.h"
 
 using std::string;
 

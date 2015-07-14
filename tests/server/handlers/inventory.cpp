@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
 #include <sqlpp11/sqlpp11.h>
-#include <core/idatabase.h>
+#include <core/database/idatabase.h>
 #include <memory>
 
 #include "../../common.h"

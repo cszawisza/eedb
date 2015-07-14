@@ -1,6 +1,6 @@
 #include "implementedaction.hpp"
 #include "action.hpp"
-#include "core/idatabase.h"
+#include "database/idatabase.h"
 
 namespace auth {
 
