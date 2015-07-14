@@ -49,6 +49,7 @@ set( Utils_H
 )
 
 add_library(eedb_lib STATIC ${SOURCES} ${Core_CPP} ${Utils_H} ${Core_H} ${SCHEMA_SRC} )
+add_dependencies(eedb_lib Messages)
 target_link_libraries(eedb_lib
     sqlpp-postgresql pq
     Common
@@ -56,3 +57,6 @@ target_link_libraries(eedb_lib
     pq
     ${PROTOBUF_LITE_LIBRARY}
 )
+
+add_executable(EedbServer app_start.cpp)
+target_link_libraries(EedbServer sqlpp-postgresql pq eedb_lib)
