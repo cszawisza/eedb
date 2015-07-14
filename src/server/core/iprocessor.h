@@ -6,7 +6,7 @@
 #include <QSharedPointer>
 #include "message_conteiner.pb.h"
 #include "clientcache.h"
-#include "idatabase.h"
+#include "database/idatabase.h"
 #include "auth/acl.hpp"
 
 using pb::ClientRequest;

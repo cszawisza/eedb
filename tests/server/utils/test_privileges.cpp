@@ -4,7 +4,7 @@
 #include "sql_schema/t_files.h"
 #include "sql_schema/t_users.h"
 
-#include "core/idatabase.h"
+#include "core/database/idatabase.h"
 #include "core/auth/action.hpp"
 #include "core/auth/implementedaction.hpp"
 #include "core/auth/privilege.hpp"

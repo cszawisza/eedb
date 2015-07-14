@@ -1,7 +1,7 @@
 #pragma once
 
 #include "iprocessor.h"
-#include "idatabase.h"
+#include "database/idatabase.h"
 
 #include "user.pb.h"
 

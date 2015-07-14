@@ -17,6 +17,7 @@ QT5_WRAP_UI(UIS_HDRS ${UI_FILES})
 QT5_WRAP_CPP(GUI_MOC_SRCS ${SRC_FILES} ${HEADER_FILES})
 
 add_library(client_lib ${SRC_FILES} ${HEADER_FILES} ${GUI_MOC_SRCS} ${UIS_HDRS})
+add_dependencies(client_lib Messages)
 add_executable( Client main.cpp)
 target_link_libraries( client_lib Qt5::Widgets Qt5::WebSockets Qt5::Core )
 target_link_libraries( Client Common client_lib )

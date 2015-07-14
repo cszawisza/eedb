@@ -5,7 +5,7 @@
 #include "utils/sqlpp_helper.hpp"
 #include "sql_schema/t_action.h"
 
-#include "../idatabase.h"
+#include "database/idatabase.h"
 
 using sqlpp::toBool;
 

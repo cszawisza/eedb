@@ -1,9 +1,9 @@
 #pragma once
 
 #include <sqlpp11/sqlpp11.h>
-#include "../idatabase.h"
-#include "../auth/action.hpp"
-#include "../auth/implementedaction.hpp"
+#include "idatabase.h"
+#include "auth/action.hpp"
+#include "auth/implementedaction.hpp"
 
 #define DB_VERSION 10
 
