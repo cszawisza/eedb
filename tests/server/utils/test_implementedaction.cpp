@@ -23,17 +23,17 @@ public:
 TEST_F(ImplementedActionTest, ctor){
     ImplementedAction action1;
     ImplementedAction action2("new_implemented_action");
-    ImplementedAction action3("new_implemented_action", auth::Status_Normal);
+    ImplementedAction action3("new_implemented_action", auth::State_Normal);
 
     action1.setRelatedTable<schema::t_users>();
     action2.setRelatedTable<schema::t_users>();
     action3.setRelatedTable<schema::t_users>();
 
     action1.setTitle("new_implemented_action");
-    action1.setStatus(auth::Status_Normal);
+    action1.setStatus(auth::State_Normal);
 
     EXPECT_EQ("new_implemented_action", action1.title() );
-    EXPECT_EQ(auth::Status_Normal, action1.status());
+    EXPECT_EQ(auth::State_Normal, action1.status());
 
     EXPECT_EQ(action1.title() , action2.title() );
     EXPECT_EQ(action1.status(), action2.status() );
@@ -65,8 +65,8 @@ TEST_F(ImplementedActionTest, createNewAndCheckIfExists){
 }
 
 TEST_F(ImplementedActionTest, differentStatuses ){
-    ImplementedAction action1("new_implemented_action", auth::Status_Normal );
-    ImplementedAction action2("new_implemented_action", auth::Status_Deleted);
+    ImplementedAction action1("new_implemented_action", auth::State_Normal );
+    ImplementedAction action2("new_implemented_action", auth::State_Deleted);
 
     action1.setRelatedTable<schema::t_users>();
     action2.setRelatedTable<schema::t_users>();
@@ -74,3 +74,11 @@ TEST_F(ImplementedActionTest, differentStatuses ){
     EXPECT_TRUE( action1.save(db) );
     EXPECT_TRUE( action2.save(db) );
 }
+
+//TEST_F(ImplementedActionTest, aclCheck ){
+//    ImplementedAction action1("read", auth::State_Normal );
+
+//    action1.setRelatedTable<schema::t_users>();
+
+//    EXPECT_TRUE( action1.save(db) );
+//}

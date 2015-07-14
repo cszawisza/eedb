@@ -8,9 +8,11 @@ class DB;
 
 namespace auth{
 
-enum Status{
-    Status_Normal = 0,
-    Status_Deleted = 1<<31
+enum ObjectState{
+    State_Normal = 0,
+    State_Hidden = 1<<2,
+    State_Deleted = 1<<3,
+    State_BeingModified = 1<<4
 };
 
 using std::string;
@@ -20,18 +22,18 @@ class ImplementedAction{
 public:
 //    static_assert // is table
     ImplementedAction():
-        m_title(""), m_status(Status_Normal), m_tablename("")
+        m_title(""), m_status(State_Normal), m_tablename("")
     {
     }
     ImplementedAction(const string &title):
-        m_title(title), m_status(Status_Normal), m_tablename("")
+        m_title(title), m_status(State_Normal), m_tablename("")
     {
     }
-    ImplementedAction(const string &title, Status status):
-        m_title(title), m_status(status), m_tablename("")
+    ImplementedAction(const string &title, ObjectState state):
+        m_title(title), m_status(state), m_tablename("")
     {
     }
-    ImplementedAction(const string &title, Status status, const string &related_table):
+    ImplementedAction(const string &title, ObjectState status, const string &related_table):
         m_title(title), m_status(status), m_tablename(related_table)
     {
     }
@@ -53,10 +55,10 @@ public:
         return m_title;
     }
 
-    void setStatus(Status s){
+    void setStatus(ObjectState s){
         m_status = s;
     }
-    Status status() const { return m_status; }
+    ObjectState status() const { return m_status; }
 
     bool save(DB &db);
 
@@ -65,7 +67,7 @@ public:
 private:
     string m_tablename;
     string m_title;
-    Status m_status;
+    ObjectState m_status;
 };
 
 }

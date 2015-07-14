@@ -21,14 +21,14 @@ public:
 TEST_F(ActionTest, checkIfExist){
     Action act ("new_action_not_existing_in_db", Object );
 
-    EXPECT_FALSE( act.actionExists(db));
+    EXPECT_FALSE( act.exists(db));
 }
 
 TEST_F(ActionTest, createNewAction){
     Action act ("new_action", Object );
 
     EXPECT_TRUE( act.save(db) );
-    EXPECT_TRUE( act.actionExists(db) );
+    EXPECT_TRUE( act.exists(db) );
 }
 
 TEST_F(ActionTest, doubleSaving){

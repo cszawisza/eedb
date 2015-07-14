@@ -70,7 +70,7 @@ public:
 
         return db.lastInsertId(tableName<schema::t_acl>(), "c_uid");
     }
-
+    schema::t_files f;
     quint64 m_uid, m_uid2, m_fid;
 };
 
@@ -93,31 +93,25 @@ TEST_F(PrivilegesTest, typeNameConversion){
 
 TEST_F(PrivilegesTest, checkIfExists){
     Privilege priv;
-
-    priv.setRole(Role_User);
-    priv.setImplementedAction( ImplementedAction("modify", Status_Normal, sqlpp::tableName<schema::t_acl>() ) );
-
+    priv.giveUser( 0 ).privilegeFor("modify").forTable(f);
     EXPECT_FALSE(priv.exists(db));
 }
 
 TEST_F(PrivilegesTest, addPrivilegeForObjectToUser){
     Privilege priv;
+
     AccesControl acl1(m_uid);
     AccesControl acl2(m_uid2);
     Action a("remove_file", Object );
-    ImplementedAction ia( "remove_file", Status_Normal, sqlpp::tableName<schema::t_files>() );
+    ImplementedAction ia( "remove_file", State_Normal, sqlpp::tableName<schema::t_files>() );
 
-    priv.setType(Type_Object);
-    priv.setRole(Role_User);
-    priv.setWho(m_uid);
-    priv.setObjectID(m_fid);
-    priv.setImplementedAction( ImplementedAction("remove_file", Status_Normal, sqlpp::tableName<schema::t_files>() ) );
+    priv.giveUser(m_uid).privilegeFor("remove_file").onObject(m_fid).inTable(f);
 
     EXPECT_FALSE(acl1.checkUserAction<schema::t_files>(db, "remove_file", m_fid));
     EXPECT_FALSE(acl2.checkUserAction<schema::t_files>(db, "remove_file", m_fid));
 
     EXPECT_NO_THROW( priv.force_save(db) );
-    EXPECT_TRUE( a.actionExists(db) );
+    EXPECT_TRUE( a.exists(db) );
     EXPECT_TRUE( ia.exists(db) );
     EXPECT_TRUE( priv.exists(db) );
 
@@ -130,22 +124,58 @@ TEST_F(PrivilegesTest, addPrivilegeForObjectToGroup){
     AccesControl acl1(m_uid);
     AccesControl acl2(m_uid2);
     Action a("remove_file", Object );
-    ImplementedAction ia( "remove_file", Status_Normal, sqlpp::tableName<schema::t_files>() );
+    ImplementedAction ia( "remove_file", State_Normal, sqlpp::tableName<schema::t_files>() );
 
-    priv.setType(Type_Object);
-    priv.setRole(Role_Group);
-    priv.setWho( 2 ); // userGroup
-    priv.setObjectID(m_fid);
-    priv.setImplementedAction( ImplementedAction("remove_file", Status_Normal, sqlpp::tableName<schema::t_files>() ) );
+    priv.giveGroup( 2 ).privilegeFor( "remove_file" ).onObject( m_fid ).inTable(f);
 
     EXPECT_FALSE(acl1.checkUserAction<schema::t_files>(db, "remove_file", m_fid));
     EXPECT_FALSE(acl2.checkUserAction<schema::t_files>(db, "remove_file", m_fid));
 
     EXPECT_NO_THROW( priv.force_save(db) );
-    EXPECT_TRUE( a.actionExists(db) );
+    EXPECT_TRUE( a.exists(db) );
     EXPECT_TRUE( ia.exists(db) );
     EXPECT_TRUE( priv.exists(db) );
 
     EXPECT_TRUE( acl1.checkUserAction<schema::t_files>(db, "remove_file", m_fid) );
     EXPECT_TRUE( acl2.checkUserAction<schema::t_files>(db, "remove_file", m_fid));
+}
+
+TEST_F(PrivilegesTest, privilegeBuilder){
+    Privilege priv;
+    AccesControl acl1(m_uid);
+
+    priv.giveGroup( 2 ).privilegeFor("remove_file").forTable(f);
+    priv.force_save(db);
+
+    EXPECT_TRUE( acl1.checkUserAction<schema::t_files>(db, "remove_file") );
+}
+
+TEST_F(PrivilegesTest, differentStates){
+    Privilege priv;
+    AccesControl acl1(m_uid);
+
+    EXPECT_FALSE( acl1.checkUserAction<schema::t_files>(db, "remove_file", m_fid) );
+
+    priv.giveUser( m_uid ).privilegeFor("remove_file").onObject( m_fid ).inTable(f).inState( State_Deleted ).force_save(db);
+
+    EXPECT_FALSE( acl1.checkUserAction<schema::t_files>(db, "remove_file", m_fid) );
+
+    db(update(f).set(f.c_status = (int)State_Deleted).where(f.c_uid == m_fid) );
+
+    EXPECT_TRUE( acl1.checkUserAction<schema::t_files>(db, "remove_file", m_fid) );
+}
+
+TEST_F(PrivilegesTest, differentStatesToDeleted){
+    Privilege priv;
+    AccesControl acl1(m_uid);
+
+    EXPECT_FALSE( acl1.checkUserAction<schema::t_files>(db, "remove_file", m_fid) );
+
+    priv.giveUser( m_uid ).privilegeFor("remove_file").onObject( m_fid ).inTable(f).inState( State_BeingModified ).force_save(db);
+    db(update(f).set(f.c_status = (int)State_BeingModified).where(f.c_uid == m_fid) );
+    EXPECT_TRUE( acl1.checkUserAction<schema::t_files>(db, "remove_file", m_fid) );
+
+    db(update(f).set(f.c_status = (int)State_Deleted).where(f.c_uid == m_fid) );
+
+    EXPECT_FALSE( acl1.checkUserAction<schema::t_files>(db, "remove_file", m_fid) );
 }

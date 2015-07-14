@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/idatabase.h"
+#include "core/exception.hpp"
 
 #include "implementedaction.hpp"
 #include "action.hpp"
@@ -41,13 +42,67 @@ struct Type {
     static TypeID id(const std::string &name);
 };
 
+struct PrivilegeRow;
+
+class GroupPriviliges{
+
+};
+
 class Privilege{
 public:
     Privilege():
         m_action(""),m_oid(0),m_related_table(""),
-        m_role(Role_User), m_status(Status_Normal),
+        m_role(Role_User), m_status(State_Normal),
         m_type(Type_Object),m_who(0)
     {}
+
+    Privilege &giveUser( quint64 uid ){
+        setRole(Role_User);
+        setGroup(0);
+        setWho(uid);
+        return *this;
+    }
+
+    Privilege &giveGroup(quint64 gid){
+        setRole(Role_Group);
+        setGroup(gid);
+        setWho(0);
+        return *this;
+    }
+
+    Privilege &privilegeFor( const string &action ){
+        setImplementedAction(ImplementedAction(action));
+        return *this;
+    }
+
+    Privilege &inState( ObjectState state ){
+        m_status  = state;
+        return *this;
+    }
+
+    template<typename T>
+    Privilege &forTable(const T&){
+        m_type = Type_Table;
+        setObjectID(0);
+        m_related_table = sqlpp::tableName<T>();
+        return *this;
+    }
+
+    Privilege &onObject( quint64 object ){
+        m_type = Type_Object;
+        setObjectID(object);
+        return *this;
+    }
+
+    template<typename T>
+    Privilege &inTable(const T&){
+        m_related_table = sqlpp::tableName<T>();
+        return *this;
+    }
+
+    bool force_save(DB &db) const ;
+    bool exists(DB &db) const ;
+private:
 
     void setType(TypeID id){
         m_type = id;
@@ -71,66 +126,24 @@ public:
         m_who = uid;
     }
 
+    void setGroup(quint64 gid){
+        m_groupid = gid;
+    }
+
     void setObjectID(quint64 oid){
         m_oid = oid;
     }
 
-    bool force_save(DB &db){
-        static constexpr schema::t_privilege pr;
+    bool saveInDb(DB &db, const PrivilegeRow &row) const;
 
-        auto action = Action(m_action, m_type == Type_Object ? Object : Table );
-        auto iaction= ImplementedAction(m_action,m_status,m_related_table);
-
-        if(!action.actionExists(db) ){
-            action.save(db);
-        }
-        if(!iaction.exists(db) ){
-            iaction.save(db);
-        }
-
-        try{
-            db(insert_into(pr)
-               .set(pr.c_role = Role::name(m_role),
-                    pr.c_who = m_who,
-                    pr.c_action = m_action,
-                    pr.c_type = Type::name(m_type),
-                    pr.c_related_table = m_related_table,
-                    pr.c_related_uid = m_oid ));
-        }
-        catch(sqlpp::exception e){
-            std::cout << e.what();
-        }
-
-
-        return true;
-    }
-    bool exists(DB &db){
-        static constexpr schema::t_privilege pr;
-
-        if(m_role == Role_User ){
-            return db(sqlpp::select
-                      (sqlpp::exists(sqlpp::select(sqlpp::all_of(pr))
-                              .from(pr)
-                              .where(pr.c_role == Role::name(m_role) and
-                                     pr.c_who == m_who and
-                                     pr.c_type == Type::name(Type_Object) and
-                                     pr.c_related_table == m_related_table )
-                              )
-                       )
-                      ).front().exists;
-        }
-
-        return true;
-    }
-
-private:
     string m_action;
     TypeID m_type;
     string m_related_table;
-    Status m_status;
+    ObjectState m_status;
     RoleID m_role;
     quint64 m_who = 0;
     quint64 m_oid = 0;
+    quint64 m_groupid = 0;
 };
 
 }
