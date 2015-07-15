@@ -4,9 +4,9 @@
 #include <boost/optional.hpp>
 #include "user.pb.h"
 
-void handleConvertedMessage(const boost::optional<pb::ServerResponses> & p_serverResponse)
+void handleConvertedMessage(const pb::ServerResponses & p_serverResponse)
 {
-    switch(p_serverResponse->response(0).data_case())
+    switch(p_serverResponse.response(0).data_case())
     {
     case pb::ServerResponse::kMsgUserRes:
         break;
@@ -39,7 +39,10 @@ void CommunicationManager::handle() const
     {
         qDebug() << "Binary message recceived";
         auto l_serverResponseArray = m_convertQByteArrayToProtobuf(p_serverResponse);
-        //handleConvertedMessage(l_serverResponseArray);
+        if (l_serverResponseArray)
+        {
+            handleConvertedMessage(l_serverResponseArray.get());
+        }
     });
 }
 

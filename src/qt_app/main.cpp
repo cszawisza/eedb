@@ -37,11 +37,11 @@ void showLoginDialog(QApplication &a)
     QWebSocket l_webSocket("EKatalog client");
     auto l_protobufToQbyteArrayConverter = [](const pb::ClientRequests & p_clientRequests)
     {
-        return convertProtobufMsgToQByteArray(p_clientRequests);
+        return convertProtobufClientRequestsToQByteArray(p_clientRequests);
     };
     auto l_qbyteArrayToProtobufConverter = [](const QByteArray & p_serverResponse)
     {
-        return convertQByteArrayToProtobufMsg(p_serverResponse);
+        return convertQByteArrayToProtobufServerResponse(p_serverResponse);
     };
     CommunicationManager l_communicationManager(l_webSocket,
                                                 l_protobufToQbyteArrayConverter,
