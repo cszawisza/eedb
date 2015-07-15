@@ -1,4 +1,4 @@
-#include "storage.h"
+#include "inventory.hpp"
 
 #include "sql_schema/t_inventories.h"
 #include "sql_schema/t_inventories_history.h"
@@ -81,12 +81,11 @@ void Inventory::handle_add( MsgInventoryRequest_Add &msg)
     ///TODO check if acl in msgReq has owner fields (if not, set owner as this user)
 
     DB db;
-    auth::AccesControl acl( user()->id() );
 
-    if(acl.checkUserAction<t_inventories>(db, "write") ){
+
         try{
             db.start_transaction();
-            insertStorage(db, msg);
+            insertInventory(db, msg);
             db.commit_transaction();
             addErrorCode(MsgInventoryResponse_Error_No_Error);
         }
@@ -94,9 +93,7 @@ void Inventory::handle_add( MsgInventoryRequest_Add &msg)
             db.rollback_transaction(false);
             addErrorCode(MsgInventoryResponse_Error_DbAccesError);
         }
-    }
-    else
-        sendAccesDeny();
+
 
 }
 
@@ -124,26 +121,41 @@ void Inventory::linkInventoryWithUser(DB &db, quint64 inventoryId)
            u_i.c_user_id = user()->id() ) );
 }
 
-void Inventory::insertStorage(DB &db, const MsgInventoryRequest_Add &msgReq ){
-    quint64 inventoryId = doInsert(db, msgReq);
-    linkInventoryWithUser(db,  inventoryId);
+void Inventory::insertInventory(DB &db, const MsgInventoryRequest_Add &msg ){
+    constexpr schema::t_shelfs s;
+    constexpr schema::t_inventories_shelfs is;
 
-    constexpr schema::t_inventories i;
+    auth::AccesControl acl( user()->id() );
 
-    auto insert_statement = insert_into(i).columns(
-                i.c_name,
-                i.c_owner,
-                i.c_description
-                );
+    if( acl.checkUserAction<t_inventories>(db, "write")){
+        quint64 inventoryId = doInsert(db, msg);
+        linkInventoryWithUser(db,  inventoryId);
 
-//    for( const auto &shelf : msg.shelfs() ){
-//        insert_statement.values.add(
-//                    s.c_name = shelf.name(),
-//                    s.c_owner = user()->id(),
-//                    s.c_description = shelf.description() );
-//        db(insert_statement);
-//    }
+        if(msg.shelfs_size()){
+            ///TODO change to returning when avalible
+            if( acl.checkUserAction<t_shelfs>(db, "write")){
+                ///TODO use prepared statements
+                auto insert_statement = insert_into(s).columns(
+                            s.c_name,
+                            s.c_owner,
+                            s.c_description
+                            );
 
+                for( const auto &shelf : msg.shelfs() ){
+                    insert_statement.values.add(
+                                s.c_name = shelf.name(),
+                                s.c_owner = user()->id(),
+                                s.c_description = shelf.description() );
+                    db(insert_statement);
+                    auto shelfId = db.lastInsertId(sqlpp::tableName<schema::t_acl>(),"c_uid" );
+                    db(insert_into(is).set(is.c_inventory_id = inventoryId, is.c_shelf = shelfId )  );
+                }
+            }
+            else {
+                sendAccesDeny();
+            }
+        }
+    }
 }
 
 void Inventory::handle_get( const MsgInventoryRequest_Get &msg)

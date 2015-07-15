@@ -21,9 +21,9 @@ using sqlpp::tableName;
 namespace auth {
 
 enum Groups {
-    GROUP_root  = 1<<1,
-    GROUP_users = 1<<2,
-    GROUP_inventories = 1<<3
+    GROUP_root  = 1<<0,
+    GROUP_users = 1<<1,
+    GROUP_inventories = 1<<2
 };
 
 

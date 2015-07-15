@@ -25,7 +25,7 @@ set(Core_CPP
     core/frameparser.cpp
     core/user.cpp
     core/server.cpp
-    core/storage.cpp
+    core/inventory.cpp
 )
 
 set(Core_H
@@ -42,7 +42,7 @@ set(Core_H
     core/iprocessor.h
     core/user.h
     core/server.h
-    core/storage.h
+    core/inventory.hpp
 )
 
 set( Utils_H

@@ -6,11 +6,18 @@
 #include "../user.h"
 #include "../auth/privilege.hpp"
 
+#include "sql_schema/t_inventories.h"
+#include "sql_schema/t_shelfs.h"
+
 using auth::Action;
+using auth::Groups;
 namespace eedb{
 
 int DBInitialize::initializeDB(DB &db)
 {
+    static constexpr schema::t_inventories inv;
+    static constexpr schema::t_shelfs sh;
+
     if(! rootExists(db)){
         pb::MsgUserRequest_Add add;
         auto acl  = add.mutable_acl();
@@ -27,32 +34,57 @@ int DBInitialize::initializeDB(DB &db)
         handlers::User::insertUser(db, add);
     }
 
-    insertActionIfNotExists(db, Action( "stat" , auth::Object ));
-    insertActionIfNotExists(db, Action( "stat" , auth::Table ));
-    insertActionIfNotExists(db, Action( "chmod" , auth::Object ));
-    insertActionIfNotExists(db, Action( "chmod" , auth::Table ));
-    insertActionIfNotExists(db, Action( "chgrp" , auth::Object ));
-    insertActionIfNotExists(db, Action( "chgrp" , auth::Table ));
-    insertActionIfNotExists(db, Action( "chown" , auth::Object ));
-    insertActionIfNotExists(db, Action( "chown" , auth::Table ));
-    insertActionIfNotExists(db, Action( "view_acl" , auth::Object ));
-    insertActionIfNotExists(db, Action( "view_acl" , auth::Table ));
-    insertActionIfNotExists(db, Action( "read" , auth::Object ));
-    insertActionIfNotExists(db, Action( "write" , auth::Object ));
-    insertActionIfNotExists(db, Action( "delete" , auth::Object ));
-    insertActionIfNotExists(db, Action( "read" , auth::Table ));
-    insertActionIfNotExists(db, Action( "write" , auth::Table ));
-    insertActionIfNotExists(db, Action( "login" , auth::Object ));
-    insertActionIfNotExists(db, Action( "update_passwd" , auth::Object ));
+//    insertActionIfNotExists(db, Action( "stat" , auth::Object ));
+//    insertActionIfNotExists(db, Action( "stat" , auth::Table ));
+//    insertActionIfNotExists(db, Action( "chmod" , auth::Object ));
+//    insertActionIfNotExists(db, Action( "chmod" , auth::Table ));
+//    insertActionIfNotExists(db, Action( "chgrp" , auth::Object ));
+//    insertActionIfNotExists(db, Action( "chgrp" , auth::Table ));
+//    insertActionIfNotExists(db, Action( "chown" , auth::Object ));
+//    insertActionIfNotExists(db, Action( "chown" , auth::Table ));
+//    insertActionIfNotExists(db, Action( "view_acl" , auth::Object ));
+//    insertActionIfNotExists(db, Action( "view_acl" , auth::Table ));
 
-    insertImplementedActionIfNotExists(db, auth::ImplementedAction("login",auth::State_Normal,"t_users"));
-    insertImplementedActionIfNotExists(db, auth::ImplementedAction("update_passwd",auth::State_Normal,"t_users"));
-    insertImplementedActionIfNotExists(db, auth::ImplementedAction("read",auth::State_Normal,"t_users"));
-    insertImplementedActionIfNotExists(db, auth::ImplementedAction("write",auth::State_Normal,"t_users"));
-    insertImplementedActionIfNotExists(db, auth::ImplementedAction("delete",auth::State_Normal,"t_users"));
-    insertImplementedActionIfNotExists(db, auth::ImplementedAction("read",auth::State_Normal,"t_files"));
-    insertImplementedActionIfNotExists(db, auth::ImplementedAction("write",auth::State_Normal,"t_files"));
-    insertImplementedActionIfNotExists(db, auth::ImplementedAction("delete",auth::State_Normal,"t_files"));
+//    insertActionIfNotExists(db, Action( "read" , auth::Object ));
+//    insertActionIfNotExists(db, Action( "write" , auth::Object ));
+//    insertActionIfNotExists(db, Action( "delete" , auth::Object ));
+//    insertActionIfNotExists(db, Action( "read" , auth::Table ));
+//    insertActionIfNotExists(db, Action( "write" , auth::Table ));
+//    insertActionIfNotExists(db, Action( "login" , auth::Object ));
+//    insertActionIfNotExists(db, Action( "update_passwd" , auth::Object ));
+
+//    insertImplementedActionIfNotExists(db, auth::ImplementedAction("login",auth::State_Normal,"t_users"));
+//    insertImplementedActionIfNotExists(db, auth::ImplementedAction("update_passwd",auth::State_Normal,"t_users"));
+//    insertImplementedActionIfNotExists(db, auth::ImplementedAction("read",auth::State_Normal,"t_users"));
+//    insertImplementedActionIfNotExists(db, auth::ImplementedAction("write",auth::State_Normal,"t_users"));
+//    insertImplementedActionIfNotExists(db, auth::ImplementedAction("delete",auth::State_Normal,"t_users"));
+//    insertImplementedActionIfNotExists(db, auth::ImplementedAction("read",auth::State_Normal,"t_files"));
+//    insertImplementedActionIfNotExists(db, auth::ImplementedAction("write",auth::State_Normal,"t_files"));
+//    insertImplementedActionIfNotExists(db, auth::ImplementedAction("delete",auth::State_Normal,"t_files"));
+//    insertImplementedActionIfNotExists(db, auth::ImplementedAction("write",auth::State_Normal,"t_inventories"));
+
+    auth::Privilege priv;
+
+    priv.giveGroup( auth::GROUP_users | auth::GROUP_inventories )
+            .privilegeFor("read")
+            .forTable(inv)
+            .force_save(db);
+
+    priv.giveGroup( auth::GROUP_inventories )
+            .privilegeFor("write")
+            .forTable(inv).
+            force_save(db);
+
+    priv.giveGroup( auth::GROUP_users | auth::GROUP_inventories  )
+            .privilegeFor("write")
+            .forTable(sh)
+            .force_save(db);
+
+    priv.giveGroup( auth::GROUP_inventories )
+            .privilegeFor("write")
+            .forTable(sh)
+            .force_save(db);
+
 }
 
 bool DBInitialize::rootExists(DB &db) const
@@ -71,6 +103,12 @@ void DBInitialize::insertImplementedActionIfNotExists(DB &db, auth::ImplementedA
 {
     if(!ia.exists(db))
         ia.save(db);
+}
+
+void DBInitialize::insertPrivilegeIfNotExists(DB &db, auth::Privilege pr) const
+{
+    if(!pr.exists(db))
+        pr.force_save(db);
 }
 
 }

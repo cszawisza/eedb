@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "spdlog/spdlog.h"
+#include "core/database/initialize.hpp"
 
 void initSpdLog(){
     std::vector<spdlog::sink_ptr> sinks;
@@ -10,6 +11,11 @@ void initSpdLog(){
 
 int main(int argc, char **argv) {
     initSpdLog();
+    eedb::DBInitialize dbinit;
+    DB db;
+
+    dbinit.initializeDB(db);
+
     printf("Running main() from gtest_main.cc\n");
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

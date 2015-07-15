@@ -2,7 +2,7 @@
 
 #include <QDebug>
 #include "user.h"
-#include "storage.h"
+#include "inventory.hpp"
 
 ClientWorker::ClientWorker(QObject *parent) :
     QObject(parent),

@@ -239,8 +239,8 @@ CREATE TABLE t_inventories(
 ) INHERITS (t_acl);
 
 CREATE TABLE t_user_inventories(
-    c_inventory_id INTEGER NOT NULL REFERENCES t_inventories,
-    c_user_id INTEGER NOT NULL REFERENCES t_users,
+    c_inventory_id INTEGER NOT NULL REFERENCES t_inventories  ON DELETE CASCADE,
+    c_user_id INTEGER NOT NULL REFERENCES t_users ON DELETE CASCADE,
     CONSTRAINT t_user_inventories_pk PRIMARY KEY (c_inventory_id, c_user_id)
 );
 
@@ -253,8 +253,8 @@ CREATE TABLE t_shelfs(
 ) INHERITS (t_acl);
 
 CREATE TABLE t_inventories_shelfs(
-    c_inventory_id INTEGER NOT NULL REFERENCES t_inventories,
-    c_shelf INTEGER NOT NULL REFERENCES t_shelfs,
+    c_inventory_id INTEGER NOT NULL REFERENCES t_inventories ON DELETE CASCADE,
+    c_shelf INTEGER NOT NULL REFERENCES t_shelfs ON DELETE CASCADE,
     CONSTRAINT unique_shelf UNIQUE (c_inventory_id, c_shelf)
 );
 
@@ -274,9 +274,9 @@ create table t_inventories_operations(
 ) INHERITS(t_acl);
 
 create table t_inventories_history(
-    c_inventory_from_id INTEGER NOT NULL REFERENCES t_inventories,
-    c_inventory_to_id INTEGER NOT NULL REFERENCES t_inventories,
-    c_operation_id INTEGER NOT NULL REFERENCES t_inventories_Operations,
+    c_inventory_from_id INTEGER NOT NULL REFERENCES t_inventories ON DELETE CASCADE,
+    c_inventory_to_id INTEGER NOT NULL REFERENCES t_inventories ON DELETE CASCADE,
+    c_operation_id INTEGER NOT NULL REFERENCES t_inventories_Operations ON DELETE CASCADE ,
     c_amount NUMERIC(10,10),
 
     date timestamp not null default now()
@@ -290,56 +290,6 @@ create table t_inventories_history(
 -- CREATE INDEX items_acl_index 	ON items 	(c_uid, c_owner, c_group, c_unixperms, c_status) WITH ( FILLFACTOR=100 );
 -- CREATE INDEX parameters_acl_index 	ON parameters 	(c_uid, c_owner, c_group, c_unixperms, c_status) WITH ( FILLFACTOR=100 );
 
-
-DO $$
-DECLARE rootuserid int;
-DECLARE testuserid int;
-BEGIN
-  -- root user MUST be insert as first in the whole database!
---  insert into t_users (c_name, c_password, c_salt, c_email)
---        values('ROOT','pass','salt', 'email1@ww.ww') returning c_uid into rootuserid;
-
---  insert into t_categories(c_parent_category_id, c_name, c_allow_recipe, c_allow_items, c_owner) values
---        (NULL, 'Root', false, false, rootuserid);
-
---  insert into t_action(c_title, c_apply_object) values
---        ('stat'         , true),
---        ('stat'         , false),
---        ('chmod'        , true),
---        ('chmod'        , false),
---        ('chgrp'        , true),
---        ('chgrp'        , false),
---        ('chown'        , true),
---        ('chown'        , false),
---        ('view_acl'     , true),
---        ('view_acl'     , false),
---        ('read'         , true),
---        ('write'        , true),
---        ('delete'       , true),
---        ('read'         , false),
---        ('write'        , false),
---        ('login'        , true),
---        ('update_passwd', true);
-
---  insert into t_implemented_action
---        (c_table        , c_action       , c_status) values
---        ('t_users'      , 'login'        , 0 ),
---        ('t_users'      , 'update_passwd', 0 ),
---        ('t_users'      , 'read'         , 0 ),
---        ('t_users'      , 'write'        , 0 ),
---        ('t_users'      , 'delete'       , 0 ),
---        ('t_files'      , 'read'         , 0 ),
---        ('t_files'      , 'write'        , 0 ),
---        ('t_files'      , 'delete'       , 0 );
-
--- c_role = user,owner, owner_group, group, self
--- c_type = object, table or global
---  insert into t_privilege
---        (c_role, c_who, c_action       , c_type    , c_related_table, c_related_uid) values
---        ('self', 0    , 'update_passwd', 'object'  , 't_users'      , 0),
---        ('self', 0    , 'login'        , 'object'  , 't_users'      , 0);
-
-END $$;
 
 CREATE OR REPLACE FUNCTION objects_with_action (m_tab VARCHAR, m_action varchar, userid int)
 RETURNS setof int AS $$

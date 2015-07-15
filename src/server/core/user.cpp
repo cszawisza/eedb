@@ -85,7 +85,6 @@ void eedb::handlers::User::process(pb::ClientRequest &msgReq)
         }
     }
     addResponseMessage();
-//    addErrorCode(m_response);
 }
 
 void eedb::handlers::User::addUser(DB &db, const MsgUserRequest_Add &msg)

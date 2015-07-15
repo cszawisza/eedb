@@ -27,9 +27,9 @@ private:
     void handle_remove( const MsgInventoryRequest_Remove &msg );
     void handle_addShelf( const MsgInventoryRequest_AddShelf &msg);
 
-    void insertStorage(DB &db, const MsgInventoryRequest_Add &msgReq);
+    void insertInventory(DB &db, const MsgInventoryRequest_Add &msg);
     void linkInventoryWithUser(DB &db, quint64 inventoryId);
-    quint64 insertInventory(DB &db, const MsgInventoryRequest_Add &msgReq);
+//    quint64 insertInventory(DB &db, const MsgInventoryRequest_Add &msgReq);
 
     void addErrorCode( MsgInventoryResponse_Error code ){
         m_response.mutable_msginventoryres()->add_code(code);
