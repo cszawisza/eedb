@@ -30,12 +30,10 @@ void EEDB::processConnectionError(QAbstractSocket::SocketError e)
     qDebug() << "connetion error :" << e;
 }
 
-
 void EEDB::incomingConnection()
 {
     while(hasPendingConnections()){
         QWebSocket *ws = nextPendingConnection();
-
         ClientConnection *connection = new ClientConnection(ws);
         m_connectedClients.append(connection);
         connect(connection, SIGNAL(disconnected()),
