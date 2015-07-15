@@ -46,8 +46,8 @@ create table t_system_info(
     c_value text
 );
 
-CREATE INDEX t_system_info_name ON t_schema_info ( c_name ) WITH ( FILLFACTOR=100 );
-COMMENT ON TABLE t_system_info IS 'table introduced to save information about system e.g. actual db version etc'
+CREATE INDEX t_system_info_name ON t_system_info ( c_name ) WITH ( FILLFACTOR=100 );
+COMMENT ON TABLE t_system_info IS 'table introduced to save information about system e.g. actual db version etc';
 
 create table t_action (
     c_title           text      NOT NULL  CHECK( length(c_title) >= 3 AND length(c_title) < 100 ),

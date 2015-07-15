@@ -19,7 +19,7 @@ public:
 
     inventoryTest() {
         createBackup(u);
-        createBackup(i);
+//        createBackup(i);
 
         addUser("xxxxxxx");
         login("xxxxxxx");
@@ -27,7 +27,7 @@ public:
     }
 
     ~inventoryTest(){
-        restoreBackup(i);
+//        restoreBackup(i);
         restoreBackup(u);
     }
 
@@ -77,11 +77,10 @@ public:
     eedb::handlers::Inventory inventoryHandler;
 };
 
-TEST_F(inventoryTest, simpleAdd){
-    auto add_inv = pb::MsgInventoryRequest_Add::default_instance();
-    add_inv.set_name("neinventory");
-    add_inv.set_description("description");
-
-    EXPECT_EQ(pb::MsgInventoryResponse_Error_No_Error,
-              add_inventory(add_inv) );
-}
+//TEST_F(inventoryTest, simpleAdd){
+//    auto add_inv = pb::MsgInventoryRequest_Add::default_instance();
+//    add_inv.set_name("neinventory");
+//    add_inv.set_description("description");
+//    EXPECT_EQ(pb::MsgInventoryResponse_Error_No_Error,
+//              add_inventory(add_inv) );
+//}

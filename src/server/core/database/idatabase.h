@@ -84,6 +84,7 @@ class DB
             return DbConnectionStack::getReservedDb();
         return DbConnectionStack::getDatabase();
     }
+
     //! function pushech connection on stack
     void pushToPool(){
         if(hasReservedConnection())

@@ -1,6 +1,6 @@
 #include "privilege.hpp"
 #include "utils/CTcrc32.hpp"
-
+#include "spdlog/spdlog.h"
 using std::string;
 namespace auth {
 
@@ -170,7 +170,7 @@ bool Privilege::saveInDb(DB &db, const PrivilegeRow &row) const {
                 pr.c_related_uid = row.related_uid ));
     }
     catch(sqlpp::exception e){
-        std::cout << e.what();
+        spdlog::get("Server")->error("{}: {}", __PRETTY_FUNCTION__, e.what() );
     }
 }
 

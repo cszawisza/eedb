@@ -1,6 +1,7 @@
 #include "implementedaction.hpp"
 #include "action.hpp"
 #include "database/idatabase.h"
+#include "spdlog/spdlog.h"
 
 namespace auth {
 
@@ -12,8 +13,7 @@ bool ImplementedAction::save(DB &db){
         ok = true;
     }
     catch(sqlpp::exception e){
-        ///TODO log exception
-        std::cout << e.what();
+        spdlog::get("Server")->error("{}: {}", __PRETTY_FUNCTION__, e.what() );
     }
 
     return ok;

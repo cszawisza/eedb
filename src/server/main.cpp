@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QAbstractSocket>
 #include "core/server.h"
+#include "spdlog/spdlog.h"
 
 int keepassx_main_impl(int argc, char *argv[], int (*app_run)() )
 {
@@ -10,8 +11,11 @@ int keepassx_main_impl(int argc, char *argv[], int (*app_run)() )
     QCoreApplication::setApplicationName(QStringLiteral("eedb"));
     QCoreApplication::setOrganizationName(QStringLiteral("eedb"));
 
+    auto logger = spdlog::get("Server");
+
     EEDB server;
     try{
+        logger->info("Server started, listening on port {}" ,6666);
         server.startServer();
     }
     catch(QWebSocketProtocol::CloseCode e){

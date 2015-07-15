@@ -84,19 +84,15 @@ void Inventory::handle_add( MsgInventoryRequest_Add &msg)
     auth::AccesControl acl( user()->id() );
 
     if(acl.checkUserAction<t_inventories>(db, "write") ){
-        bool error=false;
         try{
             db.start_transaction();
             insertStorage(db, msg);
-        }
-        catch(sqlpp::exception){
-            error = true;
-            db.rollback_transaction(false);
-            addErrorCode(MsgInventoryResponse_Error_DbAccesError);
-        }
-        if(!error){
             db.commit_transaction();
             addErrorCode(MsgInventoryResponse_Error_No_Error);
+        }
+        catch(sqlpp::exception){
+            db.rollback_transaction(false);
+            addErrorCode(MsgInventoryResponse_Error_DbAccesError);
         }
     }
     else

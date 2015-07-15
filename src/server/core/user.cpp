@@ -11,6 +11,7 @@
 #include "utils/hash_passwd.h"
 #include <iostream>
 #include "auth/acl.hpp"
+#include "spdlog/spdlog.h"
 #include <QRegExp>
 
 using eedb::utils::PasswordHash;
@@ -23,8 +24,7 @@ void log_action(DB& db, quint64 uid, const string &action){
         db(insert_into(uh).set(uh.c_uid = uid, uh.c_action = action ));
     }
     catch(sqlpp::exception e){
-        ///TODO log
-        std::cout << e.what();
+        spdlog::get("Server")->error("{}: {}", __PRETTY_FUNCTION__, e.what() );
     }
 }
 

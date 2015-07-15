@@ -2,8 +2,10 @@ project(EEDB_SERVER)
 
 include_directories( ../ )
 include_directories( core )
-include_directories( ${Common_SOURCE_DIR} )
-include_directories(${ProtobufIncludePath})
+
+include_directories( ${Common_SOURCE_DIR}    )
+include_directories( ${ProtobufIncludePath}  )
+include_directories( ${Externals_SOURCE_DIR} )
 
 file(GLOB SCHEMA_SRC "sql_schema/*.h" "sql_schema/*.sql")
 set(SOURCES

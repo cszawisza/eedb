@@ -6,6 +6,7 @@
 #include "sql_schema/t_action.h"
 
 #include "database/idatabase.h"
+#include "spdlog/spdlog.h"
 
 using sqlpp::toBool;
 
@@ -22,8 +23,7 @@ bool Action::save(DB &db){
         ok = true;
     }
     catch(sqlpp::exception e){
-        ///TODO log
-        std::cout << e.what();
+        spdlog::get("Server")->error("{}: {}", __PRETTY_FUNCTION__, e.what() );
     }
     return ok;
 }
@@ -45,7 +45,7 @@ bool Action::exists(DB &db) const
                    ).front().exists;
     }
     catch(sqlpp::exception e){
-        std::cout << e.what();
+        spdlog::get("Server")->error("{}: {}", __PRETTY_FUNCTION__, e.what() );
     }
 
     return exist;

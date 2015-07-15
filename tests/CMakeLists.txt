@@ -5,6 +5,7 @@ include_directories( ${ProtobufIncludePath})
 INCLUDE_DIRECTORIES( ${Common_SOURCE_DIR} )
 INCLUDE_DIRECTORIES( ${EEDB_SERVER_SOURCE_DIR} )
 INCLUDE_DIRECTORIES( ${EEDB_SERVER_SOURCE_DIR}/core )
+include_directories( ${Externals_SOURCE_DIR} )
 
 INCLUDE_DIRECTORIES( ../server_lib )
 
