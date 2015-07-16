@@ -117,6 +117,24 @@ public:
         db->start_transaction();
     }
 
+    void savepoint(const string &name){
+        auto deleter = [&]( DbConnection *db ){
+            reserveTransaction( move(unique_ptr<DbConnection>(db)) );
+        };
+
+        unique_ptr<DbConnection, decltype(deleter)> db ( takeFromPool().release(), deleter );
+        db->execute("SAVEPOINT " + name + ";");
+    }
+
+    void rollback_to(const string &name){
+        auto deleter = [&]( DbConnection *db ){
+            reserveTransaction( move(unique_ptr<DbConnection>(db)) );
+        };
+
+        unique_ptr<DbConnection, decltype(deleter)> db ( takeFromPool().release(), deleter );
+        db->execute("ROLLBACK TO " + name + ";");
+    }
+
     //! commit transaction (or throw transaction if transaction has finished already)
     void commit_transaction() {
         auto deleter = [&]( DbConnection *db ){
@@ -147,8 +165,6 @@ public:
             reserveTransaction(move(db));
         return 0 ; ///FIXME res->result->affected_rows();
     }
-
-
 
     template<typename T>
     auto prepare(const T& t) -> decltype(DbConnectionStack::getDatabase()->prepare(t) ){

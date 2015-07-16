@@ -49,14 +49,6 @@ TEST(DB, connectToDatabaseAndSimpleQUery){
     EXPECT_NO_THROW(db.execute("select true;")); // database is connected
 }
 
-//TEST(DB, dbPrepare){
-//    DB db;
-//    auto q = dynamic_select(db.connection(), test.x )
-//            .from(test)
-//            .dynamic_where();
-//    EXPECT_NO_THROW(db(q));
-//}
-
 TEST(DB, transactionOwnsTheConnection ){
     DB db;
 
@@ -65,6 +57,9 @@ TEST(DB, transactionOwnsTheConnection ){
     //    EXPECT_THROW(db.commit_transaction()      , sqlpp::exception );
     //    EXPECT_THROW(db.rollback_transaction(true), sqlpp::exception );
 
+    EXPECT_THROW(db.savepoint("save"), sqlpp::exception ); // should throw, not in transaction
+    EXPECT_THROW(db.rollback_to("save"), sqlpp::exception );
+
     EXPECT_NO_THROW(db.commit_transaction()       );
     EXPECT_NO_THROW(db.rollback_transaction(true) );
 
@@ -72,6 +67,8 @@ TEST(DB, transactionOwnsTheConnection ){
     EXPECT_NO_THROW(db.rollback_transaction(true));
 
     EXPECT_NO_THROW(db.start_transaction());
+    EXPECT_NO_THROW(db.savepoint("save"));
+    EXPECT_NO_THROW(db.rollback_to("save"));
     EXPECT_NO_THROW(db.commit_transaction());
 }
 
