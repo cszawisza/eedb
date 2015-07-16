@@ -12,13 +12,11 @@ class userCreateTest : public ::testing::Test
 {
 public:
     userCreateTest() {
-        schema::t_users u;
-        createBackup(u);
+        db.start_transaction();
     }
 
     ~userCreateTest(){
-        schema::t_users u;
-        restoreBackup(u);
+        db.rollback_transaction(false);
     }
 
     const ResponseCode &sendRequest( pb::MsgUserRequest_Add &msg){
@@ -27,11 +25,12 @@ public:
         auto userReq = req.mutable_msguserreq();
         userReq->mutable_add()->CopyFrom(msg);
 
-        handler.process(req);
+        handler.process(db, req);
 
         return handler.getLastResponse().msguserres().code(0);
     }
 
+    DB db;
     eedb::handlers::User handler;
 };
 
@@ -106,8 +105,8 @@ TEST_F( userCreateTest, full_data ){
     basic->set_email( random_string(10) + "@user.uu");
     det->set_address( random_string(100) );
     det->set_phone_number( random_string(10) );
-    basic->set_description( random_string(10000) );
-    basic->set_avatar( random_string(64e3) ); // a text base representation of file (64k bytes)
+    basic->set_description( random_string(1000) );
+    basic->set_avatar( random_string(1000) );
 
     auto res = sendRequest(add_msg);
 

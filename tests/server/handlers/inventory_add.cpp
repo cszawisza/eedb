@@ -23,9 +23,7 @@ public:
     schema::t_shelfs sh;
 
     inventoryTest() {
-        createBackup(u);
-        createBackup(i);
-        createBackup(sh);
+        db.start_transaction();
 
         addUser(db, "xxxxxxx");
         login("xxxxxxx");
@@ -35,9 +33,7 @@ public:
     }
 
     ~inventoryTest(){
-        restoreBackup(sh);
-        restoreBackup(i);
-        restoreBackup(u);
+        db.rollback_transaction(false);
     }
 
     void addInventory( string name )
@@ -62,7 +58,7 @@ public:
         auto userReq = req.mutable_msguserreq();
         userReq->mutable_login()->CopyFrom(msg);
 
-        userHandler.process(req);
+        userHandler.process(db, req);
 
         return userHandler.getLastResponse().msguserres().code(0);
     }

@@ -16,8 +16,7 @@ class userLoginTest : public ::testing::Test
 {
 public:
    userLoginTest() {
-       schema::t_users u;
-       createBackup(u);
+        db.start_transaction();
 
        pb::MsgUserRequest_Add add;
        add.mutable_basic()->set_name("USER_NAME");
@@ -28,8 +27,7 @@ public:
    }
 
    ~userLoginTest(){
-       schema::t_users u;
-       restoreBackup(u);
+        db.rollback_transaction(false);
    }
 
    const ResponseCode &requestAdd( pb::MsgUserRequest_Add &msg){
@@ -38,7 +36,7 @@ public:
        auto userReq = req.mutable_msguserreq();
        userReq->mutable_add()->CopyFrom(msg);
 
-       handler.process(req);
+       handler.process(db, req);
 
        return handler.getLastResponse().msguserres().code(0);
    }
@@ -49,11 +47,11 @@ public:
        auto userReq = req.mutable_msguserreq();
        userReq->mutable_login()->CopyFrom(msg);
 
-       handler.process(req);
+       handler.process(db, req);
 
        return handler.getLastResponse().msguserres().code(0);
    }
-
+    DB db;
    eedb::handlers::User handler;
 };
 

@@ -18,11 +18,12 @@ public:
 
     // MessageHandler interface
 public:
+    void process(DB &db, pb::ClientRequest &msg);
     void process(pb::ClientRequest &msg);
 
 private:
-    void handle_add( MsgInventoryRequest_Add &msg );
-    void handle_get( const MsgInventoryRequest_Get &msg);
+    void handle_add(DB &db, const MsgInventoryRequest_Add &msg );
+    void handle_get(DB &db, const MsgInventoryRequest_Get &msg);
     void handle_modify(const MsgInventoryRequest_Modify &msg);
     void handle_remove( const MsgInventoryRequest_Remove &msg );
     void handle_addShelf( const MsgInventoryRequest_AddShelf &msg);

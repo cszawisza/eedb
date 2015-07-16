@@ -23,7 +23,7 @@ using namespace schema;
 namespace eedb{
 namespace handlers{
 
-void Inventory::process(pb::ClientRequest &msg )
+void Inventory::process(DB &db, ClientRequest &msg)
 {
     m_response.Clear();
     // Check if this is the message that handler wants
@@ -40,10 +40,10 @@ void Inventory::process(pb::ClientRequest &msg )
     MsgInventoryRequest::ActionCase msgType = req.action_case();
     switch ( msgType ) {
     case MsgInventoryRequest::kAdd:
-        handle_add( *req.mutable_add() );
+        handle_add( db, req.add() );
         break;
     case MsgInventoryRequest::kGet:
-        handle_get( req.get() );
+        handle_get( db, req.get() );
         break;
     case MsgInventoryRequest::kRemove:
         handle_remove( req.remove() );
@@ -62,7 +62,14 @@ void Inventory::process(pb::ClientRequest &msg )
     addResponse(m_response);
 }
 
-void Inventory::handle_add( MsgInventoryRequest_Add &msg)
+void Inventory::process(pb::ClientRequest &msg )
+{
+    DB db;
+    ///TODO transaction managment
+    process(db, msg);
+}
+
+void Inventory::handle_add( DB &db, const MsgInventoryRequest_Add &msg)
 {
     bool error = false;
     if(msg.name().length() > 250 ){
@@ -81,17 +88,16 @@ void Inventory::handle_add( MsgInventoryRequest_Add &msg)
     if(error)
         return;
 
-    DB db;
-        try{
-            db.start_transaction();
-            insertInventory(db, msg);
-            db.commit_transaction();
-            addErrorCode(MsgInventoryResponse_Error_No_Error);
-        }
-        catch(sqlpp::exception){
-            db.rollback_transaction(false);
-            addErrorCode(MsgInventoryResponse_Error_DbAccesError);
-        }
+    try{
+//        db.start_transaction();
+        insertInventory(db, msg);
+//        db.commit_transaction();
+        addErrorCode(MsgInventoryResponse_Error_No_Error);
+    }
+    catch(sqlpp::exception){
+//        db.rollback_transaction(false);
+        addErrorCode(MsgInventoryResponse_Error_DbAccesError);
+    }
 }
 
 quint64 Inventory::doInsertInventory(DB &db, const MsgInventoryRequest_Add &msgReq)
@@ -155,15 +161,13 @@ void Inventory::insertInventory(DB &db, const MsgInventoryRequest_Add &msg ){
     }
 }
 
-void Inventory::handle_get( const MsgInventoryRequest_Get &msg)
+void Inventory::handle_get( DB &db, const MsgInventoryRequest_Get &msg)
 {
     auto &where = msg.where();
 
     quint64 uid = user()->id() ;
     auth::AccesControl acl(uid);
     const int oid = msg.id();
-
-    DB db;
 
     if(where.has_user_id()){
         // get all user inventories
