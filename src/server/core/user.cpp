@@ -2,13 +2,8 @@
 
 #include "sqlpp11/sqlpp11.h"
 
-#include "sql_schema/t_users.h"
-#include "sql_schema/t_inventories.h"
-#include "sql_schema/t_user_inventories.h"
-#include "sql_schema/t_user_history.h"
+#include "database/UserHelper.hpp"
 
-#include "utils/userconfig.h"
-#include "utils/hash_passwd.h"
 #include <iostream>
 #include "auth/acl.hpp"
 #include "spdlog/spdlog.h"
@@ -89,103 +84,15 @@ void eedb::handlers::User::process(pb::ClientRequest &msgReq)
 
 void eedb::handlers::User::addUser(DB &db, const MsgUserRequest_Add &msg)
 {
-    constexpr schema::t_users u;
-    const auto &basic = msg.basic();
-    const auto &det = msg.details();
-    const auto &conf= msg.config();
-    PasswordHash passwd;
-    passwd.setPassword( msg.password() );
-
-    eedb::utils::UserConfig userConfig( conf );
-    auto query = insert_into(u)
-            .set(
-                u.c_group = msg.acl().has_group() ? msg.acl().group() : auth::GROUP_users | auth::GROUP_inventories, // default to user group
-                u.c_unixperms = msg.acl().has_unixperms() ? msg.acl().unixperms() : 484,
-                u.c_owner = msg.acl().has_owner() ? msg.acl().owner() : 1,
-                u.c_status = msg.acl().has_status() ? msg.acl().status() : 0 ,
-                u.c_name = parameter(u.c_name),
-                u.c_email = parameter(u.c_email),
-                u.c_password = passwd.hash(),
-                u.c_salt = passwd.salt(),
-                u.c_address = parameter(u.c_address),
-                u.c_phonenumber = parameter(u.c_phonenumber),
-                u.c_description = parameter(u.c_description),
-                u.c_config = userConfig.toStdString(), // must be a proper JSON document no need to parametrize
-                u.c_avatar = parameter(u.c_avatar)
-            );
-
-    // run query
-    auto pre = db.prepare(query);
-    pre.params.c_name  = basic.name();
-    pre.params.c_email = basic.email();
-
-    if(basic.has_avatar()){
-        QByteArray ba = QByteArray::fromRawData(basic.avatar().data(), basic.avatar().size() );
-        pre.params.c_avatar = ba.toBase64().toStdString();
-    }
-
-    if(basic.has_description())
-        pre.params.c_description = basic.description();
-    if(det.has_address())
-        pre.params.c_address = det.address();
-    if(det.has_phone_number())
-        pre.params.c_phonenumber = det.phone_number();
-
     try{
-        db(pre);
-        auto uid = db(select(u.c_uid).from(u).where(u.c_name == basic.name())).front().c_uid;
+        eedb::db::T_User::insertUser(db, msg);
+        auto uid = db.lastInsertId( sqlpp::tableName<t_acl>(), "c_uid");
         addErrorCode(false, UserAddOk);
         log_action(db, uid, "register" );
     }
-    catch (sqlpp::exception) {
+    catch (sqlpp::exception e) {
         addErrorCode(true, UserAlreadyExists);
     }
-}
-
-void eedb::handlers::User::insertUser(DB &db, const MsgUserRequest_Add msg)
-{
-    constexpr schema::t_users u;
-    const auto &basic = msg.basic();
-    const auto &det = msg.details();
-    const auto &conf= msg.config();
-    PasswordHash passwd;
-    passwd.setPassword( msg.password() );
-
-    eedb::utils::UserConfig userConfig( conf );
-    auto query = insert_into(u)
-            .set(
-                u.c_group = msg.acl().has_group() ? msg.acl().group() : 2, // default to user group
-                u.c_unixperms = msg.acl().has_unixperms() ? msg.acl().unixperms() : 484,
-                u.c_owner = msg.acl().has_owner() ? msg.acl().owner() : 1,
-                u.c_status = msg.acl().has_status() ? msg.acl().status() : 0 ,
-                u.c_name = parameter(u.c_name),
-                u.c_email = parameter(u.c_email),
-                u.c_password = passwd.hash(),
-                u.c_salt = passwd.salt(),
-                u.c_address = parameter(u.c_address),
-                u.c_phonenumber = parameter(u.c_phonenumber),
-                u.c_description = parameter(u.c_description),
-                u.c_config = userConfig.toStdString(), // must be a proper JSON document no need to parametrize
-                u.c_avatar = parameter(u.c_avatar)
-            );
-
-    // run query
-    auto pre = db.prepare(query);
-    pre.params.c_name  = basic.name();
-    pre.params.c_email = basic.email();
-
-    if(basic.has_avatar()){
-        QByteArray ba = QByteArray::fromRawData(basic.avatar().data(), basic.avatar().size() );
-        pre.params.c_avatar = ba.toBase64().toStdString();
-    }
-
-    if(basic.has_description())
-        pre.params.c_description = basic.description();
-    if(det.has_address())
-        pre.params.c_address = det.address();
-    if(det.has_phone_number())
-        pre.params.c_phonenumber = det.phone_number();
-    db(pre);
 }
 
 void eedb::handlers::User::addErrorCode(bool isError, Replay err)

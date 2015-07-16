@@ -11,6 +11,8 @@
 
 #include <iostream>
 
+#include "utils/unixPerms.hpp"
+
 schema::t_inventories i;
 schema::t_user_inventories u_i;
 schema::t_inventories_shelfs i_s;
@@ -98,7 +100,7 @@ quint64 Inventory::doInsertInventory(DB &db, const MsgInventoryRequest_Add &msgR
                 i.c_name = parameter(i.c_name),
                 i.c_owner = user()->id(),
                 i.c_group = (int)auth::GROUP_inventories,
-                i.c_unixperms = 494 ///TODO check
+                i.c_unixperms = UnixPermissions("rwdr-----").toInteger()
             );
     auto query = db.prepare(insert);
 
@@ -106,7 +108,7 @@ quint64 Inventory::doInsertInventory(DB &db, const MsgInventoryRequest_Add &msgR
     db(query);
 
     ///TODO change to .RETURNING when implemented
-    return db.lastInsertId(sqlpp::name_of<t_acl>::char_ptr(), "c_uid" );
+    return db.lastInsertId( sqlpp::tableName<t_acl>(), "c_uid" );
 }
 
 void Inventory::linkInventoryWithUser(DB &db, quint64 inventoryId)
@@ -193,7 +195,7 @@ void Inventory::handle_get( const MsgInventoryRequest_Get &msg)
             return;
         } else {
             if(!acl.checkUserAction<t_inventories>("read", where.inventory_id() )){
-                ///FIXME sendAccesDeny();
+                sendAccesDeny();
                 return;
             }
         }

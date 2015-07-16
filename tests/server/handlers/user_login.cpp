@@ -5,10 +5,12 @@
 #include <core/database/idatabase.h>
 #include <memory>
 
-#include "../../common.h"
+#include "TestCommon.hpp"
 
 #include "sql_schema/t_users.h"
 #include "sql_schema/t_user_history.h"
+
+using namespace test;
 
 class userLoginTest : public ::testing::Test
 {

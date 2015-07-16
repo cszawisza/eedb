@@ -1,9 +1,9 @@
 #pragma once
 
 #include "iprocessor.h"
-#include "database/idatabase.h"
-
 #include "user.pb.h"
+
+class DB;
 
 namespace eedb {
 namespace handlers {
@@ -20,7 +20,6 @@ public:
 public:
     void process(pb::ClientRequest &msgReq );
 
-    static void insertUser(DB &db, const MsgUserRequest_Add msg);
 private:
     void handle_add   (MsgUserRequest_Add    &msg    );
     void handle_login ( const MsgUserRequest_Login  &loginMsg  );

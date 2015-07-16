@@ -1,3 +1,4 @@
+#pragma once
 #include <QCryptographicHash>
 #include <QDateTime>
 
@@ -43,8 +44,6 @@ private:
     string m_pass;
     string m_salt;
 };
-
-
 
 }
 }

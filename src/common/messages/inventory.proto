@@ -60,6 +60,7 @@ message MsgInventoryResponse {
       NameToLong = 1;
       NameEmpty = 2;
       DescriptionToLong = 3;
+      IdDontExists = 4;
       DbAccesError = 100;
     }
 

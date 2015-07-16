@@ -77,6 +77,12 @@ protected:
         addResponse( resp );
     }
 
+//    void sendAccesDeny(const string &message){
+//        pb::ServerResponse resp;
+//        resp.set_code( pb::Error_AccesDeny );
+//        addResponse( resp );
+//    }
+
 private:
     SharedUserData m_userData;
     SharedResponses m_outputFrame;

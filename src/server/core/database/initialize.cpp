@@ -6,11 +6,17 @@
 #include "../user.h"
 #include "../auth/privilege.hpp"
 
+#include "database/UserHelper.hpp"
+
 #include "sql_schema/t_inventories.h"
 #include "sql_schema/t_shelfs.h"
 
+
 using auth::Action;
 using auth::Groups;
+
+using eedb::db::T_User;
+
 namespace eedb{
 
 int DBInitialize::initializeDB(DB &db)
@@ -31,7 +37,7 @@ int DBInitialize::initializeDB(DB &db)
         basic->set_email("b.w@linux.pl");
 
         add.set_password("admin_eedb");
-        handlers::User::insertUser(db, add);
+        T_User::insertUser(db, add);
     }
 
 //    insertActionIfNotExists(db, Action( "stat" , auth::Object ));

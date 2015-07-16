@@ -5,7 +5,8 @@
 #include <core/database/idatabase.h>
 #include <memory>
 
-#include "../../common.h"
+#include "TestCommon.hpp"
+using namespace test;
 
 class userCreateTest : public ::testing::Test
 {

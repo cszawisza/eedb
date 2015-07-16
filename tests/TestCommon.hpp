@@ -1,9 +1,25 @@
 #pragma once
 
 #include <string>
-#include "core/database/idatabase.h"
+
+#include "database/UserHelper.hpp"
 
 using std::string;
+
+namespace test{
+using eedb::db::T_User;
+
+inline quint64 addUser(DB &db, const string &name){
+    pb::MsgUserRequest_Add msg;
+
+    msg.mutable_basic()->set_name(name);
+    msg.mutable_basic()->set_email(name + "@fake.xx");
+    msg.set_password("xxxx");
+
+    if(! T_User::getUserIdByName(db, name)) // function returns 0 when user don't exist
+        T_User::insertUser(db, msg);
+    return T_User::getUserIdByName(db, name);
+}
 
 template<typename T>
 inline void createBackup(DB &db, T ){
@@ -74,4 +90,5 @@ inline std::string random_string( size_t length )
     std::string str(length,0);
     std::generate_n( str.begin(), length, randchar );
     return str;
+}
 }

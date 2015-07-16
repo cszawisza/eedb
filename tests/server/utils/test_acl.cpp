@@ -1,6 +1,5 @@
 #include "gtest/gtest.h"
 #include "utils/hash_passwd.h"
-#include "../../common.h"
 
 #include "core/auth/acl.hpp"
 

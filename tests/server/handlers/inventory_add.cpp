@@ -4,16 +4,15 @@
 #include <core/database/idatabase.h>
 #include <memory>
 
-#include "../../common.h"
+#include "TestCommon.hpp"
 
 #include "sql_schema/t_shelfs.h"
-#include "sql_schema/t_user_inventories.h"
-#include "sql_schema/t_inventories.h"
-#include "sql_schema/t_users.h"
-#include "sql_schema/t_inventories_shelfs.h"
 
-#include "core/user.h"
 #include "core/inventory.hpp"
+#include "core/user.h"
+
+using eedb::db::T_User;
+using namespace test;
 
 class inventoryTest : public ::testing::Test
 {
@@ -23,24 +22,12 @@ public:
     schema::t_inventories i;
     schema::t_shelfs sh;
 
-    void addInventory( string name )
-    {
-        auto add_inv = pb::MsgInventoryRequest_Add::default_instance();
-        add_inv.set_name( name );
-        add_inv.set_description("description");
-        pb::InventoryShelf *shelf = add_inv.add_shelfs();
-        shelf->set_name("New shelf");
-        shelf->set_description( name );
-
-         add_inventory(add_inv);
-    }
-
     inventoryTest() {
         createBackup(u);
         createBackup(i);
         createBackup(sh);
 
-        addUser("xxxxxxx");
+        addUser(db, "xxxxxxx");
         login("xxxxxxx");
         inventoryHandler.setUserData(userHandler.user());
 
@@ -53,20 +40,16 @@ public:
         restoreBackup(u);
     }
 
-    const ResponseCode &addUser(string name){
-        pb::MsgUserRequest_Add msg;
-        msg.mutable_basic()->set_name(name);
-        msg.mutable_basic()->set_email(name + "@fake.xx");
-        msg.set_password("xxxx");
+    void addInventory( string name )
+    {
+        auto add_inv = pb::MsgInventoryRequest_Add::default_instance();
+        add_inv.set_name( name );
+        add_inv.set_description("description");
+        pb::InventoryShelf *shelf = add_inv.add_shelfs();
+        shelf->set_name("New shelf");
+        shelf->set_description( name );
 
-        pb::ClientRequest req;
-
-        auto userReq = req.mutable_msguserreq();
-        userReq->mutable_add()->CopyFrom(msg);
-
-        userHandler.process(req);
-
-        return userHandler.getLastResponse().msguserres().code(0);
+        add_inventory(add_inv);
     }
 
     const ResponseCode &login(string name){
@@ -85,12 +68,10 @@ public:
     }
 
     bool shelfExists(const char * name){
-        DB db;
         return db(select(exists(select(sh.c_uid).from(sh).where(sh.c_name == name )))).front().exists;
     }
 
     bool inventoryExists(const char * name){
-        DB db;
         return db(select(exists(select(i.c_uid).from(i).where(i.c_name == name )))).front().exists;
     }
 
@@ -105,6 +86,7 @@ public:
         return inventoryHandler.getLastResponse().msginventoryres().code(0);
     }
 
+    DB db;
     eedb::handlers::User userHandler;
     eedb::handlers::Inventory inventoryHandler;
 };

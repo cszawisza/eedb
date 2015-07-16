@@ -29,7 +29,6 @@ private:
 
     void insertInventory(DB &db, const MsgInventoryRequest_Add &msg);
     void linkInventoryWithUser(DB &db, quint64 inventoryId);
-//    quint64 insertInventory(DB &db, const MsgInventoryRequest_Add &msgReq);
 
     void addErrorCode( MsgInventoryResponse_Error code ){
         m_response.mutable_msginventoryres()->add_code(code);
