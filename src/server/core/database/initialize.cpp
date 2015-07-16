@@ -15,7 +15,7 @@
 using auth::Action;
 using auth::Groups;
 
-using eedb::db::T_User;
+using eedb::db::UserHelper;
 
 namespace eedb{
 
@@ -37,7 +37,7 @@ int DBInitialize::initializeDB(DB &db)
         basic->set_email("b.w@linux.pl");
 
         add.set_password("admin_eedb");
-        T_User::insertUser(db, add);
+        UserHelper::insertUser(db, add);
     }
 
 //    insertActionIfNotExists(db, Action( "stat" , auth::Object ));

@@ -11,7 +11,7 @@
 #include "core/inventory.hpp"
 #include "core/user.h"
 
-using eedb::db::T_User;
+using eedb::db::UserHelper;
 using namespace test;
 
 class inventoryTest : public ::testing::Test

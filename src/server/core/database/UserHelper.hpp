@@ -22,9 +22,11 @@ using eedb::utils::PasswordHash;
 namespace eedb{
 namespace db{
 
-class T_User {
+class UserHelper {
 public:
-    static int64_t getUserIdByName(DB &db, const string &name);
+    static int64_t getUserIdByName (DB &db, const string &name);
+    static int64_t getUserIdByEmail(DB &db, const string &email);
+
     static void insertUser(DB &db, const MsgUserRequest_Add msg);
 };
 

@@ -19,15 +19,16 @@ public:
     // MessageHandler interface
 public:
     void process(pb::ClientRequest &msgReq );
+    void process(DB &db, pb::ClientRequest &msgReq );
 
 private:
-    void handle_add   (MsgUserRequest_Add    &msg    );
-    void handle_login ( const MsgUserRequest_Login  &loginMsg  );
-    void handle_logout( const MsgUserRequest_Logout &logoutMsg );
-    void handle_modify(const MsgUserRequest_Modify &msg );
-    void handle_remove( const MsgUserRequest_Remove &delateMsg );
-    void handle_get   ( const MsgUserRequest_Get    &getMsg    );
-    void handle_changePasswd (const MsgUserRequest_ChangePasswd &msg );
+    void handle_add   (DB &db, MsgUserRequest_Add    &msg    );
+    void handle_login (DB &db, const MsgUserRequest_Login  &loginMsg  );
+    void handle_logout(DB &db, const MsgUserRequest_Logout &logoutMsg );
+    void handle_modify(DB &db, const MsgUserRequest_Modify &msg );
+    void handle_remove(DB &db, const MsgUserRequest_Remove &delateMsg );
+    void handle_get   (DB &db, const MsgUserRequest_Get    &getMsg    );
+    void handle_changePasswd (DB &db, const MsgUserRequest_ChangePasswd &msg );
 
 
     void addUser(DB &db, const MsgUserRequest_Add &msg);

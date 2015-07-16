@@ -53,6 +53,10 @@ public:
         msg->set_code(pb::Error_MsgUnknown);
     }
 
+    virtual void process(DB &db, pb::ClientRequest &req){
+        process(req);
+    }
+
     void clear(){
         m_userData.clear();
         m_outputFrame.clear();

@@ -7,7 +7,7 @@
 using std::string;
 
 namespace test{
-using eedb::db::T_User;
+using eedb::db::UserHelper;
 
 inline quint64 addUser(DB &db, const string &name){
     pb::MsgUserRequest_Add msg;
@@ -16,9 +16,9 @@ inline quint64 addUser(DB &db, const string &name){
     msg.mutable_basic()->set_email(name + "@fake.xx");
     msg.set_password("xxxx");
 
-    if(! T_User::getUserIdByName(db, name)) // function returns 0 when user don't exist
-        T_User::insertUser(db, msg);
-    return T_User::getUserIdByName(db, name);
+    if(! UserHelper::getUserIdByName(db, name)) // function returns 0 when user don't exist
+        UserHelper::insertUser(db, msg);
+    return UserHelper::getUserIdByName(db, name);
 }
 
 template<typename T>

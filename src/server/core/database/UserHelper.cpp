@@ -3,7 +3,7 @@
 namespace eedb{
 namespace db{
 
-int64_t T_User::getUserIdByName(DB &db, const string &name){
+int64_t UserHelper::getUserIdByName(DB &db, const string &name){
     constexpr schema::t_users u;
     auto prep = db.prepare(sqlpp::select(u.c_uid).from(u).where( u.c_name == parameter(u.c_name) ));
     prep.params.c_name = name;
@@ -14,7 +14,19 @@ int64_t T_User::getUserIdByName(DB &db, const string &name){
     return res.front().c_uid;
 }
 
-void T_User::insertUser(DB &db, const MsgUserRequest_Add msg)
+int64_t UserHelper::getUserIdByEmail(DB &db, const string &email)
+{
+    constexpr schema::t_users u;
+    auto prep = db.prepare(sqlpp::select(u.c_uid).from(u).where( u.c_email == parameter(u.c_email) ));
+    prep.params.c_email = email;
+    auto res = db(prep);
+
+    if(res.empty())
+        return 0;
+    return res.front().c_uid;
+}
+
+void UserHelper::insertUser(DB &db, const MsgUserRequest_Add msg)
 {
     constexpr schema::t_users u;
     const auto &acl = msg.acl();
