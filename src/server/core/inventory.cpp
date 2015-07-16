@@ -41,16 +41,16 @@ void Inventory::process(pb::ClientRequest &msg )
         handle_add( *req.mutable_add() );
         break;
     case MsgInventoryRequest::kGet:
-        handle_get( *req.mutable_get() );
+        handle_get( req.get() );
         break;
     case MsgInventoryRequest::kRemove:
-        handle_remove( *req.mutable_remove() );
+        handle_remove( req.remove() );
         break;
     case MsgInventoryRequest::kModify:
-        handle_modify( *req.mutable_modify() );
+        handle_modify( req.modify() );
         break;
     case MsgInventoryRequest::kAddShelf:
-        handle_addShelf( *req.mutable_addshelf() );
+        handle_addShelf( req.addshelf() );
         break;
     case MsgInventoryRequest::ACTION_NOT_SET:
         //addResp(true, Error_NoActionChoosen);
@@ -78,11 +78,8 @@ void Inventory::handle_add( MsgInventoryRequest_Add &msg)
 
     if(error)
         return;
-    ///TODO check if acl in msgReq has owner fields (if not, set owner as this user)
 
     DB db;
-
-
         try{
             db.start_transaction();
             insertInventory(db, msg);
@@ -93,11 +90,9 @@ void Inventory::handle_add( MsgInventoryRequest_Add &msg)
             db.rollback_transaction(false);
             addErrorCode(MsgInventoryResponse_Error_DbAccesError);
         }
-
-
 }
 
-quint64 Inventory::doInsert(DB &db, const MsgInventoryRequest_Add &msgReq)
+quint64 Inventory::doInsertInventory(DB &db, const MsgInventoryRequest_Add &msgReq)
 {
     auto insert = insert_into(i).set(
                 i.c_name = parameter(i.c_name),
@@ -128,7 +123,7 @@ void Inventory::insertInventory(DB &db, const MsgInventoryRequest_Add &msg ){
     auth::AccesControl acl( user()->id() );
 
     if( acl.checkUserAction<t_inventories>(db, "write")){
-        quint64 inventoryId = doInsert(db, msg);
+        quint64 inventoryId = doInsertInventory(db, msg);
         linkInventoryWithUser(db,  inventoryId);
 
         if(msg.shelfs_size()){

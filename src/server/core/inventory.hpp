@@ -34,7 +34,7 @@ private:
     void addErrorCode( MsgInventoryResponse_Error code ){
         m_response.mutable_msginventoryres()->add_code(code);
     }
-    quint64 doInsert(DB &db, const MsgInventoryRequest_Add &msgReq);
+    quint64 doInsertInventory(DB &db, const MsgInventoryRequest_Add &msgReq);
 
     pb::ServerResponse m_response;
 };

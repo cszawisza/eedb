@@ -23,6 +23,18 @@ public:
     schema::t_inventories i;
     schema::t_shelfs sh;
 
+    void addInventory( string name )
+    {
+        auto add_inv = pb::MsgInventoryRequest_Add::default_instance();
+        add_inv.set_name( name );
+        add_inv.set_description("description");
+        pb::InventoryShelf *shelf = add_inv.add_shelfs();
+        shelf->set_name("New shelf");
+        shelf->set_description( name );
+
+         add_inventory(add_inv);
+    }
+
     inventoryTest() {
         createBackup(u);
         createBackup(i);
@@ -32,14 +44,7 @@ public:
         login("xxxxxxx");
         inventoryHandler.setUserData(userHandler.user());
 
-        auto add_inv = pb::MsgInventoryRequest_Add::default_instance();
-        add_inv.set_name("new_inventory_testing");
-        add_inv.set_description("description");
-        pb::InventoryShelf *shelf = add_inv.add_shelfs();
-        shelf->set_name("New shelf");
-        shelf->set_description("New shelf description");
-
-         add_inventory(add_inv);
+        addInventory("new_inventory_testing");
     }
 
     ~inventoryTest(){
