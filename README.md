@@ -17,6 +17,7 @@ Quite long time ago I noticed that electronic parts that I buy are often duplica
 ## Application dependencies
 
 * Common
+  * Boost libraries
   * QT5
   * cmake 3.0.2
   * protbuf 2.6.2
@@ -27,3 +28,15 @@ Quite long time ago I noticed that electronic parts that I buy are often duplica
 
 * Client application
   * No extra dependencies
+  
+## Contribute
+
+* Source Code: https://github.com/cszawisza/eedb
+
+## Support
+
+* In case of questions, please create an issue on github, or write me an email ( cszawisza(at)gmail.com )
+
+## License
+
+The project is licensed under the BSD license.
