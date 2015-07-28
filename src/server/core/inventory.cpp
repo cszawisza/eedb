@@ -13,12 +13,15 @@
 
 #include "utils/unixPerms.hpp"
 
+#include "database/InventoryHelper.hpp"
+
 schema::t_inventories i;
 schema::t_user_inventories u_i;
 schema::t_inventories_shelfs i_s;
 
 using namespace pb;
 using namespace schema;
+using eedb::db::InventoryHelper;
 
 namespace eedb{
 namespace handlers{
@@ -89,32 +92,17 @@ void Inventory::handle_add( DB &db, const MsgInventoryRequest_Add &msg)
         return;
 
     try{
-//        db.start_transaction();
         insertInventory(db, msg);
-//        db.commit_transaction();
         addErrorCode(MsgInventoryResponse_Error_No_Error);
     }
     catch(sqlpp::exception){
-//        db.rollback_transaction(false);
         addErrorCode(MsgInventoryResponse_Error_DbAccesError);
     }
 }
 
 quint64 Inventory::doInsertInventory(DB &db, const MsgInventoryRequest_Add &msgReq)
 {
-    auto insert = insert_into(i).set(
-                i.c_name = parameter(i.c_name),
-                i.c_owner = user()->id(),
-                i.c_group = (int)auth::GROUP_inventories,
-                i.c_unixperms = UnixPermissions("rwdr-----").toInteger()
-            );
-    auto query = db.prepare(insert);
-
-    query.params.c_name = msgReq.name();
-    db(query);
-
-    ///TODO change to .RETURNING when implemented
-    return db.lastInsertId( sqlpp::tableName<t_acl>(), "c_uid" );
+    return InventoryHelper::insertInventory(db, msgReq);
 }
 
 void Inventory::linkInventoryWithUser(DB &db, quint64 inventoryId)
@@ -188,6 +176,7 @@ void Inventory::handle_get( DB &db, const MsgInventoryRequest_Get &msg)
             dyn_sel.selected_columns.add(i.c_name);
         if( msg.has_description() && msg.description())
             dyn_sel.selected_columns.add(i.c_description);
+
 
 
         ///TODO get all storage shelfs

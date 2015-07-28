@@ -1,10 +1,5 @@
 option optimize_for = LITE_RUNTIME;
 
-message ResponseCode{
-  optional bool error  = 1;
-  optional uint32 code = 2;
-}
-
 message Filter {
   message FilterComponent {
     enum Operation {

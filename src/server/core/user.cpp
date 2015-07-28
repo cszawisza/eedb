@@ -97,20 +97,20 @@ void User::addUser(DB &db, const MsgUserRequest_Add &msg)
     try{
         eedb::db::UserHelper::insertUser(db, msg);
         auto uid = db.lastInsertId( sqlpp::tableName<t_acl>(), "c_uid");
-        addErrorCode(false, UserAddOk);
+        addErrorCode(MsgUserResponse_Replay_UserAddOk );
         log_action(db, uid, "register" );
     }
     catch (sqlpp::exception e) {
         ///TODO log message
-        addErrorCode(true, UserAlreadyExists);
+        addErrorCode(MsgUserResponse_Replay_UserAlreadyExists);
     }
 }
 
-void User::addErrorCode(bool isError, Replay err)
+void User::addErrorCode(MsgUserResponse_Replay err)
 {
-    auto code = m_response.add_code();
-    code->set_error(isError);
-    code->set_code(static_cast<int>(err));
+    m_response.add_code(err);
+//    code->set_error(isError);
+//    code->set_code(static_cast<int>(err));
 }
 
 void User::loadUserCache(DB &db, quint64 uid)
@@ -175,40 +175,40 @@ void User::handle_add(DB &db, MsgUserRequest_Add &msg)
     const auto &det = msg.details();
 
     if(!basic.has_name() || !basic.has_email() || !msg.has_password()){
-        addErrorCode( true, MissingRequiredField);
+        addErrorCode( MsgUserResponse_Replay_MissingRequiredField);
         error = true;
         return;
     }
 
     // check required fields
     if( msg.password().length() < 2 ){
-        addErrorCode(true, PasswordToShort);
+        addErrorCode(MsgUserResponse_Replay_PasswordToShort);
         error = true;
     }
     if( basic.name().length() > 72){
-        addErrorCode(true, UserNameToLong);
+        addErrorCode(MsgUserResponse_Replay_UserNameToLong);
         error = true;
     }
     if( basic.email().length() > 255 ){
-        addErrorCode(true, EmailAddressToLong);
+        addErrorCode(MsgUserResponse_Replay_EmailAddressToLong);
         error = true;
     }
     if(!mailREX.exactMatch(QString::fromStdString(basic.email()))){
-        addErrorCode(true, EmailNotValidate);
+        addErrorCode(MsgUserResponse_Replay_EmailNotValidate);
         error = true;
     }
 
     // check optional fields
     if( det.has_address() && det.address().length() >= 1000 ){
-        addErrorCode(true, AddressToLong);
+        addErrorCode(MsgUserResponse_Replay_AddressToLong);
         error = true;
     }
     if( basic.has_description() && basic.description().length() >= 100000 ){
-        addErrorCode(true, DescriptionToLong);
+        addErrorCode(MsgUserResponse_Replay_DescriptionToLong);
         error = true;
     }
     if( det.has_phone_number() && det.phone_number().length() >= 20 ){
-        addErrorCode(true, BadPhoneNumber);
+        addErrorCode(MsgUserResponse_Replay_BadPhoneNumber);
         error = true;
     }
 
@@ -226,7 +226,7 @@ void User::handle_add(DB &db, MsgUserRequest_Add &msg)
     }
     else{
         if( userExists( db, basic.name(), basic.email() ) )
-            addErrorCode(true, UserAlreadyExists );
+            addErrorCode(MsgUserResponse_Replay_UserAlreadyExists );
         else
         {
             if(msg.has_acl())
@@ -240,7 +240,7 @@ void User::handle_add(DB &db, MsgUserRequest_Add &msg)
 void User::goToOnlineState(DB &db, quint64 uid)
 {
     log_action(db, uid, "login");
-    addErrorCode(false, LoginPass);
+    addErrorCode(MsgUserResponse_Replay_LoginPass);
 
     user()->goOnline();
 
@@ -250,7 +250,7 @@ void User::goToOnlineState(DB &db, quint64 uid)
 void User::handle_login(DB &db, const MsgUserRequest_Login &loginMsg)
 {
     if(user()->isOnline()){
-        addErrorCode(true, UserOnline );
+        addErrorCode(MsgUserResponse_Replay_UserOnline );
     }
     else
     {
@@ -266,7 +266,7 @@ void User::handle_login(DB &db, const MsgUserRequest_Login &loginMsg)
         auto queryResult = db(s);
 
         if (queryResult.empty()){
-            addErrorCode(true, UserDontExist );
+            addErrorCode(MsgUserResponse_Replay_UserDontExist );
         }
         else{
             c_uid = queryResult.front().c_uid;
@@ -281,7 +281,7 @@ void User::handle_login(DB &db, const MsgUserRequest_Login &loginMsg)
                 goToOnlineState(db, c_uid);
             else{
                 log_action(db, c_uid, "wrong password");
-                addErrorCode(true, LoginDeny );
+                addErrorCode(MsgUserResponse_Replay_LoginDeny );
             }
         }
     }
@@ -301,7 +301,7 @@ void User::handle_modify(DB &db, const MsgUserRequest_Modify &msg)
 void User::handle_remove( DB &db, const MsgUserRequest_Remove &msg)
 {
     if(!msg.has_cred()){
-        addErrorCode(true, MissingRequiredField);
+        addErrorCode(MsgUserResponse_Replay_MissingRequiredField);
         return;
     }
 

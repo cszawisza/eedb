@@ -3,30 +3,6 @@ package pb;
 
 import public "stats.proto";
 import public "common.proto";
-
-enum Replay{
-  LoginPass = 1;
-  LoginDeny = 2;
-
-  LogoutOk = 3;
-
-  EmailAddressToLong = 4;
-  EmailNotValidate = 5;
-  UserNameToLong = 6;
-
-  UserAlreadyExists=7;
-  UserAddOk = 8;
-  UserDontExist = 9;
-  UserOnline = 10;
-
-  PasswordToShort = 11;
-
-  AddressToLong = 12;
-  DescriptionToLong = 13;
-  BadPhoneNumber = 14;
-
-  MissingRequiredField = 15;
-}
   
 message MsgUserRequest{
 // USER MESSAGE STRUCTURE 
@@ -113,7 +89,31 @@ message MsgUserRequest{
 }
 
 message MsgUserResponse {
-  repeated ResponseCode code = 1;
+  enum Replay{
+    LoginPass = 1;
+    LoginDeny = 2;
+
+    LogoutOk = 3;
+
+    EmailAddressToLong = 4;
+    EmailNotValidate = 5;
+    UserNameToLong = 6;
+
+    UserAlreadyExists=7;
+    UserAddOk = 8;
+    UserDontExist = 9;
+    UserOnline = 10;
+
+    PasswordToShort = 11;
+
+    AddressToLong = 12;
+    DescriptionToLong = 13;
+    BadPhoneNumber = 14;
+
+    MissingRequiredField = 15;
+  }
+
+  repeated Replay code = 1;
 
   optional UserBasic basic = 2;
   optional UserConfig config = 3;

@@ -20,6 +20,7 @@ message MsgInventoryRequest {
     required string name = 1;
     optional string description = 2;
     repeated InventoryShelf shelfs = 3;
+    optional Acl acl=4;
   }
 
   message Remove{

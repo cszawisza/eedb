@@ -38,6 +38,9 @@ message MsgInventoryOperationRequest {
 }
 
 message MsgInventoryOperationResponse {
-  required ResponseCode code = 1;
+  enum Replay {
+    OK = 1;
+  }
+  required Replay code = 1;
 }
 

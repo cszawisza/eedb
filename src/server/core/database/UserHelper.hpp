@@ -27,7 +27,7 @@ public:
     static int64_t getUserIdByName (DB &db, const string &name);
     static int64_t getUserIdByEmail(DB &db, const string &email);
 
-    static void insertUser(DB &db, const MsgUserRequest_Add msg);
+    static void insertUser(DB &db, const MsgUserRequest_Add &msg);
 };
 
 }

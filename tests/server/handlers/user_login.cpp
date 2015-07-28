@@ -30,7 +30,7 @@ public:
         db.rollback_transaction(false);
    }
 
-   const ResponseCode &requestAdd( pb::MsgUserRequest_Add &msg){
+   MsgUserResponse_Replay requestAdd( pb::MsgUserRequest_Add &msg){
        pb::ClientRequest req;
 
        auto userReq = req.mutable_msguserreq();
@@ -41,7 +41,7 @@ public:
        return handler.getLastResponse().msguserres().code(0);
    }
 
-   const ResponseCode &requestLogin( pb::MsgUserRequest_Login &msg){
+   MsgUserResponse_Replay requestLogin( pb::MsgUserRequest_Login &msg){
        pb::ClientRequest req;
 
        auto userReq = req.mutable_msguserreq();
@@ -64,7 +64,7 @@ TEST_F(userLoginTest, badCredentials){
 
         auto res = requestLogin(login);
 
-        EXPECT_TRUE(res.error());
+        EXPECT_EQ(MsgUserResponse_Replay_UserDontExist, res);
         handler.clear();
     }
 
@@ -75,7 +75,7 @@ TEST_F(userLoginTest, badCredentials){
 
         auto res = requestLogin(login);
 
-        EXPECT_TRUE(res.error());
+        EXPECT_EQ(MsgUserResponse_Replay_UserDontExist, res);
         handler.clear();
     }
 
@@ -86,7 +86,7 @@ TEST_F(userLoginTest, badCredentials){
 
         auto res = requestLogin(login);
 
-        EXPECT_TRUE(res.error());
+        EXPECT_EQ(MsgUserResponse_Replay_UserDontExist, res);
         handler.clear();
     }
 
@@ -97,20 +97,20 @@ TEST_F(userLoginTest, badCredentials){
 
         auto res = requestLogin(login);
 
-        EXPECT_TRUE(res.error());
+        EXPECT_EQ(MsgUserResponse_Replay_LoginDeny, res);
         handler.clear();
     }
 
-    {
-        pb::MsgUserRequest_Login login;
-        login.mutable_cred()->set_name("USER_NAME");
-        login.set_password("bad_pass");
+//    {
+//        pb::MsgUserRequest_Login login;
+//        login.mutable_cred()->set_name("USER_NAME");
+//        login.set_password("bad_pass");
 
-        auto res = requestLogin(login);
+//        auto res = requestLogin(login);
 
-        EXPECT_TRUE(res.error());
-        handler.clear();
-    }
+//        EXPECT_EQ(MsgUserResponse_Replay_UserDontExist, res);
+//        handler.clear();
+//    }
 }
 
 
@@ -122,7 +122,7 @@ TEST_F(userLoginTest, goodCredentials){
 
         auto res = requestLogin(login);
 
-        EXPECT_FALSE(res.error());
+        EXPECT_EQ(MsgUserResponse_Replay_LoginPass, res);
         handler.clear();
     }
 
@@ -131,9 +131,7 @@ TEST_F(userLoginTest, goodCredentials){
         login.mutable_cred()->set_email("EMAIL@asdfg.asdf");
         login.set_password("secret_pass");
 
-        auto res = requestLogin(login);
-
-        EXPECT_FALSE(res.error());
+        EXPECT_EQ(MsgUserResponse_Replay_LoginPass, requestLogin(login));
         handler.clear();
     }
 }
@@ -144,11 +142,7 @@ TEST_F(userLoginTest, doubleLogin){
         login.mutable_cred()->set_name("USER_NAME");
         login.set_password("secret_pass");
 
-        auto res = requestLogin(login);
-
-        EXPECT_FALSE(res.error());
-        res.Clear();
-        res = requestLogin(login);
-        EXPECT_TRUE(res.error());
+        EXPECT_EQ(MsgUserResponse_Replay_LoginPass, requestLogin(login));
+        EXPECT_EQ(MsgUserResponse_Replay_UserOnline, requestLogin(login));
     }
 }
