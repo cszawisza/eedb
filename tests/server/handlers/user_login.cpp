@@ -30,7 +30,7 @@ public:
         db.rollback_transaction(false);
    }
 
-   MsgUserResponse_Replay requestAdd( pb::MsgUserRequest_Add &msg){
+   MsgUserResponse_Reply requestAdd( pb::MsgUserRequest_Add &msg){
        pb::ClientRequest req;
 
        auto userReq = req.mutable_msguserreq();
@@ -41,7 +41,7 @@ public:
        return handler.getLastResponse().msguserres().code(0);
    }
 
-   MsgUserResponse_Replay requestLogin( pb::MsgUserRequest_Login &msg){
+   MsgUserResponse_Reply requestLogin( pb::MsgUserRequest_Login &msg){
        pb::ClientRequest req;
 
        auto userReq = req.mutable_msguserreq();
@@ -64,7 +64,7 @@ TEST_F(userLoginTest, badCredentials){
 
         auto res = requestLogin(login);
 
-        EXPECT_EQ(MsgUserResponse_Replay_UserDontExist, res);
+        EXPECT_EQ(MsgUserResponse_Reply_UserDontExist, res);
         handler.clear();
     }
 
@@ -75,7 +75,7 @@ TEST_F(userLoginTest, badCredentials){
 
         auto res = requestLogin(login);
 
-        EXPECT_EQ(MsgUserResponse_Replay_UserDontExist, res);
+        EXPECT_EQ(MsgUserResponse_Reply_UserDontExist, res);
         handler.clear();
     }
 
@@ -86,7 +86,7 @@ TEST_F(userLoginTest, badCredentials){
 
         auto res = requestLogin(login);
 
-        EXPECT_EQ(MsgUserResponse_Replay_UserDontExist, res);
+        EXPECT_EQ(MsgUserResponse_Reply_UserDontExist, res);
         handler.clear();
     }
 
@@ -97,7 +97,7 @@ TEST_F(userLoginTest, badCredentials){
 
         auto res = requestLogin(login);
 
-        EXPECT_EQ(MsgUserResponse_Replay_LoginDeny, res);
+        EXPECT_EQ(MsgUserResponse_Reply_LoginDeny, res);
         handler.clear();
     }
 
@@ -108,7 +108,7 @@ TEST_F(userLoginTest, badCredentials){
 
 //        auto res = requestLogin(login);
 
-//        EXPECT_EQ(MsgUserResponse_Replay_UserDontExist, res);
+//        EXPECT_EQ(MsgUserResponse_Reply_UserDontExist, res);
 //        handler.clear();
 //    }
 }
@@ -122,7 +122,7 @@ TEST_F(userLoginTest, goodCredentials){
 
         auto res = requestLogin(login);
 
-        EXPECT_EQ(MsgUserResponse_Replay_LoginPass, res);
+        EXPECT_EQ(MsgUserResponse_Reply_LoginPass, res);
         handler.clear();
     }
 
@@ -131,7 +131,7 @@ TEST_F(userLoginTest, goodCredentials){
         login.mutable_cred()->set_email("EMAIL@asdfg.asdf");
         login.set_password("secret_pass");
 
-        EXPECT_EQ(MsgUserResponse_Replay_LoginPass, requestLogin(login));
+        EXPECT_EQ(MsgUserResponse_Reply_LoginPass, requestLogin(login));
         handler.clear();
     }
 }
@@ -142,7 +142,7 @@ TEST_F(userLoginTest, doubleLogin){
         login.mutable_cred()->set_name("USER_NAME");
         login.set_password("secret_pass");
 
-        EXPECT_EQ(MsgUserResponse_Replay_LoginPass, requestLogin(login));
-        EXPECT_EQ(MsgUserResponse_Replay_UserOnline, requestLogin(login));
+        EXPECT_EQ(MsgUserResponse_Reply_LoginPass, requestLogin(login));
+        EXPECT_EQ(MsgUserResponse_Reply_UserOnline, requestLogin(login));
     }
 }

@@ -48,7 +48,7 @@ public:
         add_inventory(add_inv);
     }
 
-    MsgUserResponse_Replay login(string name){
+    MsgUserResponse_Reply login(string name){
         pb::MsgUserRequest_Login msg;
         msg.mutable_cred()->set_name(name);
         msg.set_password("xxxx");

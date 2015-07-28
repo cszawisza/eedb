@@ -89,7 +89,7 @@ message MsgUserRequest{
 }
 
 message MsgUserResponse {
-  enum Replay{
+  enum Reply{
     LoginPass = 1;
     LoginDeny = 2;
 
@@ -113,7 +113,7 @@ message MsgUserResponse {
     MissingRequiredField = 15;
   }
 
-  repeated Replay code = 1;
+  repeated Reply code = 1;
 
   optional UserBasic basic = 2;
   optional UserConfig config = 3;
