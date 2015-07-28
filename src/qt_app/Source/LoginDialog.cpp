@@ -161,6 +161,7 @@ void LoginDialog::doLogin()
 
     m_socket.sendBinaryMessage(ba);
 }
+
 QWebSocket *LoginDialog::socket() const
 {
     return &m_socket;
