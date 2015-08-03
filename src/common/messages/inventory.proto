@@ -36,17 +36,17 @@ message MsgInventoryRequest {
   }
 
   message Get {
-    message Where{
-        optional int32 user_id = 1; // will return all user inventories
-        optional int32 inventory_id = 2; // will return only one inventory
-        optional int32 group_id = 3;
-    }
+
     optional bool id = 1;
     optional bool name = 2;
     optional bool description = 3;
     optional bool acl = 4; // acl contains ID
     optional bool shelfs = 5;
-    required Where where = 6;
+    oneof Where{
+        int32 user_id = 10; // will return all user inventories
+        int32 inventory_id = 11; // will return only one inventory
+        int32 group_id = 12;
+    }
   }
 
   message  AddShelf {
@@ -66,17 +66,21 @@ message MsgInventoryResponse {
     }
 
   repeated Error code = 1;
+  optional int32 id = 2;
+  optional string name = 3;
+  optional string description = 4;
+  optional Acl acl = 5; // acl contains ID
+  repeated InventoryShelf shelfs = 6;
 }
 
-message PositionOfItemOnShelf {
-
-}
+//message PositionOfItemOnShelf {
+//}
 
 message InventoryShelf {
     optional int32 id=1;
     optional string name = 2;
-    optional int32 inventoryid = 3;
-    optional string positionOfShelf = 4;
+    optional int32 inventory_id = 3;
+    optional string position_of_shelf = 4;
     optional string description = 5;
 
     optional Acl acl = 10;

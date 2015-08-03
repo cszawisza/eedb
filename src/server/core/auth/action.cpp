@@ -9,6 +9,7 @@
 #include "spdlog/spdlog.h"
 
 using sqlpp::toBool;
+using sqlpp::postgresql::pg_exception;
 
 namespace auth{
 
@@ -22,7 +23,8 @@ bool Action::save(DB &db){
                 ));
         ok = true;
     }
-    catch(sqlpp::exception e){
+    catch( const pg_exception &e ){
+        ///TODO proper exception handling
         spdlog::get("Server")->error("{}: {}", __PRETTY_FUNCTION__, e.what() );
     }
     return ok;
@@ -44,7 +46,8 @@ bool Action::exists(DB &db) const
                        )
                    ).front().exists;
     }
-    catch(sqlpp::exception e){
+    catch( const pg_exception &e ){
+        ///TODO proper exception handling
         spdlog::get("Server")->error("{}: {}", __PRETTY_FUNCTION__, e.what() );
     }
 

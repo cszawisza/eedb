@@ -2,6 +2,7 @@
 #include "utils/CTcrc32.hpp"
 #include "spdlog/spdlog.h"
 using std::string;
+using sqlpp::postgresql::pg_exception;
 namespace auth {
 
 struct PrivilegeRow{
@@ -169,7 +170,8 @@ bool Privilege::saveInDb(DB &db, const PrivilegeRow &row) const {
                 pr.c_related_table = row.related_table,
                 pr.c_related_uid = row.related_uid ));
     }
-    catch(sqlpp::exception e){
+    catch( const pg_exception &e){
+        ///TODO proper exception handling
         spdlog::get("Server")->error("{}: {}", __PRETTY_FUNCTION__, e.what() );
     }
 }

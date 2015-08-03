@@ -65,13 +65,13 @@ void UserHelper::insertUser(DB &db, const MsgUserRequest_Add &msg)
     }
 
     if( msg.has_acl() ){
-        pre.params.c_group = acl.has_group() ? acl.group() : auth::GROUP_users || auth::GROUP_inventories;
+        pre.params.c_group = acl.has_group() ? acl.group() : auth::GROUP_users | auth::GROUP_inventories;
         pre.params.c_unixperms = acl.has_unixperms() ? acl.unixperms() : UnixPermissions({6,4,4}).toInteger();
         pre.params.c_owner = acl.has_owner() ? acl.owner() : 1;
         pre.params.c_status = acl.has_status() ? acl.status() : (int)auth::State_Normal;
     }
     else{
-        pre.params.c_group = auth::GROUP_users || auth::GROUP_inventories;
+        pre.params.c_group = auth::GROUP_users | auth::GROUP_inventories;
         pre.params.c_unixperms = UnixPermissions({6,4,4}).toInteger();
         pre.params.c_owner = 1;
         pre.params.c_status = (int)auth::State_Normal;

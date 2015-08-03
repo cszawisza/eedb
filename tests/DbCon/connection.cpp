@@ -10,6 +10,8 @@
 ///TODO transaction must be reverted (is a transaction is started!) when returning connection to pool
 ///TODO rofce to use transactions only on the same object in single scope!!! due to returning connection to stack
 
+using sqlpp::postgresql::pg_exception;
+
 namespace t_test_ {
 
 struct x {
@@ -57,8 +59,8 @@ TEST(DB, transactionOwnsTheConnection ){
     //    EXPECT_THROW(db.commit_transaction()      , sqlpp::exception );
     //    EXPECT_THROW(db.rollback_transaction(true), sqlpp::exception );
 
-    EXPECT_THROW(db.savepoint("save"), sqlpp::exception ); // should throw, not in transaction
-    EXPECT_THROW(db.rollback_to("save"), sqlpp::exception );
+    EXPECT_THROW(db.savepoint("save"), pg_exception ); // should throw, not in transaction
+    EXPECT_THROW(db.rollback_to("save"), pg_exception );
 
     EXPECT_NO_THROW(db.commit_transaction()       );
     EXPECT_NO_THROW(db.rollback_transaction(true) );

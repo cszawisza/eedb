@@ -3,6 +3,8 @@
 #include "database/idatabase.h"
 #include "spdlog/spdlog.h"
 
+using sqlpp::postgresql::pg_exception;
+
 namespace auth {
 
 bool ImplementedAction::save(DB &db){
@@ -12,7 +14,8 @@ bool ImplementedAction::save(DB &db){
         db(insert_into(ia).set(ia.c_table = m_tablename, ia.c_action = m_title, ia.c_status = (int)m_status ));
         ok = true;
     }
-    catch(sqlpp::exception e){
+    catch( const pg_exception &e ){
+        ///TODO proper exception handling
         spdlog::get("Server")->error("{}: {}", __PRETTY_FUNCTION__, e.what() );
     }
 

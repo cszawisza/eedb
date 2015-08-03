@@ -12,6 +12,7 @@
 using eedb::utils::PasswordHash;
 using namespace schema;
 using namespace pb;
+using sqlpp::postgresql::pg_exception;
 
 namespace eedb{
 namespace handlers{
@@ -22,7 +23,8 @@ void log_action(DB& db, quint64 uid, const string &action){
     try{
         db(insert_into(uh).set(uh.c_uid = uid, uh.c_action = action ));
     }
-    catch(sqlpp::exception e){
+    catch(const pg_exception &e){
+        ///TODO proper exception handling
         spdlog::get("Server")->error("{}: {}", __PRETTY_FUNCTION__, e.what() );
     }
 }
@@ -100,8 +102,9 @@ void User::addUser(DB &db, const MsgUserRequest_Add &msg)
         addErrorCode(MsgUserResponse_Reply_UserAddOk );
         log_action(db, uid, "register" );
     }
-    catch (sqlpp::exception e) {
+    catch (const pg_exception &e) {
         ///TODO log message
+        ///TODO proper exception handling
         addErrorCode(MsgUserResponse_Reply_UserAlreadyExists);
     }
 }
@@ -109,8 +112,6 @@ void User::addUser(DB &db, const MsgUserRequest_Add &msg)
 void User::addErrorCode(MsgUserResponse_Reply err)
 {
     m_response.add_code(err);
-//    code->set_error(isError);
-//    code->set_code(static_cast<int>(err));
 }
 
 void User::loadUserCache(DB &db, quint64 uid)

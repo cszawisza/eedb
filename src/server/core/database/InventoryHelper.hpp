@@ -1,5 +1,7 @@
 #pragma once
 
+#include "clientcache.h"
+
 #include "user.pb.h"
 #include "idatabase.h"
 
@@ -22,7 +24,10 @@ namespace db{
 class InventoryHelper {
 public:
 
-    static quint64 insertInventory(DB &db, const MsgInventoryRequest_Add &add);
+    static quint64 getIdByName( DB &db, const std::string &name);
+    static void insertInventory(DB &db, MsgInventoryRequest_Add &add);
+    static void linkWithUser(DB &db, SharedUserData user, quint64 inv_id );
+    static void addShelfs(DB &db, const ::google::protobuf::RepeatedPtrField< ::pb::InventoryShelf > &add );
 };
 
 }

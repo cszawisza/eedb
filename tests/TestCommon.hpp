@@ -3,23 +3,40 @@
 #include <string>
 
 #include "database/UserHelper.hpp"
+#include "user.h"
 
 using std::string;
 
 namespace test{
+
 using eedb::db::UserHelper;
 
-inline quint64 addUser(DB &db, const string &name){
+inline quint64 addUser(DB &db, const string &name, const std::string &pass = "xxxx"){
     pb::MsgUserRequest_Add msg;
 
     msg.mutable_basic()->set_name(name);
     msg.mutable_basic()->set_email(name + "@fake.xx");
-    msg.set_password("xxxx");
+    msg.set_password(pass);
 
     if(! UserHelper::getUserIdByName(db, name)) // function returns 0 when user don't exist
         UserHelper::insertUser(db, msg);
     return UserHelper::getUserIdByName(db, name);
 }
+
+inline SharedUserData login(DB &db, const string &name, const std::string &pass = "xxxx"){
+    pb::MsgUserRequest_Login msg;
+    msg.mutable_cred()->set_name(name);
+    msg.set_password(pass);
+
+    pb::ClientRequest req;
+
+    auto userReq = req.mutable_msguserreq();
+    userReq->mutable_login()->CopyFrom(msg);
+    eedb::handlers::User userHandler;
+    userHandler.process(db, req);
+    return userHandler.user();
+}
+
 
 template<typename T>
 inline void createBackup(DB &db, T ){
@@ -80,15 +97,16 @@ inline std::string random_string( size_t length )
 {
     auto randchar = []() -> char
     {
-        const char charset[] =
-        "0123456789"
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        "abcdefghijklmnopqrstuvwxyz";
-        const size_t max_index = (sizeof(charset) - 1);
-        return charset[ rand() % max_index ];
-    };
-    std::string str(length,0);
-    std::generate_n( str.begin(), length, randchar );
-    return str;
+            const char charset[] =
+            "0123456789"
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            "abcdefghijklmnopqrstuvwxyz";
+            const size_t max_index = (sizeof(charset) - 1);
+            return charset[ rand() % max_index ];
+};
+std::string str(length,0);
+std::generate_n( str.begin(), length, randchar );
+return str;
 }
+
 }

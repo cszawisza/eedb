@@ -123,7 +123,7 @@ public:
         };
 
         unique_ptr<DbConnection, decltype(deleter)> db ( takeFromPool().release(), deleter );
-        db->execute("SAVEPOINT " + name + ";");
+        db->savepoint(name);
     }
 
     void rollback_to(const string &name){
@@ -132,7 +132,7 @@ public:
         };
 
         unique_ptr<DbConnection, decltype(deleter)> db ( takeFromPool().release(), deleter );
-        db->execute("ROLLBACK TO " + name + ";");
+        db->rollback_to_savepoint(name);
     }
 
     //! commit transaction (or throw transaction if transaction has finished already)

@@ -22,6 +22,7 @@ schema::t_inventories_shelfs i_s;
 using namespace pb;
 using namespace schema;
 using eedb::db::InventoryHelper;
+using sqlpp::postgresql::pg_exception;
 
 namespace eedb{
 namespace handlers{
@@ -34,7 +35,7 @@ void Inventory::process(DB &db, ClientRequest &msg)
     Q_ASSERT( msg.has_msginventoryreq() );
 
     if (!user()->isOnline()){
-//        addErrorCode(  );
+        sendAccesDeny();
         return;
     }
 
@@ -43,10 +44,10 @@ void Inventory::process(DB &db, ClientRequest &msg)
     MsgInventoryRequest::ActionCase msgType = req.action_case();
     switch ( msgType ) {
     case MsgInventoryRequest::kAdd:
-        handle_add( db, req.add() );
+        handle_add( db, *req.mutable_add() );
         break;
     case MsgInventoryRequest::kGet:
-        handle_get( db, req.get() );
+        handle_get( db, *req.mutable_get() );
         break;
     case MsgInventoryRequest::kRemove:
         handle_remove( req.remove() );
@@ -68,11 +69,10 @@ void Inventory::process(DB &db, ClientRequest &msg)
 void Inventory::process(pb::ClientRequest &msg )
 {
     DB db;
-    ///TODO transaction managment
     process(db, msg);
 }
 
-void Inventory::handle_add( DB &db, const MsgInventoryRequest_Add &msg)
+void Inventory::handle_add( DB &db, MsgInventoryRequest_Add &msg)
 {
     bool error = false;
     if(msg.name().length() > 250 ){
@@ -95,104 +95,91 @@ void Inventory::handle_add( DB &db, const MsgInventoryRequest_Add &msg)
         insertInventory(db, msg);
         addErrorCode(MsgInventoryResponse_Error_No_Error);
     }
-    catch(sqlpp::exception){
+    catch(const pg_exception &e){
+        ///TODO proper exception handling
+        std::cout << e.what();
         addErrorCode(MsgInventoryResponse_Error_DbAccesError);
     }
 }
 
-quint64 Inventory::doInsertInventory(DB &db, const MsgInventoryRequest_Add &msgReq)
-{
-    return InventoryHelper::insertInventory(db, msgReq);
-}
+void Inventory::insertInventory(DB &db, MsgInventoryRequest_Add &msg ){
+    auth::AccesControl accessControl( user()->id() );
 
-void Inventory::linkInventoryWithUser(DB &db, quint64 inventoryId)
-{
-        db(insert_into(u_i).set(
-           u_i.c_inventory_id = inventoryId,
-           u_i.c_user_id = user()->id() ) );
-}
+    if( accessControl.checkUserAction<t_inventories>(db, "write")){
+        msg.mutable_acl()->set_owner( user()->id( ));
 
-void Inventory::insertInventory(DB &db, const MsgInventoryRequest_Add &msg ){
-    constexpr schema::t_shelfs s;
-    constexpr schema::t_inventories_shelfs is;
+        InventoryHelper::insertInventory(db, msg);
+        InventoryHelper::linkWithUser(db, user(),  msg.acl().uid());
 
-    auth::AccesControl acl( user()->id() );
+        for( int i=0;i<msg.shelfs_size();i++){
+            auto shelf = msg.mutable_shelfs(i);
+            shelf->set_inventory_id(msg.acl().uid());
+            auto acl = shelf->mutable_acl();
 
-    if( acl.checkUserAction<t_inventories>(db, "write")){
-        quint64 inventoryId = doInsertInventory(db, msg);
-        linkInventoryWithUser(db,  inventoryId);
-
-        if(msg.shelfs_size()){
-            ///TODO change to returning when avalible
-            if( acl.checkUserAction<t_shelfs>(db, "write")){
-                ///TODO use prepared statements
-                auto insert_statement = insert_into(s).columns(
-                            s.c_name,
-                            s.c_owner,
-                            s.c_description
-                            );
-
-                for( const auto &shelf : msg.shelfs() ){
-                    insert_statement.values.add(
-                                s.c_name = shelf.name(),
-                                s.c_owner = user()->id(),
-                                s.c_description = shelf.description() );
-                    db(insert_statement);
-                    auto shelfId = db.lastInsertId(sqlpp::tableName<schema::t_acl>(),"c_uid" );
-                    db(insert_into(is).set(is.c_inventory_id = inventoryId, is.c_shelf = shelfId )  );
-                }
-            }
-            else {
-                sendAccesDeny();
-            }
+            acl->set_owner( user()->id() );
+            acl->set_unixperms( UnixPermissions( {7,0,0} ).toInteger() );
         }
+
+        if( msg.shelfs_size() && accessControl.checkUserAction<t_shelfs>(db, "write")){
+            InventoryHelper::addShelfs(db, msg.shelfs());
+        }
+        else {
+            sendAccesDeny();
+        }
+
     }
 }
 
-void Inventory::handle_get( DB &db, const MsgInventoryRequest_Get &msg)
+void Inventory::handle_get( DB &db, MsgInventoryRequest_Get &msg)
 {
-    auto &where = msg.where();
+    auto where = msg.Where_case();
 
     quint64 uid = user()->id() ;
     auth::AccesControl acl(uid);
     const int oid = msg.id();
 
-    if(where.has_user_id()){
+    switch (where) {
+    case MsgInventoryRequest_Get::kUserId:{
         // get all user inventories
-
         auto dyn_sel = dynamic_select( db.connection())
                 .dynamic_columns(i.c_uid)
                 .from(i)
                 .dynamic_where( i.c_uid == oid );
 
+        if( msg.has_name() && msg.name())
+            dyn_sel.selected_columns.add(i.c_name);
+        if( msg.has_description() && msg.description())
+            dyn_sel.selected_columns.add(i.c_description);
         if( msg.has_acl() && msg.acl()){
             dyn_sel.selected_columns.add(i.c_owner);
             dyn_sel.selected_columns.add(i.c_group);
             dyn_sel.selected_columns.add(i.c_unixperms);
             dyn_sel.selected_columns.add(i.c_status);
         }
-
-        if( msg.has_name() && msg.name())
-            dyn_sel.selected_columns.add(i.c_name);
-        if( msg.has_description() && msg.description())
-            dyn_sel.selected_columns.add(i.c_description);
-
-
-
-        ///TODO get all storage shelfs
     }
-    else if(where.has_inventory_id() ){
+        break;
+    case MsgInventoryRequest_Get::kInventoryId:{
         // get inventory with given ID
-        if(! db(sqlpp::select(exists(sqlpp::select(i.c_uid).from(i).where(i.c_uid == where.inventory_id() )))).front().exists){
+        if(! db(sqlpp::select(sqlpp::exists(sqlpp::select(i.c_uid).from(i).where(i.c_uid == msg.inventory_id() )))).front().exists){
             ///TODO return information that ID dont exist in db
             return;
         } else {
-            if(!acl.checkUserAction<t_inventories>("read", where.inventory_id() )){
+            if(!acl.checkUserAction<t_inventories>("read", msg.inventory_id())){
                 sendAccesDeny();
                 return;
             }
         }
     }
+        break;
+    default:
+        break;
+    }
+
+    ///TODO get all storage shelfs
+}
+//    else if(where.has_inventory_id() ){
+
+//    }
 
 //    if(acl.checkUserAction("read", msg.id() )){
 //        ///TODO get data
@@ -218,7 +205,6 @@ void Inventory::handle_get( DB &db, const MsgInventoryRequest_Get &msg)
 //        ///TODO add error resp
 //    }
 
-}
 
 void Inventory::handle_modify( const MsgInventoryRequest_Modify &msg)
 {
