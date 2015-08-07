@@ -1,7 +1,6 @@
 #include "acl.hpp"
 
-
-bool auth::AccesControl::checkBasicPerms(DB &db, const string &action, quint64 objectid){
+bool auth::AccesControl::checkBasicPerms(DB &db, const string &action, uint64_t objectid){
     // check if root, and return true if so (root can everything :) )
     if(m_userId == rootId )
         return true;

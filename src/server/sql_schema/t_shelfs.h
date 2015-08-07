@@ -128,6 +128,21 @@ namespace schema {
 
 			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::can_be_null>;
 		};
+
+		struct C_inventory_id {
+			struct _alias_t {
+				static constexpr const char _literal[] ="c_inventory_id";
+				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+				template<typename T>
+					struct _member_t {
+						T c_inventory_id;
+						T &operator()() { return c_inventory_id; }
+						const T &operator()() const { return c_inventory_id; }
+					};
+			};
+
+			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::require_insert>;
+		};
 	}
 
 	struct t_shelfs : sqlpp::table_t<t_shelfs,
@@ -138,7 +153,8 @@ namespace schema {
 				t_shelfs_::C_status,
 				t_shelfs_::C_name,
 				t_shelfs_::C_description,
-				t_shelfs_::C_creation_date> {
+				t_shelfs_::C_creation_date,
+				t_shelfs_::C_inventory_id> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {
 			static constexpr const char _literal[] = "t_shelfs";

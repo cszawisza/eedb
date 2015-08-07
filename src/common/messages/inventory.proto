@@ -19,13 +19,13 @@ message MsgInventoryRequest {
   message Add{
     required string name = 1;
     optional string description = 2;
-    repeated InventoryShelf shelfs = 3;
     optional Acl acl=4;
   }
 
   message Remove{
     required int32 uid = 1;
     optional bool removeItems = 2;
+    optional int32 move_items_to = 3;
   }
 
   message Modify{
@@ -36,22 +36,30 @@ message MsgInventoryRequest {
   }
 
   message Get {
+    optional bool id            = 1 [default = false];;
+    optional bool name          = 2 [default = false];;
+    optional bool description   = 3 [default = false];;
+    optional bool acl           = 4 [default = false];; // acl contains ID
+    optional bool shelfs        = 5 [default = false];
+    optional bool all           = 6 [default = true];
+    optional Where where        = 15;
 
-    optional bool id = 1;
-    optional bool name = 2;
-    optional bool description = 3;
-    optional bool acl = 4; // acl contains ID
-    optional bool shelfs = 5;
-    oneof Where{
-        int32 user_id = 10; // will return all user inventories
-        int32 inventory_id = 11; // will return only one inventory
-        int32 group_id = 12;
+    message Where{
+        oneof cred{
+            int32 user_id = 1; // will return all user inventories
+            int32 inventory_id = 2; // will return only one inventory
+            int32 group_id = 3;
+        }
     }
   }
 
   message  AddShelf {
-    required int32 inventoryId = 1;
-    required InventoryShelf shelf = 2;
+      optional int32 id=1;
+      optional string name = 2;
+      optional int32 inventory_id = 3;
+      optional string position_of_shelf = 4;
+      optional string description = 5;
+      optional Acl acl = 10;
   }
 }
 
@@ -82,6 +90,13 @@ message InventoryShelf {
     optional int32 inventory_id = 3;
     optional string position_of_shelf = 4;
     optional string description = 5;
-
+//    repeated Item items = 6;
     optional Acl acl = 10;
+}
+
+message Inventory{
+    required string name = 1;
+    optional string description = 2;
+    repeated InventoryShelf shelfs = 3;
+    optional Acl acl=4;
 }

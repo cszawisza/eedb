@@ -9,14 +9,22 @@
 namespace eedb{
 namespace db {
 static constexpr schema::t_inventories i;
-static constexpr schema::t_inventories_shelfs i_s;
 static constexpr schema::t_shelfs s;
 static constexpr schema::t_user_inventories u_i;
 
-quint64 InventoryHelper::getIdByName(DB &db, const string &name)
+uint64_t InventoryHelper::getInventoryIdByName(DB &db, const string &name)
 {
     ///TODO prevent sql injection
     auto val = db(sqlpp::select(i.c_uid).from(i).where(i.c_name == name) );
+    if(!val.empty())
+        return val.front().c_uid;
+    else
+        return 0;
+}
+
+uint64_t InventoryHelper::getShelfId(DB &db, uint64_t parentId, const string &name)
+{
+    auto val = db(sqlpp::select(s.c_uid).from(s).where(s.c_name == name and s.c_inventory_id == parentId ));
     if(!val.empty())
         return val.front().c_uid;
     else
@@ -52,42 +60,34 @@ void InventoryHelper::insertInventory(DB &db, MsgInventoryRequest_Add &add)
     add.mutable_acl()->set_uid(db.lastInsertId( sqlpp::tableName<schema::t_acl>(), "c_uid" ));
 }
 
-void InventoryHelper::linkWithUser(DB &db, SharedUserData user, quint64 inv_id)
+void InventoryHelper::linkWithUser(DB &db, SharedUserData user, uint64_t inv_id)
 {
     db(insert_into(u_i).set(
        u_i.c_inventory_id = inv_id,
            u_i.c_user_id = user->id() ) );
 }
 
-void InventoryHelper::addShelfs(DB &db, const ::google::protobuf::RepeatedPtrField<InventoryShelf> &add)
+void InventoryHelper::insertShelf(DB &db, MsgInventoryRequest_AddShelf &add)
 {
-    ///TODO use prepared statements
-    auto insert_statement = insert_into(s).columns(
-                s.c_owner,
-                s.c_group,
-                s.c_unixperms,
-                s.c_name,
-                s.c_description
-                );
+    auto insert =  insert_into(s).set(
+                s.c_owner = add.acl().owner(),
+                s.c_group = add.acl().group(),
+                s.c_unixperms = add.acl().unixperms(),
+                s.c_status = add.acl().status(),
 
-    for( const InventoryShelf &shelf : add ){
-        insert_statement.values.add(
-                    s.c_owner = shelf.acl().owner(),
-                    s.c_group = shelf.acl().group(),
-                    s.c_unixperms = shelf.acl().unixperms(),
+                s.c_name = parameter( s.c_name ),
+                s.c_description = parameter( s.c_description ),
+                s.c_inventory_id = add.inventory_id() );
 
-                    s.c_name = shelf.name(),
-                    s.c_description = shelf.description() );
-        db(insert_statement);
-        ///TODO change to returning
-        auto shelfId = db.lastInsertId(sqlpp::tableName<schema::t_acl>(),"c_uid" );
+    auto prep = db.prepare(insert);
+    prep.params.c_name = add.name();
 
-        db(insert_into(i_s).set(i_s.c_inventory_id = shelf.inventory_id(), i_s.c_shelf = shelfId )  );
-    }
+    if( add.has_description() )
+        prep.params.c_description = add.description();
+
+    db(prep);
+    ///TODO change to returning
+    add.mutable_acl()->set_uid( db.lastInsertId(sqlpp::tableName<schema::t_acl>(),"c_uid" ));
 }
-
-
-
-
 }
 }

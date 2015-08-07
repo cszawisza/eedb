@@ -17,7 +17,7 @@
 
 //TEST(ComplieTime, benchmark){
 //    QElapsedTimer timer;
-//    quint64 timeTotal = 0;
+//    uint64_t timeTotal = 0;
 
 //    timer.start();
 //    for(int i=0;i<10;i++){

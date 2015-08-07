@@ -26,7 +26,7 @@ private:
     void handle_get(DB &db, MsgInventoryRequest_Get &msg);
     void handle_modify(const MsgInventoryRequest_Modify &msg);
     void handle_remove( const MsgInventoryRequest_Remove &msg );
-    void handle_addShelf( const MsgInventoryRequest_AddShelf &msg);
+    void handle_addShelf( DB &db, MsgInventoryRequest_AddShelf &msg);
 
     void insertInventory(DB &db, MsgInventoryRequest_Add &msg);
 

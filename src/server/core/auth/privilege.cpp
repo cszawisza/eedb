@@ -13,11 +13,11 @@ struct PrivilegeRow{
     }
 
     string  role;
-    quint64 who;
+    uint64_t who;
     string  action;
     string  type;
     string  related_table;
-    quint64 related_uid;
+    uint64_t related_uid;
 };
 
 std::string Role::name(RoleID id) {

@@ -7,7 +7,6 @@
 
 #include "sql_schema/t_inventories.h"
 #include "sql_schema/t_inventories_history.h"
-#include "sql_schema/t_inventories_shelfs.h"
 #include "sql_schema/t_inventories_operations.h"
 
 #include "inventory.pb.h"
@@ -24,10 +23,11 @@ namespace db{
 class InventoryHelper {
 public:
 
-    static quint64 getIdByName( DB &db, const std::string &name);
+    static uint64_t getInventoryIdByName( DB &db, const std::string &name);
+    static uint64_t getShelfId(DB &db, uint64_t parentId, const std::string &name );
     static void insertInventory(DB &db, MsgInventoryRequest_Add &add);
-    static void linkWithUser(DB &db, SharedUserData user, quint64 inv_id );
-    static void addShelfs(DB &db, const ::google::protobuf::RepeatedPtrField< ::pb::InventoryShelf > &add );
+    static void linkWithUser(DB &db, SharedUserData user, uint64_t inv_id );
+    static void insertShelf(DB &db, MsgInventoryRequest_AddShelf &add );
 };
 
 }

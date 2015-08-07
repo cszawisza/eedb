@@ -20,7 +20,6 @@ drop table if exists t_user_inventories;
 drop table if exists t_inventories_history;
 drop table if exists t_inventories_operations;
 drop table if exists t_in_stock;
-drop table if exists t_inventories_shelfs;
 drop table if exists t_shelfs;
 drop table if exists t_user_history;
 drop table if exists t_inventories;
@@ -248,15 +247,10 @@ CREATE TABLE t_shelfs(
     c_name varchar(100) NOT NULL,
     c_description TEXT CHECK( length( c_description ) < 100000),
     c_creation_date TIMESTAMP DEFAULT(now()),
+    c_inventory_id INTEGER NOT NULL REFERENCES t_inventories ON DELETE CASCADE,
     CONSTRAINT shelf_owner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE,
     CONSTRAINT t_shelfs_pkey PRIMARY KEY (c_uid)
 ) INHERITS (t_acl);
-
-CREATE TABLE t_inventories_shelfs(
-    c_inventory_id INTEGER NOT NULL REFERENCES t_inventories ON DELETE CASCADE,
-    c_shelf INTEGER NOT NULL REFERENCES t_shelfs ON DELETE CASCADE,
-    CONSTRAINT unique_shelf UNIQUE (c_inventory_id, c_shelf)
-);
 
 create table t_in_stock(
     c_item_id INTEGER NOT NULL REFERENCES t_items,
@@ -275,7 +269,7 @@ create table t_inventories_operations(
 
 create table t_inventories_history(
     c_inventory_from_id INTEGER NOT NULL REFERENCES t_inventories ON DELETE CASCADE,
-    c_inventory_to_id INTEGER NOT NULL REFERENCES t_inventories ON DELETE CASCADE,
+    c_inventory_to_id INTEGER NOT NULL REFE->CopyFrom( MsgInventoryRequest_Get::default_instance() )RENCES t_inventories ON DELETE CASCADE,
     c_operation_id INTEGER NOT NULL REFERENCES t_inventories_Operations ON DELETE CASCADE ,
     c_amount NUMERIC(10,10),
 

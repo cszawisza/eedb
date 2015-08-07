@@ -55,14 +55,14 @@ public:
         m_type(Type_Object),m_who(0)
     {}
 
-    Privilege &giveUser( quint64 uid ){
+    Privilege &giveUser( uint64_t uid ){
         setRole(Role_User);
         setGroup(0);
         setWho(uid);
         return *this;
     }
 
-    Privilege &giveGroup(quint64 gid){
+    Privilege &giveGroup(uint64_t gid){
         setRole(Role_Group);
         setGroup(gid);
         setWho(0);
@@ -87,7 +87,7 @@ public:
         return *this;
     }
 
-    Privilege &onObject( quint64 object ){
+    Privilege &onObject( uint64_t object ){
         m_type = Type_Object;
         setObjectID(object);
         return *this;
@@ -121,15 +121,15 @@ private:
         m_related_table = action.tableName();
     }
 
-    void setWho(quint64 uid){
+    void setWho(uint64_t uid){
         m_who = uid;
     }
 
-    void setGroup(quint64 gid){
+    void setGroup(uint64_t gid){
         m_groupid = gid;
     }
 
-    void setObjectID(quint64 oid){
+    void setObjectID(uint64_t oid){
         m_oid = oid;
     }
 
@@ -140,9 +140,9 @@ private:
     string m_related_table;
     ObjectState m_status;
     RoleID m_role;
-    quint64 m_who = 0;
-    quint64 m_oid = 0;
-    quint64 m_groupid = 0;
+    uint64_t m_who = 0;
+    uint64_t m_oid = 0;
+    uint64_t m_groupid = 0;
 };
 
 }

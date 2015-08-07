@@ -4,13 +4,12 @@
 
 
 std::mutex DbConnectionStack::m_dbMutex;
-std::mutex DbConnectionStack::m_dbReserve;
 
 stack<unique_ptr<DbConnection>> DbConnectionStack::m_databases;
-map<thread::id, unique_ptr<DbConnection>> DbConnectionStack::m_reserved;
-static string dbName = "postgres";
+thread_local unique_ptr<DbConnection> DB::m_reserved;
 
-unique_ptr<DbConnection> DbConnectionStack::getDatabase(){
+
+unique_ptr<DbConnection> DbConnectionStack::pop(){
     ///TODO check config to check is connection uses default settings or not
     m_dbMutex.lock();
     if( m_databases.empty() )
@@ -22,70 +21,106 @@ unique_ptr<DbConnection> DbConnectionStack::getDatabase(){
     return move(moved);
 }
 
-void DbConnectionStack::returnDatabase(unique_ptr<DbConnection> &&db) {
+void DbConnectionStack::push(unique_ptr<DbConnection> &&db) {
     lock_guard<mutex>lock(m_dbMutex);
     m_databases.push( move(db) );
 }
 
-size_t DbConnectionStack::getDbNumber(){
+size_t DbConnectionStack::size(){
     lock_guard<mutex>lock(m_dbMutex);
     return m_databases.size();
 }
 
-void DbConnectionStack::reserveDatabase(unique_ptr<DbConnection> &&db)
-{
-    lock_guard<mutex>lock(m_dbReserve);
-    m_reserved.insert(pair<thread::id, unique_ptr<DbConnection> >(this_thread::get_id(), move(db)));
+
+
+bool DB::hasReservedConnection() {
+    return m_reserved != nullptr;
 }
 
-unique_ptr<DbConnection> DbConnectionStack::getReservedDb()
-{
-    lock_guard<mutex>lock(m_dbReserve);
-
-    auto id = this_thread::get_id();
-    auto moved = move(m_reserved[id]);
-    m_reserved.erase(id);
-    return move(moved);
+unique_ptr<DbConnection> DB::takeFromPool(){
+    if(hasReservedConnection())
+        return move(m_reserved);
+    return DbConnectionStack::pop();
 }
 
-bool DbConnectionStack::hasReserved()
-{
-    lock_guard<mutex>lock(m_dbReserve);
-    return m_reserved.count( this_thread::get_id() ) > 0;
+void DB::pushToPool(){
+    if(hasReservedConnection())
+        DbConnectionStack::push(move(m_reserved));
 }
 
-
-DbConnection::DbConnection(std::shared_ptr<sqlpp::postgresql::connection_config> conf):
-    sqlpp::postgresql::connection( conf ){}
-
-void DbConnection::SetGlobalDbName(string name){
-    dbName = name;
+void DB::reserveTransaction(unique_ptr<DbConnection> &&con) {
+    m_reserved = move(con);
 }
-
-shared_ptr<sqlpp::postgresql::connection_config> DbConnection::getConf()
-{
-    auto conf = std::shared_ptr<sqlpp::postgresql::connection_config>( new sqlpp::postgresql::connection_config );
-    conf->host = "localhost";
-    conf->dbname = dbName;
-    conf->user = "postgres";
-    conf->password = "postgres";
-    //conf->debug = true;
-    return std::move(conf);
-}
-
-PerformanceCounter::PerformanceCounter(QString msg):
-    m_additional(msg)
-{
-    timer.restart();
-}
-
-PerformanceCounter::~PerformanceCounter(){
-    qDebug() << m_additional << " query takes:" << timer.nsecsElapsed()/1000.0 << " µs";
-}
-
 
 DB::DB(){}
 
 DB::~DB(){
     pushToPool();
+}
+
+DbConnection &DB::connection(){
+    unique_ptr<DbConnection> con;
+    return *con.get();
+}
+
+void DB::start_transaction() {
+    auto deleter = [&]( DbConnection *db ){
+        reserveTransaction( move(unique_ptr<DbConnection>(db)) );
+    };
+
+    unique_ptr<DbConnection, decltype(deleter)> db ( takeFromPool().release(), deleter );
+    db->start_transaction();
+}
+
+void DB::savepoint(const string &name){
+    auto deleter = [&]( DbConnection *db ){
+        reserveTransaction( move(unique_ptr<DbConnection>(db)) );
+    };
+
+    unique_ptr<DbConnection, decltype(deleter)> db ( takeFromPool().release(), deleter );
+    db->savepoint(name);
+}
+
+void DB::rollback_to(const string &name){
+    auto deleter = [&]( DbConnection *db ){
+        reserveTransaction( move(unique_ptr<DbConnection>(db)) );
+    };
+
+    unique_ptr<DbConnection, decltype(deleter)> db ( takeFromPool().release(), deleter );
+    db->rollback_to_savepoint(name);
+}
+
+void DB::commit_transaction() {
+    auto deleter = [&]( DbConnection *db ){
+        reserveTransaction( move(unique_ptr<DbConnection>(db)) );
+    };
+
+    unique_ptr<DbConnection, decltype(deleter)> db ( takeFromPool().release(), deleter );
+    db->commit_transaction();
+}
+
+void DB::rollback_transaction(bool report) {
+    auto deleter = [&]( DbConnection *db ){
+        reserveTransaction( move(unique_ptr<DbConnection>(db)) );
+    };
+
+    unique_ptr<DbConnection, decltype(deleter)> db ( takeFromPool().release(), deleter );
+    db->rollback_transaction(report);
+}
+
+size_t DB::execute(const string &str, bool singleShoot){
+    auto db = takeFromPool();
+    auto res = db->execute(str);
+    if(!singleShoot)
+        reserveTransaction(move(db));
+    return 0 ; ///FIXME res->result->affected_rows();
+}
+
+uint64_t DB::lastInsertId(const string &tablename, const string &column) {
+    auto deleter = [&]( DbConnection *db ){
+        reserveTransaction( move(unique_ptr<DbConnection>(db)) );
+    };
+
+    unique_ptr<DbConnection, decltype(deleter)> db ( takeFromPool().release(), deleter );
+    return db->last_insert_id(tablename, column);
 }

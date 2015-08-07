@@ -70,8 +70,8 @@ public:
 
     DB db;
 
-    quint64 m_uid;
-    quint64 m_root_obj, m_user_obj, m_common_group, m_other;
+    uint64_t m_uid;
+    uint64_t m_root_obj, m_user_obj, m_common_group, m_other;
 };
 
 TEST_F(ACL_test, simple_permissions ){

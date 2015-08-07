@@ -32,10 +32,10 @@ private:
 
 
     void addUser(DB &db, const MsgUserRequest_Add &msg);
-    void goToOnlineState(DB &db, quint64 uid);
+    void goToOnlineState(DB &db, uint64_t uid);
     bool userExists(DB &db, string name, string email );
     void addErrorCode(MsgUserResponse_Reply err);
-    void loadUserCache(DB &db, quint64 uid);
+    void loadUserCache(DB &db, uint64_t uid);
     void addResponseMessage();
 
     pb::MsgUserResponse m_response;

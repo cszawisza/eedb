@@ -32,8 +32,8 @@ private:
     QElapsedTimer timer;
 
     //only statistics, can be removed later
-    quint64 m_bytesRecived = 0;
-    quint64 m_bytesSend = 0;
+    uint64_t m_bytesRecived = 0;
+    uint64_t m_bytesSend = 0;
 signals:
 
 private slots:

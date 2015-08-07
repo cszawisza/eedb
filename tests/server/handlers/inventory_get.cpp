@@ -1,89 +1,68 @@
-//#include "gtest/gtest.h"
+#include "gtest/gtest.h"
 
-//#include <sqlpp11/sqlpp11.h>
-//#include <core/database/idatabase.h>
-//#include <memory>
+#include <sqlpp11/sqlpp11.h>
+#include "sql_schema/t_shelfs.h"
 
-//#include "TestCommon.hpp"
+#include <core/database/idatabase.h>
+#include <core/inventory.hpp>
 
-//#include "sql_schema/t_shelfs.h"
+#include "TestCommon.hpp"
 
-//#include "core/inventory.hpp"
-//#include "core/user.h"
 
-//using eedb::db::UserHelper;
-//using namespace test;
 
-//class inventoryTest : public ::testing::Test
-//{
-//public:
-//    schema::t_users u;
-//    schema::t_user_inventories ui;
-//    schema::t_inventories i;
-//    schema::t_shelfs sh;
+using namespace test;
 
-//    inventoryTest() {
-//        db.start_transaction();
+class inventoryGetTest : public ::testing::Test
+{
+public:
+    schema::t_users u;
+    schema::t_user_inventories ui;
+    schema::t_inventories i;
+    schema::t_shelfs sh;
 
-//        addUser(db, "xxxxxxx");
-//        login("xxxxxxx");
-//        inventoryHandler.setUserData(userHandler.user());
+    inventoryGetTest() {
+        db.start_transaction();
 
-//        addInventory("new_inventory_testing");
-//    }
+        m_userId = addUser(db, "xxxxxxx");
+        inventoryHandler.setUserData( login(db, "xxxxxxx") );
 
-//    ~inventoryTest(){
-//        db.rollback_transaction(false);
-//    }
+        addInventory("new_inventory_testing");
+    }
 
-//    void addInventory( string name )
-//    {
-//        auto add_inv = pb::MsgInventoryRequest_Add::default_instance();
-//        add_inv.set_name( name );
-//        add_inv.set_description("description");
-//        pb::InventoryShelf *shelf = add_inv.add_shelfs();
-//        shelf->set_name("New shelf");
-//        shelf->set_description( name );
+    ~inventoryGetTest(){
+        db.rollback_transaction(false);
+    }
 
-//        add_inventory(add_inv);
-//    }
+    void addInventory( string name )
+    {
+        auto add_inv = pb::MsgInventoryRequest_Add::default_instance();
+        add_inv.set_name( name );
+        add_inv.set_description("description");
+        add_inventory(add_inv);
+    }
 
-//    const ResponseCode &login(string name){
-//        pb::MsgUserRequest_Login msg;
-//        msg.mutable_cred()->set_name(name);
-//        msg.set_password("xxxx");
+    const pb::MsgInventoryResponse_Error add_inventory( const pb::MsgInventoryRequest_Add &msg){
+        pb::ClientRequest req;
 
-//        pb::ClientRequest req;
+        auto userReq = req.mutable_msginventoryreq();
+        userReq->mutable_add()->CopyFrom(msg);
 
-//        auto userReq = req.mutable_msguserreq();
-//        userReq->mutable_login()->CopyFrom(msg);
+        inventoryHandler.process(db, req);
 
-//        userHandler.process(db, req);
+        return inventoryHandler.getLastResponse().msginventoryres().code(0);
+    }
 
-//        return userHandler.getLastResponse().msguserres().code(0);
-//    }
+    DB db;
+    eedb::handlers::User userHandler;
+    eedb::handlers::Inventory inventoryHandler;
 
-//    bool shelfExists(const char * name){
-//        return db(select(exists(select(sh.c_uid).from(sh).where(sh.c_name == name )))).front().exists;
-//    }
+    uint64_t m_userId = 0;
+};
 
-//    bool inventoryExists(const char * name){
-//        return db(select(exists(select(i.c_uid).from(i).where(i.c_name == name )))).front().exists;
-//    }
-
-//    const pb::MsgInventoryResponse_Error add_inventory( const pb::MsgInventoryRequest_Add &msg){
-//        pb::ClientRequest req;
-
-//        auto userReq = req.mutable_msginventoryreq();
-//        userReq->mutable_add()->CopyFrom(msg);
-
-//        inventoryHandler.process(req);
-
-//        return inventoryHandler.getLastResponse().msginventoryres().code(0);
-//    }
-
-//    DB db;
-//    eedb::handlers::User userHandler;
-//    eedb::handlers::Inventory inventoryHandler;
-//};
-
+TEST_F(inventoryGetTest, getInventory ){
+    pb::ClientRequest req;
+    auto get = req.mutable_msginventoryreq()->mutable_get();
+    get->CopyFrom( MsgInventoryRequest_Get::default_instance() );
+    get->mutable_where()->set_user_id( m_userId );
+    inventoryHandler.process(db, req);
+}

@@ -7,9 +7,6 @@
 #include <sqlpp11/char_sequence.h>
 #include <sqlpp11/column_types.h>
 
-///TODO transaction must be reverted (is a transaction is started!) when returning connection to pool
-///TODO rofce to use transactions only on the same object in single scope!!! due to returning connection to stack
-
 using sqlpp::postgresql::pg_exception;
 
 namespace t_test_ {

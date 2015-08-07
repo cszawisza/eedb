@@ -26,7 +26,7 @@ public:
     void goOnline() { m_status = UserOnline; }
     void goOffLine() { m_status = UserOffline; }
 
-    quint64 id() const {
+    uint64_t id() const {
         if(m_basicData.has_id())
             return m_basicData.id();
         else

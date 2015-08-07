@@ -44,7 +44,7 @@ using std::string;
 
 class AccesControl {
 public:
-    AccesControl( quint64 uid ):
+    AccesControl( uint64_t uid ):
         m_userId(uid)
     {
     }
@@ -64,7 +64,7 @@ public:
         schema::t_users u;
 
         ///TODO read group from cache
-        quint64 userGroups = 0;
+        uint64_t userGroups = 0;
 
 
         auto aclInfo = db( sqlpp::select( u.c_group )
@@ -95,13 +95,13 @@ public:
     }
 
     template<typename TAB>
-    bool checkUserAction(const string &action, quint64 objectid){
+    bool checkUserAction(const string &action, uint64_t objectid){
         DB db;
         return checkUserAction<TAB>(db, action, objectid);
     }
 
     template<typename TAB>
-    bool checkUserAction(DB &db, const string &action, quint64 objectid){
+    bool checkUserAction(DB &db, const string &action, uint64_t objectid){
         TAB acl;
         schema::t_action act;
         schema::t_implemented_action ia;
@@ -149,7 +149,7 @@ public:
 
 private:
 
-    bool checkBasicPerms(DB &db, const string &action, quint64 objectid);
+    bool checkBasicPerms(DB &db, const string &action, uint64_t objectid);
 
 
     template<class Data>
@@ -161,7 +161,7 @@ private:
         acl.set_group     ( aclInfo.front().c_group       );
     }
 
-    quint64 m_userId;
+    uint64_t m_userId;
     Acl m_userAcl;
 };
 }

@@ -53,7 +53,7 @@ public:
         m_fid = db.lastInsertId(tableName<schema::t_acl>(), "c_uid");
     }
 
-    quint64 addDummyUser( string name ){
+    uint64_t addDummyUser( string name ){
         static constexpr schema::t_users u;
 
         db(insert_into(u)
@@ -71,7 +71,7 @@ public:
         return db.lastInsertId(tableName<schema::t_acl>(), "c_uid");
     }
     schema::t_files f;
-    quint64 m_uid, m_uid2, m_fid;
+    uint64_t m_uid, m_uid2, m_fid;
 };
 
 

@@ -1,41 +1,14 @@
 #pragma once
 
-#include <QElapsedTimer>
-#include <QDebug>
-
-#include <sqlpp11/sqlpp11.h>
-#include <sqlpp11/postgresql/postgresql.h>
-
 #include <stack>
-#include <memory>
 #include <mutex>
-#include <unordered_map>
 #include <thread>
+
+#include "DbConnection.hpp"
 
 using namespace std;
 
 class DB;
-
-class PerformanceCounter
-{
-public:
-    PerformanceCounter(QString msg="");
-    ~PerformanceCounter();
-
-private:
-    QElapsedTimer timer;
-    QString m_additional;
-};
-
-class DbConnection : public sqlpp::postgresql::connection
-{
-public:
-    DbConnection( std::shared_ptr<sqlpp::postgresql::connection_config> conf = getConf() );
-    static void SetGlobalDbName( std::string name );
-private:
-
-    static shared_ptr<sqlpp::postgresql::connection_config> getConf();
-};
 
 ///
 /// \brief The DbConnectionStack class
@@ -44,130 +17,68 @@ private:
 ///
 class DbConnectionStack
 {
-public:
-
 private:
     friend class DB;
 
-    static unique_ptr<DbConnection> getDatabase();
-    static void returnDatabase(unique_ptr<DbConnection> &&db);
-    static size_t getDbNumber();
+    static unique_ptr<DbConnection> pop();
+    static void push(unique_ptr<DbConnection> &&db);
+    static size_t size();
 
-    static void reserveDatabase(unique_ptr<DbConnection> &&db);
-    static unique_ptr<DbConnection> getReservedDb();
-    static bool hasReserved();
-
-    static void killall();
 
     static mutex m_dbMutex;
-    static mutex m_dbReserve;
     static stack<unique_ptr<DbConnection>> m_databases;
-    static map<thread::id, unique_ptr<DbConnection>> m_reserved;
 };
 
-struct deleter {
-  void operator()( DbConnection *ptr ) {
-    if (ptr != nullptr);
-//      freeaddrinfo(ptr);
-  }
-};
-
-// To make this class movable, don't hold pointer to database in it!
 class DB
 {
-    bool hasReservedConnection() {
-        return DbConnectionStack::hasReserved();
-    }
+    bool hasReservedConnection();
+
     //! function used when you want to take a conection from cnnection pool
-    unique_ptr<DbConnection> takeFromPool(){
-        if(hasReservedConnection())
-            return DbConnectionStack::getReservedDb();
-        return DbConnectionStack::getDatabase();
-    }
+    unique_ptr<DbConnection> takeFromPool();
 
     //! function pushech connection on stack
-    void pushToPool(){
-        if(hasReservedConnection())
-            DbConnectionStack::returnDatabase(move(DbConnectionStack::getReservedDb()));
-    }
+    void pushToPool();
 
     //! makes a connection "private" in connection stack
-    void reserveTransaction( unique_ptr<DbConnection> &&con) {
-        DbConnectionStack::reserveDatabase(move(con));
-    }
+    void reserveTransaction( unique_ptr<DbConnection> &&con);
 
+    //! pointer to database connection
+    thread_local static unique_ptr<DbConnection> m_reserved;
 public:
 
     DB();
     ~DB();
 
     //! returns a bad connection handler (it only gives a type od connection)
-    DbConnection &connection(){
-        unique_ptr<DbConnection> con;
-        return *con.get();
-    }
+    DbConnection &connection();
 
     //! start transaction
-    void start_transaction() {
-        auto deleter = [&]( DbConnection *db ){
-            reserveTransaction( move(unique_ptr<DbConnection>(db)) );
-        };
+    void start_transaction();
 
-        unique_ptr<DbConnection, decltype(deleter)> db ( takeFromPool().release(), deleter );
-        db->start_transaction();
-    }
+    //! create a savepoint
+    void savepoint(const string &name);
 
-    void savepoint(const string &name){
-        auto deleter = [&]( DbConnection *db ){
-            reserveTransaction( move(unique_ptr<DbConnection>(db)) );
-        };
-
-        unique_ptr<DbConnection, decltype(deleter)> db ( takeFromPool().release(), deleter );
-        db->savepoint(name);
-    }
-
-    void rollback_to(const string &name){
-        auto deleter = [&]( DbConnection *db ){
-            reserveTransaction( move(unique_ptr<DbConnection>(db)) );
-        };
-
-        unique_ptr<DbConnection, decltype(deleter)> db ( takeFromPool().release(), deleter );
-        db->rollback_to_savepoint(name);
-    }
+    //! rollback to saving point
+    void rollback_to(const string &name);
 
     //! commit transaction (or throw transaction if transaction has finished already)
-    void commit_transaction() {
-        auto deleter = [&]( DbConnection *db ){
-            reserveTransaction( move(unique_ptr<DbConnection>(db)) );
-        };
-
-        unique_ptr<DbConnection, decltype(deleter)> db ( takeFromPool().release(), deleter );
-        db->commit_transaction();
-    }
+    void commit_transaction();
 
     //! rollback transaction
-    void rollback_transaction(bool report) {
-        auto deleter = [&]( DbConnection *db ){
-            reserveTransaction( move(unique_ptr<DbConnection>(db)) );
-        };
-
-        unique_ptr<DbConnection, decltype(deleter)> db ( takeFromPool().release(), deleter );
-        db->rollback_transaction(report);
-    }
+    void rollback_transaction(bool report);
 
     //! report rollback failure
     void report_rollback_failure(const std::string &message) noexcept;
 
-    size_t execute(const std::string &str, bool singleShoot = 0 ){
-        auto db = takeFromPool();
-        auto res = db->execute(str);
-        if(!singleShoot)
-            reserveTransaction(move(db));
-        return 0 ; ///FIXME res->result->affected_rows();
-    }
+    //! execute an query
+    size_t execute(const std::string &str, bool singleShoot = 0 );
 
+    //! get last inserted id
+    uint64_t lastInsertId( const std::string & tablename, const std::string & column);
+
+    //! prepare
     template<typename T>
-    auto prepare(const T& t) -> decltype(DbConnectionStack::getDatabase()->prepare(t) ){
+    auto prepare(const T& t) -> decltype(DbConnectionStack::pop()->prepare(t) ){
         auto deleter = [&]( DbConnection *db ){
             reserveTransaction( move(unique_ptr<DbConnection>(db)) );
         };
@@ -176,23 +87,14 @@ public:
         return db->prepare(t);
     }
 
+    //! execute statement
     template<typename T>
-    auto operator()(const T& t) -> decltype(DbConnectionStack::getDatabase()->operator()(t) ) {
+    auto operator()(const T& t) -> decltype(DbConnectionStack::pop()->operator()(t) ) {
         auto deleter = [&]( DbConnection *db ){
             reserveTransaction( move(unique_ptr<DbConnection>(db)) );
         };
 
         unique_ptr<DbConnection, decltype(deleter)> db ( takeFromPool().release(), deleter );
         return db->operator()(t);
-
-    }
-
-    quint64 lastInsertId( const std::string & tablename, const std::string & column) {
-        auto deleter = [&]( DbConnection *db ){
-            reserveTransaction( move(unique_ptr<DbConnection>(db)) );
-        };
-
-        unique_ptr<DbConnection, decltype(deleter)> db ( takeFromPool().release(), deleter );
-        return db->last_insert_id(tablename, column);
     }
 };

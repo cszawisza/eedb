@@ -5,7 +5,7 @@
 namespace eedb{
 namespace db {
 
-Acl AclHelper::getAcl(DB &db, quint64 objectID)
+Acl AclHelper::getAcl(DB &db, uint64_t objectID)
 {
     static constexpr schema::t_acl a;
     Acl acl = Acl::default_instance();

@@ -101,16 +101,16 @@ TEST_F(userLoginTest, badCredentials){
         handler.clear();
     }
 
-//    {
-//        pb::MsgUserRequest_Login login;
-//        login.mutable_cred()->set_name("USER_NAME");
-//        login.set_password("bad_pass");
+    {
+        pb::MsgUserRequest_Login login;
+        login.mutable_cred()->set_name("USER_NAME");
+        login.set_password("bad_pass");
 
-//        auto res = requestLogin(login);
+        auto res = requestLogin(login);
 
-//        EXPECT_EQ(MsgUserResponse_Reply_UserDontExist, res);
-//        handler.clear();
-//    }
+        EXPECT_EQ(MsgUserResponse_Reply_LoginDeny, res);
+        handler.clear();
+    }
 }
 
 

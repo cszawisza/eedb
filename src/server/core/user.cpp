@@ -18,7 +18,7 @@ namespace eedb{
 namespace handlers{
 
 
-void log_action(DB& db, quint64 uid, const string &action){
+void log_action(DB& db, uint64_t uid, const string &action){
     constexpr t_user_history uh;
     try{
         db(insert_into(uh).set(uh.c_uid = uid, uh.c_action = action ));
@@ -114,7 +114,7 @@ void User::addErrorCode(MsgUserResponse_Reply err)
     m_response.add_code(err);
 }
 
-void User::loadUserCache(DB &db, quint64 uid)
+void User::loadUserCache(DB &db, uint64_t uid)
 {
     constexpr t_users u;
 //    constexpr t_inventories i;
@@ -238,7 +238,7 @@ void User::handle_add(DB &db, MsgUserRequest_Add &msg)
     }
 }
 
-void User::goToOnlineState(DB &db, quint64 uid)
+void User::goToOnlineState(DB &db, uint64_t uid)
 {
     log_action(db, uid, "login");
     addErrorCode(MsgUserResponse_Reply_LoginPass);
@@ -255,7 +255,7 @@ void User::handle_login(DB &db, const MsgUserRequest_Login &loginMsg)
     }
     else
     {
-        quint64 c_uid;
+        uint64_t c_uid;
         constexpr t_users u;
         auto s = dynamic_select(db.connection(), count(u.c_uid), u.c_uid )
                 .from(u)

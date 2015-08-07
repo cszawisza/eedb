@@ -8,7 +8,7 @@ namespace db{
 
 class AclHelper {
 public:
-    static Acl getAcl(DB &db, quint64 objectID);
+    static Acl getAcl(DB &db, uint64_t objectID);
 };
 
 }
