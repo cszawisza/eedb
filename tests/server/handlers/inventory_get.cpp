@@ -26,7 +26,9 @@ public:
         m_userId = addUser(db, "xxxxxxx");
         inventoryHandler.setUserData( login(db, "xxxxxxx") );
 
-        addInventory("new_inventory_testing");
+        addInventory("new_inventory_testing_1");
+//        addInventory("new_inventory_testing_2");
+//        addInventory("new_inventory_testing_3");
     }
 
     ~inventoryGetTest(){
@@ -57,12 +59,20 @@ public:
     eedb::handlers::Inventory inventoryHandler;
 
     uint64_t m_userId = 0;
+    uint64_t m_invId = 0;
 };
 
 TEST_F(inventoryGetTest, getInventory ){
     pb::ClientRequest req;
     auto get = req.mutable_msginventoryreq()->mutable_get();
     get->CopyFrom( MsgInventoryRequest_Get::default_instance() );
+
     get->mutable_where()->set_user_id( m_userId );
     inventoryHandler.process(db, req);
+
+    auto res = inventoryHandler.getLastResponse().msginventoryres();
+
+    EXPECT_NE( res.id(), 0 );
+    EXPECT_STREQ( res.name().c_str(), "new_inventory_testing_1");
+    EXPECT_STREQ( res.description().c_str(), "description");
 }

@@ -36,11 +36,11 @@ message MsgInventoryRequest {
   }
 
   message Get {
-    optional bool id            = 1 [default = false];;
-    optional bool name          = 2 [default = false];;
-    optional bool description   = 3 [default = false];;
-    optional bool acl           = 4 [default = false];; // acl contains ID
-    optional bool shelfs        = 5 [default = false];
+//    optional bool id            = 1 [default = false];
+//    optional bool name          = 2 [default = false];
+//    optional bool description   = 3 [default = false];
+//    optional bool acl           = 4 [default = false]; // acl contains ID
+
     optional bool all           = 6 [default = true];
     optional Where where        = 15;
 
@@ -48,7 +48,7 @@ message MsgInventoryRequest {
         oneof cred{
             int32 user_id = 1; // will return all user inventories
             int32 inventory_id = 2; // will return only one inventory
-            int32 group_id = 3;
+//            int32 group_id = 3;
         }
     }
   }
@@ -98,5 +98,6 @@ message Inventory{
     required string name = 1;
     optional string description = 2;
     repeated InventoryShelf shelfs = 3;
-    optional Acl acl=4;
+    optional fixed64 creation_date = 4;
+    optional Acl acl=5;
 }

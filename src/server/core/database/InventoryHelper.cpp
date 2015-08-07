@@ -48,11 +48,14 @@ void InventoryHelper::insertInventory(DB &db, MsgInventoryRequest_Add &add)
                                                           : UnixPermissions("rwdr-----").toInteger(),
                 i.c_status = add.acl().has_status() ? add.acl().status()
                                                     : auth::State_Normal,
+                i.c_description = parameter(i.c_description),
                 i.c_name = parameter(i.c_name)
             );
     auto query = db.prepare(insert);
 
     query.params.c_name = add.name();
+    if(add.has_description())
+        query.params.c_description = add.description();
 
     db(query);
 

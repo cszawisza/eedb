@@ -31,6 +31,10 @@ public:
         return m_outputFrame->response(m_outputFrame->response_size()-1);
     }
 
+    void setInputData( SharedRequests frame ){
+        m_requests.swap(frame);
+    }
+
     void setOutputData( SharedResponses frame ){
         m_outputFrame.swap( frame );
     }
@@ -41,6 +45,12 @@ public:
      */
     void setUserData( SharedUserData userData){
         m_userData.swap(userData);
+    }
+
+    void process( int msgId ){
+        auto req = m_requests->mutable_request( msgId );
+        m_currentRequestId = req->requestid();
+        process(*req);
     }
 
     /**
@@ -75,10 +85,19 @@ protected:
         m_outputFrame->add_response()->CopyFrom(resp);
     }
 
+    pb::ServerResponse *add_response() {
+        if(!m_outputFrame)
+            m_outputFrame = SharedResponses(new pb::ServerResponses);
+        auto res = m_outputFrame->add_response();
+        res->CopyFrom(pb::ServerResponse::default_instance());
+        res->set_responseid(m_currentRequestId);
+
+        return res;
+    }
+
     void sendAccesDeny(){
-        pb::ServerResponse resp;
-        resp.set_code( pb::Error_AccesDeny );
-        addResponse( resp );
+        auto res = add_response();
+        res->set_code( pb::Error_AccesDeny );
     }
 
 //    void sendAccesDeny(const string &message){
@@ -88,6 +107,8 @@ protected:
 //    }
 
 private:
+    int64_t m_currentRequestId = 0;
     SharedUserData m_userData;
     SharedResponses m_outputFrame;
+    SharedRequests m_requests;
 };

@@ -26,18 +26,18 @@ message MsgGroupRequest{
   }
   
   message Get{
-    message Where{
-        optional bool   all_groups    = 1 [default = true];
-        repeated uint32 get_only      = 2; // filter to those ID's
-        optional bool   with_children = 3 [default = true];
-    }
-    optional bool  get_ids           = 1  [default = true]; // both parent and child
-    optional bool  get_name          = 2  [default = true];
-    optional bool  get_description   = 3  [default = true];
-    optional bool  get_statistics    = 4  [default = false];
-   //optional bool get_image         = 5  [default = false];
-    optional bool  get_files         = 6  [default = false]; // only assosiated metadata, without filedata
-    optional Where where = 13;
+//    message Where{
+//        optional bool   all_groups    = 1 [default = true];
+//        repeated uint32 get_only      = 2; // filter to those ID's
+//        optional bool   with_children = 3 [default = true];
+//    }
+//    optional bool  get_ids           = 1  [default = true]; // both parent and child
+//    optional bool  get_name          = 2  [default = true];
+//    optional bool  get_description   = 3  [default = true];
+//    optional bool  get_statistics    = 4  [default = false];
+//   //optional bool get_image         = 5  [default = false];
+//    optional bool  get_files         = 6  [default = false]; // only assosiated metadata, without filedata
+//    optional Where where = 13;
   }
   
   message Remove{
@@ -53,22 +53,22 @@ message MsgGroupRequest{
   }
   
   message Modify{
-    optional bool allow_sets = 3; 
-    optional bool allow_items = 4;
-    optional string name = 5;
-    optional string desc = 6;
-    optional int32 parent_id = 7;
+//    optional bool allow_sets = 3;
+//    optional bool allow_items = 4;
+//    optional string name = 5;
+//    optional string desc = 6;
+//    optional int32 parent_id = 7;
   }
   
   message ModifyParameters{
-    message Modify{
-      required bool add = 1;
-      required uint32 parameter_id = 2;
-      required uint32 group_id = 3;
-      optional bool apply_to_children = 4;
-    }
+//    message Modify{
+//      required bool add = 1;
+//      required uint32 parameter_id = 2;
+//      required uint32 group_id = 3;
+//      optional bool apply_to_children = 4;
+//    }
     
-    repeated Modify modify = 1;
+//    repeated Modify modify = 1;
   }
 }
 

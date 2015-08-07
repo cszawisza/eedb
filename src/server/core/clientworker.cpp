@@ -10,11 +10,8 @@ ClientWorker::ClientWorker(QObject *parent) :
     m_responseFrame( SharedResponses(new pb::ServerResponses )) /*,
     m_defaultProcessor(QSharedPointer<MessageHandler>(new UnknownMessageProcessor()))*/
 {
-    auto u = QSharedPointer<eedb::handlers::User>(new eedb::handlers::User());
-    auto s = QSharedPointer<eedb::handlers::Inventory>( new eedb::handlers::Inventory() );
-
-    m_msgHandlers.insert( pb::ClientRequest::kMsgUserReq, u );
-    m_msgHandlers.insert( pb::ClientRequest::kMsgInventoryReq, s);
+    m_msgHandlers.insert( pb::ClientRequest::kMsgUserReq, QSharedPointer<eedb::handlers::User>(new eedb::handlers::User()) );
+    m_msgHandlers.insert( pb::ClientRequest::kMsgInventoryReq, QSharedPointer<eedb::handlers::Inventory>( new eedb::handlers::Inventory() ));
 }
 
 void ClientWorker::printMessageInfo(const pb::ClientRequest &request)
@@ -34,9 +31,9 @@ void ClientWorker::processMessages()
     for(int msgId=0; msgId<m_inputFrame->request_size(); msgId++ ){
         printMessageInfo(m_inputFrame->request(msgId));
         auto processor = m_msgHandlers.value(m_inputFrame->request(msgId).data_case(),  QSharedPointer<MessageHandler>(new MessageHandler()));
-
+        processor->setInputData(m_inputFrame);
         processor->setOutputData(m_responseFrame);
-        processor->process( *m_inputFrame->mutable_request(msgId));
+        processor->process( msgId );
     }
 }
 

@@ -17,14 +17,6 @@ enum MsgCoding{
   msgJson = 3;
 }
 
-// MsgTypeID mast be unique and same as in client request and server response messages
-enum MsgTypeId{
-  Msg_unknown = 0;
-  Msg_Server_Response = 100; // dummy responses (unknown messages etc.)
-  
-  Msg_User_req = 12; // Login, modify, delete etc.
-  Msg_User_res = 13;
-}
 
 enum ServerErrorCodes{
   No_Error = 0;

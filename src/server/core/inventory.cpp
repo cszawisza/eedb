@@ -27,7 +27,6 @@ namespace handlers{
 
 void Inventory::process(DB &db, ClientRequest &msg)
 {
-    m_response.Clear();
     // Check if this is the message that handler wants
     Q_ASSERT( msg.data_case() == pb::ClientRequest::kMsgInventoryReq );
     Q_ASSERT( msg.has_msginventoryreq() );
@@ -60,8 +59,6 @@ void Inventory::process(DB &db, ClientRequest &msg)
         //addResp(true, Error_NoActionChoosen);
         break;
     }
-
-    addResponse(m_response);
 }
 
 void Inventory::process(pb::ClientRequest &msg )
@@ -72,18 +69,19 @@ void Inventory::process(pb::ClientRequest &msg )
 
 void Inventory::handle_add( DB &db, MsgInventoryRequest_Add &msg)
 {
+    auto res = add_response();
     bool error = false;
     if(msg.name().length() > 250 ){
         error = true;
-        addErrorCode( MsgInventoryResponse_Error_NameToLong);
+        addErrorCode( MsgInventoryResponse_Error_NameToLong, res);
     }
     if(msg.name().length() < 1 ){
         error = true;
-        addErrorCode( MsgInventoryResponse_Error_NameEmpty);
+        addErrorCode( MsgInventoryResponse_Error_NameEmpty, res);
     }
     if(msg.description().length() > 100000 ){
         error = true;
-        addErrorCode( MsgInventoryResponse_Error_DescriptionToLong );
+        addErrorCode( MsgInventoryResponse_Error_DescriptionToLong, res);
     }
 
     if(error)
@@ -91,12 +89,12 @@ void Inventory::handle_add( DB &db, MsgInventoryRequest_Add &msg)
 
     try{
         insertInventory(db, msg);
-        addErrorCode(MsgInventoryResponse_Error_No_Error);
+        addErrorCode(MsgInventoryResponse_Error_No_Error, res);
     }
     catch(const pg_exception &e){
         ///TODO proper exception handling
         std::cout << e.what();
-        addErrorCode(MsgInventoryResponse_Error_DbAccesError);
+        addErrorCode(MsgInventoryResponse_Error_DbAccesError, res);
     }
 }
 
@@ -117,7 +115,6 @@ void Inventory::handle_get( DB &db, MsgInventoryRequest_Get &msg)
 
     uint64_t uid = user()->id() ;
     auth::AccesControl acl(uid);
-    const int oid = msg.id();
 
     auto select = dynamic_select(db.connection())
             .dynamic_columns(sqlpp::all_of(i))
@@ -129,8 +126,17 @@ void Inventory::handle_get( DB &db, MsgInventoryRequest_Get &msg)
     case MsgInventoryRequest_Get_Where::kUserId:{
         select.where.add( u_i.c_user_id == msg.where().user_id() );
         select.from.add(u_i);
-        auto val = db(select);
+
+        auto result = db(select);
+
+        for( const auto &row : result){
+            auto res = add_response()->mutable_msginventoryres();
+            res->set_id(row.c_uid);
+            res->set_name(row.c_name);
+            res->set_description(row.c_description);
+        }
     }
+
         break;
     case MsgInventoryRequest_Get_Where::kInventoryId:{
         // get inventory with given ID
@@ -164,6 +170,8 @@ void Inventory::handle_remove( const MsgInventoryRequest_Remove &msg)
 
 void Inventory::handle_addShelf(DB &db, MsgInventoryRequest_AddShelf &msg)
 {
+    auto res = add_response();
+
     auth::AccesControl accessControl( user()->id() );
 
     if( accessControl.checkUserAction<t_shelfs>(db, "write")){
@@ -175,12 +183,12 @@ void Inventory::handle_addShelf(DB &db, MsgInventoryRequest_AddShelf &msg)
 
         try{
             InventoryHelper::insertShelf(db, msg);
-            addErrorCode(MsgInventoryResponse_Error_No_Error);
+            addErrorCode(MsgInventoryResponse_Error_No_Error, res);
         }
         catch(const pg_exception &e){
             ///TODO proper exception handling
             std::cout << e.what();
-            addErrorCode(MsgInventoryResponse_Error_DbAccesError);
+            addErrorCode(MsgInventoryResponse_Error_DbAccesError, res);
         }
     }
     else {

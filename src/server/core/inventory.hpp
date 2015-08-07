@@ -30,11 +30,9 @@ private:
 
     void insertInventory(DB &db, MsgInventoryRequest_Add &msg);
 
-    void addErrorCode( MsgInventoryResponse_Error code ){
-        m_response.mutable_msginventoryres()->add_code(code);
+    void addErrorCode( MsgInventoryResponse_Error code, ServerResponse *res ){
+        res->mutable_msginventoryres()->add_code(code);
     }
-
-    pb::ServerResponse m_response;
 };
 
 }
