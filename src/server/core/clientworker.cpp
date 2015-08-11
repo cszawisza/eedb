@@ -10,7 +10,7 @@ ClientWorker::ClientWorker(QObject *parent) :
     m_responseFrame( SharedResponses(new pb::ServerResponses )) /*,
     m_defaultProcessor(QSharedPointer<MessageHandler>(new UnknownMessageProcessor()))*/
 {
-    m_msgHandlers.insert( pb::ClientRequest::kMsgUserReq, QSharedPointer<eedb::handlers::User>(new eedb::handlers::User()) );
+    m_msgHandlers.insert( pb::ClientRequest::kUserReq, QSharedPointer<eedb::handlers::User>(new eedb::handlers::User()) );
     m_msgHandlers.insert( pb::ClientRequest::kMsgInventoryReq, QSharedPointer<eedb::handlers::Inventory>( new eedb::handlers::Inventory() ));
 }
 

@@ -19,15 +19,15 @@ public:
         db.rollback_transaction(false);
     }
 
-    MsgUserResponse_Reply sendRequest( pb::MsgUserRequest_Add &msg){
+    UserRes_Reply sendRequest( pb::UserReq_Add &msg){
         pb::ClientRequest req;
 
-        auto userReq = req.mutable_msguserreq();
+        auto userReq = req.mutable_userreq();
         userReq->mutable_add()->CopyFrom(msg);
 
         handler.process(db, req);
 
-        return handler.getLastResponse().msguserres().code(0);
+        return handler.getLastResponse().userres().code(0);
     }
 
     DB db;
@@ -35,44 +35,44 @@ public:
 };
 
 TEST_F( userCreateTest, user_no_name_and_email){
-    pb::MsgUserRequest_Add req;
+    pb::UserReq_Add req;
 
     req.set_password("passwd");
     auto res = sendRequest(req);
-    EXPECT_EQ( MsgUserResponse_Reply_MissingRequiredField, res );
+    EXPECT_EQ( UserRes_Reply_MissingRequiredField, res );
 }
 
 TEST_F( userCreateTest, user_no_email){
-    pb::MsgUserRequest_Add req;
+    pb::UserReq_Add req;
 
     req.set_password("passwd");
     req.mutable_basic()->set_name("Test_user_asdf");
     auto res = sendRequest(req);
-    EXPECT_EQ(MsgUserResponse_Reply_MissingRequiredField, res);
+    EXPECT_EQ(UserRes_Reply_MissingRequiredField, res);
 }
 
 TEST_F( userCreateTest, create_withBasicData ){
-    pb::MsgUserRequest_Add req;
+    pb::UserReq_Add req;
 
     req.set_password("passwd");
     req.mutable_basic()->set_name("Test_user_asdf");
     req.mutable_basic()->set_email("TestUser@user.uu");
     auto res = sendRequest(req);
-    EXPECT_EQ(MsgUserResponse_Reply_UserAddOk, res);
+    EXPECT_EQ(UserRes_Reply_UserAddOk, res);
 }
 
 TEST_F( userCreateTest, user_name_to_long ){
-    pb::MsgUserRequest_Add req;
+    pb::UserReq_Add req;
 
     req.set_password("passwd");
     req.mutable_basic()->set_name( random_string(73) );
     req.mutable_basic()->set_email( random_string(10) + "@user.uu");
     auto res = sendRequest(req);
-    EXPECT_EQ(MsgUserResponse_Reply_UserNameToLong, res);
+    EXPECT_EQ(UserRes_Reply_UserNameToLong, res);
 }
 
 TEST_F( userCreateTest, user_duplicated ){
-    pb::MsgUserRequest_Add req;
+    pb::UserReq_Add req;
 
     string name = "RANDOM_USER_NAME";
     string email= "RANDOM_USER_NAME@email.com";
@@ -81,20 +81,20 @@ TEST_F( userCreateTest, user_duplicated ){
     req.mutable_basic()->set_name( name );
     req.mutable_basic()->set_email( email );
     auto res = sendRequest(req);
-    EXPECT_EQ(MsgUserResponse_Reply_UserAddOk, res);
+    EXPECT_EQ(UserRes_Reply_UserAddOk, res);
 
     req.mutable_basic()->set_name("different_name");
     res = sendRequest(req);
-    EXPECT_EQ(MsgUserResponse_Reply_UserAlreadyExists, res); // different name but the same email
+    EXPECT_EQ(UserRes_Reply_UserAlreadyExists, res); // different name but the same email
 
     req.mutable_basic()->set_name( name );
     req.mutable_basic()->set_email( "DIFFERENTEMAIL@asdfg.sa");
     res = sendRequest(req);
-    EXPECT_EQ(MsgUserResponse_Reply_UserAlreadyExists, res); // different email but the same name
+    EXPECT_EQ(UserRes_Reply_UserAlreadyExists, res); // different email but the same name
 }
 
 TEST_F( userCreateTest, full_data ){
-    pb::MsgUserRequest_Add add_msg;
+    pb::UserReq_Add add_msg;
 
     auto basic = add_msg.mutable_basic();
     auto det   = add_msg.mutable_details();
@@ -108,5 +108,5 @@ TEST_F( userCreateTest, full_data ){
 
     auto res = sendRequest(add_msg);
 
-    EXPECT_EQ(MsgUserResponse_Reply_UserAddOk, res);
+    EXPECT_EQ(UserRes_Reply_UserAddOk, res);
 }

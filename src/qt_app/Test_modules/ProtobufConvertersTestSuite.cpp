@@ -16,7 +16,7 @@ struct ProtobufConvertersTestSuite : public ::testing::Test
 ProtobufConvertersTestSuite::ProtobufConvertersTestSuite()
 {
 //    m_clientRequests.mutable_request()->Add();
-//    m_clientRequests.mutable_request(0)->mutable_msguserreq()->mutable_add()->mutable_basic()->set_id(11);
+//    m_clientRequests.mutable_request(0)->mutable_userreq()->mutable_add()->mutable_basic()->set_id(11);
 //    m_clientRequests.request(0).set_requestid(basicId);
 //    m_clientRequests.mutable_request()->AddAllocated(&m_clientRequest);
 //    m_clientRequests.request(0).set_requestid(basicId);

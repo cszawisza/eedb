@@ -4,7 +4,7 @@ package pb;
 import public "stats.proto";
 import public "common.proto";
   
-message MsgUserRequest{
+message UserReq{
 // USER MESSAGE STRUCTURE 
 
   oneof action{
@@ -88,7 +88,7 @@ message MsgUserRequest{
   }
 }
 
-message MsgUserResponse {
+message UserRes {
   enum Reply{
     LoginPass = 1;
     LoginDeny = 2;

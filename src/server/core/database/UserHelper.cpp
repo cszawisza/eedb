@@ -26,7 +26,7 @@ int64_t UserHelper::getUserIdByEmail(DB &db, const string &email)
     return res.front().c_uid;
 }
 
-void UserHelper::insertUser(DB &db, const MsgUserRequest_Add &msg)
+void UserHelper::insertUser(DB &db, const UserReq_Add &msg)
 {
     constexpr schema::t_users u;
     const auto &acl = msg.acl();

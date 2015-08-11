@@ -18,7 +18,7 @@ enum MsgCoding{
 }
 
 
-enum ServerErrorCodes{
+enum ServerError{
   No_Error = 0;
   Error_MsgUnknown = 1;
   Error_AccesDeny = 2;
@@ -39,7 +39,7 @@ message ClientRequest{
   oneof data {
 //    bytes binary_msg = 10;
 //    string json_msg = 11;
-    pb.MsgUserRequest         msgUserReq = 12;
+    pb.UserReq         userReq = 12;
     pb.MsgInventoryRequest    msgInventoryReq = 13;
     pb.MsgItemRequest         msgItemReq = 14;
     pb.MsgGroupRequest        msgGroupReq = 15;
@@ -52,16 +52,18 @@ message ServerResponses{
 }
 
 message ServerResponse {
-  optional ServerErrorCodes code        = 1 [default = No_Error];
-  optional uint32	responseId	= 2 [default = 0]; 
-//  required MsgCoding	msgCoding 	= 3 [default = msgProtbuf]; // type that is stored in data field
-//  optional MsgTypeId	msgTypeId 	= 4; // used only for not protbuf type messages
-//  optional bool		compressed	= 5; // is data compressed
+  optional ServerError code         = 1 [default = No_Error];
+  optional uint32   responseId      = 2 [default = 0];
+  optional uint32   toRequestId     = 3 [default = 0];
+  optional bool     isLastResponse  = 4 [default = true ];
+//  required MsgCoding	msgCoding 	= 5 [default = msgProtbuf]; // type that is stored in data field
+//  optional MsgTypeId	msgTypeId 	= 6; // used only for not protbuf type messages
+//  optional bool compressed	= 7; // is data compressed
   
   oneof data {
 //    bytes binary_msg = 10;
 //    string json_msg = 11;
-    pb.MsgUserResponse        msgUserRes = 12;
+    pb.UserRes        userRes = 12;
     pb.MsgInventoryResponse   msgInventoryRes = 13;
     pb.MsgItemResponse        msgItemRes = 14;
     pb.MsgGroupResponse       msgGroupRes = 15;

@@ -25,7 +25,7 @@ int DBInitialize::initializeDB(DB &db)
     static constexpr schema::t_shelfs sh;
 
     if(! rootExists(db)){
-        pb::MsgUserRequest_Add add;
+        pb::UserReq_Add add;
         auto acl  = add.mutable_acl();
         auto basic= add.mutable_basic();
 

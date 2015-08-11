@@ -5,6 +5,7 @@
 #include <QByteArray>
 #include <LoginDialog.hpp>
 #include <CommunicationManager.hpp>
+#include "ApplicationMainWindow.hpp"
 #include <QWebSocket>
 #include <ProtobufConverters.hpp>
 

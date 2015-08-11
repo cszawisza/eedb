@@ -96,6 +96,15 @@ void LoginDialog::readyRead(QByteArray msg){
     pb::ServerResponses sr;
     sr.ParseFromArray(msg.data(), msg.size());
 
+    pb::UserRes loginRes = sr.response(0).userres();
+
+    if(loginRes.code(0) == pb::UserRes_Reply_LoginPass ){
+        qDebug() << "Login pass";
+    }
+    else if(loginRes.code(0) == pb::UserRes_Reply_LoginDeny){
+        qDebug() << "login deny";
+    }
+
 //    mc.fromArray(msg);
 //    for(int i = 0; i<mc.capsules().size();++i)
 //        if(mc.getCapsule(i).msgtype() == MsgType::resLogin ){
@@ -147,7 +156,7 @@ void LoginDialog::doLogin()
     pb::ClientRequests fullMessage;
     auto loginReq = fullMessage.add_request();
 
-    auto userMsg = loginReq->mutable_msguserreq();
+    auto userMsg = loginReq->mutable_userreq();
 
     auto login = userMsg->mutable_login();
     login->set_password(ui->userPassword->text().toStdString() );

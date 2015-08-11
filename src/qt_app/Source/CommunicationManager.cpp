@@ -8,7 +8,7 @@ void handleConvertedMessage(const pb::ServerResponses & p_serverResponse)
 {
     switch(p_serverResponse.response(0).data_case())
     {
-    case pb::ServerResponse::kMsgUserRes:
+    case pb::ServerResponse::kUserRes:
         break;
     case pb::ServerResponse::kMsgInventoryRes:
         break;

@@ -12,7 +12,7 @@ namespace test{
 using eedb::db::UserHelper;
 
 inline quint64 addUser(DB &db, const string &name, const std::string &pass = "xxxx"){
-    pb::MsgUserRequest_Add msg;
+    pb::UserReq_Add msg;
 
     msg.mutable_basic()->set_name(name);
     msg.mutable_basic()->set_email(name + "@fake.xx");
@@ -24,13 +24,13 @@ inline quint64 addUser(DB &db, const string &name, const std::string &pass = "xx
 }
 
 inline SharedUserData login(DB &db, const string &name, const std::string &pass = "xxxx"){
-    pb::MsgUserRequest_Login msg;
+    pb::UserReq_Login msg;
     msg.mutable_cred()->set_name(name);
     msg.set_password(pass);
 
     pb::ClientRequest req;
 
-    auto userReq = req.mutable_msguserreq();
+    auto userReq = req.mutable_userreq();
     userReq->mutable_login()->CopyFrom(msg);
     eedb::handlers::User userHandler;
     userHandler.process(db, req);
