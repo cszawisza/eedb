@@ -29,9 +29,11 @@ set(Core_CPP
     core/clientconnection.cpp
     core/clientworker.cpp
     core/frameparser.cpp
-    core/user.cpp
     core/server.cpp
+
+    core/user.cpp
     core/inventory.cpp
+    core/category.cpp
 )
 
 set(Core_H
@@ -52,9 +54,11 @@ set(Core_H
     core/clientworker.h
     core/frameparser.h
     core/iprocessor.h
-    core/user.h
     core/server.h
+
+    core/user.h
     core/inventory.hpp
+    core/category.hpp
 )
 
 set( Utils_H

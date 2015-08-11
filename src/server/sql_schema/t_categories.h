@@ -143,51 +143,6 @@ namespace schema {
 
 			using _traits = ::sqlpp::make_traits<::sqlpp::varchar>;
 		};
-
-		struct C_allow_recipe {
-			struct _alias_t {
-				static constexpr const char _literal[] ="c_allow_recipe";
-				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-				template<typename T>
-					struct _member_t {
-						T c_allow_recipe;
-						T &operator()() { return c_allow_recipe; }
-						const T &operator()() const { return c_allow_recipe; }
-					};
-			};
-
-			using _traits = ::sqlpp::make_traits<::sqlpp::boolean>;
-		};
-
-		struct C_allow_items {
-			struct _alias_t {
-				static constexpr const char _literal[] ="c_allow_items";
-				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-				template<typename T>
-					struct _member_t {
-						T c_allow_items;
-						T &operator()() { return c_allow_items; }
-						const T &operator()() const { return c_allow_items; }
-					};
-			};
-
-			using _traits = ::sqlpp::make_traits<::sqlpp::boolean>;
-		};
-
-		struct C_hide {
-			struct _alias_t {
-				static constexpr const char _literal[] ="c_hide";
-				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-				template<typename T>
-					struct _member_t {
-						T c_hide;
-						T &operator()() { return c_hide; }
-						const T &operator()() const { return c_hide; }
-					};
-			};
-
-			using _traits = ::sqlpp::make_traits<::sqlpp::boolean, sqlpp::tag::can_be_null>;
-		};
 	}
 
 	struct t_categories : sqlpp::table_t<t_categories,
@@ -199,10 +154,7 @@ namespace schema {
 				t_categories_::C_parent_category_id,
 				t_categories_::C_name,
 				t_categories_::C_description,
-				t_categories_::C_creationdate,
-				t_categories_::C_allow_recipe,
-				t_categories_::C_allow_items,
-				t_categories_::C_hide> {
+				t_categories_::C_creationdate> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {
 			static constexpr const char _literal[] = "t_categories";

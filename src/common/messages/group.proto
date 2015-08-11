@@ -4,7 +4,7 @@ package pb;
 import public "parameters.proto";
 import public "common.proto";
 
-message MsgGroupRequest{
+message CategoryReq{
 // USER MESSAGE STRUCTURE 
 
   oneof action{
@@ -72,6 +72,8 @@ message MsgGroupRequest{
   }
 }
 
-message MsgGroupResponse{
-
+message CategoryRes{
+    enum Replay{
+        OK = 1;
+    }
 }

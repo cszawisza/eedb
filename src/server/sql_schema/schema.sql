@@ -144,17 +144,17 @@ CREATE TABLE t_categories(
     c_name                  TEXT        NOT NULL CHECK(length(c_name) < 100 ),
     c_description           TEXT        CHECK(length(c_description) < 100000 ),
     c_creationDate          TIMESTAMP   DEFAULT NOW() NOT NULL,
-    c_allow_recipe          BOOLEAN     DEFAULT false NOT NULL,
-    c_allow_items           BOOLEAN     DEFAULT true NOT NULL,
-    c_hide                  BOOLEAN     DEFAULT false,
+--    c_allow_recipe          BOOLEAN     DEFAULT false NOT NULL,
+--    c_allow_items           BOOLEAN     DEFAULT true NOT NULL,
+--    c_hide                  BOOLEAN     DEFAULT false,
     CONSTRAINT t_categories_pkey PRIMARY KEY (c_uid),
     CONSTRAINT t_categorieowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (t_acl);
 
-COMMENT ON TABLE t_categories IS 'those are the items categories';
-COMMENT ON COLUMN t_categories.c_hide IS 'hide group from user, when true';
-COMMENT ON COLUMN t_categories.c_allow_recipe IS 'Shows that category can take recipie';
-COMMENT ON COLUMN t_categories.c_allow_items IS 'hide group from user, when true';
+COMMENT ON TABLE t_categories IS 'categories of items';
+-- COMMENT ON COLUMN t_categories.c_hide IS 'hide group from user, when true';
+-- COMMENT ON COLUMN t_categories.c_allow_recipe IS 'Shows that category can take recipie';
+-- COMMENT ON COLUMN t_categories.c_allow_items IS 'hide group from user, when true';
 
 CREATE UNIQUE INDEX t_categories_unique_names  ON t_categories ( c_parent_category_id, c_name );
 CREATE UNIQUE INDEX t_categories_unique_parent ON t_categories ( c_parent_category_id, c_uid );
@@ -269,7 +269,7 @@ create table t_inventories_operations(
 
 create table t_inventories_history(
     c_inventory_from_id INTEGER NOT NULL REFERENCES t_inventories ON DELETE CASCADE,
-    c_inventory_to_id INTEGER NOT NULL REFE->CopyFrom( MsgInventoryRequest_Get::default_instance() )RENCES t_inventories ON DELETE CASCADE,
+    c_inventory_to_id INTEGER NOT NULL REFERENCES t_inventories ON DELETE CASCADE,
     c_operation_id INTEGER NOT NULL REFERENCES t_inventories_Operations ON DELETE CASCADE ,
     c_amount NUMERIC(10,10),
 

@@ -14,7 +14,7 @@ void handleConvertedMessage(const pb::ServerResponses & p_serverResponse)
         break;
     case pb::ServerResponse::kMsgItemRes:
         break;
-    case pb::ServerResponse::kMsgGroupRes:
+    case pb::ServerResponse::kCategoryRes:
         break;
     case pb::ServerResponse::kMsgParameterRes:
         break;
