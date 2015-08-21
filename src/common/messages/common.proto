@@ -14,16 +14,6 @@ message Filter {
   repeated FilterComponent component = 1;
 }
 
-message Limits {
-    required uint32 count = 1;
-    required uint32 offset = 2;
-    // e.g. limit 3,4 means show items from 4 to 7
-}
-
-message OrderBy {
-    repeated string name = 1;
-}
-
 message DateTime{
   message Unix{
     // fixed unix time value
@@ -76,7 +66,7 @@ message Variant{
     }
 }
 
-message File{
+message FileStat{
     optional int32 id = 1;
     optional string name = 2;
     optional string sha = 3;

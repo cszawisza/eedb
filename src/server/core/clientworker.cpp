@@ -12,6 +12,9 @@ ClientWorker::ClientWorker(QObject *parent) :
     m_responseFrame( SharedResponses(new pb::ServerResponses )) /*,
     m_defaultProcessor(QSharedPointer<MessageHandler>(new UnknownMessageProcessor()))*/
 {
+    m_inputFrame = SharedRequests(new pb::ClientRequests );
+    m_responseFrame = SharedResponses( new pb::ServerResponses );
+
     m_msgHandlers.insert( pb::ClientRequest::kUserReq, QSharedPointer<eedb::handlers::User>(new eedb::handlers::User()) );
     m_msgHandlers.insert( pb::ClientRequest::kMsgInventoryReq, QSharedPointer<eedb::handlers::Inventory>( new eedb::handlers::Inventory() ));
     m_msgHandlers.insert( pb::ClientRequest::kCategoryReq, QSharedPointer<eedb::handlers::Category>(new eedb::handlers::Category() ));
@@ -44,7 +47,7 @@ void ClientWorker::processBinnaryMessage(QByteArray frame)
 {
     m_responseFrame->Clear();
     RequestsDecoder decoder(frame);
-    decoder.decodeTo(m_inputFrame);
+    decoder.decodeTo(*m_inputFrame);
 
     processMessages();
 

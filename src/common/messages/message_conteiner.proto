@@ -34,16 +34,13 @@ message ClientRequest{
   optional uint32	requestId	= 1 [default = 1];
 //  required MsgCoding	msgCoding 	= 3 [default = msgProtbuf]; // type that is stored in data field
 //  optional MsgTypeId	msgTypeId 	= 4; // used only for not protbuf type messages
-//  optional bool		compressed	= 5; // is data compressed
   
   oneof data {
-//    bytes binary_msg = 10;
-//    string json_msg = 11;
-    pb.UserReq         userReq = 12;
-    pb.MsgInventoryRequest    msgInventoryReq = 13;
-    pb.MsgItemRequest         msgItemReq = 14;
-    pb.CategoryReq        categoryReq = 15;
-    pb.MsgParameterRequest    msgParameterReq = 16;
+    pb.UserReq                  userReq = 12;
+    pb.MsgInventoryRequest      msgInventoryReq = 13;
+    pb.MsgItemRequest           msgItemReq = 14;
+    pb.CategoryReq              categoryReq = 15;
+    pb.MsgParameterRequest      msgParameterReq = 16;
   }
 }
 
@@ -55,19 +52,16 @@ message ServerResponse {
   optional ServerError code         = 1 [default = No_Error];
   optional uint64   responseId      = 2 [default = 0]; // server unique response id
   optional uint64   in_response_to  = 3 [default = 0]; // in response to request ID
-  optional bool     isLastResponse  = 4 [default = true ];
+  optional bool     isLastResponse  = 4 [default = true];
 //  required MsgCoding	msgCoding 	= 5 [default = msgProtbuf]; // type that is stored in data field
 //  optional MsgTypeId	msgTypeId 	= 6; // used only for not protbuf type messages
-//  optional bool compressed	= 7; // is data compressed
   
   oneof data {
-//    bytes binary_msg = 10;
-//    string json_msg = 11;
-    pb.UserRes        userRes = 12;
-    pb.MsgInventoryResponse   msgInventoryRes = 13;
-    pb.MsgItemResponse        msgItemRes = 14;
-    pb.CategoryRes       categoryRes = 15;
-    pb.MsgParameterResponse   msgParameterRes = 16;
+    pb.UserRes                  userRes = 12;
+    pb.MsgInventoryResponse     msgInventoryRes = 13;
+    pb.MsgItemResponse          msgItemRes = 14;
+    pb.CategoryRes              categoryRes = 15;
+    pb.MsgParameterResponse     msgParameterRes = 16;
     
 //    ServerResponse msgServerResponse = 1000;
   }

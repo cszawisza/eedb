@@ -70,5 +70,11 @@ message CategoryReq{
 message CategoryRes{
     enum Replay{
         OK = 1;
+        InvalidParentId = 2;
+        MissingParentId = 3;
+        InvalidName = 4;
+        MissingName = 5;
     }
+
+    optional Replay code = 1 [default = OK];
 }

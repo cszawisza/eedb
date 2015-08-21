@@ -23,7 +23,7 @@ message MsgItemRequest{
         optional string description = 4;
         repeated ParameterValues parameters = 6;
         optional Package packageId = 7;
-        repeated File files = 8; // only id and namel
+        repeated FileStat files = 8; // only id and namel
         repeated Parameter nerParameters = 9;
         optional Acl acl = 10;
     }
@@ -45,7 +45,7 @@ message MsgItemRequest{
 
     message Get{
         optional int32 groupId = 1;
-        optional Limits limits = 10;
+//        optional Limits limits = 10;
     }
 }
 

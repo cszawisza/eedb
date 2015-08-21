@@ -53,8 +53,13 @@ void Category::handle_add(DB &db, CategoryReq_Add &msg)
     static constexpr schema::t_categories cat;
     auth::AccesControl acl( user().data()->id() );
 
-    if(!msg.has_name() || !msg.has_parent_id() ){
-        ///TODO send missing required dields
+    ///TODO add name chacking
+    if( !msg.has_name() ){
+        add_response()->mutable_categoryres()->set_code(CategoryRes_Replay_MissingName);
+        return;
+    }
+    if( !msg.has_parent_id() ){
+        add_response()->mutable_categoryres()->set_code(CategoryRes_Replay_MissingParentId);
         return;
     }
 
@@ -72,6 +77,9 @@ void Category::handle_add(DB &db, CategoryReq_Add &msg)
             p.params.c_description = msg.description();
 
         db(p);
+
+        auto response = add_response()->mutable_categoryres();
+        response->set_code(CategoryRes_Replay_OK);
     }
     else{
         sendAccesDeny();

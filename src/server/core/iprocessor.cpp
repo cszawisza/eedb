@@ -13,12 +13,6 @@ void MessageHandler::process(DB &db, pb::ClientRequest &req){
     process(req);
 }
 
-bool MessageHandler::addResponse(const pb::ServerResponse &resp){
-    if(!m_outputFrame)
-        m_outputFrame = SharedResponses(new pb::ServerResponses);
-    m_outputFrame->add_response()->CopyFrom(resp);
-}
-
 pb::ServerResponse *MessageHandler::add_response() {
     if(!m_outputFrame)
         m_outputFrame = SharedResponses(new pb::ServerResponses);

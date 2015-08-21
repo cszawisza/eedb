@@ -19,6 +19,7 @@ public:
                          QByteArrayToProtobufConverter p_convertQByteArrayToProtobuf);
     void handle() const override;
 
+
 private:
     void sendBinaryMessageOverQWebSocket(const pb::ClientRequests & p_clientRequests) const;
     QWebSocket & m_webSocket;

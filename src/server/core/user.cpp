@@ -160,9 +160,7 @@ void User::loadUserCache(DB &db, uint64_t uid)
 
 void User::addResponseMessage()
 {
-    pb::ServerResponse res = pb::ServerResponse::default_instance();
-    res.mutable_userres()->CopyFrom(m_response);
-    addResponse(res);
+    add_response()->mutable_userres()->CopyFrom(m_response);
 }
 
 void User::handle_add(DB &db, UserReq_Add &msg)

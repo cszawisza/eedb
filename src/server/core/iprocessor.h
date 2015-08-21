@@ -71,7 +71,6 @@ protected:
      */
     virtual void process(pb::ClientRequest &req);
     virtual void process(DB &db, pb::ClientRequest &req);
-    bool addResponse( const pb::ServerResponse &resp );
     pb::ServerResponse *add_response();
     void sendAccesDeny();
 
