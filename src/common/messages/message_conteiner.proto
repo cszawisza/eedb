@@ -53,8 +53,8 @@ message ServerResponses{
 
 message ServerResponse {
   optional ServerError code         = 1 [default = No_Error];
-  optional uint32   responseId      = 2 [default = 0];
-  optional uint32   toRequestId     = 3 [default = 0];
+  optional uint64   responseId      = 2 [default = 0]; // server unique response id
+  optional uint64   in_response_to  = 3 [default = 0]; // in response to request ID
   optional bool     isLastResponse  = 4 [default = true ];
 //  required MsgCoding	msgCoding 	= 5 [default = msgProtbuf]; // type that is stored in data field
 //  optional MsgTypeId	msgTypeId 	= 6; // used only for not protbuf type messages

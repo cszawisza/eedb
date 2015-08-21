@@ -8,6 +8,7 @@
 #include "clientcache.h"
 #include "database/idatabase.h"
 #include "auth/acl.hpp"
+#include <atomic>
 
 using pb::ClientRequest;
 using pb::ClientRequests;
@@ -23,7 +24,7 @@ public:
     MessageHandler(){
         m_outputFrame = SharedResponses(new pb::ServerResponses );
     }
-    virtual ~MessageHandler(){;}
+    virtual ~MessageHandler(){}
 
     pb::ServerResponse getLastResponse(){
         if(m_outputFrame->response_size() == 0 )
@@ -32,7 +33,7 @@ public:
     }
 
     void setInputData( SharedRequests frame ){
-        m_requests.swap(frame);
+        m_inputFrame.swap(frame);
     }
 
     void setOutputData( SharedResponses frame ){
@@ -48,23 +49,9 @@ public:
     }
 
     void process( int msgId ){
-        auto req = m_requests->mutable_request( msgId );
+        auto req = m_inputFrame->mutable_request( msgId );
         m_currentRequestId = req->requestid();
         process(*req);
-    }
-
-    /**
-     * @brief process data given in setWorkingCapsule;
-     */
-    virtual void process(pb::ClientRequest &req){
-        auto msg = m_outputFrame->add_response();
-        msg->CopyFrom( pb::ServerResponse::default_instance() );
-        msg->set_responseid( req.requestid() );
-        msg->set_code(pb::Error_MsgUnknown);
-    }
-
-    virtual void process(DB &db, pb::ClientRequest &req){
-        process(req);
     }
 
     void clear(){
@@ -79,36 +66,19 @@ public:
     }
 
 protected:
-    bool addResponse( const pb::ServerResponse &resp ){
-        if(!m_outputFrame)
-            m_outputFrame = SharedResponses(new pb::ServerResponses);
-        m_outputFrame->add_response()->CopyFrom(resp);
-    }
-
-    pb::ServerResponse *add_response() {
-        if(!m_outputFrame)
-            m_outputFrame = SharedResponses(new pb::ServerResponses);
-        auto res = m_outputFrame->add_response();
-        res->CopyFrom(pb::ServerResponse::default_instance());
-        res->set_responseid(m_currentRequestId);
-
-        return res;
-    }
-
-    void sendAccesDeny(){
-        auto res = add_response();
-        res->set_code( pb::Error_AccesDeny );
-    }
-
-//    void sendAccesDeny(const string &message){
-//        pb::ServerResponse resp;
-//        resp.set_code( pb::Error_AccesDeny );
-//        addResponse( resp );
-//    }
+    /**
+     * @brief process data given in setWorkingCapsule;
+     */
+    virtual void process(pb::ClientRequest &req);
+    virtual void process(DB &db, pb::ClientRequest &req);
+    bool addResponse( const pb::ServerResponse &resp );
+    pb::ServerResponse *add_response();
+    void sendAccesDeny();
 
 private:
-    int64_t m_currentRequestId = 0;
+    static std::atomic<quint64> m_response_id;
+    quint64 m_currentRequestId = 0;
     SharedUserData m_userData;
     SharedResponses m_outputFrame;
-    SharedRequests m_requests;
+    SharedRequests m_inputFrame;
 };

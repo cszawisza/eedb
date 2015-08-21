@@ -13,9 +13,6 @@ BEGIN
 END $$
 LANGUAGE plpgsql IMMUTABLE COST 1;
 
--- update t_users set c_password = crypt('text', gen_salt('bf')) where c_uid = 1;
--- select (c_password = crypt('text', c_password)) AS pswmatch FROM t_users where c_uid = 1;
-
 drop table if exists t_user_inventories;
 drop table if exists t_inventories_history;
 drop table if exists t_inventories_operations;
@@ -25,8 +22,9 @@ drop table if exists t_user_history;
 drop table if exists t_inventories;
 drop table if exists t_item_files;
 drop table if exists t_items;
-drop table if exists t_parameter_conversions;
 drop table if exists t_parameters;
+drop table if exists t_units cascade;
+drop table if exists t_units_conversions;
 drop table if exists t_packages_files;
 drop table if exists t_packages;
 drop table if exists t_category_files;
@@ -110,7 +108,7 @@ CREATE TABLE t_users (
     c_phonenumber       VARCHAR(20),
     c_address           TEXT            CHECK( length(c_address) <= 1000 ),
     c_description       TEXT            CHECK( length(c_description) <= 100000),   -- max size of description set to
-    c_config            json            DEFAULT ('{}'),
+    c_config            jsonb            DEFAULT ('{}'),
     c_avatar            TEXT,
     CONSTRAINT t_users_pkey         PRIMARY KEY (c_uid)
 ) INHERITS (t_acl);
@@ -169,7 +167,7 @@ CREATE TABLE t_packages (
     c_name          TEXT NOT NULL CHECK(length(c_name) < 256 ),
     c_pinNr         INTEGER,
     c_mountType     TEXT CHECK(length(c_mountType) < 100 ),
-    c_config        json,
+    c_config        jsonb,
     CONSTRAINT packages_pkey PRIMARY KEY (c_uid)
 ) INHERITS (t_acl);
 
@@ -179,32 +177,45 @@ CREATE TABLE t_packages_files (
     CONSTRAINT packages_files_pk PRIMARY KEY (c_package_id, c_file_id)
 );
 
+CREATE TABLE t_units(
+    c_name VARCHAR(100) NOT NULL,
+    c_symbol VARCHAR (20) NOT NULL,
+    c_quantity_name VARCHAR(100),
+    c_description TEXT CHECK(length(c_description) < 100000),
+    CONSTRAINT t_units_pkey PRIMARY KEY (c_uid),
+    CONSTRAINT t_unitowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE,
+    CONSTRAINT t_units_unique UNIQUE(c_name, c_symbol)
+) inherits(t_acl);
+
+COMMENT ON TABLE t_units IS 'Table holds information about units used in application';
+COMMENT ON COLUMN t_units.c_name IS 'Parameter name e.g. Ampere';
+COMMENT ON COLUMN t_units.c_symbol IS 'Parameter symbol e.g. A';
+COMMENT ON COLUMN t_units.c_quantity_name IS 'Quantity name e.g. "electric current"';
+COMMENT ON COLUMN t_units.c_description IS 'Simple description';
+
+CREATE TABLE t_units_conversions(
+    c_from  INTEGER NOT NULL REFERENCES t_units(c_uid),
+    c_to    INTEGER NOT NULL REFERENCES t_units(c_uid),
+    c_equation TEXT NOT NULL,
+    CONSTRAINT t_unit_conversions_unique PRIMARY KEY (c_from, c_to)
+);
+COMMENT ON TABLE t_units_conversions IS 'This table contains a mathematical equation for converting one unitl to other, more info available at http://www.partow.net/programming/exprtk/index.html';
+COMMENT ON COLUMN t_units_conversions.c_equation IS 'this equation should be a proper exprtk equation';
+
 CREATE TABLE t_parameters (
     c_name VARCHAR(100) NOT NULL,
     c_symbol VARCHAR(20),
-    c_quantity_name VARCHAR(100),
-    c_parent INTEGER REFERENCES t_parameters(c_uid),
+    c_unit INTEGER REFERENCES t_units(c_uid),
     c_description TEXT CHECK(length(c_description) < 100000),
     CONSTRAINT t_parameters_pkey PRIMARY KEY (c_uid),
     CONSTRAINT t_parametereowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE,
     CONSTRAINT t_parameters_unique UNIQUE(c_name, c_symbol)
 ) INHERITS (t_acl);
 
-COMMENT ON COLUMN t_parameters.c_name IS 'Parameter name e.g. Ampere';
-COMMENT ON COLUMN t_parameters.c_symbol IS 'Parameter symbol e.g. A';
-COMMENT ON COLUMN t_parameters.c_quantity_name IS 'Quantity name e.g. "electric current"';
-COMMENT ON COLUMN t_parameters.c_parent IS 'A unit parent unit e.g. parent of kA is A';
-COMMENT ON COLUMN t_parameters.c_description IS 'Simple description';
+COMMENT ON COLUMN t_parameters.c_name   IS 'Parameter name e.g. "Load current max." ';
+COMMENT ON COLUMN t_parameters.c_symbol IS 'Parameter symbol e.g. "I<sub>R</sub>';
+COMMENT ON COLUMN t_parameters.c_unit   IS 'Parameter unit e.g. id od Amper unit from unit table';
 
-CREATE TABLE t_parameter_conversions(
-    c_from  INTEGER NOT NULL REFERENCES t_parameters(c_uid),
-    c_to    INTEGER NOT NULL REFERENCES t_parameters(c_uid),
-    c_equation TEXT NOT NULL,
-    CONSTRAINT t_parameter_conversions_unique UNIQUE (c_from, c_to)
-);
-
-COMMENT ON TABLE t_parameter_conversions IS 'This table contains a mathematical equation for converting one parameter to other, more info available at http://www.partow.net/programming/exprtk/index.html';
-COMMENT ON COLUMN t_parameter_conversions.c_equation IS 'this equation should be a proper exprtk equation';
 
 CREATE TABLE t_items (
     c_package_id    INTEGER NOT NULL REFERENCES t_packages(c_uid),
@@ -213,14 +224,25 @@ CREATE TABLE t_items (
     c_symbol        VARCHAR(300) NOT NULL,
     c_namespace     VARCHAR(64) DEFAULT 'std' NOT NULL,
     c_creationDate  TIMESTAMP DEFAULT now() NOT NULL,
-    c_update        TIMESTAMP NOT NULL,
-    c_parameters    json NOT NULL,
+    c_last_update   TIMESTAMP,
+    c_parameters    jsonb NOT NULL,
     c_description   TEXT,
     CONSTRAINT t_items_pkey PRIMARY KEY (c_uid),
     CONSTRAINT t_itemowner_fk FOREIGN KEY (c_owner) REFERENCES t_users (c_uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (t_acl);
 
+CREATE OR REPLACE FUNCTION item_last_update_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.c_last_update = now();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_item_las_update BEFORE UPDATE ON t_items FOR EACH ROW EXECUTE PROCEDURE  item_last_update_column();
+
 CREATE UNIQUE INDEX t_items_unique ON t_items(c_name, c_symbol, c_namespace);
+CREATE INDEX t_items_parameters_idx ON t_items USING GIN (c_parameters);
 
 CREATE TABLE t_item_files (
     c_item_id INTEGER NOT NULL REFERENCES t_items,

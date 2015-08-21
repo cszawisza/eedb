@@ -40,35 +40,6 @@ int DBInitialize::initializeDB(DB &db)
         UserHelper::insertUser(db, add);
     }
 
-//    insertActionIfNotExists(db, Action( "stat" , auth::Object ));
-//    insertActionIfNotExists(db, Action( "stat" , auth::Table ));
-//    insertActionIfNotExists(db, Action( "chmod" , auth::Object ));
-//    insertActionIfNotExists(db, Action( "chmod" , auth::Table ));
-//    insertActionIfNotExists(db, Action( "chgrp" , auth::Object ));
-//    insertActionIfNotExists(db, Action( "chgrp" , auth::Table ));
-//    insertActionIfNotExists(db, Action( "chown" , auth::Object ));
-//    insertActionIfNotExists(db, Action( "chown" , auth::Table ));
-//    insertActionIfNotExists(db, Action( "view_acl" , auth::Object ));
-//    insertActionIfNotExists(db, Action( "view_acl" , auth::Table ));
-
-//    insertActionIfNotExists(db, Action( "read" , auth::Object ));
-//    insertActionIfNotExists(db, Action( "write" , auth::Object ));
-//    insertActionIfNotExists(db, Action( "delete" , auth::Object ));
-//    insertActionIfNotExists(db, Action( "read" , auth::Table ));
-//    insertActionIfNotExists(db, Action( "write" , auth::Table ));
-//    insertActionIfNotExists(db, Action( "login" , auth::Object ));
-//    insertActionIfNotExists(db, Action( "update_passwd" , auth::Object ));
-
-//    insertImplementedActionIfNotExists(db, auth::ImplementedAction("login",auth::State_Normal,"t_users"));
-//    insertImplementedActionIfNotExists(db, auth::ImplementedAction("update_passwd",auth::State_Normal,"t_users"));
-//    insertImplementedActionIfNotExists(db, auth::ImplementedAction("read",auth::State_Normal,"t_users"));
-//    insertImplementedActionIfNotExists(db, auth::ImplementedAction("write",auth::State_Normal,"t_users"));
-//    insertImplementedActionIfNotExists(db, auth::ImplementedAction("delete",auth::State_Normal,"t_users"));
-//    insertImplementedActionIfNotExists(db, auth::ImplementedAction("read",auth::State_Normal,"t_files"));
-//    insertImplementedActionIfNotExists(db, auth::ImplementedAction("write",auth::State_Normal,"t_files"));
-//    insertImplementedActionIfNotExists(db, auth::ImplementedAction("delete",auth::State_Normal,"t_files"));
-//    insertImplementedActionIfNotExists(db, auth::ImplementedAction("write",auth::State_Normal,"t_inventories"));
-
     auth::Privilege priv;
 
     priv.giveGroup( auth::GROUP_users | auth::GROUP_inventories )

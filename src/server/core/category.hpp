@@ -19,10 +19,11 @@ public:
     // MessageHandler interface
 public:
     void process(pb::ClientRequest &msgReq );
-    void process(DB &db, pb::ClientRequest &msgReq );
+    void process(DB &db, pb::ClientRequest &msgReq ) override;
 
 private:
 
+    void handle_add(DB &db, CategoryReq_Add &msg);
 };
 
 }

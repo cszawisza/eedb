@@ -20,9 +20,6 @@ message CategoryReq{
     required string name =2;
     required uint32 parent_id = 3;
     optional string description = 4;
-    repeated uint32 parameters_id = 5;// parameters assosieted with group
-    required bool allow_sets = 6 [default = true]; 
-    required bool allow_items = 7 [default = true];
   }
   
   message Get{
@@ -53,8 +50,6 @@ message CategoryReq{
   }
   
   message Modify{
-//    optional bool allow_sets = 3;
-//    optional bool allow_items = 4;
 //    optional string name = 5;
 //    optional string desc = 6;
 //    optional int32 parent_id = 7;

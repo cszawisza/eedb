@@ -2,13 +2,6 @@
 
 #include <core/inventory.hpp>
 
-#include <sqlpp11/sqlpp11.h>
-#include <core/database/idatabase.h>
-#include <core/database/AclHelper.hpp>
-#include <core/database/InventoryHelper.hpp>
-
-#include <sql_schema/t_shelfs.h>
-
 #include <memory>
 
 #include "TestCommon.hpp"
@@ -28,43 +21,18 @@ public:
         db.start_transaction();
 
         m_userId = addUser(db, "xxxxxxx");
-        inventoryHandler.setUserData( login(db, "xxxxxxx") );
-
-        addInventory("new_inventory_testing");
+        m_invId = addInventory(db, "new_inventory_testing", login(db, "xxxxxxx") );
     }
 
     ~inventoryTest(){
         db.rollback_transaction(false);
     }
 
-    void addInventory( string name )
-    {
-        auto add_inv = pb::MsgInventoryRequest_Add::default_instance();
-        add_inv.set_name( name );
-        add_inv.set_description("description");
-        add_inventory(add_inv);
-        m_invId = InventoryHelper::getInventoryIdByName(db, name );
-    }
-
     bool inventoryExists(const char * name){
-        return db(select(exists(select(i.c_uid).from(i).where(i.c_name == name )))).front().exists;
-    }
-
-    const pb::MsgInventoryResponse_Error add_inventory( const pb::MsgInventoryRequest_Add &msg){
-        pb::ClientRequest req;
-
-        auto userReq = req.mutable_msginventoryreq();
-        userReq->mutable_add()->CopyFrom(msg);
-
-        inventoryHandler.process(db, req);
-
-        return inventoryHandler.getLastResponse().msginventoryres().code(0);
+        return eedb::db::InventoryHelper::getInventoryIdByName(db, name) > 0;
     }
 
     DB db;
-    eedb::handlers::User userHandler;
-    eedb::handlers::Inventory inventoryHandler;
-
     uint64_t m_userId= 0;
     uint64_t m_invId= 0;
 };

@@ -29,6 +29,7 @@ set(Core_CPP
     core/clientconnection.cpp
     core/clientworker.cpp
     core/frameparser.cpp
+    core/iprocessor.cpp
     core/server.cpp
 
     core/user.cpp
