@@ -1,10 +1,7 @@
 find_package(Qt5Widgets)
-#add_subdirectory(Source)
-#add_subdirectory(Include)
-#add_subdirectory(Forms)
-add_subdirectory(Test_modules)
-
 set(CMAKE_AUTOMOC OFF)
+
+add_subdirectory(Test_modules)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Include)
 

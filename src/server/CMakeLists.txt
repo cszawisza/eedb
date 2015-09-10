@@ -4,7 +4,6 @@ include_directories( ../ )
 include_directories( core )
 
 include_directories( ${Common_SOURCE_DIR}    )
-include_directories( ${Externals_SOURCE_DIR} )
 
 add_subdirectory(Tests_modules)
 
