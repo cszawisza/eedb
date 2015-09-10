@@ -4,13 +4,12 @@ include_directories( ../ )
 include_directories( core )
 
 include_directories( ${Common_SOURCE_DIR}    )
-include_directories( ${ProtobufIncludePath}  )
 include_directories( ${Externals_SOURCE_DIR} )
 
+add_subdirectory(Tests_modules)
+
 file(GLOB SCHEMA_SRC "sql_schema/*.h" "sql_schema/*.sql" "sql_schema/*.hpp")
-set(SOURCES
-    main.cpp
-)
+set(SOURCES main.cpp )
 
 set(Core_CPP
     core/auth/acl.cpp
@@ -71,9 +70,6 @@ add_library(eedb_lib STATIC ${SOURCES} ${Core_CPP} ${Utils_H} ${Core_H} ${SCHEMA
 target_link_libraries(eedb_lib
     sqlpp-postgresql pq
     Common
-    Qt5::Core Qt5::WebSockets
-    pq
-    ${PROTOBUF_LITE_LIBRARY}
 )
 
 add_executable(EedbServer app_start.cpp)

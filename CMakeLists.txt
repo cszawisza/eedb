@@ -30,8 +30,7 @@ elseif( MSVC )
     add_definitions( -D_VARIADIC_MAX=10 ) # to satisfy gtest
 endif()
 
-
 add_subdirectory(externals)
 add_subdirectory(src)
-add_subdirectory(tests)
+
 

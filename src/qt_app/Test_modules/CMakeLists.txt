@@ -7,7 +7,7 @@ include_directories(../Include)
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 include_directories(${gmock_SOURCE_DIR}/include ${gmock_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR}/src/qt_app )
-include_directories(${ProtobufIncludePath})
+
 
 add_definitions(-DQT_NO_DEBUG_OUTPUT)
 add_definitions(-DQT_NO_WARNING_OUTPUT)
@@ -15,4 +15,4 @@ add_definitions(-DQT_NO_WARNING_OUTPUT)
 #add_compile_options(-DQT_NO_WARNING_OUTPUT)
 
 add_executable(ClientTests main.cpp ${TEST_SRC_FILES} ${TEST_MOCK_FILES})
-target_link_libraries(ClientTests Common client_lib ${PROTOBUF_LITE_LIBRARY} gtest gmock Qt5::Widgets Qt5::WebSockets Qt5::Core Qt5::Test)
+target_link_libraries(ClientTests Common client_lib gtest gmock Qt5::Widgets Qt5::Test)
