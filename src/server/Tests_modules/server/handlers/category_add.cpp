@@ -32,6 +32,4 @@ public:
 };
 
 TEST_F(CategoriesTest, simpleAdd){
-    schema::t_categories cat;
-    auto res = db(sqlpp::select(sqlpp::all_of(cat)).from(cat).where(cat.c_parent_category_id == 1 and cat.c_name == "name") );
 }

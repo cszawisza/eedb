@@ -35,12 +35,14 @@ public:
 };
 
 TEST_F(inventoryAddShelfTest, checkShelf){
-    EXPECT_TRUE( InventoryHelper::getShelfId(db, m_invId, "New shelf") > 0 );
+    EXPECT_TRUE( InventoryHelper::getShelfId(db, m_invId, "New shelf").is_initialized() );
 }
 
 TEST_F(inventoryAddShelfTest, checkAcl){
-    auto acl = AclHelper::getAcl(db, InventoryHelper::getShelfId(db, m_invId, "New shelf"));
-    EXPECT_EQ( m_userId, acl.owner() );
+    auto acl = AclHelper::getAcl(db, InventoryHelper::getShelfId(db, m_invId, "New shelf").get_value_or(0) );
+
+    ASSERT_TRUE( acl );
+    EXPECT_EQ( m_userId, acl.get().owner() );
 }
 
 TEST_F(inventoryAddShelfTest, userCanEditNewlyCreatedShelf ){

@@ -7,7 +7,6 @@
 #include "TestCommon.hpp"
 
 using namespace eedb::db;
-using namespace test;
 
 class inventoryTest : public ::testing::Test
 {
@@ -20,8 +19,8 @@ public:
     inventoryTest() {
         db.start_transaction();
 
-        m_userId = addUser(db, "xxxxxxx");
-        m_invId = addInventory(db, "new_inventory_testing", login(db, "xxxxxxx") );
+        m_userId = test::addUser(db, "xxxxxxx");
+        m_invId = test::addInventory(db, "new_inventory_testing", test::login(db, "xxxxxxx") );
     }
 
     ~inventoryTest(){
@@ -43,18 +42,20 @@ TEST_F(inventoryTest, checkInventory){
 
 TEST_F(inventoryTest, checkAcl){
     auto acl = AclHelper::getAcl(db, m_invId);
-    EXPECT_EQ( m_userId, acl.owner() );
+
+    ASSERT_TRUE( acl );
+    EXPECT_EQ( m_userId, acl.get().owner() );
 }
 
 TEST_F(inventoryTest, userCanEditNewlyCreatedInventory ){
     auth::AccesControl acces(m_userId);
-    auth::AccesControl other( addUser(db,"xxxxxxx2") );
+    auth::AccesControl other( test::addUser(db,"xxxxxxx2") );
 
     EXPECT_TRUE(acces.checkUserAction<schema::t_inventories>(db, "read", m_invId ) );
     EXPECT_TRUE(acces.checkUserAction<schema::t_inventories>(db, "write", m_invId ) );
     EXPECT_TRUE(acces.checkUserAction<schema::t_inventories>(db, "delete", m_invId ) );
 
-    EXPECT_TRUE(other.checkUserAction<schema::t_inventories>(db, "read", m_invId ) );
+    EXPECT_TRUE (other.checkUserAction<schema::t_inventories>(db, "read", m_invId ) );
     EXPECT_FALSE(other.checkUserAction<schema::t_inventories>(db, "write", m_invId ) );
     EXPECT_FALSE(other.checkUserAction<schema::t_inventories>(db, "delete", m_invId ) );
 }

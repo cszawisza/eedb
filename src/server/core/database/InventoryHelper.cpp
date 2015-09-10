@@ -6,29 +6,33 @@
 
 #include "utils/unixPerms.hpp"
 
+using boost::optional;
+
 namespace eedb{
 namespace db {
 static constexpr schema::t_inventories i;
 static constexpr schema::t_shelfs s;
 static constexpr schema::t_user_inventories u_i;
 
-uint64_t InventoryHelper::getInventoryIdByName(DB &db, const string &name)
+optional<int64_t> InventoryHelper::getInventoryIdByName(DB &db, const string &name)
 {
     ///TODO prevent sql injection
     auto val = db(sqlpp::select(i.c_uid).from(i).where(i.c_name == name) );
+
+    optional<int64_t> id;
     if(!val.empty())
-        return val.front().c_uid;
-    else
-        return 0;
+        id.get() = val.front().c_uid;
+    return id;
 }
 
-uint64_t InventoryHelper::getShelfId(DB &db, uint64_t parentId, const string &name)
+optional<int64_t> InventoryHelper::getShelfId(DB &db, uint64_t parentId, const string &name)
 {
     auto val = db(sqlpp::select(s.c_uid).from(s).where(s.c_name == name and s.c_inventory_id == parentId ));
+
+    optional<int64_t> id;
     if(!val.empty())
-        return val.front().c_uid;
-    else
-        return 0;
+        id.get() = val.front().c_uid;
+    return id;
 }
 
 void InventoryHelper::insertInventory(DB &db, MsgInventoryRequest_Add &add)

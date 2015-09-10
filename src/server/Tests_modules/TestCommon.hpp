@@ -32,7 +32,8 @@ inline quint64 addUser(DB &db, const string &name, const std::string &pass = "xx
 
     if(! UserHelper::getUserIdByName(db, name)) // function returns 0 when user don't exist
         UserHelper::insertUser(db, msg);
-    return UserHelper::getUserIdByName(db, name);
+
+    return UserHelper::getUserIdByName(db, name).get_value_or(0);
 }
 
 inline SharedUserData login(DB &db, const string &name, const std::string &pass = "xxxx"){
@@ -64,7 +65,7 @@ inline quint64 addInventory(DB &db, string name, SharedUserData data )
     inventoryHandler.process(db, req);
 
 //    auto returnCode = inventoryHandler.getLastResponse().msginventoryres().code(0);
-    return eedb::db::InventoryHelper::getInventoryIdByName(db, name );
+    return eedb::db::InventoryHelper::getInventoryIdByName(db, name ).get_value_or(0);
 }
 
 inline quint64 addShelf(DB &db,uint64_t storageId, string name, SharedUserData data ){
@@ -82,63 +83,8 @@ inline quint64 addShelf(DB &db,uint64_t storageId, string name, SharedUserData d
     inventoryHandler.process(db, req);
 
 //    return inventoryHandler.getLastResponse().msginventoryres().code(0);
-    return eedb::db::InventoryHelper::getShelfId(db, storageId, name);
+    return eedb::db::InventoryHelper::getShelfId(db, storageId, name).get_value_or(0);
 }
-
-template<typename T>
-inline void createBackup(DB &db, T ){
-    string table =  sqlpp::name_of<T>::char_ptr();
-
-    string copy = table +"_copy";
-
-    db.execute("CREATE TABLE " + copy +" (LIKE "+ table + " INCLUDING ALL);");
-    db.execute("ALTER TABLE " + copy + " ALTER c_uid DROP DEFAULT;");
-    db.execute("CREATE SEQUENCE " + copy + "_id_seq;");
-
-    db.execute("INSERT INTO " + copy + " SELECT * FROM "+ table + ";");
-    db.execute("SELECT setval('" + copy + "_id_seq', (SELECT max(c_uid) FROM " + copy + "), true);");
-    db.execute("ALTER TABLE " + copy + " ALTER c_uid SET DEFAULT nextval('" + copy + "_id_seq');");
-}
-
-template<typename T>
-inline void createBackup( T t ){
-    DB db;
-    try{
-        db.start_transaction();
-        createBackup(db,t);
-        db.commit_transaction();
-    }
-    catch(sqlpp::exception){
-        db.rollback_transaction(false);
-    }
-}
-
-
-template<typename T>
-inline void restoreBackup(DB &db, T ){
-
-    string table =  sqlpp::name_of<T>::char_ptr();
-    string copy = table+ "_copy";
-    db.execute("delete from "+ table + " where c_uid not in ( select c_uid from "+ copy + " );");
-
-    db.execute("DROP table " + copy + ";");
-    db.execute("DROP SEQUENCE " + copy + "_id_seq;");
-}
-
-
-template<typename T>
-inline void restoreBackup( T t){
-    DB db;
-    try{
-        db.start_transaction();
-        restoreBackup(db, t);
-        db.commit_transaction();
-    }
-    catch(sqlpp::exception){
-        db.rollback_transaction(false);
-    }
-}
-
 
 inline std::string random_string( size_t length )
 {

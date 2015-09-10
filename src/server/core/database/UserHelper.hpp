@@ -16,16 +16,19 @@
 #include "auth/privilege.hpp"
 #include "auth/acl.hpp"
 
+#include <boost/optional.hpp>
+
 using namespace pb;
 using eedb::utils::PasswordHash;
+using boost::optional;
 
 namespace eedb{
 namespace db{
 
 class UserHelper {
 public:
-    static int64_t getUserIdByName (DB &db, const string &name);
-    static int64_t getUserIdByEmail(DB &db, const string &email);
+    static optional<int64_t> getUserIdByName (DB &db, const string &name);
+    static optional<int64_t> getUserIdByEmail(DB &db, const string &email);
 
     static void insertUser(DB &db, const UserReq_Add &msg);
 };
