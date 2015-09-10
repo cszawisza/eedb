@@ -1,0 +1,159 @@
+#pragma once
+
+#include <string>
+#include <memory>
+
+#include <sqlpp11/sqlpp11.h>
+#include <sqlpp11/sqlpp11.h>
+
+#include <core/inventory.hpp>
+
+#include <sql_schema/t_shelfs.h>
+
+#include "database/idatabase.h"
+#include "database/AclHelper.hpp"
+#include "database/InventoryHelper.hpp"
+#include "database/UserHelper.hpp"
+
+#include "user.h"
+
+using std::string;
+
+namespace test{
+
+using eedb::db::UserHelper;
+
+inline quint64 addUser(DB &db, const string &name, const std::string &pass = "xxxx"){
+    pb::UserReq_Add msg;
+
+    msg.mutable_basic()->set_name(name);
+    msg.mutable_basic()->set_email(name + "@fake.xx");
+    msg.set_password(pass);
+
+    if(! UserHelper::getUserIdByName(db, name)) // function returns 0 when user don't exist
+        UserHelper::insertUser(db, msg);
+    return UserHelper::getUserIdByName(db, name);
+}
+
+inline SharedUserData login(DB &db, const string &name, const std::string &pass = "xxxx"){
+    pb::UserReq_Login msg;
+    msg.mutable_cred()->set_name(name);
+    msg.set_password(pass);
+
+    pb::ClientRequest req;
+
+    auto userReq = req.mutable_userreq();
+    userReq->mutable_login()->CopyFrom(msg);
+    eedb::handlers::User userHandler;
+    userHandler.process(db, req);
+    return userHandler.user();
+}
+
+inline quint64 addInventory(DB &db, string name, SharedUserData data )
+{
+    pb::ClientRequest req;
+    eedb::handlers::Inventory inventoryHandler;
+    inventoryHandler.setUserData( data );
+
+    auto add_inv = pb::MsgInventoryRequest_Add::default_instance();
+    add_inv.set_name( name );
+    add_inv.set_description("description");
+
+    auto userReq = req.mutable_msginventoryreq();
+    userReq->mutable_add()->CopyFrom(add_inv);
+    inventoryHandler.process(db, req);
+
+//    auto returnCode = inventoryHandler.getLastResponse().msginventoryres().code(0);
+    return eedb::db::InventoryHelper::getInventoryIdByName(db, name );
+}
+
+inline quint64 addShelf(DB &db,uint64_t storageId, string name, SharedUserData data ){
+    pb::ClientRequest req;
+
+    auto add = pb::MsgInventoryRequest_AddShelf::default_instance();
+    add.set_name( name );
+    add.set_description("description");
+    add.set_inventory_id( storageId );
+
+    auto userReq = req.mutable_msginventoryreq();
+    userReq->mutable_addshelf()->CopyFrom(add);
+    eedb::handlers::Inventory inventoryHandler;
+    inventoryHandler.setUserData(data);
+    inventoryHandler.process(db, req);
+
+//    return inventoryHandler.getLastResponse().msginventoryres().code(0);
+    return eedb::db::InventoryHelper::getShelfId(db, storageId, name);
+}
+
+template<typename T>
+inline void createBackup(DB &db, T ){
+    string table =  sqlpp::name_of<T>::char_ptr();
+
+    string copy = table +"_copy";
+
+    db.execute("CREATE TABLE " + copy +" (LIKE "+ table + " INCLUDING ALL);");
+    db.execute("ALTER TABLE " + copy + " ALTER c_uid DROP DEFAULT;");
+    db.execute("CREATE SEQUENCE " + copy + "_id_seq;");
+
+    db.execute("INSERT INTO " + copy + " SELECT * FROM "+ table + ";");
+    db.execute("SELECT setval('" + copy + "_id_seq', (SELECT max(c_uid) FROM " + copy + "), true);");
+    db.execute("ALTER TABLE " + copy + " ALTER c_uid SET DEFAULT nextval('" + copy + "_id_seq');");
+}
+
+template<typename T>
+inline void createBackup( T t ){
+    DB db;
+    try{
+        db.start_transaction();
+        createBackup(db,t);
+        db.commit_transaction();
+    }
+    catch(sqlpp::exception){
+        db.rollback_transaction(false);
+    }
+}
+
+
+template<typename T>
+inline void restoreBackup(DB &db, T ){
+
+    string table =  sqlpp::name_of<T>::char_ptr();
+    string copy = table+ "_copy";
+    db.execute("delete from "+ table + " where c_uid not in ( select c_uid from "+ copy + " );");
+
+    db.execute("DROP table " + copy + ";");
+    db.execute("DROP SEQUENCE " + copy + "_id_seq;");
+}
+
+
+template<typename T>
+inline void restoreBackup( T t){
+    DB db;
+    try{
+        db.start_transaction();
+        restoreBackup(db, t);
+        db.commit_transaction();
+    }
+    catch(sqlpp::exception){
+        db.rollback_transaction(false);
+    }
+}
+
+
+inline std::string random_string( size_t length )
+{
+    auto randchar = []() -> char
+    {
+            const char charset[] =
+            "0123456789"
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            "abcdefghijklmnopqrstuvwxyz";
+            const size_t max_index = (sizeof(charset) - 1);
+            return charset[ rand() % max_index ];
+};
+std::string str(length,0);
+std::generate_n( str.begin(), length, randchar );
+return str;
+}
+
+}
