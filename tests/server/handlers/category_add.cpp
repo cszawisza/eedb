@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include <core/inventory.hpp>
+#include <core/category.hpp>
 
 #include <sqlpp11/sqlpp11.h>
 #include <core/database/idatabase.h>
@@ -9,19 +9,26 @@
 
 #include <sql_schema/t_shelfs.h>
 
-#include <memory>
-
 #include "TestCommon.hpp"
 
 using namespace eedb::db;
 using namespace test;
 
-class inventoryTest : public ::testing::Test
-{
-public:
-    DB db;
-};
+//class CategoriesTest : public ::testing::Test
+//{
+//    CategoriesTest(){
+//        db.start_transaction();
+//    }
+//    ~CategoriesTest(){
+//        db.rollback_transaction(false);
+//    }
 
-TEST_F(inventoryTest, simpleAdd){
+//public:
+//    DB db;
+//    eedb::handlers::Category categoryHandler;
+//};
 
-}
+//TEST_F(CategoriesTest, simpleAdd){
+//    schema::t_categories cat;
+//    db(select(all_of(cat)).where(cat.c_parent_category_id == 1 and cat.c_name == "name") );
+//}

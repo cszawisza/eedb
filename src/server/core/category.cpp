@@ -38,6 +38,7 @@ void Category::process(DB &db, pb::ClientRequest &msgReq)
         case CategoryReq::kModify:
             break;
         case CategoryReq::kGet:
+            handle_get(db, *req.mutable_get() );
             break;
         case CategoryReq::kModifyParameters:
             break;
@@ -84,6 +85,11 @@ void Category::handle_add(DB &db, CategoryReq_Add &msg)
     else{
         sendAccesDeny();
     }
+}
+
+void Category::handle_get(DB &db, CategoryReq_Get &msg)
+{
+
 }
 
 }

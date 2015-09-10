@@ -24,6 +24,7 @@ public:
 private:
 
     void handle_add(DB &db, CategoryReq_Add &msg);
+    void handle_get(DB &db, CategoryReq_Get &msg);
 };
 
 }
