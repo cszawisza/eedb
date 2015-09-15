@@ -32,6 +32,7 @@ Quite long time ago I noticed that electronic parts that I buy are often duplica
 ## Contribute
 
 * Source Code: https://github.com/cszawisza/eedb
+* Redmine: http://eedb.pl
 
 ## Support
 
