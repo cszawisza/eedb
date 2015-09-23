@@ -104,7 +104,7 @@ void User::addUser(DB &db, const UserReq_Add &msg)
     }
     catch (const pg_exception &e) {
         ///TODO log message
-        ///TODO proper exception handling
+        ///TODO proper exception handling (by class, etc)
         addErrorCode(UserRes_Reply_UserAlreadyExists);
     }
 }

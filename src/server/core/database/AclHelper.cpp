@@ -18,7 +18,7 @@ optional<Acl> AclHelper::getAcl(DB &db, uint64_t objectID)
         acl.set_status( row.front().c_status );
         acl.set_uid( row.front().c_uid );
         acl.set_unixperms( row.front().c_unixperms );
-        optionalAclData.get() = acl;
+        optionalAclData = acl;
     }
 
     return optionalAclData;

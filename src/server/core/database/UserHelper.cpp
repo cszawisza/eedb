@@ -12,8 +12,8 @@ optional<int64_t> UserHelper::getUserIdByName(DB &db, const string &name){
     auto res = db(prep);
 
     optional<int64_t> id;
-    if(res.empty())
-        id.get() = res.front().c_uid;
+    if(!res.empty())
+        id = res.front().c_uid;
     return id;
 }
 
@@ -25,8 +25,8 @@ optional<int64_t> UserHelper::getUserIdByEmail(DB &db, const string &email)
     auto res = db(prep);
 
     optional<int64_t> id;
-    if(res.empty())
-        id.get() = res.front().c_uid;
+    if(!res.empty())
+        id = res.front().c_uid;
     return id;
 }
 

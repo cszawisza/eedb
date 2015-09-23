@@ -21,7 +21,7 @@ optional<int64_t> InventoryHelper::getInventoryIdByName(DB &db, const string &na
 
     optional<int64_t> id;
     if(!val.empty())
-        id.get() = val.front().c_uid;
+        id = val.front().c_uid;
     return id;
 }
 
@@ -31,7 +31,7 @@ optional<int64_t> InventoryHelper::getShelfId(DB &db, uint64_t parentId, const s
 
     optional<int64_t> id;
     if(!val.empty())
-        id.get() = val.front().c_uid;
+        id = val.front().c_uid;
     return id;
 }
 
