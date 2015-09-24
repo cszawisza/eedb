@@ -28,11 +28,6 @@ public:
     }
 
     DB db;
-
-//    c_name      TEXT    NOT NULL CHECK(length(c_name) < 4096 ),
-//    c_size      BIGINT  NOT NULL,
-//    c_sha       TEXT    NOT NULL CHECK(length(c_sha) < 512 ),
-//    c_mimetype  TEXT    NOT NULL CHECK(length(c_mimetype) < 256 ),
     void addDummyFile(){
         static constexpr schema::t_files f;
 
@@ -82,6 +77,7 @@ TEST_F(PrivilegesTest, roleNameConversion){
     EXPECT_EQ( "user"          , role.name(auth::Role_User  ));
     EXPECT_EQ( auth::Role_Owner, role.id("owner")           );
     EXPECT_EQ( auth::Role_User , role.id("user")            );
+
 }
 
 TEST_F(PrivilegesTest, typeNameConversion){

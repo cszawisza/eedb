@@ -29,15 +29,15 @@ void log_action(DB& db, uint64_t uid, const string &action){
     }
 }
 
-template<typename T, typename C>
-void dynamic_cred( T &query, const C &cred){
+template<typename D, typename C>
+boost::optional<uint64_t> getUserId( const D &db, const C &cred){
     constexpr t_users u;
     if( cred.has_name())
-        query.where.add( u.c_name == cred.name() );
+        return eedb::db::UserHelper::getUserId(db, u.c_name == cred.name() );
     else if( cred.has_email() )
-        query.where.add( u.c_email == cred.email() );
+        return eedb::db::UserHelper::getUserId(db, u.c_email == cred.email() );
     else
-        query.where.add( u.c_uid == cred.id() );
+        return eedb::db::UserHelper::getUserId(db, u.c_uid == cred.id() );
 }
 
 void User::process(pb::ClientRequest &msgReq)
@@ -120,6 +120,7 @@ void User::loadUserCache(DB &db, uint64_t uid)
 //    constexpr t_inventories i;
 //    constexpr t_user_inventories ui;
 
+    ///TODO move to user helper::getAllUserData
     auto &ud = db(sqlpp::select(
                       u.c_name,
                       u.c_email,
@@ -253,33 +254,22 @@ void User::handle_login(DB &db, const UserReq_Login &loginMsg)
     }
     else
     {
-        uint64_t c_uid;
         constexpr t_users u;
-        auto s = dynamic_select(db.connection(), count(u.c_uid), u.c_uid )
-                .from(u)
-                .dynamic_where()
-                .dynamic_group_by(u.c_uid);
-
-        dynamic_cred(s,loginMsg.cred());
-
-        auto queryResult = db(s);
-
-        if (queryResult.empty()){
+        auto c_uid = getUserId(db, loginMsg.cred());
+        if (!c_uid){
             addErrorCode(UserRes_Reply_UserDontExist );
         }
         else{
-            c_uid = queryResult.front().c_uid;
-
-            auto cred = db(select(u.c_password, u.c_salt).from(u).where(u.c_uid == c_uid));
+            auto cred = db(select(u.c_password, u.c_salt).from(u).where(u.c_uid == c_uid.get()));
 
             string salt = cred.front().c_salt;
             string hash = cred.front().c_password;
             string hashed_pass = PasswordHash::hashPassword( loginMsg.password(), salt );
 
             if( hashed_pass == hash )
-                goToOnlineState(db, c_uid);
+                goToOnlineState(db, c_uid.get() );
             else{
-                log_action(db, c_uid, "wrong password");
+                log_action(db, c_uid.get() , "wrong password");
                 addErrorCode(UserRes_Reply_LoginDeny );
             }
         }
@@ -297,6 +287,17 @@ void User::handle_modify(DB &db, const UserReq_Modify &msg)
     ///TODO implement
 }
 
+template<typename T, typename C>
+void dynamix_exists( T &query, const C &cred){
+    constexpr t_users u;
+    if( cred.has_name())
+        query.where.add( u.c_name == cred.name() );
+    else if( cred.has_email() )
+        query.where.add( u.c_email == cred.email() );
+    else
+        query.where.add( u.c_uid == cred.id() );
+}
+
 void User::handle_remove( DB &db, const UserReq_Remove &msg)
 {
     if(!msg.has_cred()){
@@ -312,7 +313,7 @@ void User::handle_remove( DB &db, const UserReq_Remove &msg)
 
     if (acl.checkUserAction<schema::t_users>("delete", msg.cred().id())){
         auto query = dynamic_remove(db.connection()).from(u).dynamic_where();
-        dynamic_cred(query, cred);
+        dynamix_exists(query, cred);
         db(query);
     }
     else

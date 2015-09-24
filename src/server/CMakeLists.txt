@@ -22,6 +22,7 @@ set(Core_CPP
     core/database/InventoryHelper.cpp
     core/database/AclHelper.cpp
     core/database/DbConnection.cpp
+    core/database/CategoryHelper.cpp
 
     core/clientcache.cpp
     core/clientconnection.cpp
@@ -47,6 +48,7 @@ set(Core_H
     core/database/InventoryHelper.hpp
     core/database/AclHelper.hpp
     core/database/DbConnection.hpp
+    core/database/CategoryHelper.hpp
 
     core/clientcache.h
     core/clientconnection.h
