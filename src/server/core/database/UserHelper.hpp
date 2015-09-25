@@ -17,11 +17,10 @@
 #include "auth/privilege.hpp"
 #include "auth/acl.hpp"
 
-#include <boost/optional.hpp>
 
 using namespace pb;
 using eedb::utils::PasswordHash;
-using boost::optional;
+
 
 namespace eedb{
 namespace db{
@@ -32,16 +31,10 @@ struct UserData {
 
     uint64_t uid;
     string name;
-
 };
 
 class UserHelper {
 public:
-
-
-    static optional<int64_t> getUserIdByName (DB &db, const string &name);
-    static optional<int64_t> getUserIdByEmail(DB &db, const string &email);
-
     template< typename T >
     static auto selectId( T&& t ){
         constexpr schema::t_users u;
@@ -72,39 +65,26 @@ public:
                 .limit(1);
     }
 
-    template< typename D, typename T >
-    static optional<UserData> getAllUserDataWhere(D db, T&& t){
+    template< typename T >
+    static auto selectAll( T&& t ){
         constexpr schema::t_users u;
+        return sqlpp::select(
+                    u.c_uid,
+                    u.c_name,
+                    u.c_email,
+                    u.c_config,
 
-        optional<UserData> ud;
+                    u.c_address,
+                    u.c_description,
+                    u.c_phonenumber,
 
-        auto data = db( sqlpp::select( sqlpp::all_of(u) )
-                        .from(u)
-                        .where( std::forward<T>(t) )
-                        .limit(1) );
-
-        if(!data.empty()){
-            ud = UserData();
-            const auto &front = data.front();
-            ud->uid = front.c_uid;
-            ud->name = front.c_name;
-        }
-
-        return ud;
-    }
-
-    template< typename D, typename T >
-    static optional<uint64_t> getUserIdWhere(D db, T&& t){
-        constexpr schema::t_users u;
-        auto res = db(sqlpp::select(u.c_uid)
-                      .from(u)
-                      .where( std::forward<T>(t) )
-                      .limit(1));
-
-        optional<uint64_t> id;
-        if(!res.empty())
-            id = res.front().c_uid;
-        return id;
+                    u.c_owner,
+                    u.c_status,
+                    u.c_group,
+                    u.c_unixperms )
+                .from(u)
+                .where( std::forward<T>(t) )
+                .limit(1);
     }
 
     static void insertUser(DB &db, const UserReq_Add &msg);

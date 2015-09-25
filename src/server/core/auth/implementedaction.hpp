@@ -67,9 +67,9 @@ public:
     bool exists(DB &db) const;
 
 private:
-    string m_tablename;
     string m_title;
     ObjectState m_status;
+    string m_tablename;
 };
 
 }

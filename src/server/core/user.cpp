@@ -113,27 +113,13 @@ void User::loadUserCache(DB &db, uint64_t uid)
 //    constexpr t_inventories i;
 //    constexpr t_user_inventories ui;
 
-    ///TODO move to user helper::getAllUserData
-    auto &ud = db(sqlpp::select(
-                      u.c_name,
-                      u.c_email,
-                      u.c_config,
-
-                      u.c_address,
-                      u.c_description,
-                      u.c_phonenumber,
-
-                      u.c_owner,
-                      u.c_status,
-                      u.c_group,
-                      u.c_unixperms)
-       .from(u)
-       .where(u.c_uid == uid )).front();
+    auto udAll = db( uh::selectAll( u.c_uid == uid ) );
+    const auto &ud = udAll.front();
 
     auto basic = user()->mutable_basic();
     auto acl   = user()->mutable_acl();
 
-    basic->set_id   ( uid );
+    basic->set_id   ( ud.c_uid );
     basic->set_name ( ud.c_name );
     basic->set_email( ud.c_email );
     basic->set_description( ud.c_description );

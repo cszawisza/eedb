@@ -43,6 +43,7 @@ std::string Role::name(RoleID id) {
     default:
         break;
     }
+    return "";
 }
 
 RoleID Role::id(const string &name)
@@ -174,6 +175,7 @@ bool Privilege::saveInDb(DB &db, const PrivilegeRow &row) const {
         ///TODO proper exception handling
         spdlog::get("Server")->error("{}: {}", __PRETTY_FUNCTION__, e.what() );
     }
+    return true;
 }
 
 }

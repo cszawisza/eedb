@@ -1,34 +1,7 @@
 #include "UserHelper.hpp"
 
-using boost::optional;
-
 namespace eedb{
 namespace db{
-
-optional<int64_t> UserHelper::getUserIdByName(DB &db, const string &name){
-    constexpr schema::t_users u;
-    auto prep = db.prepare(selectId( u.c_name == parameter(u.c_name) ));
-    prep.params.c_name = name;
-    auto res = db(prep);
-
-    optional<int64_t> id;
-    if(!res.empty())
-        id = res.front().c_uid;
-    return id;
-}
-
-optional<int64_t> UserHelper::getUserIdByEmail(DB &db, const string &email)
-{
-    constexpr schema::t_users u;
-    auto prep = db.prepare(selectId(u.c_email == parameter(u.c_email) ));
-    prep.params.c_email = email;
-    auto res = db(prep);
-
-    optional<int64_t> id;
-    if(!res.empty())
-        id = res.front().c_uid;
-    return id;
-}
 
 void UserHelper::insertUser(DB &db, const UserReq_Add &msg)
 {

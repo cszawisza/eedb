@@ -136,12 +136,12 @@ private:
     bool saveInDb(DB &db, const PrivilegeRow &row) const;
 
     string m_action;
-    TypeID m_type;
-    string m_related_table;
-    ObjectState m_status;
-    RoleID m_role;
-    uint64_t m_who = 0;
     uint64_t m_oid = 0;
+    string m_related_table;
+    RoleID m_role;
+    ObjectState m_status;
+    TypeID m_type;
+    uint64_t m_who = 0;
     uint64_t m_groupid = 0;
 };
 
