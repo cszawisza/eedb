@@ -33,9 +33,27 @@ TEST_F(GetUserTest, getTrueUser ){
     EXPECT_EQ(userData->name, "ROOT");
 }
 
-
 TEST_F(GetUserTest, checkIfExists ){
-    auto exists = helper.exists(db, u.c_name == "ROOT" );
+    auto e = db.prepare( helper.selectExists( u.c_name == parameter(u.c_name) ) );
+    e.params.c_name = "ROOT";
 
-    ASSERT_TRUE(exists);
+    EXPECT_TRUE(db(e).front().exists);
 }
+
+//constexpr schema::t_users u;
+//auto prep = db.prepare(sqlpp::select(u.c_uid).from(u)
+//                       .where( u.c_name == parameter(u.c_name) ));
+//prep.params.c_name = name;
+//auto res = db(prep);
+
+//optional<int64_t> id;
+//if(!res.empty())
+//    id = res.front().c_uid;
+//return id;
+
+
+//TEST_F(GetUserTest, prep){
+//    constexpr schema::t_users u;
+//    auto preparedStatement = getUserPrep(db, u.c_name == parameter(u.c_name) );
+//    preparedStatement.params.c_name = "CYCEK";
+//}

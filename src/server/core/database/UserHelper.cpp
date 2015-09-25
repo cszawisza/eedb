@@ -7,7 +7,7 @@ namespace db{
 
 optional<int64_t> UserHelper::getUserIdByName(DB &db, const string &name){
     constexpr schema::t_users u;
-    auto prep = db.prepare(sqlpp::select(u.c_uid).from(u).where( u.c_name == parameter(u.c_name) ));
+    auto prep = db.prepare(selectId( u.c_name == parameter(u.c_name) ));
     prep.params.c_name = name;
     auto res = db(prep);
 
@@ -20,7 +20,7 @@ optional<int64_t> UserHelper::getUserIdByName(DB &db, const string &name){
 optional<int64_t> UserHelper::getUserIdByEmail(DB &db, const string &email)
 {
     constexpr schema::t_users u;
-    auto prep = db.prepare(sqlpp::select(u.c_uid).from(u).where( u.c_email == parameter(u.c_email) ));
+    auto prep = db.prepare(selectId(u.c_email == parameter(u.c_email) ));
     prep.params.c_email = email;
     auto res = db(prep);
 

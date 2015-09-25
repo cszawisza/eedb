@@ -10,9 +10,13 @@
 #include <QRegExp>
 
 using eedb::utils::PasswordHash;
+using uh = eedb::db::UserHelper;
 using namespace schema;
 using namespace pb;
 using sqlpp::postgresql::pg_exception;
+
+
+constexpr t_users u;
 
 namespace eedb{
 namespace handlers{
@@ -27,17 +31,6 @@ void log_action(DB& db, uint64_t uid, const string &action){
         ///TODO proper exception handling
         spdlog::get("Server")->error("{}: {}", __PRETTY_FUNCTION__, e.what() );
     }
-}
-
-template<typename D, typename C>
-boost::optional<uint64_t> getUserId( const D &db, const C &cred){
-    constexpr t_users u;
-    if( cred.has_name())
-        return eedb::db::UserHelper::getUserId(db, u.c_name == cred.name() );
-    else if( cred.has_email() )
-        return eedb::db::UserHelper::getUserId(db, u.c_email == cred.email() );
-    else
-        return eedb::db::UserHelper::getUserId(db, u.c_uid == cred.id() );
 }
 
 void User::process(pb::ClientRequest &msgReq)
@@ -255,21 +248,35 @@ void User::handle_login(DB &db, const UserReq_Login &loginMsg)
     else
     {
         constexpr t_users u;
-        auto c_uid = getUserId(db, loginMsg.cred());
-        if (!c_uid){
+
+        auto prep = db.prepare(uh::selectCredentials(u.c_name == parameter(u.c_name) or
+                                                     u.c_uid == parameter(u.c_uid) or
+                                                     u.c_email == parameter(u.c_email) ) );
+        auto &param = prep.params;
+
+        if( loginMsg.cred().has_name())
+            param.c_name = loginMsg.cred().name();
+        else if( loginMsg.cred().has_email() )
+            param.c_email = loginMsg.cred().email();
+        else
+            param.c_uid = loginMsg.cred().id();
+
+        auto queryRes = db(prep);
+
+        if ( queryRes.empty() ){
             addErrorCode(UserRes_Reply_UserDontExist );
         }
         else{
-            auto cred = db(select(u.c_password, u.c_salt).from(u).where(u.c_uid == c_uid.get()));
+            const auto &row = queryRes.front();
 
-            string salt = cred.front().c_salt;
-            string hash = cred.front().c_password;
+            string salt = row.c_salt;
+            string hash = row.c_password;
             string hashed_pass = PasswordHash::hashPassword( loginMsg.password(), salt );
 
             if( hashed_pass == hash )
-                goToOnlineState(db, c_uid.get() );
+                goToOnlineState(db, row.c_uid );
             else{
-                log_action(db, c_uid.get() , "wrong password");
+                log_action(db, row.c_uid , "wrong password");
                 addErrorCode(UserRes_Reply_LoginDeny );
             }
         }
@@ -287,17 +294,6 @@ void User::handle_modify(DB &db, const UserReq_Modify &msg)
     ///TODO implement
 }
 
-template<typename T, typename C>
-void dynamix_exists( T &query, const C &cred){
-    constexpr t_users u;
-    if( cred.has_name())
-        query.where.add( u.c_name == cred.name() );
-    else if( cred.has_email() )
-        query.where.add( u.c_email == cred.email() );
-    else
-        query.where.add( u.c_uid == cred.id() );
-}
-
 void User::handle_remove( DB &db, const UserReq_Remove &msg)
 {
     if(!msg.has_cred()){
@@ -313,7 +309,12 @@ void User::handle_remove( DB &db, const UserReq_Remove &msg)
 
     if (acl.checkUserAction<schema::t_users>("delete", msg.cred().id())){
         auto query = dynamic_remove(db.connection()).from(u).dynamic_where();
-        dynamix_exists(query, cred);
+        if( msg.cred().has_name())
+            query.where.add( u.c_name == msg.cred().name() );
+        else if( msg.cred().has_email() )
+            query.where.add( u.c_email == msg.cred().email() );
+        else
+            query.where.add( u.c_uid == msg.cred().id() );
         db(query);
     }
     else
@@ -349,17 +350,12 @@ void User::handle_changePasswd(DB &db, const UserReq_ChangePasswd &msg)
 
 bool User::userExists(DB &db, string name, string email)
 {
-    constexpr t_users u;
-    auto q = sqlpp::select(exists(sqlpp::select( u.c_uid )
-            .from(u)
-            .where(u.c_name == parameter(u.c_name) || u.c_email == parameter(u.c_email) )
-            ));
-    auto query = db.prepare(q);
+    auto query = db.prepare(uh::selectExists(u.c_name == parameter(u.c_name) || u.c_email == parameter(u.c_email)));
+
     query.params.c_name = name;
     query.params.c_email = email;
-    auto result = db(query);
 
-    return result.front().exists;
+    return db(query).front().exists;
 }
 
 }

@@ -45,6 +45,7 @@ class DB
     //! pointer to database connection
     thread_local static unique_ptr<DbConnection> m_reserved;
 public:
+    using type = sqlpp::postgresql::connection;
 
     DB();
     ~DB();

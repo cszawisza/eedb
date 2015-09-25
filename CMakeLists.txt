@@ -8,7 +8,7 @@ enable_testing()
 include(CodeCoverage)
 
 if(NOT MSVC)
-    add_definitions( -std=c++11 )
+    add_definitions( -std=c++1y )
     include_directories( /usr/local )
 
     if ( CMAKE_BUILD_TYPE STREQUAL "Coverage")
