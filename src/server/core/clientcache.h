@@ -37,14 +37,14 @@ public:
         return &m_basicData;
     }
 
-    Acl *mutable_acl(){
+    pb::Acl *mutable_acl(){
         return &m_acl;
     }
 
 private:
     Status m_status;
     pb::UserBasic m_basicData;
-    Acl m_acl;
+    pb::Acl m_acl;
 };
 
 class ClientCache

@@ -15,7 +15,7 @@ message MsgInventoryOperationRequest {
     message AddItem{
         required int32 storageId = 1;
         required int32 itemId = 2;
-        optional Variant quantity = 3;
+        optional pb.Variant quantity = 3;
         optional int32 shelfId = 4;
     }
 
@@ -25,7 +25,7 @@ message MsgInventoryOperationRequest {
         required int32 storageToId = 3;
         optional int32 shelfToId = 4;
         required int32 itemId = 5;
-        optional Variant quantity = 6;
+        optional pb.Variant quantity = 6;
     }
 
     // remove dont only takes items from stack,

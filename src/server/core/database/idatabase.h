@@ -51,7 +51,7 @@ public:
     ~DB();
 
     //! returns a bad connection handler (it only gives a type od connection)
-    DbConnection &connection();
+    static DbConnection &connection();
 
     //! start transaction
     void start_transaction();

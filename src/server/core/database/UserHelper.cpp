@@ -14,25 +14,25 @@ void UserHelper::insertUser(DB &db, const UserReq_Add &msg)
     passwd.setPassword( msg.password() );
 
     utils::UserConfig userConfig( conf );
-    auto query = insert_into(u)
-            .set(
-                u.c_group = parameter(u.c_group),
-                u.c_unixperms = parameter(u.c_unixperms),
-                u.c_owner = parameter(u.c_owner),
-                u.c_status = parameter(u.c_status),
-                u.c_name = parameter(u.c_name),
-                u.c_email = parameter(u.c_email),
-                u.c_password = passwd.hash(),
-                u.c_salt = passwd.salt(),
-                u.c_address = parameter(u.c_address),
-                u.c_phonenumber = parameter(u.c_phonenumber),
-                u.c_description = parameter(u.c_description),
-                u.c_config = userConfig.toStdString(), // must be a proper JSON document no need to parametrize
-                u.c_avatar = parameter(u.c_avatar)
-            );
 
     // run query
-    auto pre = db.prepare(query);
+    auto pre = db.prepare(insert_into(u)
+                          .set(
+                              u.c_group = parameter(u.c_group),
+                              u.c_unixperms = parameter(u.c_unixperms),
+                              u.c_owner = parameter(u.c_owner),
+                              u.c_status = parameter(u.c_status),
+                              u.c_name = parameter(u.c_name),
+                              u.c_email = parameter(u.c_email),
+                              u.c_password = passwd.hash(),
+                              u.c_salt = passwd.salt(),
+                              u.c_address = parameter(u.c_address),
+                              u.c_phonenumber = parameter(u.c_phonenumber),
+                              u.c_description = parameter(u.c_description),
+                              u.c_config = userConfig.toStdString(), // must be a proper JSON document no need to parametrize
+                              u.c_avatar = parameter(u.c_avatar)
+            ));
+
     pre.params.c_name  = basic.name();
     pre.params.c_email = basic.email();
 

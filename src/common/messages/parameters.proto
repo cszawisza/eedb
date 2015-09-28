@@ -20,7 +20,7 @@ message MsgParameterResponse{
 
 message ParameterValues{
   required int32 id = 1;
-  required Variant value = 2;
+  required pb.Variant value = 2;
 }
 
 message Details{

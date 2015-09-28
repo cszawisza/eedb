@@ -50,6 +50,8 @@ set(Core_H
     core/database/DbConnection.hpp
     core/database/CategoryHelper.hpp
 
+    core/database/config.h
+
     core/clientcache.h
     core/clientconnection.h
     core/clientworker.h

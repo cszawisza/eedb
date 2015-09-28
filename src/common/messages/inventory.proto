@@ -19,7 +19,7 @@ message MsgInventoryRequest {
   message Add{
     required string name = 1;
     optional string description = 2;
-    optional Acl acl=4;
+    optional pb.Acl acl=4;
   }
 
   message Remove{
@@ -32,7 +32,7 @@ message MsgInventoryRequest {
     required int32 uid = 1;
     optional string newName = 2;
     optional string newDesc = 3;
-    optional Acl newAcl = 4;
+    optional pb.Acl newAcl = 4;
   }
 
   message Get {
@@ -59,7 +59,7 @@ message MsgInventoryRequest {
       optional int32 inventory_id = 3;
       optional string position_of_shelf = 4;
       optional string description = 5;
-      optional Acl acl = 10;
+      optional pb.Acl acl = 10;
   }
 }
 
@@ -77,7 +77,7 @@ message MsgInventoryResponse {
   optional int32 id = 2;
   optional string name = 3;
   optional string description = 4;
-  optional Acl acl = 5; // acl contains ID
+  optional pb.Acl acl = 5; // acl contains ID
   repeated InventoryShelf shelfs = 6;
 }
 
@@ -91,7 +91,7 @@ message InventoryShelf {
     optional string position_of_shelf = 4;
     optional string description = 5;
 //    repeated Item items = 6;
-    optional Acl acl = 10;
+    optional pb.Acl acl = 10;
 }
 
 message Inventory{
@@ -99,5 +99,5 @@ message Inventory{
     optional string description = 2;
     repeated InventoryShelf shelfs = 3;
     optional fixed64 creation_date = 4;
-    optional Acl acl=5;
+    optional pb.Acl acl=5;
 }

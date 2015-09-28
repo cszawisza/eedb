@@ -6,7 +6,7 @@ bool AccesControl::checkBasicPerms(DB &db, const string &action, uint64_t object
     if(m_userId == rootId )
         return true;
 
-    Acl objectAcl;
+    pb::Acl objectAcl;
 
     ///TODO
     /// 1: save the acl info in chace and update it only once a while to prevent db roundtrips

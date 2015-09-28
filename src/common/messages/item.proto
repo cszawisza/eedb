@@ -25,7 +25,7 @@ message MsgItemRequest{
         optional Package packageId = 7;
         repeated FileStat files = 8; // only id and namel
         repeated Parameter nerParameters = 9;
-        optional Acl acl = 10;
+        optional pb.Acl acl = 10;
     }
 
     message Remove {
@@ -40,7 +40,7 @@ message MsgItemRequest{
         optional string namespace = 4;
         optional string description = 5;
         repeated ParameterValues parameters = 6;
-        optional Acl acl = 7;
+        optional pb.Acl acl = 7;
     }
 
     message Get{

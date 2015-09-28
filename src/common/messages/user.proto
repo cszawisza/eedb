@@ -40,7 +40,7 @@ message UserReq{
     required UserBasic basic = 1;
     optional UserConfig config = 2;
     optional string password = 3;
-    optional Acl acl = 4;
+    optional pb.Acl acl = 4;
     optional UserDetails details = 5;
   }
   
@@ -58,7 +58,7 @@ message UserReq{
     optional bytes phone_number = 4;
     optional bytes description = 5; 
     optional bytes avatar = 6;
-    optional Acl acl = 7;
+    optional pb.Acl acl = 7;
   }
 
   message Get {

@@ -15,6 +15,7 @@ class UnixPermissions{
 public:
     UnixPermissions( UnixPerms perms );
     UnixPermissions( int perms );
+    UnixPermissions();
 
     int toInteger() const;
     std::string toString() const;

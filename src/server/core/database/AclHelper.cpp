@@ -5,23 +5,14 @@
 namespace eedb{
 namespace db {
 
-optional<Acl> AclHelper::getAcl(DB &db, uint64_t objectID)
+
+optional<pb::Acl> AclHelper::getAcl(DB &db, UID objectID)
 {
-    static constexpr schema::t_acl a;
-    boost::optional<Acl> optionalAclData;
-    auto row = db(sqlpp::select(sqlpp::all_of(a)).from(a).where(a.c_uid == objectID ));
+    return eedb::db::AclHelper::getAcl<schema::t_acl>(db, objectID);
+}
 
-    if( !row.empty() ){
-        Acl acl = Acl::default_instance();
-        acl.set_group( row.front().c_group );
-        acl.set_owner( row.front().c_owner );
-        acl.set_status( row.front().c_status );
-        acl.set_uid( row.front().c_uid );
-        acl.set_unixperms( row.front().c_unixperms );
-        optionalAclData = acl;
-    }
+void AclHelper::updateAcl(DB &db, pb::Acl objectID ) throw(sqlpp::postgresql::pg_exception){
 
-    return optionalAclData;
 }
 
 }

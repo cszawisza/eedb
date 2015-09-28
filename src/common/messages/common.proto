@@ -1,18 +1,19 @@
 option optimize_for = LITE_RUNTIME;
+package pb;
 
-message Filter {
-  message FilterComponent {
-    enum Operation {
-      Equal = 1;
-      NotEqual = 2;
-      LessThen = 3;
-    }
-    required bytes lvalue = 1;
-    required Operation operation = 2;
-    required bytes rvalue = 3;
-  }
-  repeated FilterComponent component = 1;
-}
+//message Filter {
+//  message FilterComponent {
+//    enum Operation {
+//      Equal = 1;
+//      NotEqual = 2;
+//      LessThen = 3;
+//    }
+//    required bytes lvalue = 1;
+//    required Operation operation = 2;
+//    required bytes rvalue = 3;
+//  }
+//  repeated FilterComponent component = 1;
+//}
 
 message DateTime{
   message Unix{
@@ -71,7 +72,7 @@ message FileStat{
     optional string name = 2;
     optional string sha = 3;
     optional string mime = 4;
-    optional Acl acl=5;
+    optional Acl Acl=5;
 }
 
 message FileData{

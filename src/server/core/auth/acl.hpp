@@ -153,7 +153,7 @@ private:
 
 
     template<class Data>
-    void readAclFromData(Acl& acl, const Data &aclInfo){
+    void readAclFromData(pb::Acl& acl, const Data &aclInfo){
         acl.set_uid       ( aclInfo.front().c_uid         );
         acl.set_owner     ( aclInfo.front().c_owner       );
         acl.set_unixperms ( aclInfo.front().c_unixperms   );
@@ -162,7 +162,7 @@ private:
     }
 
     uint64_t m_userId;
-    Acl m_userAcl;
+    pb::Acl m_userAcl;
 };
 }
 

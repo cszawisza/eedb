@@ -56,6 +56,12 @@ UnixPermissions::UnixPermissions(int perms):
     m_perms = m_union.frac;
 }
 
+UnixPermissions::UnixPermissions():
+    UnixPermissions(0)
+{
+
+}
+
 int UnixPermissions::toInteger() const{
     ParamsUnion m_union;
     m_union.unixPerms = 0;
@@ -65,7 +71,8 @@ int UnixPermissions::toInteger() const{
 
 std::string UnixPermissions::toString() const
 {
-
+    throw(std::exception());
+    return "";
 }
 
 
