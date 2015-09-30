@@ -18,7 +18,7 @@ public:
                          ProtobufToQByteArrayConverter p_convertProtobufToString,
                          QByteArrayToProtobufConverter p_convertQByteArrayToProtobuf);
     void handle() const override;
-
+    bool tryLogin() const override;
 
 private:
     void sendBinaryMessageOverQWebSocket(const pb::ClientRequests & p_clientRequests) const;

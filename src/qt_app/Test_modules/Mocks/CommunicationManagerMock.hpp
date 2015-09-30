@@ -6,4 +6,5 @@ class CommunicationManagerMock : public ICommunicationManager
 {
 public:
     MOCK_CONST_METHOD0(handle, void());
+    MOCK_CONST_METHOD0(tryLogin, bool());
 };

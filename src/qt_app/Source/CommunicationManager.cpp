@@ -50,3 +50,9 @@ void CommunicationManager::sendBinaryMessageOverQWebSocket(const pb::ClientReque
 {
     m_webSocket.sendBinaryMessage(m_convertProtobufToQByteArray(p_clientRequests));
 }
+
+bool CommunicationManager::tryLogin() const
+{
+    return true;
+}
+

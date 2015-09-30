@@ -21,6 +21,8 @@ LoginDialog::LoginDialog(const ICommunicationManager & p_communicationManager,
 {
     ui->setupUi(this);
     ui->connection_groupbox->setChecked(false);
+    connect(this, SIGNAL(loginSucces()), SLOT(hide()));
+    connect(this, SIGNAL(loginSucces()), SIGNAL(showOtherWindow()));
 
     qRegisterMetaType<QAbstractSocket::SocketState>();
 
@@ -30,12 +32,6 @@ LoginDialog::LoginDialog(const ICommunicationManager & p_communicationManager,
     ui->userPassword->setEchoMode(QLineEdit::Password);
 
     connect(ui->testConnction, SIGNAL(clicked()), this, SLOT(doConnectTest()));
-
-    connect(ui->login, static_cast<void (QPushButton::*)(bool)>(&QPushButton::clicked),
-            [=](){
-        doReconnect();
-        doLogin();
-    });
 
     connect(ui->registerNewUser, static_cast<void (QPushButton::*)(bool)>(&QPushButton::clicked),
             [=](){
@@ -66,6 +62,15 @@ LoginDialog::LoginDialog(const ICommunicationManager & p_communicationManager,
     connect(&m_socket, &QWebSocket::disconnected, [=](){
         qDebug()<<" peer disconnected";
         ui->connectResponseLabel->setText("peer disconnected");
+    });
+
+    connect(ui->login, static_cast<void (QPushButton::*)(bool)>(&QPushButton::clicked), [=](){
+//        doReconnect();
+//        doLogin();
+        if (m_communicationManager.tryLogin())
+        {
+            emit loginSucces();
+        }
     });
 
     connect(&m_socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));

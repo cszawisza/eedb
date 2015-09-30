@@ -1,9 +1,9 @@
-#ifndef APPLICATIONMAINWINDOW_HPP
-#define APPLICATIONMAINWINDOW_HPP
+#pragma once
 
 #include <QMainWindow>
 
-namespace Ui {
+namespace Ui
+{
 class ApplicationMainWindow;
 }
 
@@ -18,5 +18,3 @@ public:
 private:
     Ui::ApplicationMainWindow *ui;
 };
-
-#endif // APPLICATIONMAINWINDOW_HPP

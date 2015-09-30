@@ -27,20 +27,24 @@ public:
 
 public slots:
     void readyRead(QByteArray msg);
+
 signals:
     void loginOk();
     void loginFailure();
+    void showOtherWindow();
+    void loginSucces();
+
 protected:
     Ui::LoginDialog *ui;
-private:
-    QSettings setup;
 
 private slots:
     void doConnectTest();
     void doReconnect();
     void doLogin();
+
 private:
     //    User user;
+    QSettings setup;
     QWebSocket & m_socket;
     const ICommunicationManager & m_communicationManager;
 };

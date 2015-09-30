@@ -3,6 +3,7 @@
 class ICommunicationManager
 {
 public:
-    virtual ~ICommunicationManager() {}
     virtual void handle() const = 0;
+    virtual bool tryLogin() const = 0;
+    virtual ~ICommunicationManager() {}
 };
