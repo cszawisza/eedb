@@ -1,6 +1,7 @@
 #include "privilege.hpp"
 #include "utils/CTcrc32.hpp"
-#include "spdlog/spdlog.h"
+#include "utils/LogUtils.hpp"
+
 using std::string;
 using sqlpp::postgresql::pg_exception;
 namespace auth {
@@ -163,7 +164,7 @@ bool Privilege::saveInDb(DB &db, const PrivilegeRow &row) const {
     static constexpr schema::t_privilege pr;
 
     try{
-        db(insert_into(pr)
+        db(sqlpp::postgresql::insert_into(pr)
            .set(pr.c_role = row.role,
                 pr.c_who = row.who,
                 pr.c_action = row.action,
@@ -172,8 +173,7 @@ bool Privilege::saveInDb(DB &db, const PrivilegeRow &row) const {
                 pr.c_related_uid = row.related_uid ));
     }
     catch( const pg_exception &e){
-        ///TODO proper exception handling
-        spdlog::get("Server")->error("{}: {}", __PRETTY_FUNCTION__, e.what() );
+        LOG_DB_EXCEPTION(e);
     }
     return true;
 }

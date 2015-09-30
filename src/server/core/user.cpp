@@ -1,13 +1,11 @@
 #include "user.h"
-
-#include "sqlpp11/sqlpp11.h"
-
 #include "database/UserHelper.hpp"
+#include "auth/acl.hpp"
+#include "utils/LogUtils.hpp"
 
 #include <iostream>
-#include "auth/acl.hpp"
-#include "spdlog/spdlog.h"
 #include <QRegExp>
+
 
 using eedb::utils::PasswordHash;
 using uh = eedb::db::UserHelper;
@@ -22,14 +20,14 @@ namespace eedb{
 namespace handlers{
 
 
-void log_action(DB& db, uint64_t uid, const string &action){
+void saveUserActionInDatabase(DB& db, uint64_t uid, const string &action){
     constexpr t_user_history uh;
     try{
-        db(insert_into(uh).set(uh.c_uid = uid, uh.c_action = action ));
+        db(sqlpp::postgresql::insert_into(uh).set(uh.c_uid = uid, uh.c_action = action ));
     }
     catch(const pg_exception &e){
         ///TODO proper exception handling
-        spdlog::get("Server")->error("{}: {}", __PRETTY_FUNCTION__, e.what() );
+        LOG_DB_ERROR(e);
     }
 }
 
@@ -90,15 +88,14 @@ void User::process(DB &db, ClientRequest &msgReq)
 void User::addUser(DB &db, const UserReq_Add &msg)
 {
     try{
-        eedb::db::UserHelper::insertUser(db, msg);
-        auto uid = db.lastInsertId( sqlpp::tableName<t_acl>(), "c_uid");
+        auto uid = eedb::db::UserHelper::insertUser(db, msg);
         addErrorCode(UserRes_Reply_UserAddOk );
-        log_action(db, uid, "register" );
+        saveUserActionInDatabase(db, uid, "register" );
     }
     catch (const pg_exception &e) {
-        ///TODO log message
-        ///TODO proper exception handling (by class, etc)
-        addErrorCode(UserRes_Reply_UserAlreadyExists);
+        LOG_DB_EXCEPTION(e)
+        if(e.code().pgClass() == "23" ) //integrity constant validation
+            addErrorCode(UserRes_Reply_UserAlreadyExists);
     }
 }
 
@@ -218,7 +215,7 @@ void User::handle_add(DB &db, UserReq_Add &msg)
 
 void User::goToOnlineState(DB &db, uint64_t uid)
 {
-    log_action(db, uid, "login");
+    saveUserActionInDatabase(db, uid, "login");
     addErrorCode(UserRes_Reply_LoginPass);
 
     user()->goOnline();
@@ -262,7 +259,7 @@ void User::handle_login(DB &db, const UserReq_Login &loginMsg)
             if( hashed_pass == hash )
                 goToOnlineState(db, row.c_uid );
             else{
-                log_action(db, row.c_uid , "wrong password");
+                saveUserActionInDatabase(db, row.c_uid , "wrong password");
                 addErrorCode(UserRes_Reply_LoginDeny );
             }
         }
@@ -271,7 +268,7 @@ void User::handle_login(DB &db, const UserReq_Login &loginMsg)
 
 void User::handle_logout(DB &db, const UserReq_Logout &logoutMsg)
 {
-    log_action(db, user()->id(), "logout");
+    saveUserActionInDatabase(db, user()->id(), "logout");
     user()->goOffLine();
 }
 

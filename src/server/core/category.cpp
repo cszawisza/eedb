@@ -65,7 +65,7 @@ void Category::handle_add(DB &db, CategoryReq_Add &msg)
     }
 
     if(acl.checkUserAction<schema::t_categories>(db, "write") ){
-        auto prep_insert = insert_into(cat).set(
+        auto prep_insert = sqlpp::postgresql::insert_into(cat).set(
                     cat.c_name = parameter(cat.c_name),
                     cat.c_description = parameter(cat.c_description ),
                     cat.c_parent_category_id = msg.parent_id()
@@ -81,6 +81,7 @@ void Category::handle_add(DB &db, CategoryReq_Add &msg)
 
         auto response = add_response()->mutable_categoryres();
         response->set_code(CategoryRes_Replay_OK);
+        ///NOTE send id of category in response?
     }
     else{
         sendAccesDeny();

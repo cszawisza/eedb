@@ -1,18 +1,10 @@
 #include "inventory.hpp"
 
-#include "sql_schema/t_inventories.h"
-#include "sql_schema/t_inventories_history.h"
-#include "sql_schema/t_inventories_operations.h"
-#include "sql_schema/t_user_inventories.h"
-#include "sql_schema/t_shelfs.h"
-
-#include "sqlpp11/sqlpp11.h"
-
 #include <iostream>
 
 #include "utils/unixPerms.hpp"
-
 #include "database/InventoryHelper.hpp"
+#include "utils/LogUtils.hpp"
 
 schema::t_inventories i;
 schema::t_user_inventories u_i;
@@ -92,8 +84,7 @@ void Inventory::handle_add( DB &db, MsgInventoryRequest_Add &msg)
         addErrorCode(MsgInventoryResponse_Error_No_Error, res);
     }
     catch(const pg_exception &e){
-        ///TODO proper exception handling
-        std::cout << e.what();
+        LOG_DB_ERROR(e);
         addErrorCode(MsgInventoryResponse_Error_DbAccesError, res);
     }
 }
@@ -186,8 +177,7 @@ void Inventory::handle_addShelf(DB &db, MsgInventoryRequest_AddShelf &msg)
             addErrorCode(MsgInventoryResponse_Error_No_Error, res);
         }
         catch(const pg_exception &e){
-            ///TODO proper exception handling
-            std::cout << e.what();
+            LOG_DB_EXCEPTION(e);
             addErrorCode(MsgInventoryResponse_Error_DbAccesError, res);
         }
     }

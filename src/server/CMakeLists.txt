@@ -67,6 +67,7 @@ set(Core_H
 set( Utils_H
     utils/hash_passwd.h
     utils/sqlpp_helper.hpp
+    utils/LogUtils.hpp
 )
 
 add_library(eedb_lib STATIC ${SOURCES} ${Core_CPP} ${Utils_H} ${Core_H} ${SCHEMA_SRC} )

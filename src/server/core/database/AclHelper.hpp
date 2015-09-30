@@ -25,8 +25,7 @@ public:
                     u.c_group,
                     u.c_status)
                 .from(u)
-                .where( std::forward<W>(where) )
-                .limit(1);
+                .where( std::forward<W>(where) );
     }
 
     template < typename W>

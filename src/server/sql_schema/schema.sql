@@ -55,7 +55,7 @@ COMMENT ON COLUMN t_action.c_title          IS 'column contains name of action';
 COMMENT ON COLUMN t_action.c_apply_object   IS 'column specifies whether an action applies to objects or tables. Certain actions, like “create,” apply only to tables. I find the system is easier to manage if I choose my actions so they can only apply to one or the other, not both.';
 
 create table t_acl (
-    c_uid             serial not null primary key,
+    c_uid             serial not null unique primary key,
     c_owner           int not null default 1,
     c_group           int not null default 2, -- 1 is a root usergroup, 2 is 'users' set as default
     c_unixperms       int not null default unix_to_numeric('764'),

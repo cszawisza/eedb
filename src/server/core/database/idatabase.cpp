@@ -113,7 +113,7 @@ size_t DB::execute(const string &str, bool singleShoot){
     auto res = db->execute(str);
     if(!singleShoot)
         reserveTransaction(move(db));
-    return 0 ; ///FIXME res->result->affected_rows();
+    return 0; ///FIXME res->result->affected_rows();
 }
 
 uint64_t DB::lastInsertId(const string &tablename, const string &column) {

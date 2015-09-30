@@ -76,7 +76,7 @@ TEST(DB, transaction){
 
     EXPECT_NO_THROW(db.start_transaction());
     EXPECT_NO_THROW(db.execute("create temporary table if not exists t_test (x int);"));
-    EXPECT_NO_THROW(db(insert_into(test).set(test.x = 5)));
+    EXPECT_NO_THROW(db(sqlpp::postgresql::insert_into(test).set(test.x = 5)));
     EXPECT_EQ( db(select(test.x).from(test).where(true)).front().x, 5);
     EXPECT_NO_THROW(db.rollback_transaction(false));
 }
@@ -85,7 +85,7 @@ TEST(DB, prepare){
     DB db;
     EXPECT_NO_THROW(db.start_transaction());
     EXPECT_NO_THROW(db.execute("create temporary table if not exists t_test (x int);"));
-    EXPECT_NO_THROW(db(insert_into(test).set(test.x = 5)));
+    EXPECT_NO_THROW(db(sqlpp::postgresql::insert_into(test).set(test.x = 5)));
     auto q = dynamic_select(db.connection(), test.x )
             .from(test)
             .dynamic_where();
@@ -100,7 +100,7 @@ TEST(DB, multipleTransactionsInDifferentObjects){
         DB db2; // should be the same connection
 
         EXPECT_NO_THROW(db2.execute("create temporary table if not exists t_test (x int);"));
-        EXPECT_NO_THROW(db2(insert_into(test).set(test.x = 5)));
+        EXPECT_NO_THROW(db2(sqlpp::postgresql::insert_into(test).set(test.x = 5)));
         auto q = dynamic_select(db2.connection(), test.x )
                 .from(test)
                 .dynamic_where();
@@ -146,7 +146,7 @@ TEST(DB, eachThreadHaveOwnConnection){
 //        DB db;
 //        EXPECT_NO_THROW(db.start_transaction());
 //        EXPECT_NO_THROW(db.execute("create temporary table if not exists t_test (x int);"));
-//        EXPECT_NO_THROW(db(insert_into(test).set(test.x = 5)));
+//        EXPECT_NO_THROW(db(sqlpp::postgresql::insert_into(test).set(test.x = 5)));
 //        auto q = dynamic_select(db.connection(), test.x )
 //                .from(test)
 //                .dynamic_where();

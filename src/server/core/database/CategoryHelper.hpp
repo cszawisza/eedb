@@ -21,9 +21,7 @@ struct CategoryData {
 
 class CategoryHelper {
 public:
-
     static optional<uint64_t> addCategory(DB &db, const CategoryData &category);
-
 };
 
 }

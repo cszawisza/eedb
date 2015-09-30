@@ -9,6 +9,8 @@
 #include <core/inventory.hpp>
 
 #include <sql_schema/t_shelfs.h>
+#include <sql_schema/t_inventories.h>
+#include <sql_schema/t_files.h>
 
 #include "database/idatabase.h"
 #include "database/AclHelper.hpp"
