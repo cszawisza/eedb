@@ -33,8 +33,9 @@ void showHelloMessage(const char *argv)
     qDebug() << msg.toUtf8();
 }
 
-void showLoginDialog(QApplication &a, ApplicationMainWindow & p_mainApp)
+void showLoginDialog(QApplication &a)
 {
+    ApplicationMainWindow l_mainApp{};
     QWebSocket l_webSocket("EKatalog client");
     auto l_protobufToQbyteArrayConverter = [](const pb::ClientRequests & p_clientRequests)
     {
@@ -48,7 +49,7 @@ void showLoginDialog(QApplication &a, ApplicationMainWindow & p_mainApp)
                                                 l_protobufToQbyteArrayConverter,
                                                 l_qbyteArrayToProtobufConverter);
     LoginDialog lDialog(l_communicationManager, l_webSocket);
-    QObject::connect(&lDialog, SIGNAL(showOtherWindow()), &p_mainApp, SLOT(show()));
+    QObject::connect(&lDialog, SIGNAL(showOtherWindow()), &l_mainApp, SLOT(show()));
     lDialog.exec();
     if(!a.exec())
     {
@@ -61,10 +62,8 @@ void showLoginDialog(QApplication &a, ApplicationMainWindow & p_mainApp)
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    ApplicationMainWindow l_mainApp{};
-
     QCoreApplication::setApplicationName(QStringLiteral("EKATALOG"));
     QCoreApplication::setOrganizationName(QStringLiteral("BAPP"));
     showHelloMessage(argv[0]);
-    showLoginDialog(a, l_mainApp);
+    showLoginDialog(a);
 }
