@@ -5,9 +5,12 @@
 #include "user.pb.h"
 #include "idatabase.h"
 
+#include "sqlpp11/sqlpp11.h"
 #include "sql_schema/t_inventories.h"
 #include "sql_schema/t_inventories_history.h"
 #include "sql_schema/t_inventories_operations.h"
+#include "sql_schema/t_user_inventories.h"
+#include "sql_schema/t_shelfs.h"
 
 #include "inventory.pb.h"
 

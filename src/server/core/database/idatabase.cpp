@@ -10,7 +10,7 @@ thread_local unique_ptr<DbConnection> DB::m_reserved;
 
 
 unique_ptr<DbConnection> DbConnectionStack::pop(){
-    ///TODO check config to check is connection uses default settings or not
+    ///TODO check config to check if connection uses default settings or not
     m_dbMutex.lock();
     if( m_databases.empty() )
         m_databases.push(unique_ptr<DbConnection>( new DbConnection() ));
@@ -113,7 +113,7 @@ size_t DB::execute(const string &str, bool singleShoot){
     auto res = db->execute(str);
     if(!singleShoot)
         reserveTransaction(move(db));
-    return 0 ; ///FIXME res->result->affected_rows();
+    return 0; ///FIXME res->result->affected_rows();
 }
 
 uint64_t DB::lastInsertId(const string &tablename, const string &column) {

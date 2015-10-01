@@ -3,7 +3,7 @@
 namespace eedb{
 namespace db{
 
-void UserHelper::insertUser(DB &db, const UserReq_Add &msg)
+UID UserHelper::insertUser(DB &db, const UserReq_Add &msg)
 {
     constexpr schema::t_users u;
     const auto &acl = msg.acl();
@@ -16,7 +16,7 @@ void UserHelper::insertUser(DB &db, const UserReq_Add &msg)
     utils::UserConfig userConfig( conf );
 
     // run query
-    auto pre = db.prepare(insert_into(u)
+    auto pre = db.prepare(sqlpp::postgresql::insert_into(u)
                           .set(
                               u.c_group = parameter(u.c_group),
                               u.c_unixperms = parameter(u.c_unixperms),
@@ -31,7 +31,7 @@ void UserHelper::insertUser(DB &db, const UserReq_Add &msg)
                               u.c_description = parameter(u.c_description),
                               u.c_config = userConfig.toStdString(), // must be a proper JSON document no need to parametrize
                               u.c_avatar = parameter(u.c_avatar)
-            ));
+            ).returning(u.c_uid));
 
     pre.params.c_name  = basic.name();
     pre.params.c_email = basic.email();
@@ -64,7 +64,9 @@ void UserHelper::insertUser(DB &db, const UserReq_Add &msg)
     if(det.has_phone_number())
         pre.params.c_phonenumber = det.phone_number();
 
-    db(pre);
+    auto insertedId = db(pre);
+
+    return insertedId.front().c_uid;
 }
 }
 }

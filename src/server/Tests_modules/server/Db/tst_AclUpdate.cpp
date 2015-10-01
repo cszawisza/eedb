@@ -37,12 +37,15 @@ protected:
 };
 
 TEST_F(UserHelperInsertTest, updateAclEntry ){
+    EXPECT_NE( 0, db(helper.selectAclFrom<schema::t_users>(u.c_name == "ROOT" ) ).front().c_owner );
+    EXPECT_NE( 0, db(helper.selectAclFrom<schema::t_users>(u.c_name == "ROOT" ) ).front().c_group );
+    EXPECT_NE( 0, db(helper.selectAclFrom<schema::t_users>(u.c_name == "ROOT" ) ).front().c_unixperms );
     EXPECT_NO_THROW(db(helper.updateWhere<schema::t_users>(dataToInsert, u.c_name == "ROOT" )) );
     EXPECT_EQ( 0, db(helper.selectAclFrom<schema::t_users>(u.c_name == "ROOT" ) ).front().c_owner );
+    EXPECT_EQ( 0, db(helper.selectAclFrom<schema::t_users>(u.c_name == "ROOT" ) ).front().c_group );
+    EXPECT_EQ( 0, db(helper.selectAclFrom<schema::t_users>(u.c_name == "ROOT" ) ).front().c_unixperms );
 }
 
 TEST_F(UserHelperInsertTest, expectFailWhenNoIdFound ){
-    EXPECT_NO_THROW(db(helper.update(dataToInsert)) );
-    dataToInsert.clear_uid();
     EXPECT_NO_THROW(db(helper.update(dataToInsert)) );
 }

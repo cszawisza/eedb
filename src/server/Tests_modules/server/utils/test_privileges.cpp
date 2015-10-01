@@ -33,7 +33,7 @@ public:
 
         // user cant read this file with normal unixperms
         // must have a special permision
-        db(insert_into(f)
+        db(sqlpp::postgresql::insert_into(f)
                 .set(
                     f.c_group = 1<<31, // user not in this group
                     f.c_unixperms =  448, // 700
@@ -51,7 +51,7 @@ public:
     uint64_t addDummyUser( string name ){
         static constexpr schema::t_users u;
 
-        db(insert_into(u)
+        db(sqlpp::postgresql::insert_into(u)
                 .set(
                     u.c_group = 2, // default to user group
                     u.c_unixperms =  484,

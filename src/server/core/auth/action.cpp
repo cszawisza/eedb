@@ -6,7 +6,7 @@
 #include "sql_schema/t_action.h"
 
 #include "database/idatabase.h"
-#include "spdlog/spdlog.h"
+#include "utils/LogUtils.hpp"
 
 using sqlpp::toBool;
 using sqlpp::postgresql::pg_exception;
@@ -17,15 +17,14 @@ bool Action::save(DB &db){
     static constexpr schema::t_action a;
     bool ok = false;
     try{
-        db(insert_into(a).set(
+        db(sqlpp::postgresql::insert_into(a).set(
                a.c_title = title(),
                a.c_apply_object = toBool(applyToObject())
                 ));
         ok = true;
     }
     catch( const pg_exception &e ){
-        ///TODO proper exception handling
-        spdlog::get("Server")->error("{}: {}", __PRETTY_FUNCTION__, e.what() );
+        LOG_DB_EXCEPTION(e);
     }
     return ok;
 }
@@ -47,8 +46,7 @@ bool Action::exists(DB &db) const
                    ).front().exists;
     }
     catch( const pg_exception &e ){
-        ///TODO proper exception handling
-        spdlog::get("Server")->error("{}: {}", __PRETTY_FUNCTION__, e.what() );
+        LOG_DB_EXCEPTION(e);
     }
 
     return exist;

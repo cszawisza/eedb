@@ -22,8 +22,12 @@ struct CategoryData {
 class CategoryHelper {
 public:
 
-    static optional<uint64_t> addCategory(DB &db, const CategoryData &category);
+    static auto insert_into( ){
+        constexpr schema::t_categories u;
+        return sqlpp::postgresql::insert_into(u);
+    }
 
+    static optional<uint64_t> addCategory(DB &db, const CategoryData &category);
 };
 
 }

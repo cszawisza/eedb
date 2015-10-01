@@ -1,11 +1,10 @@
 #include "category.hpp"
 #include "database/idatabase.h"
 
-#include "sql_schema/t_categories.h"
-#include "sql_schema/t_category_files.h"
+#include "database/CategoryHelper.hpp"
 
 #include "auth/acl.hpp"
-
+using CH = eedb::db::CategoryHelper;
 namespace eedb{
 namespace handlers{
 
@@ -65,22 +64,22 @@ void Category::handle_add(DB &db, CategoryReq_Add &msg)
     }
 
     if(acl.checkUserAction<schema::t_categories>(db, "write") ){
-        auto prep_insert = insert_into(cat).set(
-                    cat.c_name = parameter(cat.c_name),
-                    cat.c_description = parameter(cat.c_description ),
-                    cat.c_parent_category_id = msg.parent_id()
-                );
 
-        auto p = db.prepare(prep_insert);
+        auto prepare = db.prepare(CH::insert_into().set(
+                                cat.c_name = parameter(cat.c_name),
+                                cat.c_description = parameter(cat.c_description ),
+                                cat.c_parent_category_id = msg.parent_id()
+                ));
 
-        p.params.c_name = msg.name();
+        prepare.params.c_name = msg.name();
         if( msg.has_description() )
-            p.params.c_description = msg.description();
+            prepare.params.c_description = msg.description();
 
-        db(p);
+        db(prepare);
 
         auto response = add_response()->mutable_categoryres();
         response->set_code(CategoryRes_Replay_OK);
+        ///NOTE send id of category in response?
     }
     else{
         sendAccesDeny();

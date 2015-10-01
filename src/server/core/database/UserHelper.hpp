@@ -87,7 +87,7 @@ public:
                 .limit(1);
     }
 
-    static void insertUser(DB &db, const UserReq_Add &msg);
+    static UID insertUser(DB &db, const UserReq_Add &msg);
 };
 
 }
