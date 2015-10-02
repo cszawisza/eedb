@@ -4,6 +4,8 @@
 #include "database/CategoryHelper.hpp"
 
 #include "auth/acl.hpp"
+
+#include "utils/LogUtils.hpp"
 using CH = eedb::db::CategoryHelper;
 namespace eedb{
 namespace handlers{
@@ -18,7 +20,7 @@ void Category::process(DB &db, pb::ClientRequest &msgReq)
 {
     // Check if this is the message that handler wants
     Q_ASSERT( msgReq.data_case() == pb::ClientRequest::kCategoryReqFieldNumber );
-    Q_ASSERT( msgReq.has_userreq() );
+    Q_ASSERT( msgReq.has_categoryreq() );
 
     auto req = msgReq.categoryreq();
 
@@ -64,23 +66,31 @@ void Category::handle_add(DB &db, CategoryReq_Add &msg)
     }
 
     if(acl.checkUserAction<schema::t_categories>(db, "write") ){
-
+        auto response = add_response()->mutable_categoryres();
         auto prepare = db.prepare(CH::insert_into().set(
-                                cat.c_name = parameter(cat.c_name),
-                                cat.c_description = parameter(cat.c_description ),
-                                cat.c_parent_category_id = msg.parent_id()
-                ));
+                                      cat.c_name = parameter(cat.c_name),
+                                      cat.c_description = parameter(cat.c_description ),
+                                      cat.c_parent_category_id = msg.parent_id()
+                ).returning(cat.c_uid));
 
         prepare.params.c_name = msg.name();
         if( msg.has_description() )
             prepare.params.c_description = msg.description();
 
-        db(prepare);
+        try{
+            auto result = db(prepare);
 
-        auto response = add_response()->mutable_categoryres();
-        response->set_code(CategoryRes_Replay_OK);
-        ///NOTE send id of category in response?
-        ///TODO db exception handling
+            response->set_code(CategoryRes_Replay_AddSuccesful);
+            if(msg.has_returningid() && msg.returningid())
+                response->set_id(result.front().c_uid);
+        }
+        catch(sqlpp::postgresql::pg_exception e){
+            if(e.code().pgClass() == "23") // Unique key validation
+                response->set_code(CategoryRes_Replay_CategoryExists); // occour when category exists
+            else{
+                LOG_DB_EXCEPTION(e);
+            }
+        }
     }
     else{
         sendAccesDeny();

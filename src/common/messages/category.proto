@@ -20,6 +20,7 @@ message CategoryReq{
     required string name =2;
     required uint32 parent_id = 3;
     optional string description = 4;
+    optional bool returningId = 5 [default = false];
   }
   
   message Get{
@@ -69,12 +70,18 @@ message CategoryReq{
 
 message CategoryRes{
     enum Replay{
-        OK = 1;
+        OK = 0;
+        AddSuccesful =1;
         InvalidParentId = 2;
         MissingParentId = 3;
         InvalidName = 4;
         MissingName = 5;
+        CategoryExists = 6;
     }
 
     optional Replay code = 1 [default = OK];
+    optional uint32 id = 2;
+    optional string name =3;
+    optional uint32 parent_id = 4;
+    optional string description = 5;
 }

@@ -3,6 +3,8 @@
 #include <core/database/idatabase.h>
 #include <core/database/CategoryHelper.hpp>
 
+#include <core/category.hpp>
+
 #include "TestCommon.hpp"
 
 using namespace eedb::db;
@@ -11,32 +13,83 @@ using namespace test;
 
 class CategoryHelpertest : public ::testing::Test
 {
+public:
 
+    CategoryHelpertest(){
+        db.start_transaction();
+
+        test::addUser(db, "xxxxxxx");
+        handler.setUserData(test::login(db, "xxxxxxx")); // go online
+    }
+
+    ~CategoryHelpertest(){
+        db.rollback_transaction(false);
+    }
+
+    ServerResponse runMessageHandlerProcess(){
+        ClientRequest cliReq;
+        auto catReq = cliReq.mutable_categoryreq();
+        catReq->mutable_add()->MergeFrom(addMsg);
+
+        handler.process(db, cliReq );
+
+        return handler.getLastResponse();
+    }
+
+    void upgradeUserPrivileges(){
+        auth::Privilege priv;
+        constexpr schema::t_categories c;
+        constexpr schema::t_users u;
+        priv.giveGroup(auth::GROUP_categories).privilegeFor("write").forTable(c).force_save(db);
+        db(update(u).set(u.c_group = sqlpp::verbatim<sqlpp::integer>( std::string(tableName<decltype(u)>()) + ".c_group | (1<<3)" )).where(u.c_name == "xxxxxxx" ));
+    }
+
+protected:
+    DB db;
+    CategoryReq_Add addMsg;
+    eedb::handlers::Category handler;
 };
 
-TEST_F(CategoryHelpertest, addCategory ){
-//    schema::Cate cat;
+TEST_F(CategoryHelpertest, userWithDefaultPermsShoudCannotAddCategory ){
+    addMsg.set_name("New Category");
+    addMsg.set_parent_id(CategoryHelper::rootCategoryId(db).get_value_or(0));
+    ServerResponse res = runMessageHandlerProcess();
 
-//    cat.c_name = "name";
-//    DB db;
-//    CategoryHelper::addCategory(db, cat);
+    ASSERT_TRUE ( res.has_code() );
+    ASSERT_EQ   ( ServerError::Error_AccesDeny, res.code());
+    EXPECT_FALSE(res.has_categoryres());
 }
 
-//class CategoriesTest : public ::testing::Test
-//{
-//public:
-//    CategoriesTest(){
-//        db.start_transaction();
-//    }
+TEST_F(CategoryHelpertest, addCategory){
+    upgradeUserPrivileges();
+    addMsg.set_name("New Category");
+    addMsg.set_parent_id(CategoryHelper::rootCategoryId(db).get_value_or(0));
+    ServerResponse res = runMessageHandlerProcess();
 
-//    ~CategoriesTest(){
-//        db.rollback_transaction(false);
-//    }
+    ASSERT_TRUE ( res.has_categoryres() );
 
-//    DB db;
-//    eedb::handlers::Category categoryHandler;
-//};
+    CategoryRes catRes = res.categoryres();
+    EXPECT_EQ   ( CategoryRes_Replay_AddSuccesful, catRes.code());
+    EXPECT_FALSE(catRes.has_id());
+    EXPECT_FALSE(catRes.has_description());
+    EXPECT_FALSE(catRes.has_name());
+    EXPECT_FALSE(catRes.has_parent_id());
+}
 
-//TEST_F(CategoriesTest, simpleAdd){
+TEST_F(CategoryHelpertest, addCategoryReturnId){
+    upgradeUserPrivileges();
+    addMsg.set_name("New Category");
+    addMsg.set_parent_id(CategoryHelper::rootCategoryId(db).get_value_or(0));
 
-//}
+    addMsg.set_returningid(true);
+    ServerResponse res = runMessageHandlerProcess();
+
+    ASSERT_TRUE ( res.has_categoryres() );
+
+    CategoryRes catRes = res.categoryres();
+    EXPECT_EQ   ( CategoryRes_Replay_AddSuccesful, catRes.code());
+    EXPECT_TRUE (catRes.has_id());
+    EXPECT_FALSE(catRes.has_description());
+    EXPECT_FALSE(catRes.has_name());
+    EXPECT_FALSE(catRes.has_parent_id());
+}

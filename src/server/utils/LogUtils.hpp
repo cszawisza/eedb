@@ -2,12 +2,12 @@
 #include "spdlog/spdlog.h"
 
 #define LOG_DB_EXCEPTION(e)\
-{\
 if(e.code().pgClass().isError())\
     LOG_DB_ERROR(e);\
-else\
+else{\
     LOG_DB_WARNING(e); \
 }
+
 
 #define LOG_DB_ERROR(e) LogDbError(e, __PRETTY_FUNCTION__ )
 inline void LogDbError(const sqlpp::postgresql::pg_exception &e, const char* function){
