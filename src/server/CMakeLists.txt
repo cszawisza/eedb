@@ -80,3 +80,6 @@ add_executable(EedbServer app_start.cpp)
 target_link_libraries(EedbServer sqlpp-postgresql pq eedb_lib)
 
 add_dependencies(eedb_lib Common)
+
+install( TARGETS EedbServer DESTINATION bin )
+
