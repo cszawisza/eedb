@@ -9,14 +9,14 @@
 #include "user.pb.h"
 
 #include "AddUserDialog.hpp"
-#include <ICommunicationManager.hpp>
+#include <ILoginVerificator.hpp>
 
-LoginDialog::LoginDialog(const ICommunicationManager & p_communicationManager,
+LoginDialog::LoginDialog(const ILoginVerificator & p_loginVerificator,
                          QWebSocket & p_webSocket,
                          QWidget *parent) :
     QDialog(parent),
     ui(new Ui::LoginDialog),
-    m_communicationManager(p_communicationManager),
+    m_loginVerificator(p_loginVerificator),
     m_socket(p_webSocket)
 {
     ui->setupUi(this);
@@ -26,7 +26,7 @@ LoginDialog::LoginDialog(const ICommunicationManager & p_communicationManager,
 
     qRegisterMetaType<QAbstractSocket::SocketState>();
 
-    ui->serverIp->setText(setup.value("serverIp", "localhost").toString());
+    ui->serverIp->setText(setup.value("serverIp", "eedb.pl").toString());
     ui->serverPort->setText(setup.value("serverPort", 6666).toString());
     ui->userLogin->setText(setup.value("login", "").toString() );
     ui->userPassword->setEchoMode(QLineEdit::Password);
@@ -67,7 +67,10 @@ LoginDialog::LoginDialog(const ICommunicationManager & p_communicationManager,
     connect(ui->login, static_cast<void (QPushButton::*)(bool)>(&QPushButton::clicked), [=](){
 //        doReconnect();
 //        doLogin();
-        if (m_communicationManager.tryLogin())
+        connectToServer();
+        const std::string l_login = ui->userLogin->text().toStdString();
+        const std::string l_pass = ui->userPassword->text().toStdString();
+        if (m_loginVerificator.tryLogin(l_pass, l_login))
         {
             emit loginSucces();
         }
@@ -77,17 +80,16 @@ LoginDialog::LoginDialog(const ICommunicationManager & p_communicationManager,
 
     connect(&m_socket, &QWebSocket::connected, [=]() {
         qDebug()<< " peer connected";
-        m_communicationManager.handle();
+        //m_loginVerificator.tryLogin();
     });
 
     connect(&m_socket, &QWebSocket::stateChanged, [=](QAbstractSocket::SocketState p_state){
         if (p_state == QAbstractSocket::ConnectedState)
         {
-            m_communicationManager.handle();
+            //m_loginVerificator.tryLogin();
         }
         qDebug() << p_state;
     });
-
 }
 
 Ui::LoginDialog *LoginDialog::getUi()
@@ -208,4 +210,14 @@ void LoginDialog::doConnectTest()
 
     qDebug()<<" try to connect to " << url.toString();
     socket->open(url);
+}
+
+void LoginDialog::connectToServer()
+{
+    qDebug() << "connectToServer()";
+    QUrl l_url{};
+    l_url.setHost(ui->serverIp->text());
+    l_url.setPort(ui->serverPort->text().toInt());
+    l_url.setScheme("ws");
+    m_socket.open(l_url);
 }

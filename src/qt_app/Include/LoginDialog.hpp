@@ -9,7 +9,7 @@ namespace Ui
 class LoginDialog;
 }
 
-class ICommunicationManager;
+class ILoginVerificator;
 class QWebSocket;
 
 class LoginDialog : public QDialog
@@ -17,7 +17,7 @@ class LoginDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit LoginDialog(const ICommunicationManager & p_communicationManager,
+    explicit LoginDialog(const ILoginVerificator & p_communicationManager,
                          QWebSocket & p_webSocket,
                          QWidget *parent = 0);
     ~LoginDialog();
@@ -43,9 +43,10 @@ private slots:
     void doLogin();
 
 private:
+    void connectToServer();
     //    User user;
     QSettings setup;
     QWebSocket & m_socket;
-    const ICommunicationManager & m_communicationManager;
+    const ILoginVerificator & m_loginVerificator;
 };
 

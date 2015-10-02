@@ -5,6 +5,7 @@
 #include <QByteArray>
 #include <LoginDialog.hpp>
 #include <CommunicationManager.hpp>
+#include <LoginVerificator.hpp>
 #include "ApplicationMainWindow.hpp"
 #include <QWebSocket>
 #include <ProtobufConverters.hpp>
@@ -35,7 +36,6 @@ void showHelloMessage(const char *argv)
 
 void showLoginDialog(QApplication &a)
 {
-    ApplicationMainWindow l_mainApp{};
     QWebSocket l_webSocket("EKatalog client");
     auto l_protobufToQbyteArrayConverter = [](const pb::ClientRequests & p_clientRequests)
     {
@@ -45,10 +45,12 @@ void showLoginDialog(QApplication &a)
     {
         return convertQByteArrayToProtobufServerResponse(p_serverResponse);
     };
+    LoginVerificator l_loginVerificator(l_webSocket);
     CommunicationManager l_communicationManager(l_webSocket,
                                                 l_protobufToQbyteArrayConverter,
                                                 l_qbyteArrayToProtobufConverter);
-    LoginDialog lDialog(l_communicationManager, l_webSocket);
+    ApplicationMainWindow l_mainApp(l_communicationManager);
+    LoginDialog lDialog(l_loginVerificator, l_webSocket);
     QObject::connect(&lDialog, SIGNAL(showOtherWindow()), &l_mainApp, SLOT(show()));
     lDialog.exec();
     if(!a.exec())

@@ -1,8 +1,10 @@
 #pragma once
 
+#include <string>
+
 class ILoginVerificator
 {
 public:
-    ~ILoginVerificator() {}
-    virtual bool wasLoginSucces() const = 0;
+    virtual bool tryLogin(const std::string &, const std::string &) const = 0;
+    virtual ~ILoginVerificator() {}
 };

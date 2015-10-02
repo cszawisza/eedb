@@ -23,7 +23,6 @@ ProtobufConvertersTestSuite::ProtobufConvertersTestSuite()
 //    p_clientRequest.set_requestid(1);
 }
 
-
 TEST_F(ProtobufConvertersTestSuite, EmptyClientRequest)
 {
     const pb::ClientRequests & l_emptyClientRequests{};

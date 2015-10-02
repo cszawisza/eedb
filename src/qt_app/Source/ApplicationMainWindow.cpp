@@ -1,9 +1,12 @@
 #include "ApplicationMainWindow.hpp"
+#include <ICommunicationManager.hpp>
 #include "ui_ApplicationMainWindow.h"
 
-ApplicationMainWindow::ApplicationMainWindow(QWidget *parent) :
+ApplicationMainWindow::ApplicationMainWindow(const ICommunicationManager & p_communicationManager,
+                                             QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::ApplicationMainWindow)
+    ui(new Ui::ApplicationMainWindow),
+    m_communicationManager(p_communicationManager)
 {
     ui->setupUi(this);
 }
