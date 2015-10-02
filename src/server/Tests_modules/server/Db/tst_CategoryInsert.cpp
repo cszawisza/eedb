@@ -27,7 +27,7 @@ public:
 protected:
     DB db;
     CategoryHelper helper;
-    pb::Acl dataToInsert;
+    pb::CategoryReq dataToInsert;
 };
 
 

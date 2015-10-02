@@ -5,7 +5,7 @@ import public "common.proto";
 import public "user.proto";
 import public "inventory.proto";
 import public "item.proto";
-import public "group.proto";
+import public "category.proto";
 
 
 /// message used for sending back code of operation 

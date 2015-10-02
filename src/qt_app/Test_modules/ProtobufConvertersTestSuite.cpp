@@ -53,4 +53,4 @@ TEST_F(ProtobufConvertersTestSuite, ServerResponseParseError)
     EXPECT_FALSE(convertQByteArrayToProtobufServerResponse(l_emptyArray).is_initialized());
 }
 
-#include "ProtobufConvertersTestSuite.moc"
+//#include "ProtobufConvertersTestSuite.moc"

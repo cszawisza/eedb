@@ -60,4 +60,4 @@ TEST_F(LoginDialogTestSuite, FailServerConnection)
     EXPECT_EQ(1, buttonSpy.count());
 }
 
-#include "LoginDialogTestSuite.moc"
+//#include "LoginDialogTestSuite.moc"

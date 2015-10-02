@@ -16,7 +16,7 @@ message UserReq{
     Get get = 7;
     ChangePasswd changePasswd = 8;
   }
- 
+
 // INTERNAL MESSAGES ///////////////
   message Credentials{
     oneof login_id{
@@ -25,7 +25,7 @@ message UserReq{
       string email = 3;
     }
   }
-  
+
 // ACTION MESSAGES /////////////////////
   message Login{
     required Credentials cred = 1;

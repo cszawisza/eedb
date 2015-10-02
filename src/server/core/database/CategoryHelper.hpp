@@ -9,15 +9,13 @@
 
 #include <boost/optional.hpp>
 
+#include "category.pb.h"
+
 
 using boost::optional;
 
 namespace eedb{
 namespace db{
-
-struct CategoryData {
-    optional<string> name;
-};
 
 class CategoryHelper {
 public:
@@ -27,7 +25,7 @@ public:
         return sqlpp::postgresql::insert_into(u);
     }
 
-    static optional<uint64_t> addCategory(DB &db, const CategoryData &category);
+//    static optional<uint64_t> addCategory(DB &db, const CategoryData &category);
 };
 
 }

@@ -80,6 +80,7 @@ void Category::handle_add(DB &db, CategoryReq_Add &msg)
         auto response = add_response()->mutable_categoryres();
         response->set_code(CategoryRes_Replay_OK);
         ///NOTE send id of category in response?
+        ///TODO db exception handling
     }
     else{
         sendAccesDeny();

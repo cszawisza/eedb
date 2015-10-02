@@ -1,7 +1,7 @@
 #pragma once
 
 #include "iprocessor.h"
-#include "group.pb.h"
+#include "category.pb.h"
 
 class DB;
 

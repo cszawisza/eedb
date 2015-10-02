@@ -317,7 +317,7 @@ void User::handle_changePasswd(DB &db, const UserReq_ChangePasswd &msg)
         ///TODO reset passwd
     }
 
-    else{
+    else{      
         if(acl.checkUserAction<schema::t_users>("change_password",msg.uid())){
             ///TODO check if old pass is same as new
             ///TODO set new passwd

@@ -25,13 +25,13 @@ using eedb::utils::PasswordHash;
 namespace eedb{
 namespace db{
 
-struct UserData {
-    UserData():
-        uid(0){}
+//struct UserData {
+//    UserData():
+//        uid(0){}
 
-    uint64_t uid;
-    string name;
-};
+//    uint64_t uid;
+//    string name;
+//};
 
 class UserHelper {
 public:

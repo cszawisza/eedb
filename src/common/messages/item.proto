@@ -3,7 +3,7 @@ option optimize_for = LITE_RUNTIME;
 package pb;
 
 import public "user.proto";
-import public "group.proto";
+import public "category.proto";
 import public "package.proto";
 import public "parameters.proto";
 import public "common.proto";

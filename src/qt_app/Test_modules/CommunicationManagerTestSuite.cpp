@@ -38,4 +38,4 @@ TEST_F(CommunicationManagerTestSuite, ServerResponseParseError)
     // to do
 }
 
-#include "CommunicationManagerTestSuite.moc"
+//#include "CommunicationManagerTestSuite.moc"
