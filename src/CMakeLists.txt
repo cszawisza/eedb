@@ -11,7 +11,7 @@ include_directories( ${Externals_SOURCE_DIR} )
 add_subdirectory(common)
 include_directories( ${ProtobufIncludePath} )
 
-add_subdirectory(qt_app)
-add_subdirectory(server)
+optional_add_subdirectory(qt_app)
+optional_add_subdirectory(server)
 
 
