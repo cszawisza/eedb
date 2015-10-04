@@ -65,6 +65,9 @@ public:
         return m_userData;
     }
 
+    size_t responseCount() const {
+        return m_outputFrame ? m_outputFrame->response_size() :0;
+    }
 protected:
     /**
      * @brief process data given in setWorkingCapsule;
@@ -72,7 +75,7 @@ protected:
     virtual void process(pb::ClientRequest &req);
     virtual void process(DB &db, pb::ClientRequest &req);
     pb::ServerResponse *add_response();
-    void sendAccesDeny();
+    void sendServerError(pb::ServerError e);
 
 private:
     static std::atomic<quint64> m_response_id;

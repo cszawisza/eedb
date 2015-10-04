@@ -19,6 +19,8 @@ public:
 
 private:
     bool rootExists(DB &db) const;
+    bool rootCategoryExists(DB &db) const;
+
     void insertActionIfNotExists(DB &db, auth::Action action ) const;
     void insertImplementedActionIfNotExists(DB &db, auth::ImplementedAction ia) const;
     void insertPrivilegeIfNotExists(DB &db, auth::Privilege pr) const;

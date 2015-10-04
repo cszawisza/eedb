@@ -2,7 +2,7 @@
 #include "database/idatabase.h"
 
 #include "database/CategoryHelper.hpp"
-
+#include "auth/implementedaction.hpp"
 #include "auth/acl.hpp"
 
 #include "utils/LogUtils.hpp"
@@ -25,7 +25,7 @@ void Category::process(DB &db, pb::ClientRequest &msgReq)
     auto req = msgReq.categoryreq();
 
     if(user()->isOffline()){
-        sendAccesDeny();
+        sendServerError(pb::Error_UserOffilne);
         return;
     }
     else{
@@ -93,13 +93,43 @@ void Category::handle_add(DB &db, CategoryReq_Add &msg)
         }
     }
     else{
-        sendAccesDeny();
+        sendServerError(pb::Error_AccesDeny);
     }
 }
 
 void Category::handle_get(DB &db, CategoryReq_Get &msg)
 {
+    static constexpr schema::t_categories cat;
+    auth::AccesControl acl( user().data()->id() );
 
+    if(acl.checkUserAction<schema::t_categories>(db, "read") ){
+        auto s = dynamic_select(db.connection()).dynamic_columns().dynamic_from(cat).dynamic_where();
+
+        if(msg.has_get_ids() && msg.get_ids())
+            s.selected_columns.add(cat.c_uid);
+        if(msg.has_get_name() && msg.get_name())
+            s.selected_columns.add(cat.c_name);
+        if(msg.has_get_description() && msg.get_description())
+            s.selected_columns.add(cat.c_description);
+
+        if(msg.where().all_groups())
+            s.where.add(cat.c_status == static_cast<int>(auth::State_Normal));
+
+        auto results = db(s);
+
+        for(auto &row:results){
+            auto cres = add_response()->mutable_categoryres();
+            if(msg.has_get_ids() && msg.get_ids())
+                cres->set_id(boost::lexical_cast<uint64_t>(row.at("c_uid")));
+            if(msg.has_get_name() && msg.get_name())
+                cres->set_name(row.at("c_name"));
+            if(msg.has_get_description() && msg.get_description())
+                cres->set_description(row.at("c_description"));
+        }
+    }
+    else{
+        sendServerError( pb::Error_AccesDeny );
+    }
 }
 
 }

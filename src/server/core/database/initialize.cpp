@@ -10,6 +10,7 @@
 
 #include "sql_schema/t_inventories.h"
 #include "sql_schema/t_shelfs.h"
+#include "sql_schema/t_categories.h"
 
 
 using auth::Action;
@@ -21,6 +22,7 @@ namespace eedb{
 
 int DBInitialize::initializeDB(DB &db)
 {
+    static constexpr schema::t_categories cat;
     static constexpr schema::t_inventories inv;
     static constexpr schema::t_shelfs sh;
 
@@ -38,6 +40,10 @@ int DBInitialize::initializeDB(DB &db)
 
         add.set_password("admin_eedb");
         UserHelper::insertUser(db, add);
+    }
+
+    if(! rootCategoryExists(db)){
+        db(sqlpp::postgresql::insert_into(cat).set(cat.c_name = "Root group"));
     }
 
     auth::Privilege priv;
@@ -62,12 +68,23 @@ int DBInitialize::initializeDB(DB &db)
             .forTable(sh)
             .force_save(db);
 
+    priv.giveGroup( auth::GROUP_users )
+            .privilegeFor("read")
+            .forTable(cat)
+            .force_save(db);
+
 }
 
 bool DBInitialize::rootExists(DB &db) const
 {
     static constexpr schema::t_users u;
     return db(sqlpp::select(exists(sqlpp::select(u.c_uid).from(u).where(u.c_name == "ROOT")))).front().exists;
+}
+
+bool DBInitialize::rootCategoryExists(DB &db) const
+{
+    static constexpr schema::t_categories c;
+    return db(sqlpp::select(exists(sqlpp::select(c.c_uid).from(c).where(c.c_parent_category_id.is_null())))).front().exists;
 }
 
 void DBInitialize::insertActionIfNotExists(DB &db, auth::Action action) const

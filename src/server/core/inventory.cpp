@@ -24,7 +24,7 @@ void Inventory::process(DB &db, ClientRequest &msg)
     Q_ASSERT( msg.has_msginventoryreq() );
 
     if (!user()->isOnline()){
-        sendAccesDeny();
+        sendServerError(pb::Error_AccesDeny);
         return;
     }
 
@@ -136,7 +136,7 @@ void Inventory::handle_get( DB &db, MsgInventoryRequest_Get &msg)
             return;
         } else {
             if(!acl.checkUserAction<t_inventories>("read", msg.where().inventory_id())){
-                sendAccesDeny();
+                sendServerError(pb::Error_AccesDeny);
                 return;
             }
         }
@@ -182,7 +182,7 @@ void Inventory::handle_addShelf(DB &db, MsgInventoryRequest_AddShelf &msg)
         }
     }
     else {
-        sendAccesDeny();
+        sendServerError(pb::Error_AccesDeny);
     }
 }
 }

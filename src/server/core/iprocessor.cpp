@@ -23,8 +23,8 @@ pb::ServerResponse *MessageHandler::add_response() {
     return res;
 }
 
-void MessageHandler::sendAccesDeny(){
+void MessageHandler::sendServerError( pb::ServerError e){
     auto res = add_response();
-    res->set_code( pb::Error_AccesDeny );
+    res->set_code( e );
 }
 

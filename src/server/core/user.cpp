@@ -197,7 +197,7 @@ void User::handle_add(DB &db, UserReq_Add &msg)
         if(acl.checkUserAction<t_users>("create"))
             addUser(db, msg);
         else{
-            sendAccesDeny();
+            sendServerError(pb::Error_AccesDeny);
         }
     }
     else{
@@ -301,7 +301,7 @@ void User::handle_remove( DB &db, const UserReq_Remove &msg)
         db(query);
     }
     else
-        sendAccesDeny();
+        sendServerError(pb::Error_AccesDeny);
 }
 
 void User::handle_get(DB &db, const UserReq_Get &getMsg)
@@ -327,7 +327,7 @@ void User::handle_changePasswd(DB &db, const UserReq_ChangePasswd &msg)
 //            db(update)
         }
         else
-            sendAccesDeny();
+            sendServerError(Error_AccesDeny);
     }
 }
 

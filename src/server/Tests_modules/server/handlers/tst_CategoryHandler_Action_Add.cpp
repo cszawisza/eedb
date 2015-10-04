@@ -93,3 +93,22 @@ TEST_F(CategoryHelpertest, addCategoryReturnId){
     EXPECT_FALSE(catRes.has_name());
     EXPECT_FALSE(catRes.has_parent_id());
 }
+
+TEST_F(CategoryHelpertest, doubleInsertShouldFail){
+    upgradeUserPrivileges();
+    addMsg.set_name("New Category");
+    addMsg.set_parent_id(CategoryHelper::rootCategoryId(db).get_value_or(0));
+
+    ServerResponse res1 = runMessageHandlerProcess();
+    ServerResponse res2 = runMessageHandlerProcess();
+
+    ASSERT_TRUE ( res1.has_categoryres() );
+    ASSERT_TRUE ( res2.has_categoryres() );
+
+    CategoryRes catRes = res1.categoryres();
+    EXPECT_EQ   ( CategoryRes_Replay_AddSuccesful, catRes.code());
+
+    catRes = res2.categoryres();
+    EXPECT_EQ   ( CategoryRes_Replay_CategoryExists, catRes.code());
+}
+
