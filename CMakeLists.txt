@@ -22,7 +22,7 @@ if(NOT MSVC)
     endif() # CMAKE_BUILD_TYPE STREQUAL "Coverage"
 
     if ( CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" OR CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
-        add_definitions( --pedantic -Wall -Wextra  -Wswitch )
+        add_definitions(  -Wall -Wextra  -Wswitch )
         add_definitions( -march=native -finline-functions -faggressive-loop-optimizations )
     endif() # CMAKE_BUILD_TYPE STREQUAL "Release"
 

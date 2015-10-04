@@ -117,7 +117,7 @@ void Category::handle_get(DB &db, CategoryReq_Get &msg)
 
         auto results = db(s);
 
-        for(auto &row:results){
+        for(const auto &row:results){
             auto cres = add_response()->mutable_categoryres();
             if(msg.has_get_ids() && msg.get_ids())
                 cres->set_id(boost::lexical_cast<uint64_t>(row.at("c_uid")));
