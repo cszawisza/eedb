@@ -24,6 +24,7 @@ enum ServerError{
   Error_AccesDeny = 2;
   Error_UnhandledMessage = 3;
   Error_NoActionChoosen = 4;
+  Error_UserOffilne=5;
 }
 
 message ClientRequests{
