@@ -9,60 +9,60 @@ namespace schema {
 
 	namespace t_user_history_ {
 
-		struct C_id {
+		struct Id {
 			struct _alias_t {
-				static constexpr const char _literal[] ="c_id";
+				static constexpr const char _literal[] ="id";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T c_id;
-						T &operator()() { return c_id; }
-						const T &operator()() const { return c_id; }
+						T id;
+						T &operator()() { return id; }
+						const T &operator()() const { return id; }
 					};
 			};
 
 			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::must_not_insert, sqlpp::tag::must_not_update>;
 		};
 
-		struct C_uid {
+		struct Uid {
 			struct _alias_t {
-				static constexpr const char _literal[] ="c_uid";
+				static constexpr const char _literal[] ="uid";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T c_uid;
-						T &operator()() { return c_uid; }
-						const T &operator()() const { return c_uid; }
+						T uid;
+						T &operator()() { return uid; }
+						const T &operator()() const { return uid; }
 					};
 			};
 
 			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::can_be_null>;
 		};
 
-		struct C_action {
+		struct Action {
 			struct _alias_t {
-				static constexpr const char _literal[] ="c_action";
+				static constexpr const char _literal[] ="action";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T c_action;
-						T &operator()() { return c_action; }
-						const T &operator()() const { return c_action; }
+						T action;
+						T &operator()() { return action; }
+						const T &operator()() const { return action; }
 					};
 			};
 
 			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::can_be_null>;
 		};
 
-		struct C_when {
+		struct When_happen {
 			struct _alias_t {
-				static constexpr const char _literal[] ="c_when";
+				static constexpr const char _literal[] ="when_happen";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T c_when;
-						T &operator()() { return c_when; }
-						const T &operator()() const { return c_when; }
+						T when_happen;
+						T &operator()() { return when_happen; }
+						const T &operator()() const { return when_happen; }
 					};
 			};
 
@@ -71,10 +71,10 @@ namespace schema {
 	}
 
 	struct t_user_history : sqlpp::table_t<t_user_history,
-				t_user_history_::C_id,
-				t_user_history_::C_uid,
-				t_user_history_::C_action,
-				t_user_history_::C_when> {
+				t_user_history_::Id,
+				t_user_history_::Uid,
+				t_user_history_::Action,
+				t_user_history_::When_happen> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {
 			static constexpr const char _literal[] = "t_user_history";

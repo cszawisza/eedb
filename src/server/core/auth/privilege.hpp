@@ -5,7 +5,7 @@
 #include "implementedaction.hpp"
 #include "action.hpp"
 
-#include "sql_schema/t_privilege.h"
+#include "sql_schema/privilege.h"
 #include "utils/sqlpp_helper.hpp"
 #include <string>
 

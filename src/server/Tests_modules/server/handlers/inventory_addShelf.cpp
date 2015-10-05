@@ -7,7 +7,7 @@ using namespace test;
 class inventoryAddShelfTest : public ::testing::Test
 {
 public:
-    schema::t_users u;
+    schema::users u;
     schema::t_user_inventories ui;
     schema::t_inventories i;
     schema::t_shelfs sh;

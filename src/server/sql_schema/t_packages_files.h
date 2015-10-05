@@ -9,15 +9,15 @@ namespace schema {
 
 	namespace t_packages_files_ {
 
-		struct C_package_id {
+		struct Package_id {
 			struct _alias_t {
-				static constexpr const char _literal[] ="c_package_id";
+				static constexpr const char _literal[] ="package_id";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T c_package_id;
-						T &operator()() { return c_package_id; }
-						const T &operator()() const { return c_package_id; }
+						T package_id;
+						T &operator()() { return package_id; }
+						const T &operator()() const { return package_id; }
 					};
 			};
 
@@ -41,7 +41,7 @@ namespace schema {
 	}
 
 	struct t_packages_files : sqlpp::table_t<t_packages_files,
-				t_packages_files_::C_package_id,
+				t_packages_files_::Package_id,
 				t_packages_files_::C_file_id> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {

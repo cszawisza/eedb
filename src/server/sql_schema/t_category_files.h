@@ -9,15 +9,15 @@ namespace schema {
 
 	namespace t_category_files_ {
 
-		struct C_category_id {
+		struct Category_id {
 			struct _alias_t {
-				static constexpr const char _literal[] ="c_category_id";
+				static constexpr const char _literal[] ="category_id";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T c_category_id;
-						T &operator()() { return c_category_id; }
-						const T &operator()() const { return c_category_id; }
+						T category_id;
+						T &operator()() { return category_id; }
+						const T &operator()() const { return category_id; }
 					};
 			};
 
@@ -41,7 +41,7 @@ namespace schema {
 	}
 
 	struct t_category_files : sqlpp::table_t<t_category_files,
-				t_category_files_::C_category_id,
+				t_category_files_::Category_id,
 				t_category_files_::C_file_id> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {

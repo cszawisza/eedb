@@ -11,7 +11,7 @@ bool ImplementedAction::save(DB &db){
     static constexpr schema::t_implemented_action ia;
     bool ok = false;
     try{
-        db(sqlpp::postgresql::insert_into(ia).set(ia.c_table = m_tablename, ia.c_action = m_title, ia.c_status = (int)m_status ));
+        db(sqlpp::postgresql::insert_into(ia).set(ia.table_name = m_tablename, ia.action = m_title, ia.status = (int)m_status ));
         ok = true;
     }
     catch( const pg_exception &e ){
@@ -23,9 +23,9 @@ bool ImplementedAction::save(DB &db){
 
 bool ImplementedAction::exists(DB &db) const {
     static constexpr schema::t_implemented_action ia;
-    return db(sqlpp::select(sqlpp::exists(sqlpp::select(ia.c_action)
+    return db(sqlpp::select(sqlpp::exists(sqlpp::select(ia.action)
                                           .from(ia)
-                                          .where(ia.c_table == m_tablename and ia.c_action == m_title and ia.c_status == (int)m_status )
+                                          .where(ia.table_name == m_tablename and ia.action == m_title and ia.status == (int)m_status )
                                           )
                             )
               ).front().exists;

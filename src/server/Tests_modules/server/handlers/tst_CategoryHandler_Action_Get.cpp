@@ -28,10 +28,10 @@ public:
 
     void insertTestGroups(){
         constexpr schema::t_categories c;
-        auto rootCat = db(select(c.c_uid).from(c).where(c.c_parent_category_id.is_null())).front().c_uid;
-        auto cat1id = db(sqlpp::postgresql::insert_into(c).set(c.c_name = "cat_1_1", c.c_parent_category_id = rootCat).returning(c.c_uid)).front().c_uid;
-        db(sqlpp::postgresql::insert_into(c).set(c.c_name = "cat_2_1", c.c_parent_category_id = cat1id));
-        db(sqlpp::postgresql::insert_into(c).set(c.c_name = "cat_2_2", c.c_parent_category_id = cat1id));
+        auto rootCat = db(select(c.uid).from(c).where(c.c_parent_category_id.is_null())).front().uid;
+        auto cat1id = db(sqlpp::postgresql::insert_into(c).set(c.name = "cat_1_1", c.c_parent_category_id = rootCat).returning(c.uid)).front().uid;
+        db(sqlpp::postgresql::insert_into(c).set(c.name = "cat_2_1", c.c_parent_category_id = cat1id));
+        db(sqlpp::postgresql::insert_into(c).set(c.name = "cat_2_2", c.c_parent_category_id = cat1id));
     }
 
     ServerResponse runMessageHandlerProcess(){
@@ -47,9 +47,9 @@ public:
     void upgradeUserPrivileges(){
         auth::Privilege priv;
         constexpr schema::t_categories c;
-        constexpr schema::t_users u;
+        constexpr schema::users u;
         priv.giveGroup(auth::GROUP_categories).privilegeFor("write").forTable(c).force_save(db);
-        db(update(u).set(u.c_group = sqlpp::verbatim<sqlpp::integer>( std::string(tableName<decltype(u)>()) + ".c_group | (1<<3)" )).where(u.c_name == "xxxxxxx" ));
+        db(update(u).set(u.acl_group = sqlpp::verbatim<sqlpp::integer>( std::string(tableName<decltype(u)>()) + ".acl_group | (1<<3)" )).where(u.name == "xxxxxxx" )); ///FIXME
     }
 
 protected:

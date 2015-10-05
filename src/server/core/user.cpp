@@ -14,7 +14,7 @@ using namespace pb;
 using sqlpp::postgresql::pg_exception;
 
 
-constexpr t_users u;
+constexpr users u;
 
 namespace eedb{
 namespace handlers{
@@ -23,7 +23,7 @@ namespace handlers{
 void saveUserActionInDatabase(DB& db, uint64_t uid, const string &action){
     constexpr t_user_history uh;
     try{
-        db(sqlpp::postgresql::insert_into(uh).set(uh.c_uid = uid, uh.c_action = action ));
+        db(sqlpp::postgresql::insert_into(uh).set(uh.uid = uid, uh.action = action ));
     }
     catch(const pg_exception &e){
         ///TODO proper exception handling
@@ -106,31 +106,31 @@ void User::addErrorCode(UserRes_Reply err)
 
 void User::loadUserCache(DB &db, uint64_t uid)
 {
-    constexpr t_users u;
+    constexpr users u;
 //    constexpr t_inventories i;
 //    constexpr t_user_inventories ui;
 
-    auto udAll = db( uh::selectAll( u.c_uid == uid ) );
+    auto udAll = db( uh::selectAll( u.uid == uid ) );
     const auto &ud = udAll.front();
 
     auto basic = user()->mutable_basic();
     auto acl   = user()->mutable_acl();
 
-    basic->set_id   ( ud.c_uid );
-    basic->set_name ( ud.c_name );
-    basic->set_email( ud.c_email );
-    basic->set_description( ud.c_description );
+    basic->set_id   ( ud.uid );
+    basic->set_name ( ud.name );
+    basic->set_email( ud.email );
+    basic->set_description( ud.description );
 
     acl->set_uid(uid);
-    acl->set_group(ud.c_group);
-    acl->set_status( ud.c_status );
-    acl->set_unixperms( ud.c_unixperms );
+    acl->set_group(ud.acl_group);
+    acl->set_status( ud.status );
+    acl->set_unixperms( ud.unixperms );
 
     ///TODO get config
 
-//    auto userInventories = db(select(s.c_uid, s.c_owner, s.c_group, s.c_unixperms, s.c_status, s.c_name )
+//    auto userInventories = db(select(s.uid, s.owner, s.acl_group, s.unixperms, s.status, s.name )
 //                           .from(s.inner_join(us)
-//                                 .on(us.c_storage_id == s.c_uid) )
+//                                 .on(us.c_storage_id == s.uid) )
 //                           .where(us.c_user_id == uid ));
 
 }
@@ -194,7 +194,7 @@ void User::handle_add(DB &db, UserReq_Add &msg)
     if(user()->isOnline()){
         auth::AccesControl acl(user()->id());
 
-        if(acl.checkUserAction<t_users>("create"))
+        if(acl.checkUserAction<users>("create"))
             addUser(db, msg);
         else{
             sendServerError(pb::Error_AccesDeny);
@@ -230,19 +230,19 @@ void User::handle_login(DB &db, const UserReq_Login &loginMsg)
     }
     else
     {
-        constexpr t_users u;
+        constexpr users u;
 
-        auto prep = db.prepare(uh::selectCredentials(u.c_name == parameter(u.c_name) or
-                                                     u.c_uid == parameter(u.c_uid) or
-                                                     u.c_email == parameter(u.c_email) ) );
+        auto prep = db.prepare(uh::selectCredentials(u.name == parameter(u.name) or
+                                                     u.uid == parameter(u.uid) or
+                                                     u.email == parameter(u.email) ) );
         auto &param = prep.params;
 
         if( loginMsg.cred().has_name())
-            param.c_name = loginMsg.cred().name();
+            param.name = loginMsg.cred().name();
         else if( loginMsg.cred().has_email() )
-            param.c_email = loginMsg.cred().email();
+            param.email = loginMsg.cred().email();
         else
-            param.c_uid = loginMsg.cred().id();
+            param.uid = loginMsg.cred().id();
 
         auto queryRes = db(prep);
 
@@ -252,14 +252,14 @@ void User::handle_login(DB &db, const UserReq_Login &loginMsg)
         else{
             const auto &row = queryRes.front();
 
-            string salt = row.c_salt;
-            string hash = row.c_password;
+            string salt = row.salt;
+            string hash = row.password;
             string hashed_pass = PasswordHash::hashPassword( loginMsg.password(), salt );
 
             if( hashed_pass == hash )
-                goToOnlineState(db, row.c_uid );
+                goToOnlineState(db, row.uid );
             else{
-                saveUserActionInDatabase(db, row.c_uid , "wrong password");
+                saveUserActionInDatabase(db, row.uid , "wrong password");
                 addErrorCode(UserRes_Reply_LoginDeny );
             }
         }
@@ -268,6 +268,7 @@ void User::handle_login(DB &db, const UserReq_Login &loginMsg)
 
 void User::handle_logout(DB &db, const UserReq_Logout &logoutMsg)
 {
+    Q_UNUSED(logoutMsg);
     saveUserActionInDatabase(db, user()->id(), "logout");
     user()->goOffLine();
 }
@@ -287,17 +288,17 @@ void User::handle_remove( DB &db, const UserReq_Remove &msg)
     ///TODO remove user files/items/history etc
     ///TODO check if user can remove user with cred
     auto cred = msg.cred();
-    constexpr t_users u;
+    constexpr users u;
     auth::AccesControl acl(user()->id());
 
-    if (acl.checkUserAction<schema::t_users>("delete", msg.cred().id())){
+    if (acl.checkUserAction<schema::users>("delete", msg.cred().id())){
         auto query = dynamic_remove(db.connection()).from(u).dynamic_where();
         if( msg.cred().has_name())
-            query.where.add( u.c_name == msg.cred().name() );
+            query.where.add( u.name == msg.cred().name() );
         else if( msg.cred().has_email() )
-            query.where.add( u.c_email == msg.cred().email() );
+            query.where.add( u.email == msg.cred().email() );
         else
-            query.where.add( u.c_uid == msg.cred().id() );
+            query.where.add( u.uid == msg.cred().id() );
         db(query);
     }
     else
@@ -318,7 +319,7 @@ void User::handle_changePasswd(DB &db, const UserReq_ChangePasswd &msg)
     }
 
     else{      
-        if(acl.checkUserAction<schema::t_users>("change_password",msg.uid())){
+        if(acl.checkUserAction<schema::users>("change_password",msg.uid())){
             ///TODO check if old pass is same as new
             ///TODO set new passwd
 //            DB db;
@@ -333,10 +334,10 @@ void User::handle_changePasswd(DB &db, const UserReq_ChangePasswd &msg)
 
 bool User::userExists(DB &db, string name, string email)
 {
-    auto query = db.prepare(uh::selectExists(u.c_name == parameter(u.c_name) || u.c_email == parameter(u.c_email)));
+    auto query = db.prepare(uh::selectExists(u.name == parameter(u.name) || u.email == parameter(u.email)));
 
-    query.params.c_name = name;
-    query.params.c_email = email;
+    query.params.name = name;
+    query.params.email = email;
 
     return db(query).front().exists;
 }

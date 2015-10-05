@@ -3,7 +3,7 @@
 #include "user.pb.h"
 #include "idatabase.h"
 
-#include "sql_schema/t_users.h"
+#include "sql_schema/users.h"
 #include "sql_schema/t_user_inventories.h"
 #include "sql_schema/t_user_history.h"
 
@@ -37,8 +37,8 @@ class UserHelper {
 public:
     template< typename T >
     static auto selectId( T&& t ){
-        constexpr schema::t_users u;
-        return sqlpp::select(u.c_uid)
+        constexpr schema::users u;
+        return sqlpp::select(u.uid)
                 .from(u)
                 .where( std::forward<T>(t) )
                 .limit(1);
@@ -46,10 +46,10 @@ public:
 
     template< typename T >
     static auto selectExists( T&& t ){
-        constexpr schema::t_users u;
+        constexpr schema::users u;
         return sqlpp::select
                   (sqlpp::exists
-                   (sqlpp::select(u.c_uid)
+                   (sqlpp::select(u.uid)
                     .from(u)
                     .where( std::forward<T>(t) )
                     .limit(1))
@@ -58,8 +58,8 @@ public:
 
     template< typename T >
     static auto selectCredentials( T&& t ){
-        constexpr schema::t_users u;
-        return sqlpp::select(u.c_uid, u.c_password, u.c_salt)
+        constexpr schema::users u;
+        return sqlpp::select(u.uid, u.password, u.salt)
                 .from(u)
                 .where( std::forward<T>(t) )
                 .limit(1);
@@ -67,21 +67,21 @@ public:
 
     template< typename T >
     static auto selectAll( T&& t ){
-        constexpr schema::t_users u;
+        constexpr schema::users u;
         return sqlpp::select(
-                    u.c_uid,
-                    u.c_name,
-                    u.c_email,
-                    u.c_config,
+                    u.uid,
+                    u.name,
+                    u.email,
+                    u.config,
 
-                    u.c_address,
-                    u.c_description,
-                    u.c_phonenumber,
+                    u.address,
+                    u.description,
+                    u.phonenumber,
 
-                    u.c_owner,
-                    u.c_status,
-                    u.c_group,
-                    u.c_unixperms )
+                    u.owner,
+                    u.status,
+                    u.acl_group,
+                    u.unixperms )
                 .from(u)
                 .where( std::forward<T>(t) )
                 .limit(1);

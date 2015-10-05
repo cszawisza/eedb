@@ -5,7 +5,7 @@ namespace db{
 
 UID UserHelper::insertUser(DB &db, const UserReq_Add &msg)
 {
-    constexpr schema::t_users u;
+    constexpr schema::users u;
     const auto &acl = msg.acl();
     const auto &basic = msg.basic();
     const auto &det = msg.details();
@@ -18,55 +18,55 @@ UID UserHelper::insertUser(DB &db, const UserReq_Add &msg)
     // run query
     auto pre = db.prepare(sqlpp::postgresql::insert_into(u)
                           .set(
-                              u.c_group = parameter(u.c_group),
-                              u.c_unixperms = parameter(u.c_unixperms),
-                              u.c_owner = parameter(u.c_owner),
-                              u.c_status = parameter(u.c_status),
-                              u.c_name = parameter(u.c_name),
-                              u.c_email = parameter(u.c_email),
-                              u.c_password = passwd.hash(),
-                              u.c_salt = passwd.salt(),
-                              u.c_address = parameter(u.c_address),
-                              u.c_phonenumber = parameter(u.c_phonenumber),
-                              u.c_description = parameter(u.c_description),
-                              u.c_config = userConfig.toStdString(), // must be a proper JSON document no need to parametrize
-                              u.c_avatar = parameter(u.c_avatar)
-            ).returning(u.c_uid));
+                              u.acl_group = parameter(u.acl_group),
+                              u.unixperms = parameter(u.unixperms),
+                              u.owner = parameter(u.owner),
+                              u.status = parameter(u.status),
+                              u.name = parameter(u.name),
+                              u.email = parameter(u.email),
+                              u.password = passwd.hash(),
+                              u.salt = passwd.salt(),
+                              u.address = parameter(u.address),
+                              u.phonenumber = parameter(u.phonenumber),
+                              u.description = parameter(u.description),
+                              u.config = userConfig.toStdString(), // must be a proper JSON document no need to parametrize
+                              u.avatar = parameter(u.avatar)
+            ).returning(u.uid));
 
-    pre.params.c_name  = basic.name();
-    pre.params.c_email = basic.email();
+    pre.params.name  = basic.name();
+    pre.params.email = basic.email();
 
     if(basic.has_avatar()){
         QByteArray ba = QByteArray::fromRawData(basic.avatar().data(), basic.avatar().size() );
-        pre.params.c_avatar = ba.toBase64().toStdString();
+        pre.params.avatar = ba.toBase64().toStdString();
     }
 
     if( msg.has_acl() ){
-        pre.params.c_group = acl.has_group() ? acl.group() : auth::GROUP_users | auth::GROUP_inventories;
-        pre.params.c_unixperms = acl.has_unixperms() ? acl.unixperms() : UnixPermissions({6,4,4}).toInteger();
-        pre.params.c_owner = acl.has_owner() ? acl.owner() : 1;
-        pre.params.c_status = acl.has_status() ? acl.status() : (int)auth::State_Normal;
+        pre.params.acl_group = acl.has_group() ? acl.group() : auth::GROUP_users | auth::GROUP_inventories;
+        pre.params.unixperms = acl.has_unixperms() ? acl.unixperms() : UnixPermissions({6,4,4}).toInteger();
+        pre.params.owner = acl.has_owner() ? acl.owner() : 1;
+        pre.params.status = acl.has_status() ? acl.status() : (int)auth::State_Normal;
     }
     else{
-        pre.params.c_group = auth::GROUP_users | auth::GROUP_inventories;
-        pre.params.c_unixperms = UnixPermissions({6,4,4}).toInteger();
-        pre.params.c_owner = 1;
-        pre.params.c_status = (int)auth::State_Normal;
+        pre.params.acl_group = auth::GROUP_users | auth::GROUP_inventories;
+        pre.params.unixperms = UnixPermissions({6,4,4}).toInteger();
+        pre.params.owner = 1;
+        pre.params.status = (int)auth::State_Normal;
     }
 
 
     if(basic.has_description())
-        pre.params.c_description = basic.description();
+        pre.params.description = basic.description();
 
     if(det.has_address())
-        pre.params.c_address = det.address();
+        pre.params.address = det.address();
 
     if(det.has_phone_number())
-        pre.params.c_phonenumber = det.phone_number();
+        pre.params.phonenumber = det.phone_number();
 
     auto insertedId = db(pre);
 
-    return insertedId.front().c_uid;
+    return insertedId.front().uid;
 }
 }
 }

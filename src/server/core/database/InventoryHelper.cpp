@@ -1,6 +1,6 @@
 #include "InventoryHelper.hpp"
 
-#include "sql_schema/t_acl.h"
+#include "sql_schema/acl.h"
 #include "sql_schema/t_shelfs.h"
 #include "sql_schema/t_user_inventories.h"
 
@@ -18,24 +18,24 @@ using sqlpp::postgresql::insert_into;
 
 optional<int64_t> InventoryHelper::getInventoryIdByName(DB &db, const string &name)
 {
-    auto val = db.prepare(sqlpp::select(i.c_uid).from(i).where(i.c_name == parameter(i.c_name) ) );
-    val.params.c_name = name;
+    auto val = db.prepare(sqlpp::select(i.uid).from(i).where(i.name == parameter(i.name) ) );
+    val.params.name = name;
     auto row = db(val);
 
     optional<int64_t> id;
     if(!row.empty())
-        id = row.front().c_uid;
+        id = row.front().uid;
     return id;
 }
 
 optional<int64_t> InventoryHelper::getShelfId(DB &db, uint64_t parentId, const string &name)
 {
     ///TODO prevent sql injection
-    auto val = db(sqlpp::select(s.c_uid).from(s).where(s.c_name == name and s.c_inventory_id == parentId ));
+    auto val = db(sqlpp::select(s.uid).from(s).where(s.name == name and s.c_inventory_id == parentId ));
 
     optional<int64_t> id;
     if(!val.empty())
-        id = val.front().c_uid;
+        id = val.front().uid;
     return id;
 }
 
@@ -50,24 +50,24 @@ void InventoryHelper::insertInventory(DB &db, MsgInventoryRequest_Add &add)
     }
 
     auto insert = sqlpp::postgresql::insert_into(i).set(
-                i.c_owner = add.acl().owner(),
-                i.c_group = (int)auth::GROUP_inventories,
-                i.c_unixperms = add.acl().has_unixperms() ? add.acl().unixperms()
+                i.owner = add.acl().owner(),
+                i.acl_group = (int)auth::GROUP_inventories,
+                i.unixperms = add.acl().has_unixperms() ? add.acl().unixperms()
                                                           : UnixPermissions("rwdr-----").toInteger(),
-                i.c_status = add.acl().has_status() ? add.acl().status()
+                i.status = add.acl().has_status() ? add.acl().status()
                                                     : auth::State_Normal,
-                i.c_description = parameter(i.c_description),
-                i.c_name = parameter(i.c_name)
-            ).returning(i.c_uid);
+                i.description = parameter(i.description),
+                i.name = parameter(i.name)
+            ).returning(i.uid);
     auto query = db.prepare(insert);
 
-    query.params.c_name = add.name();
+    query.params.name = add.name();
     if(add.has_description())
-        query.params.c_description = add.description();
+        query.params.description = add.description();
 
     auto inserted = db(query);
 
-    add.mutable_acl()->set_uid(inserted.front().c_uid);
+    add.mutable_acl()->set_uid(inserted.front().uid);
 }
 
 void InventoryHelper::linkWithUser(DB &db, SharedUserData user, uint64_t inv_id)
@@ -80,23 +80,23 @@ void InventoryHelper::linkWithUser(DB &db, SharedUserData user, uint64_t inv_id)
 void InventoryHelper::insertShelf(DB &db, MsgInventoryRequest_AddShelf &add)
 {
     auto insert =  sqlpp::postgresql::insert_into(s).set(
-                s.c_owner = add.acl().owner(),
-                s.c_group = add.acl().group(),
-                s.c_unixperms = add.acl().unixperms(),
-                s.c_status = add.acl().status(),
+                s.owner = add.acl().owner(),
+                s.acl_group = add.acl().group(),
+                s.unixperms = add.acl().unixperms(),
+                s.status = add.acl().status(),
 
-                s.c_name = parameter( s.c_name ),
-                s.c_description = parameter( s.c_description ),
-                s.c_inventory_id = add.inventory_id() ).returning(s.c_uid);
+                s.name = parameter( s.name ),
+                s.description = parameter( s.description ),
+                s.c_inventory_id = add.inventory_id() ).returning(s.uid);
 
     auto prep = db.prepare(insert);
-    prep.params.c_name = add.name();
+    prep.params.name = add.name();
 
     if( add.has_description() )
-        prep.params.c_description = add.description();
+        prep.params.description = add.description();
 
     auto inserted = db(prep);
-    add.mutable_acl()->set_uid( inserted.front().c_uid );
+    add.mutable_acl()->set_uid( inserted.front().uid );
 }
 }
 }

@@ -3,7 +3,7 @@
 #include "core/database/idatabase.h"
 #include "core/auth/implementedaction.hpp"
 
-#include "sql_schema/t_users.h"
+#include "sql_schema/users.h"
 
 using namespace auth;
 
@@ -26,9 +26,9 @@ TEST_F(ImplementedActionTest, ctor){
     ImplementedAction action2("new_implemented_action");
     ImplementedAction action3("new_implemented_action", auth::State_Normal);
 
-    action1.setRelatedTable<schema::t_users>();
-    action2.setRelatedTable<schema::t_users>();
-    action3.setRelatedTable<schema::t_users>();
+    action1.setRelatedTable<schema::users>();
+    action2.setRelatedTable<schema::users>();
+    action3.setRelatedTable<schema::users>();
 
     action1.setTitle("new_implemented_action");
     action1.setStatus(auth::State_Normal);
@@ -45,21 +45,21 @@ TEST_F(ImplementedActionTest, ctor){
 
 TEST_F(ImplementedActionTest, createNew){
     ImplementedAction action("new_implemented_action");
-    action.setRelatedTable<schema::t_users>();
+    action.setRelatedTable<schema::users>();
 
     EXPECT_TRUE( action.save(db) );
 }
 
 TEST_F(ImplementedActionTest, notExists){
     ImplementedAction action("new_implemented_action");
-    action.setRelatedTable<schema::t_users>();
+    action.setRelatedTable<schema::users>();
 
     EXPECT_FALSE( action.exists(db) );
 }
 
 TEST_F(ImplementedActionTest, createNewAndCheckIfExists){
     ImplementedAction action("new_implemented_action");
-    action.setRelatedTable<schema::t_users>();
+    action.setRelatedTable<schema::users>();
 
     EXPECT_TRUE( action.save(db) );
     EXPECT_TRUE( action.exists(db) );
@@ -69,8 +69,8 @@ TEST_F(ImplementedActionTest, differentStatuses ){
     ImplementedAction action1("new_implemented_action", auth::State_Normal );
     ImplementedAction action2("new_implemented_action", auth::State_Deleted);
 
-    action1.setRelatedTable<schema::t_users>();
-    action2.setRelatedTable<schema::t_users>();
+    action1.setRelatedTable<schema::users>();
+    action2.setRelatedTable<schema::users>();
 
     EXPECT_TRUE( action1.save(db) );
     EXPECT_TRUE( action2.save(db) );
@@ -79,7 +79,7 @@ TEST_F(ImplementedActionTest, differentStatuses ){
 //TEST_F(ImplementedActionTest, aclCheck ){
 //    ImplementedAction action1("read", auth::State_Normal );
 
-//    action1.setRelatedTable<schema::t_users>();
+//    action1.setRelatedTable<schema::users>();
 
 //    EXPECT_TRUE( action1.save(db) );
 //}

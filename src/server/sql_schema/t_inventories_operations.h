@@ -9,90 +9,90 @@ namespace schema {
 
 	namespace t_inventories_operations_ {
 
-		struct C_uid {
+		struct Uid {
 			struct _alias_t {
-				static constexpr const char _literal[] ="c_uid";
+				static constexpr const char _literal[] ="uid";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T c_uid;
-						T &operator()() { return c_uid; }
-						const T &operator()() const { return c_uid; }
+						T uid;
+						T &operator()() { return uid; }
+						const T &operator()() const { return uid; }
 					};
 			};
 
 			using _traits = ::sqlpp::make_traits<::sqlpp::integer>;
 		};
 
-		struct C_owner {
+		struct Owner {
 			struct _alias_t {
-				static constexpr const char _literal[] ="c_owner";
+				static constexpr const char _literal[] ="owner";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T c_owner;
-						T &operator()() { return c_owner; }
-						const T &operator()() const { return c_owner; }
+						T owner;
+						T &operator()() { return owner; }
+						const T &operator()() const { return owner; }
 					};
 			};
 
 			using _traits = ::sqlpp::make_traits<::sqlpp::integer>;
 		};
 
-		struct C_group {
+		struct Acl_group {
 			struct _alias_t {
-				static constexpr const char _literal[] ="c_group";
+				static constexpr const char _literal[] ="acl_group";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T c_group;
-						T &operator()() { return c_group; }
-						const T &operator()() const { return c_group; }
+						T acl_group;
+						T &operator()() { return acl_group; }
+						const T &operator()() const { return acl_group; }
 					};
 			};
 
 			using _traits = ::sqlpp::make_traits<::sqlpp::integer>;
 		};
 
-		struct C_unixperms {
+		struct Unixperms {
 			struct _alias_t {
-				static constexpr const char _literal[] ="c_unixperms";
+				static constexpr const char _literal[] ="unixperms";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T c_unixperms;
-						T &operator()() { return c_unixperms; }
-						const T &operator()() const { return c_unixperms; }
+						T unixperms;
+						T &operator()() { return unixperms; }
+						const T &operator()() const { return unixperms; }
 					};
 			};
 
 			using _traits = ::sqlpp::make_traits<::sqlpp::integer>;
 		};
 
-		struct C_status {
+		struct Status {
 			struct _alias_t {
-				static constexpr const char _literal[] ="c_status";
+				static constexpr const char _literal[] ="status";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T c_status;
-						T &operator()() { return c_status; }
-						const T &operator()() const { return c_status; }
+						T status;
+						T &operator()() { return status; }
+						const T &operator()() const { return status; }
 					};
 			};
 
 			using _traits = ::sqlpp::make_traits<::sqlpp::integer>;
 		};
 
-		struct C_name {
+		struct Name {
 			struct _alias_t {
-				static constexpr const char _literal[] ="c_name";
+				static constexpr const char _literal[] ="name";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T c_name;
-						T &operator()() { return c_name; }
-						const T &operator()() const { return c_name; }
+						T name;
+						T &operator()() { return name; }
+						const T &operator()() const { return name; }
 					};
 			};
 
@@ -101,12 +101,12 @@ namespace schema {
 	}
 
 	struct t_inventories_operations : sqlpp::table_t<t_inventories_operations,
-				t_inventories_operations_::C_uid,
-				t_inventories_operations_::C_owner,
-				t_inventories_operations_::C_group,
-				t_inventories_operations_::C_unixperms,
-				t_inventories_operations_::C_status,
-				t_inventories_operations_::C_name> {
+				t_inventories_operations_::Uid,
+				t_inventories_operations_::Owner,
+				t_inventories_operations_::Acl_group,
+				t_inventories_operations_::Unixperms,
+				t_inventories_operations_::Status,
+				t_inventories_operations_::Name> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {
 			static constexpr const char _literal[] = "t_inventories_operations";

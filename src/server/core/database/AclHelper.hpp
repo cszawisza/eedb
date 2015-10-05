@@ -4,7 +4,7 @@
 #include "idatabase.h"
 #include "common.pb.h"
 
-#include "sql_schema/t_acl.h"
+#include "sql_schema/acl.h"
 
 #include <boost/optional.hpp>
 
@@ -19,18 +19,18 @@ public:
     static auto selectAclFrom ( W&& where){
         constexpr T u;
         return sqlpp::select(
-                    u.c_uid,
-                    u.c_owner,
-                    u.c_unixperms,
-                    u.c_group,
-                    u.c_status)
+                    u.uid,
+                    u.owner,
+                    u.unixperms,
+                    u.acl_group,
+                    u.status)
                 .from(u)
                 .where( std::forward<W>(where) );
     }
 
     template < typename W>
     static auto selectAcl( W&& where){
-        return selectAclFrom<schema::t_acl>( std::forward<W>(where) );
+        return selectAclFrom<schema::acl>( std::forward<W>(where) );
     }
 
     template < typename T , typename W >
@@ -40,21 +40,21 @@ public:
         du.where.add( std::forward<W>(where) );
 
         if( data.has_group() )
-            du.assignments.add( tab.c_group = data.group() );
+            du.assignments.add( tab.acl_group = data.group() );
         if( data.has_owner() )
-            du.assignments.add( tab.c_owner = data.owner() );
+            du.assignments.add( tab.owner = data.owner() );
         if( data.has_status() )
-            du.assignments.add( tab.c_status = data.status() );
+            du.assignments.add( tab.status = data.status() );
         if( data.has_unixperms() )
-            du.assignments.add( tab.c_unixperms = data.unixperms() );
+            du.assignments.add( tab.unixperms = data.unixperms() );
 
         return du;
     }
 
     static auto update (const pb::Acl &data ){
-        constexpr schema::t_acl a;
+        constexpr schema::acl a;
         auto uid = data.has_uid()?data.uid() : 0;
-        return updateWhere<schema::t_acl>(data, a.c_uid == uid );
+        return updateWhere<schema::acl>(data, a.uid == uid );
     }
 
 //    template< typename T >
@@ -67,15 +67,15 @@ public:
     {
         static constexpr T a;
         boost::optional<pb::Acl> optionalAclData;
-        auto row = db( selectAclFrom<decltype(a)>( a.c_uid == objectID ));
+        auto row = db( selectAclFrom<decltype(a)>( a.uid == objectID ));
 
         if( !row.empty() ){
             pb::Acl acl = pb::Acl::default_instance();
-            acl.set_group( row.front().c_group );
-            acl.set_owner( row.front().c_owner );
-            acl.set_status( row.front().c_status );
-            acl.set_uid( row.front().c_uid );
-            acl.set_unixperms( row.front().c_unixperms );
+            acl.set_group( row.front().acl_group );
+            acl.set_owner( row.front().owner );
+            acl.set_status( row.front().status );
+            acl.set_uid( row.front().uid );
+            acl.set_unixperms( row.front().unixperms );
             optionalAclData = acl;
         }
 

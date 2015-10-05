@@ -39,7 +39,7 @@ message ClientRequest{
   oneof data {
     pb.UserReq                  userReq = 12;
     pb.MsgInventoryRequest      msgInventoryReq = 13;
-    pb.MsgItemRequest           msgItemReq = 14;
+    pb.ItemRequest              itemReq = 14;
     pb.CategoryReq              categoryReq = 15;
     pb.MsgParameterRequest      msgParameterReq = 16;
   }
@@ -60,7 +60,7 @@ message ServerResponse {
   oneof data {
     pb.UserRes                  userRes = 12;
     pb.MsgInventoryResponse     msgInventoryRes = 13;
-    pb.MsgItemResponse          msgItemRes = 14;
+    pb.ItemResponse             itemRes = 14;
     pb.CategoryRes              categoryRes = 15;
     pb.MsgParameterResponse     msgParameterRes = 16;
     

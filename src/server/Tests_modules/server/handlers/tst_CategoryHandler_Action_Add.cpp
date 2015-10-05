@@ -39,9 +39,9 @@ public:
     void upgradeUserPrivileges(){
         auth::Privilege priv;
         constexpr schema::t_categories c;
-        constexpr schema::t_users u;
+        constexpr schema::users u;
         priv.giveGroup(auth::GROUP_categories).privilegeFor("write").forTable(c).force_save(db);
-        db(update(u).set(u.c_group = sqlpp::verbatim<sqlpp::integer>( std::string(tableName<decltype(u)>()) + ".c_group | (1<<3)" )).where(u.c_name == "xxxxxxx" ));
+        db(update(u).set(u.acl_group = sqlpp::verbatim<sqlpp::integer>( std::string(tableName<decltype(u)>()) + ".acl_group | (1<<3)" )).where(u.name == "xxxxxxx" ));
     }
 
 protected:

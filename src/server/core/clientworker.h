@@ -47,9 +47,9 @@ public slots:
      */
     void processBinnaryMessage(QByteArray frame);
 private:
+    SharedUserData m_cache;
     SharedResponses m_responseFrame;
     SharedRequests m_inputFrame;
     QHash<pb::ClientRequest::DataCase, QSharedPointer<MessageHandler>> m_msgHandlers;
-    SharedUserData m_cache;
     QSharedPointer<MessageHandler> m_defaultProcessor;
 };

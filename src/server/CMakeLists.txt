@@ -32,6 +32,7 @@ set(Core_CPP
     core/server.cpp
 
     core/user.cpp
+    core/ItemHandler.cpp
     core/inventory.cpp
     core/category.cpp
 )
@@ -61,6 +62,7 @@ set(Core_H
 
     core/user.h
     core/inventory.hpp
+    core/ItemHandler.hpp
     core/category.hpp
 )
 

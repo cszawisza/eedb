@@ -9,45 +9,45 @@ namespace schema {
 
 	namespace t_implemented_action_ {
 
-		struct C_table {
+		struct Table_name {
 			struct _alias_t {
-				static constexpr const char _literal[] ="c_table";
+				static constexpr const char _literal[] ="table_name";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T c_table;
-						T &operator()() { return c_table; }
-						const T &operator()() const { return c_table; }
+						T table_name;
+						T &operator()() { return table_name; }
+						const T &operator()() const { return table_name; }
 					};
 			};
 
 			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::require_insert>;
 		};
 
-		struct C_action {
+		struct Action {
 			struct _alias_t {
-				static constexpr const char _literal[] ="c_action";
+				static constexpr const char _literal[] ="action";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T c_action;
-						T &operator()() { return c_action; }
-						const T &operator()() const { return c_action; }
+						T action;
+						T &operator()() { return action; }
+						const T &operator()() const { return action; }
 					};
 			};
 
 			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::require_insert>;
 		};
 
-		struct C_status {
+		struct Status {
 			struct _alias_t {
-				static constexpr const char _literal[] ="c_status";
+				static constexpr const char _literal[] ="status";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T c_status;
-						T &operator()() { return c_status; }
-						const T &operator()() const { return c_status; }
+						T status;
+						T &operator()() { return status; }
+						const T &operator()() const { return status; }
 					};
 			};
 
@@ -56,9 +56,9 @@ namespace schema {
 	}
 
 	struct t_implemented_action : sqlpp::table_t<t_implemented_action,
-				t_implemented_action_::C_table,
-				t_implemented_action_::C_action,
-				t_implemented_action_::C_status> {
+				t_implemented_action_::Table_name,
+				t_implemented_action_::Action,
+				t_implemented_action_::Status> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {
 			static constexpr const char _literal[] = "t_implemented_action";

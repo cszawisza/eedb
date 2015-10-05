@@ -68,21 +68,21 @@ void Category::handle_add(DB &db, CategoryReq_Add &msg)
     if(acl.checkUserAction<schema::t_categories>(db, "write") ){
         auto response = add_response()->mutable_categoryres();
         auto prepare = db.prepare(CH::insert_into().set(
-                                      cat.c_name = parameter(cat.c_name),
-                                      cat.c_description = parameter(cat.c_description ),
+                                      cat.name = parameter(cat.name),
+                                      cat.description = parameter(cat.description ),
                                       cat.c_parent_category_id = msg.parent_id()
-                ).returning(cat.c_uid));
+                ).returning(cat.uid));
 
-        prepare.params.c_name = msg.name();
+        prepare.params.name = msg.name();
         if( msg.has_description() )
-            prepare.params.c_description = msg.description();
+            prepare.params.description = msg.description();
 
         try{
             auto result = db(prepare);
 
             response->set_code(CategoryRes_Replay_AddSuccesful);
             if(msg.has_returningid() && msg.returningid())
-                response->set_id(result.front().c_uid);
+                response->set_id(result.front().uid);
         }
         catch(sqlpp::postgresql::pg_exception e){
             if(e.code().pgClass() == "23") // Unique key validation
@@ -106,25 +106,25 @@ void Category::handle_get(DB &db, CategoryReq_Get &msg)
         auto s = dynamic_select(db.connection()).dynamic_columns().dynamic_from(cat).dynamic_where();
 
         if(msg.has_get_ids() && msg.get_ids())
-            s.selected_columns.add(cat.c_uid);
+            s.selected_columns.add(cat.uid);
         if(msg.has_get_name() && msg.get_name())
-            s.selected_columns.add(cat.c_name);
+            s.selected_columns.add(cat.name);
         if(msg.has_get_description() && msg.get_description())
-            s.selected_columns.add(cat.c_description);
+            s.selected_columns.add(cat.description);
 
         if(msg.where().all_groups())
-            s.where.add(cat.c_status == static_cast<int>(auth::State_Normal));
+            s.where.add(cat.status == static_cast<int>(auth::State_Normal));
 
         auto results = db(s);
 
         for(const auto &row:results){
             auto cres = add_response()->mutable_categoryres();
             if(msg.has_get_ids() && msg.get_ids())
-                cres->set_id(boost::lexical_cast<uint64_t>(row.at("c_uid")));
+                cres->set_id(boost::lexical_cast<uint64_t>(row.at("uid"))); ///TODO chenge to automatic generation
             if(msg.has_get_name() && msg.get_name())
-                cres->set_name(row.at("c_name"));
+                cres->set_name(row.at("name"));
             if(msg.has_get_description() && msg.get_description())
-                cres->set_description(row.at("c_description"));
+                cres->set_description(row.at("description"));
         }
     }
     else{

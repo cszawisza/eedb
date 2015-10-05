@@ -5,19 +5,19 @@
 #include <sqlpp11/char_sequence.h>
 #include <sqlpp11/column_types.h>
 
-namespace schema {
+name_scope schema {
 
-	namespace t_parameter_conversions_ {
+	name_scope t_parameter_conversions_ {
 
 		struct C_from {
 			struct _alias_t {
-				static constexpr const char _literal[] ="c_from";
+				static constexpr const char _literal[] ="from";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T c_from;
-						T &operator()() { return c_from; }
-						const T &operator()() const { return c_from; }
+						T from;
+						T &operator()() { return from; }
+						const T &operator()() const { return from; }
 					};
 			};
 
@@ -26,13 +26,13 @@ namespace schema {
 
 		struct C_to {
 			struct _alias_t {
-				static constexpr const char _literal[] ="c_to";
+				static constexpr const char _literal[] ="to_unit";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T c_to;
-						T &operator()() { return c_to; }
-						const T &operator()() const { return c_to; }
+						T to_unit;
+						T &operator()() { return to_unit; }
+						const T &operator()() const { return to_unit; }
 					};
 			};
 
@@ -41,13 +41,13 @@ namespace schema {
 
 		struct C_equation {
 			struct _alias_t {
-				static constexpr const char _literal[] ="c_equation";
+				static constexpr const char _literal[] ="equation";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T c_equation;
-						T &operator()() { return c_equation; }
-						const T &operator()() const { return c_equation; }
+						T equation;
+						T &operator()() { return equation; }
+						const T &operator()() const { return equation; }
 					};
 			};
 

@@ -12,7 +12,7 @@ void handleConvertedMessage(const pb::ServerResponses & p_serverResponse)
         break;
     case pb::ServerResponse::kMsgInventoryRes:
         break;
-    case pb::ServerResponse::kMsgItemRes:
+    case pb::ServerResponse::kItemRes:
         break;
     case pb::ServerResponse::kCategoryRes:
         break;

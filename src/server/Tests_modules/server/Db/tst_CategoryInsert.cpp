@@ -6,7 +6,7 @@
 
 #include "TestCommon.hpp"
 
-static constexpr schema::t_users u;
+static constexpr schema::users u;
 
 using namespace eedb;
 using namespace test;

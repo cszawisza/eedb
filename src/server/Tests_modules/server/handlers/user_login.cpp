@@ -7,7 +7,7 @@
 
 #include "TestCommon.hpp"
 
-#include "sql_schema/t_users.h"
+#include "sql_schema/users.h"
 #include "sql_schema/t_user_history.h"
 
 using namespace test;

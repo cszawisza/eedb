@@ -122,16 +122,16 @@ void Inventory::handle_get( DB &db, MsgInventoryRequest_Get &msg)
 
         for( const auto &row : result){
             auto res = add_response()->mutable_msginventoryres();
-            res->set_id(row.c_uid);
-            res->set_name(row.c_name);
-            res->set_description(row.c_description);
+            res->set_id(row.uid);
+            res->set_name(row.name);
+            res->set_description(row.description);
         }
     }
 
         break;
     case MsgInventoryRequest_Get_Where::kInventoryId:{
         // get inventory with given ID
-        if(! db(sqlpp::select(sqlpp::exists(sqlpp::select(i.c_uid).from(i).where(i.c_uid == msg.where().inventory_id() )))).front().exists){
+        if(! db(sqlpp::select(sqlpp::exists(sqlpp::select(i.uid).from(i).where(i.uid == msg.where().inventory_id() )))).front().exists){
             ///TODO return information that ID dont exist in db
             return;
         } else {

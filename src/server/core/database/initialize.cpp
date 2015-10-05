@@ -1,7 +1,7 @@
 #include "initialize.hpp"
 
-#include "sql_schema/t_system_info.h"
-#include "sql_schema/t_users.h"
+#include "sql_schema/system_info.h"
+#include "sql_schema/users.h"
 
 #include "../user.h"
 #include "../auth/privilege.hpp"
@@ -43,7 +43,7 @@ int DBInitialize::initializeDB(DB &db)
     }
 
     if(! rootCategoryExists(db)){
-        db(sqlpp::postgresql::insert_into(cat).set(cat.c_name = "Root group"));
+        db(sqlpp::postgresql::insert_into(cat).set(cat.name = "Root group"));
     }
 
     auth::Privilege priv;
@@ -77,14 +77,14 @@ int DBInitialize::initializeDB(DB &db)
 
 bool DBInitialize::rootExists(DB &db) const
 {
-    static constexpr schema::t_users u;
-    return db(sqlpp::select(exists(sqlpp::select(u.c_uid).from(u).where(u.c_name == "ROOT")))).front().exists;
+    static constexpr schema::users u;
+    return db(sqlpp::select(exists(sqlpp::select(u.uid).from(u).where(u.name == "ROOT")))).front().exists;
 }
 
 bool DBInitialize::rootCategoryExists(DB &db) const
 {
     static constexpr schema::t_categories c;
-    return db(sqlpp::select(exists(sqlpp::select(c.c_uid).from(c).where(c.c_parent_category_id.is_null())))).front().exists;
+    return db(sqlpp::select(exists(sqlpp::select(c.uid).from(c).where(c.c_parent_category_id.is_null())))).front().exists;
 }
 
 void DBInitialize::insertActionIfNotExists(DB &db, auth::Action action) const

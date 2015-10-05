@@ -26,17 +26,17 @@ namespace test{
 using eedb::db::UserHelper;
 
 inline quint64 addUser(DB &db, const string &name, const std::string &pass = "xxxx"){
-    constexpr schema::t_users u;
+    constexpr schema::users u;
     pb::UserReq_Add msg;
 
     msg.mutable_basic()->set_name(name);
     msg.mutable_basic()->set_email(name + "@fake.xx");
     msg.set_password(pass);
 
-    if(! db( UserHelper::selectExists( u.c_name == name )).front().exists ) // function returns 0 when user don't exist
+    if(! db( UserHelper::selectExists( u.name == name )).front().exists ) // function returns 0 when user don't exist
         UserHelper::insertUser(db, msg);
 
-    return db(UserHelper::selectId( u.c_name == name )).front().c_uid;
+    return db(UserHelper::selectId( u.name == name )).front().uid;
 }
 
 inline SharedUserData login(DB &db, const string &name, const std::string &pass = "xxxx"){

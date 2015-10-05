@@ -141,16 +141,16 @@ bool Privilege::force_save(DB &db) const{
 }
 
 bool Privilege::exists(DB &db) const{
-    static constexpr schema::t_privilege pr;
+    static constexpr schema::privilege pr;
 
     if(m_role == Role_User ){
         return db(sqlpp::select
                   (sqlpp::exists(sqlpp::select(sqlpp::all_of(pr))
                                  .from(pr)
-                                 .where(pr.c_role == Role::name(m_role) and
-                                        pr.c_who == (m_role == Role_Group ? m_groupid : m_who) and
-                                        pr.c_type == Type::name(Type_Object) and
-                                        pr.c_related_table == m_related_table )
+                                 .where(pr.role == Role::name(m_role) and
+                                        pr.who == (m_role == Role_Group ? m_groupid : m_who) and
+                                        pr.type == Type::name(Type_Object) and
+                                        pr.related_table_name == m_related_table )
                                  )
                    )
                   ).front().exists;
@@ -161,16 +161,16 @@ bool Privilege::exists(DB &db) const{
 }
 
 bool Privilege::saveInDb(DB &db, const PrivilegeRow &row) const {
-    static constexpr schema::t_privilege pr;
+    static constexpr schema::privilege pr;
 
     try{
         db(sqlpp::postgresql::insert_into(pr)
-           .set(pr.c_role = row.role,
-                pr.c_who = row.who,
-                pr.c_action = row.action,
-                pr.c_type = row.type,
-                pr.c_related_table = row.related_table,
-                pr.c_related_uid = row.related_uid ));
+           .set(pr.role = row.role,
+                pr.who = row.who,
+                pr.action = row.action,
+                pr.type = row.type,
+                pr.related_table_name = row.related_table,
+                pr.related_object_uid = row.related_uid ));
     }
     catch( const pg_exception &e){
         LOG_DB_EXCEPTION(e);

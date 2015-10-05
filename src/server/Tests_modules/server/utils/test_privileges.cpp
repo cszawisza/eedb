@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "sql_schema/t_acl.h"
+#include "sql_schema/acl.h"
 #include "sql_schema/t_files.h"
-#include "sql_schema/t_users.h"
+#include "sql_schema/users.h"
 
 #include "core/database/idatabase.h"
 #include "core/auth/action.hpp"
@@ -35,35 +35,35 @@ public:
         // must have a special permision
         db(sqlpp::postgresql::insert_into(f)
                 .set(
-                    f.c_group = 1<<31, // user not in this group
-                    f.c_unixperms =  448, // 700
-                    f.c_owner =  1, // owner root
-                    f.c_status = 0 ,
-                    f.c_name = "test_new_file",
+                    f.acl_group = 1<<31, // user not in this group
+                    f.unixperms =  448, // 700
+                    f.owner =  1, // owner root
+                    f.status = 0 ,
+                    f.name = "test_new_file",
                     f.c_size = 1000,
                     f.c_sha = "xxxxxxxxxxxxxxxxxx",
                     f.c_mimetype = "some mime type"
                 ));
 
-        m_fid = db.lastInsertId(tableName<schema::t_acl>(), "c_uid");
+        m_fid = db.lastInsertId(tableName<schema::acl>(), "uid"); ///TODO chenge to automatic generation
     }
 
     uint64_t addDummyUser( string name ){
-        static constexpr schema::t_users u;
+        static constexpr schema::users u;
 
         db(sqlpp::postgresql::insert_into(u)
                 .set(
-                    u.c_group = 2, // default to user group
-                    u.c_unixperms =  484,
-                    u.c_owner =  1,
-                    u.c_status = 0 ,
-                    u.c_name = name ,
-                    u.c_email = name + "@email.com",
-                    u.c_password = "passwd",
-                    u.c_salt = "salt"
+                    u.acl_group = 2, // default to user group
+                    u.unixperms =  484,
+                    u.owner =  1,
+                    u.status = 0 ,
+                    u.name = name ,
+                    u.email = name + "@email.com",
+                    u.password = "passwd",
+                    u.salt = "salt"
                 ));
 
-        return db.lastInsertId(tableName<schema::t_acl>(), "c_uid");
+        return db.lastInsertId(tableName<schema::acl>(), "uid"); ///TODO chenge to automatic generation
     }
     schema::t_files f;
     uint64_t m_uid, m_uid2, m_fid;
@@ -156,7 +156,7 @@ TEST_F(PrivilegesTest, differentStates){
 
     EXPECT_FALSE( acl1.checkUserAction<schema::t_files>(db, "remove_file", m_fid) );
 
-    db(update(f).set(f.c_status = (int)State_Deleted).where(f.c_uid == m_fid) );
+    db(update(f).set(f.status = (int)State_Deleted).where(f.uid == m_fid) );
 
     EXPECT_TRUE( acl1.checkUserAction<schema::t_files>(db, "remove_file", m_fid) );
 }
@@ -168,10 +168,10 @@ TEST_F(PrivilegesTest, differentStatesToDeleted){
     EXPECT_FALSE( acl1.checkUserAction<schema::t_files>(db, "remove_file", m_fid) );
 
     priv.giveUser( m_uid ).privilegeFor("remove_file").onObject( m_fid ).inTable(f).inState( State_BeingModified ).force_save(db);
-    db(update(f).set(f.c_status = (int)State_BeingModified).where(f.c_uid == m_fid) );
+    db(update(f).set(f.status = (int)State_BeingModified).where(f.uid == m_fid) );
     EXPECT_TRUE( acl1.checkUserAction<schema::t_files>(db, "remove_file", m_fid) );
 
-    db(update(f).set(f.c_status = (int)State_Deleted).where(f.c_uid == m_fid) );
+    db(update(f).set(f.status = (int)State_Deleted).where(f.uid == m_fid) );
 
     EXPECT_FALSE( acl1.checkUserAction<schema::t_files>(db, "remove_file", m_fid) );
 }

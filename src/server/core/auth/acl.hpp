@@ -6,11 +6,11 @@
 #include "database/AclHelper.hpp"
 #include "database/idatabase.h"
 
-#include "sql_schema/t_acl.h"
-#include "sql_schema/t_users.h"
-#include "sql_schema/t_action.h"
+#include "sql_schema/acl.h"
+#include "sql_schema/users.h"
+#include "sql_schema/action.h"
 #include "sql_schema/t_implemented_action.h"
-#include "sql_schema/t_privilege.h"
+#include "sql_schema/privilege.h"
 
 #include "common.pb.h"
 
@@ -61,35 +61,35 @@ public:
     bool checkUserAction(DB &db, const string &action){
         const auto &tablename = sqlpp::name_of<TAB>::char_ptr();
 
-        schema::t_action ac;
-        schema::t_privilege pr;
-        schema::t_users u;
+        schema::action ac;
+        schema::privilege pr;
+        schema::users u;
 
         ///TODO read group from cache
         uint64_t userGroups = 0;
 
 
-        auto aclInfo = db( sqlpp::select( u.c_group )
+        auto aclInfo = db( sqlpp::select( u.acl_group )
                            .from(u)
-                           .where( u.c_uid == m_userId ) );
+                           .where( u.uid == m_userId ) );
         if(aclInfo.empty())
             return false; // no user
-        userGroups = aclInfo.front().c_group;
+        userGroups = aclInfo.front().acl_group;
 
-        auto res = db(sqlpp::select(ac.c_title)
-           .from(ac.left_outer_join(pr).on(pr.c_related_table == tablename
-                                           and pr.c_action == ac.c_title
-                                           and pr.c_type == "table" ))
-           .where( ac.c_apply_object == toBool(false)
+        auto res = db(sqlpp::select(ac.title)
+           .from(ac.left_outer_join(pr).on(pr.related_table_name == tablename
+                                           and pr.action == ac.title
+                                           and pr.type == "table" ))
+           .where( ac.apply_object == toBool(false)
                    and ( toBool(( userGroups & groupsroot ) != 0)
-                        or (pr.c_role == "user" and pr.c_who == m_userId )
-                        or (pr.c_role == "group" and (pr.c_who & userGroups) != 0 )
+                        or (pr.role == "user" and pr.who == m_userId )
+                        or (pr.role == "group" and (pr.who & userGroups) != 0 )
                         )
                    )
            );
 
         for (const auto& row: res){
-            if(row.c_title == action )
+            if(row.title == action )
                 return true;
         }
 
@@ -105,45 +105,45 @@ public:
     template<typename TAB>
     bool checkUserAction(DB &db, const string &action, uint64_t objectid){
         TAB acl;
-        schema::t_action act;
+        schema::action act;
         schema::t_implemented_action ia;
-        schema::t_privilege pr;
+        schema::privilege pr;
 
         if( checkBasicPerms(db,action,objectid) )
             return true;
 
-        auto res = db( sqlpp::select().flags(sqlpp::distinct).columns(act.c_title)
+        auto res = db( sqlpp::select().flags(sqlpp::distinct).columns(act.title)
                        .from(act
-                             .inner_join(acl).on(acl.c_uid == objectid)
-                             .inner_join(ia).on(ia.c_action == act.c_title
-                                                and ia.c_table == tableName<TAB>()
-                                                and (ia.c_status == 0 or ((ia.c_status & acl.c_status) != 0))
+                             .inner_join(acl).on(acl.uid == objectid)
+                             .inner_join(ia).on(ia.action == act.title
+                                                and ia.table_name == tableName<TAB>()
+                                                and (ia.status == 0 or ((ia.status & acl.status) != 0))
                                                 )
-                             .left_outer_join(pr).on(pr.c_related_table == tableName<TAB>()
-                                                     and pr.c_action == act.c_title
-                                                     and (   (  pr.c_type == "object" and pr.c_related_uid == objectid)
-                                                          or (  pr.c_type == "global" )
-                                                          or ( (pr.c_role == "self")
+                             .left_outer_join(pr).on(pr.related_table_name == tableName<TAB>()
+                                                     and pr.action == act.title
+                                                     and (   (  pr.type == "object" and pr.related_object_uid == objectid)
+                                                          or (  pr.type == "global" )
+                                                          or ( (pr.role == "self")
                                                                and toBool(m_userId  == objectid )
-                                                               and toBool(tableName<TAB>() == tableName<schema::t_users>() ))
+                                                               and toBool(tableName<TAB>() == tableName<schema::users>() ))
                                                           )
                                                      )
                              )
                        .where(
-                           (act.c_title == action) and
-                           act.c_apply_object
+                           (act.title == action) and
+                           act.apply_object
                            and ((
-                                    (    pr.c_role == "user"        and pr.c_who == m_userId )
-                                    or ( pr.c_role == "owner"       and acl.c_owner == m_userId )
-                                    or ( pr.c_role == "owner_group" and ((acl.c_group & m_userAcl.group()) != 0))
-                                    or ( pr.c_role == "group"       and ((pr.c_who & m_userAcl.group()) != 0))
+                                    (    pr.role == "user"        and pr.who == m_userId )
+                                    or ( pr.role == "owner"       and acl.owner == m_userId )
+                                    or ( pr.role == "owner_group" and ((acl.acl_group & m_userAcl.group()) != 0))
+                                    or ( pr.role == "group"       and ((pr.who & m_userAcl.group()) != 0))
                                     )
-                                or (pr.c_role == "self"))
+                                or (pr.role == "self"))
                            )
                        );
 
         for (const auto& row: res)
-            if(row.c_title == action )
+            if(row.title == action )
                 return true;
         return false;
     }
@@ -156,11 +156,11 @@ private:
 
     template<class Data>
     void readAclFromData(pb::Acl& acl, const Data &aclInfo){
-        acl.set_uid       ( aclInfo.front().c_uid         );
-        acl.set_owner     ( aclInfo.front().c_owner       );
-        acl.set_unixperms ( aclInfo.front().c_unixperms   );
-        acl.set_status    ( aclInfo.front().c_status      );
-        acl.set_group     ( aclInfo.front().c_group       );
+        acl.set_uid       ( aclInfo.front().uid         );
+        acl.set_owner     ( aclInfo.front().owner       );
+        acl.set_unixperms ( aclInfo.front().unixperms   );
+        acl.set_status    ( aclInfo.front().status      );
+        acl.set_group     ( aclInfo.front().acl_group       );
     }
 
     uint64_t m_userId;

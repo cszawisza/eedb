@@ -6,7 +6,7 @@
 
 #include "TestCommon.hpp"
 
-static constexpr schema::t_users u;
+static constexpr schema::users u;
 
 using namespace eedb;
 using namespace test;
@@ -37,13 +37,13 @@ protected:
 };
 
 TEST_F(UserHelperInsertTest, updateAclEntry ){
-    EXPECT_NE( 0, db(helper.selectAclFrom<schema::t_users>(u.c_name == "ROOT" ) ).front().c_owner );
-    EXPECT_NE( 0, db(helper.selectAclFrom<schema::t_users>(u.c_name == "ROOT" ) ).front().c_group );
-    EXPECT_NE( 0, db(helper.selectAclFrom<schema::t_users>(u.c_name == "ROOT" ) ).front().c_unixperms );
-    EXPECT_NO_THROW(db(helper.updateWhere<schema::t_users>(dataToInsert, u.c_name == "ROOT" )) );
-    EXPECT_EQ( 0, db(helper.selectAclFrom<schema::t_users>(u.c_name == "ROOT" ) ).front().c_owner );
-    EXPECT_EQ( 0, db(helper.selectAclFrom<schema::t_users>(u.c_name == "ROOT" ) ).front().c_group );
-    EXPECT_EQ( 0, db(helper.selectAclFrom<schema::t_users>(u.c_name == "ROOT" ) ).front().c_unixperms );
+    EXPECT_NE( 0, db(helper.selectAclFrom<schema::users>(u.name == "ROOT" ) ).front().owner );
+    EXPECT_NE( 0, db(helper.selectAclFrom<schema::users>(u.name == "ROOT" ) ).front().acl_group );
+    EXPECT_NE( 0, db(helper.selectAclFrom<schema::users>(u.name == "ROOT" ) ).front().unixperms );
+    EXPECT_NO_THROW(db(helper.updateWhere<schema::users>(dataToInsert, u.name == "ROOT" )) );
+    EXPECT_EQ( 0, db(helper.selectAclFrom<schema::users>(u.name == "ROOT" ) ).front().owner );
+    EXPECT_EQ( 0, db(helper.selectAclFrom<schema::users>(u.name == "ROOT" ) ).front().acl_group );
+    EXPECT_EQ( 0, db(helper.selectAclFrom<schema::users>(u.name == "ROOT" ) ).front().unixperms );
 }
 
 TEST_F(UserHelperInsertTest, expectFailWhenNoIdFound ){

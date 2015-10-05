@@ -5,6 +5,7 @@
 #include "user.h"
 #include "inventory.hpp"
 #include "category.hpp"
+#include "ItemHandler.hpp"
 
 ClientWorker::ClientWorker(QObject *parent) :
     QObject(parent),
@@ -15,6 +16,7 @@ ClientWorker::ClientWorker(QObject *parent) :
     m_inputFrame = SharedRequests(new pb::ClientRequests );
     m_responseFrame = SharedResponses( new pb::ServerResponses );
 
+    m_msgHandlers.insert( pb::ClientRequest::kItemReq, QSharedPointer<eedb::handlers::ItemProcessor>(new eedb::handlers::ItemProcessor() ));
     m_msgHandlers.insert( pb::ClientRequest::kUserReq, QSharedPointer<eedb::handlers::User>(new eedb::handlers::User()) );
     m_msgHandlers.insert( pb::ClientRequest::kMsgInventoryReq, QSharedPointer<eedb::handlers::Inventory>( new eedb::handlers::Inventory() ));
     m_msgHandlers.insert( pb::ClientRequest::kCategoryReq, QSharedPointer<eedb::handlers::Category>(new eedb::handlers::Category() ));

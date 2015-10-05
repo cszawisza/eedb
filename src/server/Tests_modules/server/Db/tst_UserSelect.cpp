@@ -6,7 +6,7 @@
 
 #include "TestCommon.hpp"
 
-static constexpr schema::t_users u;
+static constexpr schema::users u;
 
 using namespace eedb;
 using namespace test;
@@ -22,17 +22,17 @@ protected:
 };
 
 TEST_F(UserHelperTest, getTrueUser ){
-    auto userData = db( helper.selectAll( u.c_name == "ROOT" ) );
-    EXPECT_EQ(userData.front().c_name, "ROOT");
+    auto userData = db( helper.selectAll( u.name == "ROOT" ) );
+    EXPECT_EQ(userData.front().name, "ROOT");
 }
 
 TEST_F(UserHelperTest, checkIfExists ){
-    auto e = db.prepare( helper.selectExists( u.c_name == parameter(u.c_name) ) );
+    auto e = db.prepare( helper.selectExists( u.name == parameter(u.name) ) );
 
-    e.params.c_name = "ROOT";
+    e.params.name = "ROOT";
     EXPECT_TRUE(db(e).front().exists );
 
-    e.params.c_name = "fake";
+    e.params.name = "fake";
     EXPECT_FALSE(db(e).front().exists );
 }
 
@@ -41,8 +41,8 @@ TEST_F(UserHelperTest, checkIfExists ){
 //}
 
 TEST_F(UserHelperTest, prep){
-    constexpr schema::t_users u;
-    auto preparedStatement = db.prepare( helper.selectExists(u.c_name == parameter(u.c_name)) );
+    constexpr schema::users u;
+    auto preparedStatement = db.prepare( helper.selectExists(u.name == parameter(u.name)) );
 
-    preparedStatement.params.c_name = "CYCEK";
+    preparedStatement.params.name = "CYCEK";
 }
