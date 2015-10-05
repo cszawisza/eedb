@@ -8,8 +8,8 @@
 
 #include <core/inventory.hpp>
 
-#include <sql_schema/t_shelfs.h>
-#include <sql_schema/t_inventories.h>
+#include <sql_schema/shelfs.h>
+#include <sql_schema/inventories.h>
 #include <sql_schema/files.h>
 
 #include "database/idatabase.h"

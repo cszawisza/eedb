@@ -8,9 +8,9 @@
 
 #include "database/UserHelper.hpp"
 
-#include "sql_schema/t_inventories.h"
-#include "sql_schema/t_shelfs.h"
-#include "sql_schema/t_categories.h"
+#include "sql_schema/inventories.h"
+#include "sql_schema/shelfs.h"
+#include "sql_schema/categories.h"
 
 
 using auth::Action;
@@ -22,9 +22,9 @@ namespace eedb{
 
 int DBInitialize::initializeDB(DB &db)
 {
-    static constexpr schema::t_categories cat;
-    static constexpr schema::t_inventories inv;
-    static constexpr schema::t_shelfs sh;
+    static constexpr schema::categories cat;
+    static constexpr schema::inventories inv;
+    static constexpr schema::shelfs sh;
 
     if(! rootExists(db)){
         pb::UserReq_Add add;
@@ -83,8 +83,8 @@ bool DBInitialize::rootExists(DB &db) const
 
 bool DBInitialize::rootCategoryExists(DB &db) const
 {
-    static constexpr schema::t_categories c;
-    return db(sqlpp::select(exists(sqlpp::select(c.uid).from(c).where(c.c_parent_category_id.is_null())))).front().exists;
+    static constexpr schema::categories c;
+    return db(sqlpp::select(exists(sqlpp::select(c.uid).from(c).where(c.parent_category_id.is_null())))).front().exists;
 }
 
 void DBInitialize::insertActionIfNotExists(DB &db, auth::Action action) const

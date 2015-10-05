@@ -8,7 +8,7 @@
 
 static constexpr schema::stat a;
 static constexpr schema::users u;
-static constexpr schema::t_inventories i;
+static constexpr schema::inventories i;
 static constexpr schema::files f;
 
 using namespace eedb;
@@ -37,8 +37,8 @@ protected:
 
 TEST_F(UserHelperSelectTest, executeSelectFromDifferentTables ){
     EXPECT_TRUE( db(helper.selectAcl( a.uid == 0 ) ).empty() );
-    EXPECT_TRUE( db(helper.selectAclFrom<schema::files>( f.file_size == 0 and f.hash == "x" ) ).empty() );
-    EXPECT_TRUE( db(helper.selectAclFrom<schema::t_inventories>( i.name == "unknown inventory") ).empty() );
+    EXPECT_TRUE( db(helper.selectAclFrom<schema::files>( f.file_size == 0 and f.file_hash == "x" ) ).empty() );
+    EXPECT_TRUE( db(helper.selectAclFrom<schema::inventories>( i.name == "unknown inventory") ).empty() );
     EXPECT_TRUE( db(helper.selectAclFrom<schema::users>( u.phonenumber == "0700 123 123" or u.name.like("PIMP"))).empty() );
 }
 

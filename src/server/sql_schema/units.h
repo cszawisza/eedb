@@ -99,15 +99,15 @@ namespace schema {
 			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::require_insert>;
 		};
 
-		struct Creationdate {
+		struct Creation_date {
 			struct _alias_t {
-				static constexpr const char _literal[] ="creationdate";
+				static constexpr const char _literal[] ="creation_date";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T creationdate;
-						T &operator()() { return creationdate; }
-						const T &operator()() const { return creationdate; }
+						T creation_date;
+						T &operator()() { return creation_date; }
+						const T &operator()() const { return creation_date; }
 					};
 			};
 
@@ -144,15 +144,15 @@ namespace schema {
 			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::require_insert>;
 		};
 
-		struct C_quantity_name {
+		struct Quantity_name {
 			struct _alias_t {
-				static constexpr const char _literal[] ="c_quantity_name";
+				static constexpr const char _literal[] ="quantity_name";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T c_quantity_name;
-						T &operator()() { return c_quantity_name; }
-						const T &operator()() const { return c_quantity_name; }
+						T quantity_name;
+						T &operator()() { return quantity_name; }
+						const T &operator()() const { return quantity_name; }
 					};
 			};
 
@@ -182,10 +182,10 @@ namespace schema {
 				units_::Unixperms,
 				units_::Status,
 				units_::Name,
-				units_::Creationdate,
+				units_::Creation_date,
 				units_::Last_update,
 				units_::Symbol,
-				units_::C_quantity_name,
+				units_::Quantity_name,
 				units_::Description> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {

@@ -4,10 +4,10 @@
 #include "idatabase.h"
 
 #include "sql_schema/users.h"
-#include "sql_schema/t_user_inventories.h"
-#include "sql_schema/t_user_history.h"
+#include "sql_schema/user_inventories.h"
+#include "sql_schema/user_history.h"
 
-#include "sql_schema/t_inventories.h"
+#include "sql_schema/inventories.h"
 
 #include "utils/hash_passwd.h"
 #include "utils/userconfig.h"

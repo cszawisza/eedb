@@ -8,9 +8,9 @@ class inventoryAddShelfTest : public ::testing::Test
 {
 public:
     schema::users u;
-    schema::t_user_inventories ui;
-    schema::t_inventories i;
-    schema::t_shelfs sh;
+    schema::user_inventories ui;
+    schema::inventories i;
+    schema::shelfs sh;
 
     inventoryAddShelfTest() {
         db.start_transaction();
@@ -48,8 +48,8 @@ TEST_F(inventoryAddShelfTest, checkAcl){
 TEST_F(inventoryAddShelfTest, userCanEditNewlyCreatedShelf ){
     auth::AccesControl acces(m_userId);
 
-    EXPECT_TRUE(acces.checkUserAction<schema::t_shelfs>(db, "read", m_shelfId ) );
-    EXPECT_TRUE(acces.checkUserAction<schema::t_shelfs>(db, "write", m_shelfId ) );
-    EXPECT_TRUE(acces.checkUserAction<schema::t_shelfs>(db, "delete", m_shelfId ) );
+    EXPECT_TRUE(acces.checkUserAction<schema::shelfs>(db, "read", m_shelfId ) );
+    EXPECT_TRUE(acces.checkUserAction<schema::shelfs>(db, "write", m_shelfId ) );
+    EXPECT_TRUE(acces.checkUserAction<schema::shelfs>(db, "delete", m_shelfId ) );
 }
 

@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
 #include <sqlpp11/sqlpp11.h>
-#include "sql_schema/t_shelfs.h"
+#include "sql_schema/shelfs.h"
 
 #include <core/database/idatabase.h>
 #include <core/inventory.hpp>
@@ -16,9 +16,9 @@ class inventoryGetTest : public ::testing::Test
 {
 public:
     schema::users u;
-    schema::t_user_inventories ui;
-    schema::t_inventories i;
-    schema::t_shelfs sh;
+    schema::user_inventories ui;
+    schema::inventories i;
+    schema::shelfs sh;
 
     inventoryGetTest() {
         db.start_transaction();

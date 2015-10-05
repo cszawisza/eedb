@@ -1,8 +1,8 @@
 #include "InventoryHelper.hpp"
 
 #include "sql_schema/stat.h"
-#include "sql_schema/t_shelfs.h"
-#include "sql_schema/t_user_inventories.h"
+#include "sql_schema/shelfs.h"
+#include "sql_schema/user_inventories.h"
 
 #include "utils/unixPerms.hpp"
 
@@ -10,9 +10,9 @@ using boost::optional;
 
 namespace eedb{
 namespace db {
-static constexpr schema::t_inventories i;
-static constexpr schema::t_shelfs s;
-static constexpr schema::t_user_inventories u_i;
+static constexpr schema::inventories i;
+static constexpr schema::shelfs s;
+static constexpr schema::user_inventories u_i;
 
 using sqlpp::postgresql::insert_into;
 
@@ -31,7 +31,7 @@ optional<int64_t> InventoryHelper::getInventoryIdByName(DB &db, const string &na
 optional<int64_t> InventoryHelper::getShelfId(DB &db, uint64_t parentId, const string &name)
 {
     ///TODO prevent sql injection
-    auto val = db(sqlpp::select(s.uid).from(s).where(s.name == name and s.c_inventory_id == parentId ));
+    auto val = db(sqlpp::select(s.uid).from(s).where(s.name == name and s.inventory_id == parentId ));
 
     optional<int64_t> id;
     if(!val.empty())
@@ -73,8 +73,8 @@ void InventoryHelper::insertInventory(DB &db, MsgInventoryRequest_Add &add)
 void InventoryHelper::linkWithUser(DB &db, SharedUserData user, uint64_t inv_id)
 {
     db(sqlpp::postgresql::insert_into(u_i).set(
-       u_i.c_inventory_id = inv_id,
-           u_i.c_user_id = user->id() ) );
+       u_i.inventory_id = inv_id,
+           u_i.user_id = user->id() ) );
 }
 
 void InventoryHelper::insertShelf(DB &db, MsgInventoryRequest_AddShelf &add)
@@ -87,7 +87,7 @@ void InventoryHelper::insertShelf(DB &db, MsgInventoryRequest_AddShelf &add)
 
                 s.name = parameter( s.name ),
                 s.description = parameter( s.description ),
-                s.c_inventory_id = add.inventory_id() ).returning(s.uid);
+                s.inventory_id = add.inventory_id() ).returning(s.uid);
 
     auto prep = db.prepare(insert);
     prep.params.name = add.name();

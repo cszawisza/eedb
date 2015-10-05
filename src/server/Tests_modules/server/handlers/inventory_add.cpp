@@ -12,9 +12,9 @@ class inventoryTest : public ::testing::Test
 {
 public:
     schema::users u;
-    schema::t_user_inventories ui;
-    schema::t_inventories i;
-    schema::t_shelfs sh;
+    schema::user_inventories ui;
+    schema::inventories i;
+    schema::shelfs sh;
 
     inventoryTest() {
         db.start_transaction();
@@ -51,12 +51,12 @@ TEST_F(inventoryTest, userCanEditNewlyCreatedInventory ){
     auth::AccesControl acces(m_userId);
     auth::AccesControl other( test::addUser(db,"xxxxxxx2") );
 
-    EXPECT_TRUE(acces.checkUserAction<schema::t_inventories>(db, "read", m_invId ) );
-    EXPECT_TRUE(acces.checkUserAction<schema::t_inventories>(db, "write", m_invId ) );
-    EXPECT_TRUE(acces.checkUserAction<schema::t_inventories>(db, "delete", m_invId ) );
+    EXPECT_TRUE(acces.checkUserAction<schema::inventories>(db, "read", m_invId ) );
+    EXPECT_TRUE(acces.checkUserAction<schema::inventories>(db, "write", m_invId ) );
+    EXPECT_TRUE(acces.checkUserAction<schema::inventories>(db, "delete", m_invId ) );
 
-    EXPECT_TRUE (other.checkUserAction<schema::t_inventories>(db, "read", m_invId ) );
-    EXPECT_FALSE(other.checkUserAction<schema::t_inventories>(db, "write", m_invId ) );
-    EXPECT_FALSE(other.checkUserAction<schema::t_inventories>(db, "delete", m_invId ) );
+    EXPECT_TRUE (other.checkUserAction<schema::inventories>(db, "read", m_invId ) );
+    EXPECT_FALSE(other.checkUserAction<schema::inventories>(db, "write", m_invId ) );
+    EXPECT_FALSE(other.checkUserAction<schema::inventories>(db, "delete", m_invId ) );
 }
 

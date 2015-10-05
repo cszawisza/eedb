@@ -2,7 +2,7 @@
 #include <sqlpp11/sqlpp11.h>
 #include "utils/sqlpp_helper.hpp"
 #include "database/idatabase.h"
-#include "sql_schema/t_implemented_action.h"
+#include "sql_schema/implemented_action.h"
 #include <iostream>
 #include <sqlpp11/sqlpp11.h>
 

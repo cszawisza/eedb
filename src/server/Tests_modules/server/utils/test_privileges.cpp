@@ -41,8 +41,8 @@ public:
                     f.status = 0 ,
                     f.name = "test_new_file",
                     f.file_size = 1000,
-                    f.hash = "xxxxxxxxxxxxxxxxxx",
-                    f.mimetype = "some mime type"
+                    f.file_hash = "xxxxxxxxxxxxxxxxxx",
+                    f.file_mimetype = "some mime type"
                 ));
 
         m_fid = db.lastInsertId(tableName<schema::stat>(), "uid"); ///TODO chenge to automatic generation

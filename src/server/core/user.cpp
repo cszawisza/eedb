@@ -21,7 +21,7 @@ namespace handlers{
 
 
 void saveUserActionInDatabase(DB& db, uint64_t uid, const string &action){
-    constexpr t_user_history uh;
+    constexpr user_history uh;
     try{
         db(sqlpp::postgresql::insert_into(uh).set(uh.uid = uid, uh.action = action ));
     }
@@ -107,8 +107,8 @@ void User::addErrorCode(UserRes_Reply err)
 void User::loadUserCache(DB &db, uint64_t uid)
 {
     constexpr users u;
-//    constexpr t_inventories i;
-//    constexpr t_user_inventories ui;
+//    constexpr inventories i;
+//    constexpr user_inventories ui;
 
     auto udAll = db( uh::selectAll( u.uid == uid ) );
     const auto &ud = udAll.front();
@@ -131,7 +131,7 @@ void User::loadUserCache(DB &db, uint64_t uid)
 //    auto userInventories = db(select(s.uid, s.owner, s.stat_group, s.unixperms, s.status, s.name )
 //                           .from(s.inner_join(us)
 //                                 .on(us.c_storage_id == s.uid) )
-//                           .where(us.c_user_id == uid ));
+//                           .where(us.user_id == uid ));
 
 }
 

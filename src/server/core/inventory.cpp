@@ -6,8 +6,8 @@
 #include "database/InventoryHelper.hpp"
 #include "utils/LogUtils.hpp"
 
-schema::t_inventories i;
-schema::t_user_inventories u_i;
+schema::inventories i;
+schema::user_inventories u_i;
 
 using namespace pb;
 using namespace schema;
@@ -92,7 +92,7 @@ void Inventory::handle_add( DB &db, MsgInventoryRequest_Add &msg)
 void Inventory::insertInventory(DB &db, MsgInventoryRequest_Add &msg ){
     auth::AccesControl accessControl( user()->id() );
 
-    if( accessControl.checkUserAction<t_inventories>(db, "write")){
+    if( accessControl.checkUserAction<inventories>(db, "write")){
         msg.mutable_acl()->set_owner( user()->id( ));
 
         InventoryHelper::insertInventory(db, msg);
@@ -115,7 +115,7 @@ void Inventory::handle_get( DB &db, MsgInventoryRequest_Get &msg)
 
     switch (where) {
     case MsgInventoryRequest_Get_Where::kUserId:{
-        select.where.add( u_i.c_user_id == msg.where().user_id() );
+        select.where.add( u_i.user_id == msg.where().user_id() );
         select.from.add(u_i);
 
         auto result = db(select);
@@ -135,7 +135,7 @@ void Inventory::handle_get( DB &db, MsgInventoryRequest_Get &msg)
             ///TODO return information that ID dont exist in db
             return;
         } else {
-            if(!stat.checkUserAction<t_inventories>("read", msg.where().inventory_id())){
+            if(!stat.checkUserAction<inventories>("read", msg.where().inventory_id())){
                 sendServerError(pb::Error_AccesDeny);
                 return;
             }
@@ -165,7 +165,7 @@ void Inventory::handle_addShelf(DB &db, MsgInventoryRequest_AddShelf &msg)
 
     auth::AccesControl accessControl( user()->id() );
 
-    if( accessControl.checkUserAction<t_shelfs>(db, "write")){
+    if( accessControl.checkUserAction<shelfs>(db, "write")){
         auto stat = msg.mutable_acl();
         stat->set_owner( user()->id( ));
         stat->set_group( auth::GROUP_inventories );

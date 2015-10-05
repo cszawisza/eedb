@@ -9,7 +9,7 @@
 #include "sql_schema/stat.h"
 #include "sql_schema/users.h"
 #include "sql_schema/action.h"
-#include "sql_schema/t_implemented_action.h"
+#include "sql_schema/implemented_action.h"
 #include "sql_schema/privilege.h"
 
 #include "common.pb.h"
@@ -106,7 +106,7 @@ public:
     bool checkUserAction(DB &db, const string &action, uint64_t objectid){
         TAB stat;
         schema::action act;
-        schema::t_implemented_action ia;
+        schema::implemented_action ia;
         schema::privilege pr;
 
         if( checkBasicPerms(db,action,objectid) )

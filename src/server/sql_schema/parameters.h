@@ -99,15 +99,15 @@ namespace schema {
 			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::require_insert>;
 		};
 
-		struct Creationdate {
+		struct Creation_date {
 			struct _alias_t {
-				static constexpr const char _literal[] ="creationdate";
+				static constexpr const char _literal[] ="creation_date";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T creationdate;
-						T &operator()() { return creationdate; }
-						const T &operator()() const { return creationdate; }
+						T creation_date;
+						T &operator()() { return creation_date; }
+						const T &operator()() const { return creation_date; }
 					};
 			};
 
@@ -182,7 +182,7 @@ namespace schema {
 				parameters_::Unixperms,
 				parameters_::Status,
 				parameters_::Name,
-				parameters_::Creationdate,
+				parameters_::Creation_date,
 				parameters_::Last_update,
 				parameters_::Symbol,
 				parameters_::Unit,

@@ -38,7 +38,7 @@ public:
 
     void upgradeUserPrivileges(){
         auth::Privilege priv;
-        constexpr schema::t_categories c;
+        constexpr schema::categories c;
         constexpr schema::users u;
         priv.giveGroup(auth::GROUP_categories).privilegeFor("write").forTable(c).force_save(db);
         db(update(u).set(u.stat_group = sqlpp::verbatim<sqlpp::integer>( std::string(tableName<decltype(u)>()) + ".stat_group | (1<<3)" )).where(u.name == "xxxxxxx" ));

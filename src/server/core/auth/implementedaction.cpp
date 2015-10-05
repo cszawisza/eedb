@@ -8,7 +8,7 @@ using sqlpp::postgresql::pg_exception;
 namespace auth {
 
 bool ImplementedAction::save(DB &db){
-    static constexpr schema::t_implemented_action ia;
+    static constexpr schema::implemented_action ia;
     bool ok = false;
     try{
         db(sqlpp::postgresql::insert_into(ia).set(ia.table_name = m_tablename, ia.action = m_title, ia.status = (int)m_status ));
@@ -22,7 +22,7 @@ bool ImplementedAction::save(DB &db){
 }
 
 bool ImplementedAction::exists(DB &db) const {
-    static constexpr schema::t_implemented_action ia;
+    static constexpr schema::implemented_action ia;
     return db(sqlpp::select(sqlpp::exists(sqlpp::select(ia.action)
                                           .from(ia)
                                           .where(ia.table_name == m_tablename and ia.action == m_title and ia.status == (int)m_status )

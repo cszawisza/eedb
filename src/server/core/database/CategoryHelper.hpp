@@ -4,8 +4,8 @@
 
 #include "idatabase.h"
 
-#include <sql_schema/t_shelfs.h>
-#include <sql_schema/t_categories.h>
+#include <sql_schema/shelfs.h>
+#include <sql_schema/categories.h>
 
 #include <boost/optional.hpp>
 
@@ -21,14 +21,14 @@ class CategoryHelper {
 public:
 
     static auto insert_into( ){
-        constexpr schema::t_categories u;
+        constexpr schema::categories u;
         return sqlpp::postgresql::insert_into(u);
     }
 
     static optional<int64_t> rootCategoryId(DB &db){
-        constexpr schema::t_categories cat;
+        constexpr schema::categories cat;
         // only root category can have null parent
-        auto result = db(sqlpp::select(cat.uid).from(cat).where(cat.c_parent_category_id.is_null() ).limit(1));
+        auto result = db(sqlpp::select(cat.uid).from(cat).where(cat.parent_category_id.is_null() ).limit(1));
         if(result.empty())
             return boost::none;
         return optional<int64_t>(result.front().uid);

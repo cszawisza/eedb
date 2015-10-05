@@ -39,7 +39,7 @@ namespace schema {
 			using _traits = ::sqlpp::make_traits<::sqlpp::integer>;
 		};
 
-		struct Acl_group {
+		struct Stat_group {
 			struct _alias_t {
 				static constexpr const char _literal[] ="stat_group";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
@@ -114,21 +114,6 @@ namespace schema {
 			using _traits = ::sqlpp::make_traits<::sqlpp::varchar>;
 		};
 
-		struct Last_acces {
-			struct _alias_t {
-				static constexpr const char _literal[] ="last_acces";
-				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-				template<typename T>
-					struct _member_t {
-						T last_acces;
-						T &operator()() { return last_acces; }
-						const T &operator()() const { return last_acces; }
-					};
-			};
-
-			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::can_be_null>;
-		};
-
 		struct Last_update {
 			struct _alias_t {
 				static constexpr const char _literal[] ="last_update";
@@ -159,30 +144,30 @@ namespace schema {
 			using _traits = ::sqlpp::make_traits<::sqlpp::bigint, sqlpp::tag::require_insert>;
 		};
 
-		struct Hash {
+		struct File_hash {
 			struct _alias_t {
-				static constexpr const char _literal[] ="hash";
+				static constexpr const char _literal[] ="file_hash";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T hash;
-						T &operator()() { return hash; }
-						const T &operator()() const { return hash; }
+						T file_hash;
+						T &operator()() { return file_hash; }
+						const T &operator()() const { return file_hash; }
 					};
 			};
 
 			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::require_insert>;
 		};
 
-		struct Mimetype {
+		struct File_mimetype {
 			struct _alias_t {
-				static constexpr const char _literal[] ="mimetype";
+				static constexpr const char _literal[] ="file_mimetype";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T mimetype;
-						T &operator()() { return mimetype; }
-						const T &operator()() const { return mimetype; }
+						T file_mimetype;
+						T &operator()() { return file_mimetype; }
+						const T &operator()() const { return file_mimetype; }
 					};
 			};
 
@@ -193,16 +178,15 @@ namespace schema {
 	struct files : sqlpp::table_t<files,
 				files_::Uid,
 				files_::Owner,
-				files_::Acl_group,
+				files_::Stat_group,
 				files_::Unixperms,
 				files_::Status,
 				files_::Name,
 				files_::Creation_date,
-				files_::Last_acces,
 				files_::Last_update,
 				files_::File_size,
-				files_::Hash,
-				files_::Mimetype> {
+				files_::File_hash,
+				files_::File_mimetype> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {
 			static constexpr const char _literal[] = "files";

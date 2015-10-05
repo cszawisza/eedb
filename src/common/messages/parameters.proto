@@ -26,7 +26,7 @@ message ParameterValues{
 message Details{
   required string name =1;
   optional string description = 2;
-  optional fixed64 creationDate = 3;
+  optional fixed64 creation_date = 3;
   optional fixed64 lastupdate = 4;
 }
 
