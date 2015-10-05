@@ -23,7 +23,23 @@ LoginDialogTestSuite::LoginDialogTestSuite()
       m_sut(loginVerificatorMock, webSocketMock)
 {}
 
-TEST_F(LoginDialogTestSuite, SuccesServerConnection)
+TEST_F(LoginDialogTestSuite, InvokeMainWindowAfterSuccesfullServerConnection)
+{
+    m_sut.getUi()->userLogin->setText("login");
+    m_sut.getUi()->userPassword->setText("pass");
+    EXPECT_CALL(loginVerificatorMock, tryLogin(m_sut.getUi()->userPassword->text().toStdString(),
+                                               m_sut.getUi()->userLogin->text().toStdString())).WillOnce(Return(true));
+    QSignalSpy buttonSpy(m_sut.getUi()->login, SIGNAL(clicked(bool)));
+    QTest::mouseClick(m_sut.getUi()->login, Qt::LeftButton);
+
+    //QSignalSpy spy(m_sut.getUi(), SIGNAL(loginSucces()));
+    //QCOMPARE(spy.count(), 1);
+
+    emit webSocketMock.connected();
+    EXPECT_EQ(1, buttonSpy.count());
+}
+
+TEST_F(LoginDialogTestSuite, DontInvokeMainWindowAfterSuccesfullServerConnection)
 {
     m_sut.getUi()->userLogin->setText("login");
     m_sut.getUi()->userPassword->setText("pass");
@@ -35,6 +51,19 @@ TEST_F(LoginDialogTestSuite, SuccesServerConnection)
     emit webSocketMock.connected();
     EXPECT_EQ(1, buttonSpy.count());
 }
+
+//TEST_F(LoginDialogTestSuite, SuccesServerConnection)
+//{
+//    m_sut.getUi()->userLogin->setText("login");
+//    m_sut.getUi()->userPassword->setText("pass");
+//    EXPECT_CALL(loginVerificatorMock, tryLogin(m_sut.getUi()->userPassword->text().toStdString(),
+//                                               m_sut.getUi()->userLogin->text().toStdString())).WillOnce(Return(false));
+//    QSignalSpy buttonSpy(m_sut.getUi()->login, SIGNAL(clicked(bool)));
+//    QTest::mouseClick(m_sut.getUi()->login, Qt::LeftButton);
+
+//    emit webSocketMock.connected();
+//    EXPECT_EQ(1, buttonSpy.count());
+//}
 
 //TEST_F(LoginDialogTestSuite, SuccesAfterStateChangeServerConnection)
 //{

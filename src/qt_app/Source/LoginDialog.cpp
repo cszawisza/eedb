@@ -26,10 +26,7 @@ LoginDialog::LoginDialog(const ILoginVerificator & p_loginVerificator,
 
     qRegisterMetaType<QAbstractSocket::SocketState>();
 
-    ui->serverIp->setText(setup.value("serverIp", "eedb.pl").toString());
-    ui->serverPort->setText(setup.value("serverPort", 6666).toString());
-    ui->userLogin->setText(setup.value("login", "").toString() );
-    ui->userPassword->setEchoMode(QLineEdit::Password);
+    setDeafultServerInfo();
 
     connect(ui->testConnction, SIGNAL(clicked()), this, SLOT(doConnectTest()));
 
@@ -64,31 +61,25 @@ LoginDialog::LoginDialog(const ILoginVerificator & p_loginVerificator,
         ui->connectResponseLabel->setText("peer disconnected");
     });
 
-    connect(ui->login, static_cast<void (QPushButton::*)(bool)>(&QPushButton::clicked), [=](){
-//        doReconnect();
-//        doLogin();
-        connectToServer();
-        const std::string l_login = ui->userLogin->text().toStdString();
-        const std::string l_pass = ui->userPassword->text().toStdString();
-        if (m_loginVerificator.tryLogin(l_pass, l_login))
-        {
-            emit loginSucces();
-        }
-    });
-
     connect(&m_socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));
 
+
+
+
+
+    connect(ui->login, static_cast<void (QPushButton::*)(bool)>(&QPushButton::clicked), [=](){
+        connectToServer();
+    });
+
     connect(&m_socket, &QWebSocket::connected, [=]() {
-        qDebug()<< " peer connected";
-        //m_loginVerificator.tryLogin();
+        loginToServer();
     });
 
     connect(&m_socket, &QWebSocket::stateChanged, [=](QAbstractSocket::SocketState p_state){
         if (p_state == QAbstractSocket::ConnectedState)
         {
-            //m_loginVerificator.tryLogin();
+            loginToServer();
         }
-        qDebug() << p_state;
     });
 }
 
@@ -154,7 +145,6 @@ void LoginDialog::doReconnect(){
         timer->setSingleShot(1000);
         connect(timer, SIGNAL(timeout()), &pause, SLOT(quit()));
         connect(&m_socket, SIGNAL( connected() ), &pause, SLOT(quit()));
-//        pause.exec();
     }
 }
 
@@ -220,4 +210,22 @@ void LoginDialog::connectToServer()
     l_url.setPort(ui->serverPort->text().toInt());
     l_url.setScheme("ws");
     m_socket.open(l_url);
+}
+
+void LoginDialog::loginToServer()
+{
+    const std::string l_login = ui->userLogin->text().toStdString();
+    const std::string l_pass = ui->userPassword->text().toStdString();
+    if (m_loginVerificator.tryLogin(l_pass, l_login))
+    {
+        emit loginSucces();
+    }
+}
+
+void LoginDialog::setDeafultServerInfo()
+{
+    ui->serverIp->setText(setup.value("ServerIp", "eedb.pl").toString());
+    ui->serverPort->setText(setup.value("ServerPort", 6666).toString());
+    ui->userLogin->setText(setup.value("Login", "").toString());
+    ui->userPassword->setEchoMode(QLineEdit::Password);
 }

@@ -44,6 +44,8 @@ private slots:
 
 private:
     void connectToServer();
+    void loginToServer();
+    void setDeafultServerInfo();
     //    User user;
     QSettings setup;
     QWebSocket & m_socket;
