@@ -33,7 +33,7 @@ drop table if exists t_files;
 drop table if exists users;
 drop table if exists privilege;
 drop table if exists t_implemented_action;
-drop table if exists acl;
+drop table if exists stat;
 drop table if exists action;
 drop table if exists system_info;
 
@@ -54,19 +54,22 @@ create table action (
 COMMENT ON COLUMN action.title          IS 'column contains name of action';
 COMMENT ON COLUMN action.apply_object   IS 'column specifies whether an action applies to objects or tables. Certain actions, like “create,” apply only to tables. I find the system is easier to manage if I choose my actions so they can only apply to one or the other, not both.';
 
-create table acl (
+create table stat (
     uid             serial not null unique primary key,
     owner           int not null default 1,
-    acl_group       int not null default 2, -- 1 is a root usergroup, 2 is 'users' set as default
+    stat_group      int not null default 2, -- 1 is a root usergroup, 2 is 'users' set as default
     unixperms       int not null default unix_to_numeric('764'),
-    status          int not null default 0
+    status          int not null default 0,
+    name            TEXT NOT NULL CHECK( length(name) < 4096 ),
+    creationDate    TIMESTAMP DEFAULT now() NOT NULL,
+    last_update     TIMESTAMP
 );
 
-COMMENT ON COLUMN acl.uid       IS 'unique uid for all objects in database';
-COMMENT ON COLUMN acl.owner     IS 'uid of object''s owner';
-COMMENT ON COLUMN acl.acl_group     IS 'groups of object';
-COMMENT ON COLUMN acl.unixperms IS 'Unixpermissions';
-COMMENT ON COLUMN acl.status    IS 'status in which object is in (login, logout, removed etc)';
+COMMENT ON COLUMN stat.uid       IS 'unique uid for all objects in database';
+COMMENT ON COLUMN stat.owner     IS 'uid of object''s owner';
+COMMENT ON COLUMN stat.stat_group     IS 'groups of object';
+COMMENT ON COLUMN stat.unixperms IS 'Unixpermissions';
+COMMENT ON COLUMN stat.status    IS 'status in which object is in (login, logout, removed etc)';
 
 
 create table t_implemented_action (
@@ -101,7 +104,6 @@ COMMENT ON COLUMN privilege.related_object_uid   IS 'stores the ID of the object
 
 
 CREATE TABLE users (
-    name              VARCHAR(72)     NOT NULL UNIQUE CHECK( length(name) >= 2 ),
     password          CHAR(128)       NOT NULL,
     salt              CHAR(128)       NOT NULL,
     email             VARCHAR(255)    NOT NULL UNIQUE CHECK ( email ~* '^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+[.][A-Za-z]+$' ) ,
@@ -110,8 +112,9 @@ CREATE TABLE users (
     description       TEXT            CHECK( length(description) <= 100000),   -- max size of description set to
     config            jsonb            DEFAULT ('{}'),
     avatar            TEXT,
-    CONSTRAINT users_pkey         PRIMARY KEY (uid)
-) INHERITS (acl);
+    CONSTRAINT users_pkey         PRIMARY KEY (uid),
+    CONSTRAINT users_unique UNIQUE(name)
+) INHERITS (stat);
 -- removed columns
 -- c_registrationdate  TIMESTAMP       DEFAULT now() NOT NULL,
 -- c_lastlogin         TIMESTAMP       CHECK( c_lastlogin <= now() ),
@@ -129,25 +132,24 @@ CREATE TABLE t_user_history (
 COMMENT ON TABLE t_user_history IS 'saves user actions like login/logout';
 
 CREATE TABLE t_files (
-    name      TEXT    NOT NULL CHECK(length(name) < 4096 ),
     c_size      BIGINT  NOT NULL,
     c_sha       TEXT    NOT NULL CHECK(length(c_sha) < 512 ),
     c_mimetype  TEXT    NOT NULL CHECK(length(c_mimetype) < 256 ),
     CONSTRAINT t_files_pkey PRIMARY KEY (uid),
     CONSTRAINT t_fileownereowner_fk FOREIGN KEY (owner) REFERENCES users (uid) ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE
-) INHERITS (acl);
+) INHERITS (stat);
 
 CREATE TABLE t_categories(
     c_parent_category_id    INTEGER     REFERENCES t_categories(uid),
-    name                  TEXT        NOT NULL CHECK(length(name) < 100 ),
+    -- name                  TEXT        NOT NULL CHECK(length(name) < 100 ),
     description           TEXT        CHECK(length(description) < 100000 ),
-    creationDate          TIMESTAMP   DEFAULT NOW() NOT NULL,
+    -- creationDate          TIMESTAMP   DEFAULT NOW() NOT NULL,
 --    c_allow_recipe          BOOLEAN     DEFAULT false NOT NULL,
 --    c_allow_items           BOOLEAN     DEFAULT true NOT NULL,
 --    c_hide                  BOOLEAN     DEFAULT false,
     CONSTRAINT t_categories_pkey PRIMARY KEY (uid),
     CONSTRAINT t_categorieowner_fk FOREIGN KEY (owner) REFERENCES users (uid) DEFERRABLE INITIALLY IMMEDIATE
-) INHERITS (acl);
+) INHERITS (stat);
 
 COMMENT ON TABLE t_categories IS 'categories of items';
 -- COMMENT ON COLUMN t_categories.c_hide IS 'hide group from user, when true';
@@ -164,12 +166,12 @@ CREATE TABLE t_category_files (
 );
 
 CREATE TABLE t_packages (
-    name          TEXT NOT NULL CHECK(length(name) < 256 ),
+--    name          TEXT NOT NULL CHECK(length(name) < 256 ),
     c_pinNr         INTEGER,
     c_mountType     TEXT CHECK(length(c_mountType) < 100 ),
     config        jsonb,
     CONSTRAINT packages_pkey PRIMARY KEY (uid)
-) INHERITS (acl);
+) INHERITS (stat);
 
 CREATE TABLE t_packages_files (
     package_id INTEGER NOT NULL REFERENCES t_packages,
@@ -178,14 +180,14 @@ CREATE TABLE t_packages_files (
 );
 
 CREATE TABLE units(
-    name VARCHAR(100) NOT NULL,
+--    name VARCHAR(100) NOT NULL,
     symbol VARCHAR (20) NOT NULL,
     c_quantity_name VARCHAR(100),
     description TEXT CHECK(length(description) < 100000),
     CONSTRAINT units_pkey PRIMARY KEY (uid),
     CONSTRAINT unitowner_fk FOREIGN KEY (owner) REFERENCES users (uid) DEFERRABLE INITIALLY IMMEDIATE,
     CONSTRAINT units_unique UNIQUE(name, symbol)
-) inherits(acl);
+) inherits(stat);
 
 COMMENT ON TABLE units IS 'Table holds information about units used in application';
 COMMENT ON COLUMN units.name IS 'Parameter name e.g. Ampere';
@@ -203,14 +205,14 @@ COMMENT ON TABLE units_conversions IS 'This table contains a mathematical equati
 COMMENT ON COLUMN units_conversions.equation IS 'this equation should be a proper exprtk equation';
 
 CREATE TABLE parameters (
-    name VARCHAR(100) NOT NULL,
+--    name VARCHAR(100) NOT NULL,
     symbol VARCHAR(20),
     unit INTEGER REFERENCES units(uid),
     description TEXT CHECK(length(description) < 100000),
     CONSTRAINT parameters_pkey PRIMARY KEY (uid),
     CONSTRAINT parametereowner_fk FOREIGN KEY (owner) REFERENCES users (uid) DEFERRABLE INITIALLY IMMEDIATE,
     CONSTRAINT parameters_unique UNIQUE(name, symbol)
-) INHERITS (acl);
+) INHERITS (stat);
 
 COMMENT ON COLUMN parameters.name   IS 'Parameter name e.g. "Load current max." ';
 COMMENT ON COLUMN parameters.symbol IS 'Parameter symbol e.g. "I<sub>R</sub>';
@@ -220,26 +222,24 @@ COMMENT ON COLUMN parameters.unit   IS 'Parameter unit e.g. id od Amper unit fro
 CREATE TABLE items (
     package_id    INTEGER NOT NULL REFERENCES t_packages(uid),
     category_id   INTEGER NOT NULL REFERENCES t_categories(uid),
-    name          VARCHAR(300) NOT NULL,
+--    name          VARCHAR(300) NOT NULL,
     symbol        VARCHAR(300) NOT NULL,
     name_scope     VARCHAR(64) DEFAULT 'std' NOT NULL,
-    creationDate  TIMESTAMP DEFAULT now() NOT NULL,
-    last_update   TIMESTAMP,
     parameters    jsonb NOT NULL,
     description   TEXT,
     CONSTRAINT items_pkey PRIMARY KEY (uid),
     CONSTRAINT t_itemowner_fk FOREIGN KEY (owner) REFERENCES users (uid) DEFERRABLE INITIALLY IMMEDIATE
-) INHERITS (acl);
+) INHERITS (stat);
 
-CREATE OR REPLACE FUNCTION item_last_update_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.last_update = now();
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
+--CREATE OR REPLACE FUNCTION item_last_update_column()
+--RETURNS TRIGGER AS $$
+--BEGIN
+--    NEW.last_update = now();
+--    RETURN NEW;
+--END;
+--$$ language 'plpgsql';
 
-CREATE TRIGGER update_item_las_update BEFORE UPDATE ON items FOR EACH ROW EXECUTE PROCEDURE  item_last_update_column();
+--CREATE TRIGGER update_item_las_update BEFORE UPDATE ON items FOR EACH ROW EXECUTE PROCEDURE  item_last_update_column();
 
 CREATE UNIQUE INDEX items_unique ON items(name, symbol, name_scope);
 CREATE INDEX items_parameters_idx ON items USING GIN (parameters);
@@ -251,13 +251,13 @@ CREATE TABLE t_item_files (
 );
 
 CREATE TABLE t_inventories(
-    name TEXT NOT NULL UNIQUE CHECK(length(name) < 250),
+    -- name TEXT NOT NULL UNIQUE CHECK(length(name) < 250),
     description TEXT CHECK(length(description)< 100000),
     c_creation_date TIMESTAMP DEFAULT(now()),
     -- other info
     CONSTRAINT t_inventories_pkey PRIMARY KEY (uid),
     CONSTRAINT t_inventoryowner_fk FOREIGN KEY (owner) REFERENCES users (uid) DEFERRABLE INITIALLY IMMEDIATE
-) INHERITS (acl);
+) INHERITS (stat);
 
 CREATE TABLE t_user_inventories(
     c_inventory_id INTEGER NOT NULL REFERENCES t_inventories  ON DELETE CASCADE,
@@ -266,13 +266,13 @@ CREATE TABLE t_user_inventories(
 );
 
 CREATE TABLE t_shelfs(
-    name varchar(100) NOT NULL,
+--    name varchar(100) NOT NULL,
     description TEXT CHECK( length( description ) < 100000),
     c_creation_date TIMESTAMP DEFAULT(now()),
     c_inventory_id INTEGER NOT NULL REFERENCES t_inventories ON DELETE CASCADE,
     CONSTRAINT shelf_owner_fk FOREIGN KEY (owner) REFERENCES users (uid) DEFERRABLE INITIALLY IMMEDIATE,
     CONSTRAINT t_shelfs_pkey PRIMARY KEY (uid)
-) INHERITS (acl);
+) INHERITS (stat);
 
 create table t_in_stock(
     c_item_id INTEGER NOT NULL REFERENCES items,
@@ -284,10 +284,11 @@ COMMENT ON TABLE t_in_stock IS 'Table contains information about items being ava
 
 --- should it be saved in database or in application?
 create table t_inventories_operations(
-    name varchar(50) not null unique,
+--    name varchar(50) not null unique,
     CONSTRAINT t_inventories_operations_pkey PRIMARY KEY (uid),
-    CONSTRAINT OperationOwner_fk FOREIGN KEY (owner) REFERENCES users (uid) DEFERRABLE INITIALLY IMMEDIATE
-) INHERITS(acl);
+    CONSTRAINT OperationOwner_fk FOREIGN KEY (owner) REFERENCES users (uid) DEFERRABLE INITIALLY IMMEDIATE,
+    CONSTRAINT inventory_operation_unique UNIQUE (name)
+) INHERITS(stat);
 
 create table t_inventories_history(
     c_inventory_from_id INTEGER NOT NULL REFERENCES t_inventories ON DELETE CASCADE,
@@ -298,13 +299,13 @@ create table t_inventories_history(
     date timestamp not null default now()
 );
 
--- CREATE INDEX users_acl_index 	ON users 	(uid, owner, acl_group, unixperms, status) WITH ( FILLFACTOR=100 );
--- CREATE INDEX categories_acl_index 	ON categories 	(uid, owner, acl_group, unixperms, status) WITH ( FILLFACTOR=100 );
--- CREATE INDEX storages_acl_index 	ON storages 	(uid, owner, acl_group, unixperms, status) WITH ( FILLFACTOR=100 );
--- CREATE INDEX files_acl_index 	ON files 	(uid, owner, acl_group, unixperms, status) WITH ( FILLFACTOR=100 );
--- CREATE INDEX packages_acl_index 	ON packages 	(uid, owner, acl_group, unixperms, status) WITH ( FILLFACTOR=100 );
--- CREATE INDEX items_acl_index 	ON items 	(uid, owner, acl_group, unixperms, status) WITH ( FILLFACTOR=100 );
--- CREATE INDEX parameters_acl_index 	ON parameters 	(uid, owner, acl_group, unixperms, status) WITH ( FILLFACTOR=100 );
+-- CREATE INDEX users_stat_index 	ON users 	(uid, owner, stat_group, unixperms, status) WITH ( FILLFACTOR=100 );
+-- CREATE INDEX categories_stat_index 	ON categories 	(uid, owner, stat_group, unixperms, status) WITH ( FILLFACTOR=100 );
+-- CREATE INDEX storages_stat_index 	ON storages 	(uid, owner, stat_group, unixperms, status) WITH ( FILLFACTOR=100 );
+-- CREATE INDEX files_stat_index 	ON files 	(uid, owner, stat_group, unixperms, status) WITH ( FILLFACTOR=100 );
+-- CREATE INDEX packages_stat_index 	ON packages 	(uid, owner, stat_group, unixperms, status) WITH ( FILLFACTOR=100 );
+-- CREATE INDEX items_stat_index 	ON items 	(uid, owner, stat_group, unixperms, status) WITH ( FILLFACTOR=100 );
+-- CREATE INDEX parameters_stat_index 	ON parameters 	(uid, owner, stat_group, unixperms, status) WITH ( FILLFACTOR=100 );
 
 
 CREATE OR REPLACE FUNCTION objects_with_action (m_tab VARCHAR, m_action varchar, userid int)
@@ -316,7 +317,7 @@ DECLARE groupsroot INT;
 DECLARE tablename VARCHAR(255);
 
 BEGIN
-  SELECT acl_group
+  SELECT stat_group
   FROM users
   WHERE uid = userid
   INTO usergroups;
@@ -353,7 +354,7 @@ or (pr.role = ''self'' and ' || userid || ' = obj.uid and '''|| m_tab || ''' = '
                 )
               OR (
                 (obj.unixperms & 32 <> 0)
-                AND (' || usergroups || ' & obj.acl_group <> 0)
+                AND (' || usergroups || ' & obj.stat_group <> 0)
                 )
               )
             )
@@ -367,7 +368,7 @@ or (pr.role = ''self'' and ' || userid || ' = obj.uid and '''|| m_tab || ''' = '
                 )
               OR (
                 (obj.unixperms & 16 <> 0)
-                AND (' || usergroups || ' & obj.acl_group <> 0)
+                AND (' || usergroups || ' & obj.stat_group <> 0)
                 )
               )
             )
@@ -376,7 +377,7 @@ or (pr.role = ''self'' and ' || userid || ' = obj.uid and '''|| m_tab || ''' = '
             AND (
               (obj.unixperms & 1 <> 0)
               OR ((obj.unixperms & 64 <> 0) AND obj.owner = ' || userid || ')
-              OR ((obj.unixperms & 8  <> 0) AND (' || usergroups || ' & obj.acl_group <> 0))
+              OR ((obj.unixperms & 8  <> 0) AND (' || usergroups || ' & obj.stat_group <> 0))
               )
             )
           OR (
@@ -389,7 +390,7 @@ or (pr.role = ''self'' and ' || userid || ' = obj.uid and '''|| m_tab || ''' = '
             )
           OR (
             pr.role = ''owner_group''
-            AND (obj.acl_group & ' || usergroups || ' <> 0)
+            AND (obj.stat_group & ' || usergroups || ' <> 0)
             )
           OR (
             pr.role = ''group''

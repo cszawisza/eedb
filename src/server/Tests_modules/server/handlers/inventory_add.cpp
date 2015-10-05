@@ -41,10 +41,10 @@ TEST_F(inventoryTest, checkInventory){
 }
 
 TEST_F(inventoryTest, checkAcl){
-    auto acl = AclHelper::getAcl(db, m_invId);
+    auto stat = AclHelper::getAcl(db, m_invId);
 
-    ASSERT_TRUE( acl );
-    EXPECT_EQ( m_userId, acl.get().owner() );
+    ASSERT_TRUE( stat );
+    EXPECT_EQ( m_userId, stat.get().owner() );
 }
 
 TEST_F(inventoryTest, userCanEditNewlyCreatedInventory ){

@@ -38,11 +38,11 @@ protected:
 
 TEST_F(UserHelperInsertTest, updateAclEntry ){
     EXPECT_NE( 0, db(helper.selectAclFrom<schema::users>(u.name == "ROOT" ) ).front().owner );
-    EXPECT_NE( 0, db(helper.selectAclFrom<schema::users>(u.name == "ROOT" ) ).front().acl_group );
+    EXPECT_NE( 0, db(helper.selectAclFrom<schema::users>(u.name == "ROOT" ) ).front().stat_group );
     EXPECT_NE( 0, db(helper.selectAclFrom<schema::users>(u.name == "ROOT" ) ).front().unixperms );
     EXPECT_NO_THROW(db(helper.updateWhere<schema::users>(dataToInsert, u.name == "ROOT" )) );
     EXPECT_EQ( 0, db(helper.selectAclFrom<schema::users>(u.name == "ROOT" ) ).front().owner );
-    EXPECT_EQ( 0, db(helper.selectAclFrom<schema::users>(u.name == "ROOT" ) ).front().acl_group );
+    EXPECT_EQ( 0, db(helper.selectAclFrom<schema::users>(u.name == "ROOT" ) ).front().stat_group );
     EXPECT_EQ( 0, db(helper.selectAclFrom<schema::users>(u.name == "ROOT" ) ).front().unixperms );
 }
 

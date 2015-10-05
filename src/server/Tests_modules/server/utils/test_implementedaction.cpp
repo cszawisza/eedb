@@ -76,7 +76,7 @@ TEST_F(ImplementedActionTest, differentStatuses ){
     EXPECT_TRUE( action2.save(db) );
 }
 
-//TEST_F(ImplementedActionTest, aclCheck ){
+//TEST_F(ImplementedActionTest, statCheck ){
 //    ImplementedAction action1("read", auth::State_Normal );
 
 //    action1.setRelatedTable<schema::users>();

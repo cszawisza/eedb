@@ -53,7 +53,7 @@ void Category::process(DB &db, pb::ClientRequest &msgReq)
 void Category::handle_add(DB &db, CategoryReq_Add &msg)
 {
     static constexpr schema::t_categories cat;
-    auth::AccesControl acl( user().data()->id() );
+    auth::AccesControl stat( user().data()->id() );
 
     ///TODO add name chacking
     if( !msg.has_name() ){
@@ -65,7 +65,7 @@ void Category::handle_add(DB &db, CategoryReq_Add &msg)
         return;
     }
 
-    if(acl.checkUserAction<schema::t_categories>(db, "write") ){
+    if(stat.checkUserAction<schema::t_categories>(db, "write") ){
         auto response = add_response()->mutable_categoryres();
         auto prepare = db.prepare(CH::insert_into().set(
                                       cat.name = parameter(cat.name),
@@ -100,9 +100,9 @@ void Category::handle_add(DB &db, CategoryReq_Add &msg)
 void Category::handle_get(DB &db, CategoryReq_Get &msg)
 {
     static constexpr schema::t_categories cat;
-    auth::AccesControl acl( user().data()->id() );
+    auth::AccesControl stat( user().data()->id() );
 
-    if(acl.checkUserAction<schema::t_categories>(db, "read") ){
+    if(stat.checkUserAction<schema::t_categories>(db, "read") ){
         auto s = dynamic_select(db.connection()).dynamic_columns().dynamic_from(cat).dynamic_where();
 
         if(msg.has_get_ids() && msg.get_ids())

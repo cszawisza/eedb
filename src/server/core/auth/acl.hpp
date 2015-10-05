@@ -6,7 +6,7 @@
 #include "database/AclHelper.hpp"
 #include "database/idatabase.h"
 
-#include "sql_schema/acl.h"
+#include "sql_schema/stat.h"
 #include "sql_schema/users.h"
 #include "sql_schema/action.h"
 #include "sql_schema/t_implemented_action.h"
@@ -69,12 +69,12 @@ public:
         uint64_t userGroups = 0;
 
 
-        auto aclInfo = db( sqlpp::select( u.acl_group )
+        auto statInfo = db( sqlpp::select( u.stat_group )
                            .from(u)
                            .where( u.uid == m_userId ) );
-        if(aclInfo.empty())
+        if(statInfo.empty())
             return false; // no user
-        userGroups = aclInfo.front().acl_group;
+        userGroups = statInfo.front().stat_group;
 
         auto res = db(sqlpp::select(ac.title)
            .from(ac.left_outer_join(pr).on(pr.related_table_name == tablename
@@ -104,7 +104,7 @@ public:
 
     template<typename TAB>
     bool checkUserAction(DB &db, const string &action, uint64_t objectid){
-        TAB acl;
+        TAB stat;
         schema::action act;
         schema::t_implemented_action ia;
         schema::privilege pr;
@@ -114,10 +114,10 @@ public:
 
         auto res = db( sqlpp::select().flags(sqlpp::distinct).columns(act.title)
                        .from(act
-                             .inner_join(acl).on(acl.uid == objectid)
+                             .inner_join(stat).on(stat.uid == objectid)
                              .inner_join(ia).on(ia.action == act.title
                                                 and ia.table_name == tableName<TAB>()
-                                                and (ia.status == 0 or ((ia.status & acl.status) != 0))
+                                                and (ia.status == 0 or ((ia.status & stat.status) != 0))
                                                 )
                              .left_outer_join(pr).on(pr.related_table_name == tableName<TAB>()
                                                      and pr.action == act.title
@@ -134,8 +134,8 @@ public:
                            act.apply_object
                            and ((
                                     (    pr.role == "user"        and pr.who == m_userId )
-                                    or ( pr.role == "owner"       and acl.owner == m_userId )
-                                    or ( pr.role == "owner_group" and ((acl.acl_group & m_userAcl.group()) != 0))
+                                    or ( pr.role == "owner"       and stat.owner == m_userId )
+                                    or ( pr.role == "owner_group" and ((stat.stat_group & m_userAcl.group()) != 0))
                                     or ( pr.role == "group"       and ((pr.who & m_userAcl.group()) != 0))
                                     )
                                 or (pr.role == "self"))
@@ -155,12 +155,12 @@ private:
 
 
     template<class Data>
-    void readAclFromData(pb::Acl& acl, const Data &aclInfo){
-        acl.set_uid       ( aclInfo.front().uid         );
-        acl.set_owner     ( aclInfo.front().owner       );
-        acl.set_unixperms ( aclInfo.front().unixperms   );
-        acl.set_status    ( aclInfo.front().status      );
-        acl.set_group     ( aclInfo.front().acl_group       );
+    void readAclFromData(pb::Acl& stat, const Data &statInfo){
+        stat.set_uid       ( statInfo.front().uid         );
+        stat.set_owner     ( statInfo.front().owner       );
+        stat.set_unixperms ( statInfo.front().unixperms   );
+        stat.set_status    ( statInfo.front().status      );
+        stat.set_group     ( statInfo.front().stat_group       );
     }
 
     uint64_t m_userId;

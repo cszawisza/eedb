@@ -1,6 +1,6 @@
 #include "InventoryHelper.hpp"
 
-#include "sql_schema/acl.h"
+#include "sql_schema/stat.h"
 #include "sql_schema/t_shelfs.h"
 #include "sql_schema/t_user_inventories.h"
 
@@ -42,16 +42,16 @@ optional<int64_t> InventoryHelper::getShelfId(DB &db, uint64_t parentId, const s
 void InventoryHelper::insertInventory(DB &db, MsgInventoryRequest_Add &add)
 {
     if(!add.has_acl()){
-        auto acl = add.mutable_acl();
-        acl->set_owner(1); ///TODO set proper root id
-        acl->set_group(2); ///TOFO set proper group (some default group)
-        acl->set_status( auth::State_Normal );
-        acl->set_unixperms( UnixPermissions("-rwdrw-r--").toInteger() );
+        auto stat = add.mutable_acl();
+        stat->set_owner(1); ///TODO set proper root id
+        stat->set_group(2); ///TOFO set proper group (some default group)
+        stat->set_status( auth::State_Normal );
+        stat->set_unixperms( UnixPermissions("-rwdrw-r--").toInteger() );
     }
 
     auto insert = sqlpp::postgresql::insert_into(i).set(
                 i.owner = add.acl().owner(),
-                i.acl_group = (int)auth::GROUP_inventories,
+                i.stat_group = (int)auth::GROUP_inventories,
                 i.unixperms = add.acl().has_unixperms() ? add.acl().unixperms()
                                                           : UnixPermissions("rwdr-----").toInteger(),
                 i.status = add.acl().has_status() ? add.acl().status()
@@ -81,7 +81,7 @@ void InventoryHelper::insertShelf(DB &db, MsgInventoryRequest_AddShelf &add)
 {
     auto insert =  sqlpp::postgresql::insert_into(s).set(
                 s.owner = add.acl().owner(),
-                s.acl_group = add.acl().group(),
+                s.stat_group = add.acl().group(),
                 s.unixperms = add.acl().unixperms(),
                 s.status = add.acl().status(),
 

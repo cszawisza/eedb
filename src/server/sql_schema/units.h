@@ -39,15 +39,15 @@ namespace schema {
 			using _traits = ::sqlpp::make_traits<::sqlpp::integer>;
 		};
 
-		struct Acl_group {
+		struct Stat_group {
 			struct _alias_t {
-				static constexpr const char _literal[] ="acl_group";
+				static constexpr const char _literal[] ="stat_group";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T acl_group;
-						T &operator()() { return acl_group; }
-						const T &operator()() const { return acl_group; }
+						T stat_group;
+						T &operator()() { return stat_group; }
+						const T &operator()() const { return stat_group; }
 					};
 			};
 
@@ -96,7 +96,37 @@ namespace schema {
 					};
 			};
 
-			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::require_insert>;
+			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::require_insert>;
+		};
+
+		struct Creationdate {
+			struct _alias_t {
+				static constexpr const char _literal[] ="creationdate";
+				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+				template<typename T>
+					struct _member_t {
+						T creationdate;
+						T &operator()() { return creationdate; }
+						const T &operator()() const { return creationdate; }
+					};
+			};
+
+			using _traits = ::sqlpp::make_traits<::sqlpp::varchar>;
+		};
+
+		struct Last_update {
+			struct _alias_t {
+				static constexpr const char _literal[] ="last_update";
+				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+				template<typename T>
+					struct _member_t {
+						T last_update;
+						T &operator()() { return last_update; }
+						const T &operator()() const { return last_update; }
+					};
+			};
+
+			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::can_be_null>;
 		};
 
 		struct Symbol {
@@ -148,10 +178,12 @@ namespace schema {
 	struct units : sqlpp::table_t<units,
 				units_::Uid,
 				units_::Owner,
-				units_::Acl_group,
+				units_::Stat_group,
 				units_::Unixperms,
 				units_::Status,
 				units_::Name,
+				units_::Creationdate,
+				units_::Last_update,
 				units_::Symbol,
 				units_::C_quantity_name,
 				units_::Description> {

@@ -114,21 +114,21 @@ void User::loadUserCache(DB &db, uint64_t uid)
     const auto &ud = udAll.front();
 
     auto basic = user()->mutable_basic();
-    auto acl   = user()->mutable_acl();
+    auto stat   = user()->mutable_acl();
 
     basic->set_id   ( ud.uid );
     basic->set_name ( ud.name );
     basic->set_email( ud.email );
     basic->set_description( ud.description );
 
-    acl->set_uid(uid);
-    acl->set_group(ud.acl_group);
-    acl->set_status( ud.status );
-    acl->set_unixperms( ud.unixperms );
+    stat->set_uid(uid);
+    stat->set_group(ud.stat_group);
+    stat->set_status( ud.status );
+    stat->set_unixperms( ud.unixperms );
 
     ///TODO get config
 
-//    auto userInventories = db(select(s.uid, s.owner, s.acl_group, s.unixperms, s.status, s.name )
+//    auto userInventories = db(select(s.uid, s.owner, s.stat_group, s.unixperms, s.status, s.name )
 //                           .from(s.inner_join(us)
 //                                 .on(us.c_storage_id == s.uid) )
 //                           .where(us.c_user_id == uid ));
@@ -192,9 +192,9 @@ void User::handle_add(DB &db, UserReq_Add &msg)
         return;
 
     if(user()->isOnline()){
-        auth::AccesControl acl(user()->id());
+        auth::AccesControl stat(user()->id());
 
-        if(acl.checkUserAction<users>("create"))
+        if(stat.checkUserAction<users>("create"))
             addUser(db, msg);
         else{
             sendServerError(pb::Error_AccesDeny);
@@ -289,9 +289,9 @@ void User::handle_remove( DB &db, const UserReq_Remove &msg)
     ///TODO check if user can remove user with cred
     auto cred = msg.cred();
     constexpr users u;
-    auth::AccesControl acl(user()->id());
+    auth::AccesControl stat(user()->id());
 
-    if (acl.checkUserAction<schema::users>("delete", msg.cred().id())){
+    if (stat.checkUserAction<schema::users>("delete", msg.cred().id())){
         auto query = dynamic_remove(db.connection()).from(u).dynamic_where();
         if( msg.cred().has_name())
             query.where.add( u.name == msg.cred().name() );
@@ -312,14 +312,14 @@ void User::handle_get(DB &db, const UserReq_Get &getMsg)
 
 void User::handle_changePasswd(DB &db, const UserReq_ChangePasswd &msg)
 {
-    auth::AccesControl acl(user()->id());
+    auth::AccesControl stat(user()->id());
 
     if(msg.has_resetpasswd() && msg.resetpasswd() ){
         ///TODO reset passwd
     }
 
     else{      
-        if(acl.checkUserAction<schema::users>("change_password",msg.uid())){
+        if(stat.checkUserAction<schema::users>("change_password",msg.uid())){
             ///TODO check if old pass is same as new
             ///TODO set new passwd
 //            DB db;

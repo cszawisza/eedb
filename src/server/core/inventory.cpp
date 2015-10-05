@@ -105,7 +105,7 @@ void Inventory::handle_get( DB &db, MsgInventoryRequest_Get &msg)
     auto where = msg.where().cred_case();
 
     uint64_t uid = user()->id() ;
-    auth::AccesControl acl(uid);
+    auth::AccesControl stat(uid);
 
     auto select = dynamic_select(db.connection())
             .dynamic_columns(sqlpp::all_of(i))
@@ -135,7 +135,7 @@ void Inventory::handle_get( DB &db, MsgInventoryRequest_Get &msg)
             ///TODO return information that ID dont exist in db
             return;
         } else {
-            if(!acl.checkUserAction<t_inventories>("read", msg.where().inventory_id())){
+            if(!stat.checkUserAction<t_inventories>("read", msg.where().inventory_id())){
                 sendServerError(pb::Error_AccesDeny);
                 return;
             }
@@ -166,11 +166,11 @@ void Inventory::handle_addShelf(DB &db, MsgInventoryRequest_AddShelf &msg)
     auth::AccesControl accessControl( user()->id() );
 
     if( accessControl.checkUserAction<t_shelfs>(db, "write")){
-        auto acl = msg.mutable_acl();
-        acl->set_owner( user()->id( ));
-        acl->set_group( auth::GROUP_inventories );
-        acl->set_unixperms( UnixPermissions( {7,0,0} ).toInteger() );
-        acl->set_status( auth::State_Normal );
+        auto stat = msg.mutable_acl();
+        stat->set_owner( user()->id( ));
+        stat->set_group( auth::GROUP_inventories );
+        stat->set_unixperms( UnixPermissions( {7,0,0} ).toInteger() );
+        stat->set_status( auth::State_Normal );
 
         try{
             InventoryHelper::insertShelf(db, msg);

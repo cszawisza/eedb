@@ -6,10 +6,10 @@
 
 #include "TestCommon.hpp"
 
-static constexpr schema::acl a;
+static constexpr schema::stat a;
 static constexpr schema::users u;
 static constexpr schema::t_inventories i;
-static constexpr schema::t_files f;
+static constexpr schema::files f;
 
 using namespace eedb;
 using namespace test;
@@ -37,7 +37,7 @@ protected:
 
 TEST_F(UserHelperSelectTest, executeSelectFromDifferentTables ){
     EXPECT_TRUE( db(helper.selectAcl( a.uid == 0 ) ).empty() );
-    EXPECT_TRUE( db(helper.selectAclFrom<schema::t_files>( f.c_size == 0 and f.c_sha == "x" ) ).empty() );
+    EXPECT_TRUE( db(helper.selectAclFrom<schema::files>( f.file_size == 0 and f.hash == "x" ) ).empty() );
     EXPECT_TRUE( db(helper.selectAclFrom<schema::t_inventories>( i.name == "unknown inventory") ).empty() );
     EXPECT_TRUE( db(helper.selectAclFrom<schema::users>( u.phonenumber == "0700 123 123" or u.name.like("PIMP"))).empty() );
 }

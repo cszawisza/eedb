@@ -6,7 +6,7 @@ namespace db{
 UID UserHelper::insertUser(DB &db, const UserReq_Add &msg)
 {
     constexpr schema::users u;
-    const auto &acl = msg.acl();
+    const auto &stat = msg.acl();
     const auto &basic = msg.basic();
     const auto &det = msg.details();
     const auto &conf= msg.config();
@@ -18,7 +18,7 @@ UID UserHelper::insertUser(DB &db, const UserReq_Add &msg)
     // run query
     auto pre = db.prepare(sqlpp::postgresql::insert_into(u)
                           .set(
-                              u.acl_group = parameter(u.acl_group),
+                              u.stat_group = parameter(u.stat_group),
                               u.unixperms = parameter(u.unixperms),
                               u.owner = parameter(u.owner),
                               u.status = parameter(u.status),
@@ -42,13 +42,13 @@ UID UserHelper::insertUser(DB &db, const UserReq_Add &msg)
     }
 
     if( msg.has_acl() ){
-        pre.params.acl_group = acl.has_group() ? acl.group() : auth::GROUP_users | auth::GROUP_inventories;
-        pre.params.unixperms = acl.has_unixperms() ? acl.unixperms() : UnixPermissions({6,4,4}).toInteger();
-        pre.params.owner = acl.has_owner() ? acl.owner() : 1;
-        pre.params.status = acl.has_status() ? acl.status() : (int)auth::State_Normal;
+        pre.params.stat_group = stat.has_group() ? stat.group() : auth::GROUP_users | auth::GROUP_inventories;
+        pre.params.unixperms = stat.has_unixperms() ? stat.unixperms() : UnixPermissions({6,4,4}).toInteger();
+        pre.params.owner = stat.has_owner() ? stat.owner() : 1;
+        pre.params.status = stat.has_status() ? stat.status() : (int)auth::State_Normal;
     }
     else{
-        pre.params.acl_group = auth::GROUP_users | auth::GROUP_inventories;
+        pre.params.stat_group = auth::GROUP_users | auth::GROUP_inventories;
         pre.params.unixperms = UnixPermissions({6,4,4}).toInteger();
         pre.params.owner = 1;
         pre.params.status = (int)auth::State_Normal;

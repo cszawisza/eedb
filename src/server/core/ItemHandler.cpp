@@ -50,8 +50,8 @@ void ItemProcessor::handle_add(DB &db, ItemRequest_Add &msg)
 {
     schema::items it;
 
-    auth::AccesControl acl(user()->id());
-    if(acl.checkUserAction<schema::items>(db, "write")){
+    auth::AccesControl stat(user()->id());
+    if(stat.checkUserAction<schema::items>(db, "write")){
 
     } else {
         sendServerError(pb::Error_AccesDeny);

@@ -39,15 +39,15 @@ namespace schema {
 			using _traits = ::sqlpp::make_traits<::sqlpp::integer>;
 		};
 
-		struct Acl_group {
+		struct Stat_group {
 			struct _alias_t {
-				static constexpr const char _literal[] ="acl_group";
+				static constexpr const char _literal[] ="stat_group";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T acl_group;
-						T &operator()() { return acl_group; }
-						const T &operator()() const { return acl_group; }
+						T stat_group;
+						T &operator()() { return stat_group; }
+						const T &operator()() const { return stat_group; }
 					};
 			};
 
@@ -99,6 +99,36 @@ namespace schema {
 			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::require_insert>;
 		};
 
+		struct Creationdate {
+			struct _alias_t {
+				static constexpr const char _literal[] ="creationdate";
+				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+				template<typename T>
+					struct _member_t {
+						T creationdate;
+						T &operator()() { return creationdate; }
+						const T &operator()() const { return creationdate; }
+					};
+			};
+
+			using _traits = ::sqlpp::make_traits<::sqlpp::varchar>;
+		};
+
+		struct Last_update {
+			struct _alias_t {
+				static constexpr const char _literal[] ="last_update";
+				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+				template<typename T>
+					struct _member_t {
+						T last_update;
+						T &operator()() { return last_update; }
+						const T &operator()() const { return last_update; }
+					};
+			};
+
+			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::can_be_null>;
+		};
+
 		struct Description {
 			struct _alias_t {
 				static constexpr const char _literal[] ="description";
@@ -133,10 +163,12 @@ namespace schema {
 	struct t_inventories : sqlpp::table_t<t_inventories,
 				t_inventories_::Uid,
 				t_inventories_::Owner,
-				t_inventories_::Acl_group,
+				t_inventories_::Stat_group,
 				t_inventories_::Unixperms,
 				t_inventories_::Status,
 				t_inventories_::Name,
+				t_inventories_::Creationdate,
+				t_inventories_::Last_update,
 				t_inventories_::Description,
 				t_inventories_::C_creation_date> {
 		using _value_type = sqlpp::no_value_t;

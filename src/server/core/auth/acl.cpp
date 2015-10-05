@@ -21,7 +21,7 @@ bool AccesControl::checkBasicPerms(DB &db, const string &action, uint64_t object
     /// 3: Provide a GLOBAL cache, and synchronize writes to that one object in whole system(and take 1)
     ///     but without date chacking
 
-    schema::acl acl;
+    schema::stat acl;
     auto aclInfo = db( sqlpp::select( sqlpp::all_of(acl) )
                        .from(acl)
                        .where( acl.uid == m_userId || acl.uid == objectid ) );

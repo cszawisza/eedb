@@ -39,10 +39,10 @@ TEST_F(inventoryAddShelfTest, checkShelf){
 }
 
 TEST_F(inventoryAddShelfTest, checkAcl){
-    auto acl = AclHelper::getAcl(db, InventoryHelper::getShelfId(db, m_invId, "New shelf").get_value_or(0) );
+    auto stat = AclHelper::getAcl(db, InventoryHelper::getShelfId(db, m_invId, "New shelf").get_value_or(0) );
 
-    ASSERT_TRUE( acl );
-    EXPECT_EQ( m_userId, acl.get().owner() );
+    ASSERT_TRUE( stat );
+    EXPECT_EQ( m_userId, stat.get().owner() );
 }
 
 TEST_F(inventoryAddShelfTest, userCanEditNewlyCreatedShelf ){

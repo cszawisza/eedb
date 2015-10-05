@@ -28,11 +28,11 @@ int DBInitialize::initializeDB(DB &db)
 
     if(! rootExists(db)){
         pb::UserReq_Add add;
-        auto acl  = add.mutable_acl();
+        auto stat  = add.mutable_acl();
         auto basic= add.mutable_basic();
 
-        acl->set_owner( 1 );
-        acl->set_group( 1 );
+        stat->set_owner( 1 );
+        stat->set_group( 1 );
 
         basic->set_name("ROOT");
         basic->set_description("Root user");

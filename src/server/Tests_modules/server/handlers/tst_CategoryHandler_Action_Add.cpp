@@ -41,7 +41,7 @@ public:
         constexpr schema::t_categories c;
         constexpr schema::users u;
         priv.giveGroup(auth::GROUP_categories).privilegeFor("write").forTable(c).force_save(db);
-        db(update(u).set(u.acl_group = sqlpp::verbatim<sqlpp::integer>( std::string(tableName<decltype(u)>()) + ".acl_group | (1<<3)" )).where(u.name == "xxxxxxx" ));
+        db(update(u).set(u.stat_group = sqlpp::verbatim<sqlpp::integer>( std::string(tableName<decltype(u)>()) + ".stat_group | (1<<3)" )).where(u.name == "xxxxxxx" ));
     }
 
 protected:

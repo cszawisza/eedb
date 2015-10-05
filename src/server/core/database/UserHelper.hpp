@@ -80,7 +80,7 @@ public:
 
                     u.owner,
                     u.status,
-                    u.acl_group,
+                    u.stat_group,
                     u.unixperms )
                 .from(u)
                 .where( std::forward<T>(t) )

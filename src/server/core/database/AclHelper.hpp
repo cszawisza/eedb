@@ -4,7 +4,7 @@
 #include "idatabase.h"
 #include "common.pb.h"
 
-#include "sql_schema/acl.h"
+#include "sql_schema/stat.h"
 
 #include <boost/optional.hpp>
 
@@ -22,7 +22,7 @@ public:
                     u.uid,
                     u.owner,
                     u.unixperms,
-                    u.acl_group,
+                    u.stat_group,
                     u.status)
                 .from(u)
                 .where( std::forward<W>(where) );
@@ -30,7 +30,7 @@ public:
 
     template < typename W>
     static auto selectAcl( W&& where){
-        return selectAclFrom<schema::acl>( std::forward<W>(where) );
+        return selectAclFrom<schema::stat>( std::forward<W>(where) );
     }
 
     template < typename T , typename W >
@@ -40,7 +40,7 @@ public:
         du.where.add( std::forward<W>(where) );
 
         if( data.has_group() )
-            du.assignments.add( tab.acl_group = data.group() );
+            du.assignments.add( tab.stat_group = data.group() );
         if( data.has_owner() )
             du.assignments.add( tab.owner = data.owner() );
         if( data.has_status() )
@@ -52,9 +52,9 @@ public:
     }
 
     static auto update (const pb::Acl &data ){
-        constexpr schema::acl a;
+        constexpr schema::stat a;
         auto uid = data.has_uid()?data.uid() : 0;
-        return updateWhere<schema::acl>(data, a.uid == uid );
+        return updateWhere<schema::stat>(data, a.uid == uid );
     }
 
 //    template< typename T >
@@ -70,13 +70,13 @@ public:
         auto row = db( selectAclFrom<decltype(a)>( a.uid == objectID ));
 
         if( !row.empty() ){
-            pb::Acl acl = pb::Acl::default_instance();
-            acl.set_group( row.front().acl_group );
-            acl.set_owner( row.front().owner );
-            acl.set_status( row.front().status );
-            acl.set_uid( row.front().uid );
-            acl.set_unixperms( row.front().unixperms );
-            optionalAclData = acl;
+            pb::Acl stat = pb::Acl::default_instance();
+            stat.set_group( row.front().stat_group );
+            stat.set_owner( row.front().owner );
+            stat.set_status( row.front().status );
+            stat.set_uid( row.front().uid );
+            stat.set_unixperms( row.front().unixperms );
+            optionalAclData = stat;
         }
 
         return optionalAclData;

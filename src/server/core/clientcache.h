@@ -4,7 +4,7 @@
 #include <string>
 
 #include "user.pb.h"
-#include "common.pb.h" // for acl
+#include "common.pb.h" // for stat
 
 using namespace std;
 
@@ -19,7 +19,7 @@ public:
         m_status(UserOffline)
     {
         m_basicData.Clear();
-        m_acl.Clear();
+        m_stat.Clear();
     }
     bool isOnline() const { return m_status == UserOnline; }
     bool isOffline() const { return m_status == UserOffline; }
@@ -38,13 +38,13 @@ public:
     }
 
     pb::Acl *mutable_acl(){
-        return &m_acl;
+        return &m_stat;
     }
 
 private:
     Status m_status;
     pb::UserBasic m_basicData;
-    pb::Acl m_acl;
+    pb::Acl m_stat;
 };
 
 class ClientCache
