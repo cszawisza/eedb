@@ -159,15 +159,15 @@ namespace schema {
 			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::require_insert>;
 		};
 
-		struct File_mimetype {
+		struct Mimetype {
 			struct _alias_t {
-				static constexpr const char _literal[] ="file_mimetype";
+				static constexpr const char _literal[] ="mimetype";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T file_mimetype;
-						T &operator()() { return file_mimetype; }
-						const T &operator()() const { return file_mimetype; }
+						T mimetype;
+						T &operator()() { return mimetype; }
+						const T &operator()() const { return mimetype; }
 					};
 			};
 
@@ -186,7 +186,7 @@ namespace schema {
 				files_::Last_update,
 				files_::File_size,
 				files_::File_hash,
-				files_::File_mimetype> {
+				files_::Mimetype> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {
 			static constexpr const char _literal[] = "files";

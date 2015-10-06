@@ -4,9 +4,10 @@
 #include "database/CategoryHelper.hpp"
 #include "auth/implementedaction.hpp"
 #include "auth/acl.hpp"
-
+#include "utils/sqlpp_helper.hpp"
 #include "utils/LogUtils.hpp"
 using CH = eedb::db::CategoryHelper;
+using sqlpp::fieldName;
 namespace eedb{
 namespace handlers{
 
@@ -117,14 +118,15 @@ void Category::handle_get(DB &db, CategoryReq_Get &msg)
 
         auto results = db(s);
 
+        using namespace schema::categories_;
         for(const auto &row:results){
             auto cres = add_response()->mutable_categoryres();
             if(msg.has_get_ids() && msg.get_ids())
-                cres->set_id(boost::lexical_cast<uint64_t>(row.at("uid"))); ///TODO chenge to automatic generation
+                cres->set_id(boost::lexical_cast<uint64_t>(row.at(fieldName<Uid>())));
             if(msg.has_get_name() && msg.get_name())
-                cres->set_name(row.at("name"));
+                cres->set_name(row.at(fieldName<Name>()));
             if(msg.has_get_description() && msg.get_description())
-                cres->set_description(row.at("description"));
+                cres->set_description(row.at(fieldName<Description>()));
         }
     }
     else{

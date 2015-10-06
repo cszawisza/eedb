@@ -10,7 +10,10 @@
 #include "core/auth/privilege.hpp"
 #include "core/auth/acl.hpp"
 
+#include "utils/sqlpp_helper.hpp"
+using sqlpp::fieldName;
 using namespace auth;
+using schema::users_::Uid;
 
 class PrivilegesTest : public testing::Test
 {
@@ -42,10 +45,10 @@ public:
                     f.name = "test_new_file",
                     f.file_size = 1000,
                     f.file_hash = "xxxxxxxxxxxxxxxxxx",
-                    f.file_mimetype = "some mime type"
+                    f.mimetype = "some mime type"
                 ));
 
-        m_fid = db.lastInsertId(tableName<schema::stat>(), "uid"); ///TODO chenge to automatic generation
+        m_fid = db.lastInsertId(tableName<schema::stat>(), fieldName<Uid>() );
     }
 
     uint64_t addDummyUser( string name ){
@@ -63,7 +66,7 @@ public:
                     u.salt = "salt"
                 ));
 
-        return db.lastInsertId(tableName<schema::stat>(), "uid"); ///TODO chenge to automatic generation
+        return db.lastInsertId(tableName<schema::stat>(), fieldName<Uid>());
     }
     schema::files f;
     uint64_t m_uid, m_uid2, m_fid;

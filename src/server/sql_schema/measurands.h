@@ -1,5 +1,5 @@
-#ifndef SCHEMA_USER_HISTORY_H
-#define SCHEMA_USER_HISTORY_H
+#ifndef SCHEMA_MEASURANDS_H
+#define SCHEMA_MEASURANDS_H
 
 #include <sqlpp11/table.h>
 #include <sqlpp11/char_sequence.h>
@@ -7,7 +7,7 @@
 
 namespace schema {
 
-	namespace user_history_ {
+	namespace measurands_ {
 
 		struct Id {
 			struct _alias_t {
@@ -24,45 +24,45 @@ namespace schema {
 			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::must_not_insert, sqlpp::tag::must_not_update>;
 		};
 
-		struct Uid {
+		struct Name {
 			struct _alias_t {
-				static constexpr const char _literal[] ="uid";
+				static constexpr const char _literal[] ="name";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T uid;
-						T &operator()() { return uid; }
-						const T &operator()() const { return uid; }
+						T name;
+						T &operator()() { return name; }
+						const T &operator()() const { return name; }
 					};
 			};
 
-			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::can_be_null>;
+			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::require_insert>;
 		};
 
-		struct Action {
+		struct Description {
 			struct _alias_t {
-				static constexpr const char _literal[] ="action";
+				static constexpr const char _literal[] ="description";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T action;
-						T &operator()() { return action; }
-						const T &operator()() const { return action; }
+						T description;
+						T &operator()() { return description; }
+						const T &operator()() const { return description; }
 					};
 			};
 
 			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::can_be_null>;
 		};
 
-		struct When_happend {
+		struct Dimension_symbol {
 			struct _alias_t {
-				static constexpr const char _literal[] ="when_happend";
+				static constexpr const char _literal[] ="dimension_symbol";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T when_happend;
-						T &operator()() { return when_happend; }
-						const T &operator()() const { return when_happend; }
+						T dimension_symbol;
+						T &operator()() { return dimension_symbol; }
+						const T &operator()() const { return dimension_symbol; }
 					};
 			};
 
@@ -70,20 +70,20 @@ namespace schema {
 		};
 	}
 
-	struct user_history : sqlpp::table_t<user_history,
-				user_history_::Id,
-				user_history_::Uid,
-				user_history_::Action,
-				user_history_::When_happend> {
+	struct measurands : sqlpp::table_t<measurands,
+				measurands_::Id,
+				measurands_::Name,
+				measurands_::Description,
+				measurands_::Dimension_symbol> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {
-			static constexpr const char _literal[] = "user_history";
+			static constexpr const char _literal[] = "measurands";
 			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 			template<typename T>
 				struct _member_t {
-					T user_history;
-					T &operator()() { return user_history; }
-					const T &operator()() const { return user_history; }
+					T measurands;
+					T &operator()() { return measurands; }
+					const T &operator()() const { return measurands; }
 				};
 		};
 	};

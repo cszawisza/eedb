@@ -13,29 +13,22 @@ BEGIN
 END $$
 LANGUAGE plpgsql IMMUTABLE COST 1;
 
-drop table if exists user_inventories;
-drop table if exists inventories_history;
-drop table if exists inventories_operations;
-drop table if exists in_stock;
-drop table if exists shelfs;
-drop table if exists user_history;
-drop table if exists inventories;
-drop table if exists item_files;
-drop table if exists items;
-drop table if exists parameters;
-drop table if exists units cascade;
-drop table if exists units_conversions;
-drop table if exists packages_files;
-drop table if exists packages;
+ drop table if exists stat cascade;
+ drop table if exists action cascade;
+ drop table if exists metric_systems cascade;
+ drop table if exists measurands cascade;
+ drop table if exists privilege cascade;
+
 drop table if exists category_files;
-drop table if exists categories;
-drop table if exists files;
-drop table if exists users;
-drop table if exists privilege;
+drop table if exists units_conversions;
+drop table if exists in_stock;
 drop table if exists implemented_action;
-drop table if exists stat;
-drop table if exists action;
+drop table if exists inventories_history;
+drop table if exists user_history;
+drop table if exists item_files;
+drop table if exists packages_files;
 drop table if exists system_info;
+drop table if exists user_inventories;
 
 create table system_info(
     id serial not null primary key,
@@ -110,26 +103,25 @@ CREATE TABLE users (
     phonenumber       VARCHAR(20),
     address           TEXT            CHECK( length(address) <= 1000 ),
     description       TEXT            CHECK( length(description) <= 100000),   -- max size of description set to
-    config            jsonb            DEFAULT ('{}'),
+    config            jsonb           DEFAULT ('{}'),
     avatar            TEXT,
     CONSTRAINT users_pkey         PRIMARY KEY (uid),
     CONSTRAINT users_unique UNIQUE(name)
 ) INHERITS (stat);
 
----TODO create proper indexes on t_login_history table
 CREATE TABLE user_history (
     id serial not null primary key,
     uid int REFERENCES users(uid) ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE,
     action TEXT,
-    when_happen TIMESTAMP DEFAULT(now())
+    when_happend TIMESTAMP DEFAULT(now())
 );
 
 COMMENT ON TABLE user_history IS 'saves user actions like login/logout';
 
 CREATE TABLE files (
-    file_size      BIGINT  NOT NULL,
-    file_hash       TEXT    NOT NULL CHECK(length(file_hash) < 512 ),
-    file_mimetype  TEXT    NOT NULL CHECK(length(file_mimetype) < 256 ),
+    file_size   BIGINT  NOT NULL,
+    file_hash   TEXT    NOT NULL CHECK(length(file_hash) < 512 ),
+    mimetype    TEXT    NOT NULL CHECK(length(mimetype) < 256 ),
     CONSTRAINT files_pkey PRIMARY KEY (uid),
     CONSTRAINT fileownereowner_fk FOREIGN KEY (owner) REFERENCES users (uid) ON DELETE CASCADE DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (stat);
@@ -156,9 +148,9 @@ CREATE TABLE category_files (
 );
 
 CREATE TABLE packages (
-    pin_count         INTEGER,
-    mount_type     TEXT CHECK(length(mount_type) < 100 ),
-    config        jsonb,
+    pin_count   INTEGER,
+    mount_type  TEXT CHECK(length(mount_type) < 100 ),
+    config      jsonb,
     CONSTRAINT packages_pkey PRIMARY KEY (uid)
 ) INHERITS (stat);
 
@@ -168,10 +160,27 @@ CREATE TABLE packages_files (
     CONSTRAINT packages_files_pk PRIMARY KEY (package_id, file_id)
 );
 
+CREATE TABLE measurands(
+    id serial not null unique primary key,
+    name VARCHAR(32) not null unique,
+    description text,
+    dimension_symbol VARCHAR(10)
+);
+
+CREATE TABLE metric_systems(
+    id serial not null unique primary key,
+    name VARCHAR(32) not null unique,
+    description text
+);
+
+COMMENT ON TABLE measurands IS 'Information about measured quantity length, time etc.';
+
 CREATE TABLE units(
     symbol VARCHAR (20) NOT NULL,
-    quantity_name VARCHAR(100),
     description TEXT CHECK(length(description) < 100000),
+    measurand_id int REFERENCES measurands(id),
+    base_unit int REFERENCES units(uid),
+    metric_system int REFERENCES metric_systems(id),
     CONSTRAINT units_pkey PRIMARY KEY (uid),
     CONSTRAINT unitowner_fk FOREIGN KEY (owner) REFERENCES users (uid) DEFERRABLE INITIALLY IMMEDIATE,
     CONSTRAINT units_unique UNIQUE(name, symbol)
@@ -180,7 +189,6 @@ CREATE TABLE units(
 COMMENT ON TABLE units IS 'Table holds information about units used in application';
 COMMENT ON COLUMN units.name IS 'Parameter name e.g. Ampere';
 COMMENT ON COLUMN units.symbol IS 'Parameter symbol e.g. A';
-COMMENT ON COLUMN units.quantity_name IS 'Quantity name e.g. "electric current"';
 COMMENT ON COLUMN units.description IS 'Simple description';
 
 CREATE TABLE units_conversions(

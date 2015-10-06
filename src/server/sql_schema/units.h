@@ -144,21 +144,6 @@ namespace schema {
 			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::require_insert>;
 		};
 
-		struct Quantity_name {
-			struct _alias_t {
-				static constexpr const char _literal[] ="quantity_name";
-				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-				template<typename T>
-					struct _member_t {
-						T quantity_name;
-						T &operator()() { return quantity_name; }
-						const T &operator()() const { return quantity_name; }
-					};
-			};
-
-			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::can_be_null>;
-		};
-
 		struct Description {
 			struct _alias_t {
 				static constexpr const char _literal[] ="description";
@@ -173,6 +158,51 @@ namespace schema {
 
 			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::can_be_null>;
 		};
+
+		struct Measurand_id {
+			struct _alias_t {
+				static constexpr const char _literal[] ="measurand_id";
+				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+				template<typename T>
+					struct _member_t {
+						T measurand_id;
+						T &operator()() { return measurand_id; }
+						const T &operator()() const { return measurand_id; }
+					};
+			};
+
+			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::can_be_null>;
+		};
+
+		struct Base_unit {
+			struct _alias_t {
+				static constexpr const char _literal[] ="base_unit";
+				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+				template<typename T>
+					struct _member_t {
+						T base_unit;
+						T &operator()() { return base_unit; }
+						const T &operator()() const { return base_unit; }
+					};
+			};
+
+			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::can_be_null>;
+		};
+
+		struct Metric_system {
+			struct _alias_t {
+				static constexpr const char _literal[] ="metric_system";
+				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+				template<typename T>
+					struct _member_t {
+						T metric_system;
+						T &operator()() { return metric_system; }
+						const T &operator()() const { return metric_system; }
+					};
+			};
+
+			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::can_be_null>;
+		};
 	}
 
 	struct units : sqlpp::table_t<units,
@@ -185,8 +215,10 @@ namespace schema {
 				units_::Creation_date,
 				units_::Last_update,
 				units_::Symbol,
-				units_::Quantity_name,
-				units_::Description> {
+				units_::Description,
+				units_::Measurand_id,
+				units_::Base_unit,
+				units_::Metric_system> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {
 			static constexpr const char _literal[] = "units";
