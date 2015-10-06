@@ -14,14 +14,14 @@
 LoginDialog::LoginDialog(const ILoginVerificator & p_loginVerificator,
                          QWebSocket & p_webSocket,
                          QWidget *parent) :
-    QDialog(parent),
     ui(new Ui::LoginDialog),
     m_loginVerificator(p_loginVerificator),
-    m_socket(p_webSocket)
+    m_socket(p_webSocket),
+    QDialog(parent)
 {
     ui->setupUi(this);
     ui->connection_groupbox->setChecked(false);
-    connect(this, SIGNAL(loginSucces()), SLOT(hide()));
+    connect(this, SIGNAL(loginSucces()), SLOT(close()));
     connect(this, SIGNAL(loginSucces()), SIGNAL(showOtherWindow()));
 
     qRegisterMetaType<QAbstractSocket::SocketState>();
@@ -210,6 +210,7 @@ void LoginDialog::connectToServer()
     l_url.setPort(ui->serverPort->text().toInt());
     l_url.setScheme("ws");
     m_socket.open(l_url);
+    qDebug() << "Connection done";
 }
 
 void LoginDialog::loginToServer()
@@ -218,7 +219,9 @@ void LoginDialog::loginToServer()
     const std::string l_pass = ui->userPassword->text().toStdString();
     if (m_loginVerificator.tryLogin(l_pass, l_login))
     {
+        qDebug() << "Before login succes";
         emit loginSucces();
+        qDebug() << "After login succes";
     }
 }
 

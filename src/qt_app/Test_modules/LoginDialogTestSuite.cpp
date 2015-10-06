@@ -56,4 +56,4 @@ TEST_F(LoginDialogTestSuite, DontInvokeMainWindowAfterSuccesfullServerConnection
     EXPECT_EQ(0, spy.count());
 }
 
-#include "LoginDialogTestSuite.moc"
+//#include "LoginDialogTestSuite.moc"

@@ -17,7 +17,7 @@ class LoginDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit LoginDialog(const ILoginVerificator & p_communicationManager,
+    explicit LoginDialog(const ILoginVerificator & p_loginVerificator,
                          QWebSocket & p_webSocket,
                          QWidget *parent = 0);
     ~LoginDialog();
