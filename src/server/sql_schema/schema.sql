@@ -13,6 +13,32 @@ BEGIN
 END $$
 LANGUAGE plpgsql IMMUTABLE COST 1;
 
+
+drop table if exists t_user_inventories;
+drop table if exists t_inventories_history;
+drop table if exists t_inventories_operations;
+drop table if exists t_in_stock;
+drop table if exists t_shelfs;
+drop table if exists t_user_history;
+drop table if exists t_inventories;
+drop table if exists t_item_files;
+drop table if exists t_items;
+drop table if exists t_parameters;
+drop table if exists t_units cascade;
+drop table if exists t_units_conversions;
+drop table if exists t_packages_files;
+drop table if exists t_packages;
+drop table if exists t_category_files;
+drop table if exists t_categories;
+drop table if exists t_files;
+drop table if exists t_users;
+drop table if exists t_privilege;
+drop table if exists t_implemented_action;
+drop table if exists t_acl;
+drop table if exists t_action;
+drop table if exists t_system_info;
+
+
  drop table if exists stat cascade;
  drop table if exists action cascade;
  drop table if exists metric_systems cascade;

@@ -35,6 +35,7 @@ message CategoryReq{
     //optional bool  get_statistics    = 4  [default = false];
     //optional bool get_image         = 5  [default = false];
     //optional bool  get_files         = 6  [default = false]; // only assosiated metadata, without filedata
+//    optional bool get_root_id       = 7 [default = false];
     optional Where where = 13;
   }
   

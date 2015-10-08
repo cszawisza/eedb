@@ -72,13 +72,13 @@ LoginDialog::LoginDialog(const ILoginVerificator & p_loginVerificator,
     });
 
     connect(&m_socket, &QWebSocket::connected, [=]() {
-        loginToServer();
+//        loginToServer();
     });
 
     connect(&m_socket, &QWebSocket::stateChanged, [=](QAbstractSocket::SocketState p_state){
         if (p_state == QAbstractSocket::ConnectedState)
         {
-            loginToServer();
+//            loginToServer();
         }
     });
 }
