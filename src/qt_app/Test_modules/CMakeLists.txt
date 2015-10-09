@@ -1,3 +1,4 @@
+project(EEDB_Client_UT)
 find_package(Qt5Test REQUIRED)
 FILE(GLOB TEST_SRC_FILES *.cpp)
 FILE(GLOB TEST_MOCK_FILES Mocks/*.hpp)

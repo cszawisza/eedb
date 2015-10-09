@@ -48,7 +48,7 @@ private:
     void setDeafultServerInfo();
     //    User user;
     QSettings setup;
-    QWebSocket & m_socket;
     const ILoginVerificator & m_loginVerificator;
+    QWebSocket & m_socket;
 };
 
