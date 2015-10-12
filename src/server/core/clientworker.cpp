@@ -7,6 +7,8 @@
 #include "category.hpp"
 #include "ItemHandler.hpp"
 
+#include "utils/LogUtils.hpp"
+
 ClientWorker::ClientWorker(QObject *parent) :
     QObject(parent),
     m_cache( SharedUserData (new UserData() )),
@@ -24,14 +26,7 @@ ClientWorker::ClientWorker(QObject *parent) :
 
 void ClientWorker::printMessageInfo(const pb::ClientRequest &request)
 {
-    qDebug() << "recived message id: " << request.requestid()
-    << "\ntype: " << request.data_case()
-//    << "\naction: " << message.action()
-    << "\ndata size: " << request.ByteSize();
-//    << "\nhas filters? " << message.has_filter()
-//    << "\nhas limits? " << message.has_limits()
-//    << "\nis_compressed? " << message.compressed()
-            ;
+    getServerLoger()->trace("Get req message(type_id:{}) from user {}", request.data_case(), m_cache->id() );
 }
 
 void ClientWorker::processMessages()
@@ -39,6 +34,7 @@ void ClientWorker::processMessages()
     for(int msgId=0; msgId<m_inputFrame->request_size(); msgId++ ){
         printMessageInfo(m_inputFrame->request(msgId));
         auto processor = m_msgHandlers.value(m_inputFrame->request(msgId).data_case(),  QSharedPointer<MessageHandler>(new MessageHandler()));
+        processor->setUserData(m_cache);
         processor->setInputData(m_inputFrame);
         processor->setOutputData(m_responseFrame);
         processor->process( msgId );

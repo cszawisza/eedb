@@ -69,17 +69,12 @@ LoginDialog::LoginDialog(const ILoginVerificator & p_loginVerificator,
 
     connect(ui->login, static_cast<void (QPushButton::*)(bool)>(&QPushButton::clicked), [=](){
         connectToServer();
-    });
-
-    connect(&m_socket, &QWebSocket::connected, [=]() {
-//        loginToServer();
-    });
-
-    connect(&m_socket, &QWebSocket::stateChanged, [=](QAbstractSocket::SocketState p_state){
-        if (p_state == QAbstractSocket::ConnectedState)
+        qDebug() << "WebSocket state: " << m_socket.state();
+        if (m_socket.state() == QAbstractSocket::ConnectedState)
         {
-//            loginToServer();
+            loginToServer();
         }
+        qDebug() << "WebSocket state: " << m_socket.state();
     });
 }
 
@@ -187,7 +182,8 @@ void LoginDialog::doConnectTest()
     url.setScheme("ws");
 
     connect(socket, &QWebSocket::connected, [=]() {
-        ui->connectResponseLabel->setText("connection ok!");
+        ui->connectResponseLabel->setText("connection okqqq!");
+        qDebug() << "WebSocket state (slot): " << socket->state();
         socket->close(QWebSocketProtocol::CloseCodeNormal, "Test connection, sorry for interrupt ;)");
         socket->disconnect();
     });
@@ -200,17 +196,25 @@ void LoginDialog::doConnectTest()
 
     qDebug()<<" try to connect to " << url.toString();
     socket->open(url);
+    qDebug() << "WebSocket state: " << socket->state();
+}
+
+void showMsg()
+{
+    qDebug() << "Some MSG";
 }
 
 void LoginDialog::connectToServer()
 {
-    qDebug() << "connectToServer()";
     QUrl l_url{};
     l_url.setHost(ui->serverIp->text());
     l_url.setPort(ui->serverPort->text().toInt());
     l_url.setScheme("ws");
     m_socket.open(l_url);
-    qDebug() << "Connection done";
+    connect(&m_socket, &QWebSocket::connected, [&]() {
+        qDebug() << "WebSocket state (connectToServer): " << m_socket.state();
+        showMsg();
+    });
 }
 
 void LoginDialog::loginToServer()
@@ -219,9 +223,8 @@ void LoginDialog::loginToServer()
     const std::string l_pass = ui->userPassword->text().toStdString();
     if (m_loginVerificator.tryLogin(l_pass, l_login))
     {
-        qDebug() << "Before login succes";
+        qDebug() << "Success login";
         emit loginSucces();
-        qDebug() << "After login succes";
     }
 }
 

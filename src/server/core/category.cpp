@@ -6,6 +6,8 @@
 #include "auth/acl.hpp"
 #include "utils/sqlpp_helper.hpp"
 #include "utils/LogUtils.hpp"
+#include "utils/unixPerms.hpp"
+
 using CH = eedb::db::CategoryHelper;
 using sqlpp::fieldName;
 namespace eedb{
@@ -67,10 +69,17 @@ void Category::handle_add(DB &db, CategoryReq_Add &msg)
     }
 
     if(stat.checkUserAction<schema::categories>(db, "write") ){
+        // treat id = =0 as root category
+        if(!msg.has_parent_id() || msg.parent_id() == 0 )
+            msg.set_parent_id( CH::rootCategoryId(db).get_value_or(0) );
+
         auto response = add_response()->mutable_categoryres();
         auto prepare = db.prepare(CH::insert_into().set(
                                       cat.name = parameter(cat.name),
                                       cat.description = parameter(cat.description ),
+                                      cat.owner = user()->id(),
+                                      cat.stat_group = (int)auth::GROUP_categories,
+                                      cat.unixperms = UnixPermissions({7,4,4}).toInteger(),
                                       cat.parent_category_id = msg.parent_id()
                 ).returning(cat.uid));
 
@@ -87,7 +96,7 @@ void Category::handle_add(DB &db, CategoryReq_Add &msg)
         }
         catch(sqlpp::postgresql::pg_exception e){
             if(e.code().pgClass() == "23") // Unique key validation
-                response->set_code(CategoryRes_Replay_CategoryExists); // occour when category exists
+                response->set_code(CategoryRes_Replay_CategoryExists); // occour when category exists or no parent id
             else{
                 LOG_DB_EXCEPTION(e);
             }

@@ -1,7 +1,6 @@
 #include "gtest/gtest.h"
 
 #include "utils/userconfig.h"
-#include "user.pb.h"
 
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -23,15 +22,15 @@ TEST( UserConfig, simple_conf ){
     EXPECT_EQ(uc.toString(), "{\"last_group_id\":10}");
 }
 
-TEST( UserConfig, createByMessage ){
-    pb::UserConfig conf;
+//TEST( UserConfig, createByMessage ){
+//    pb::UserConfig conf;
 
-    conf.set_last_group_id( 10 );
-//    conf.set_last_item_id( 11 );
-//    conf.set_last_parameter_id( 12 );
-//    conf.set_last_storage_id( 13 );
+//    conf.set_last_group_id( 10 );
+////    conf.set_last_item_id( 11 );
+////    conf.set_last_parameter_id( 12 );
+////    conf.set_last_storage_id( 13 );
 
-    UserConfig uc( conf );
+//    UserConfig uc( conf );
 
 //    EXPECT_EQ(uc.toString(), "{\"last_group_id\":10}");
-}
+//}

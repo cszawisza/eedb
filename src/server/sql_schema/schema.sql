@@ -1,4 +1,5 @@
-﻿
+﻿CREATE EXTENSION IF NOT EXISTS ltree;
+
 CREATE OR REPLACE FUNCTION perm_to_numeric ( m_owner INT, m_group INT, m_other INT )
 RETURNS INT AS $$
 BEGIN RETURN cast((m_owner << 6) | (m_group << 3 | m_other << 0) AS INT); END $$
@@ -14,36 +15,11 @@ END $$
 LANGUAGE plpgsql IMMUTABLE COST 1;
 
 
-drop table if exists t_user_inventories;
-drop table if exists t_inventories_history;
-drop table if exists t_inventories_operations;
-drop table if exists t_in_stock;
-drop table if exists t_shelfs;
-drop table if exists t_user_history;
-drop table if exists t_inventories;
-drop table if exists t_item_files;
-drop table if exists t_items;
-drop table if exists t_parameters;
-drop table if exists t_units cascade;
-drop table if exists t_units_conversions;
-drop table if exists t_packages_files;
-drop table if exists t_packages;
-drop table if exists t_category_files;
-drop table if exists t_categories;
-drop table if exists t_files;
-drop table if exists t_users;
-drop table if exists t_privilege;
-drop table if exists t_implemented_action;
-drop table if exists t_acl;
-drop table if exists t_action;
-drop table if exists t_system_info;
-
-
- drop table if exists stat cascade;
- drop table if exists action cascade;
- drop table if exists metric_systems cascade;
- drop table if exists measurands cascade;
- drop table if exists privilege cascade;
+drop table if exists stat cascade;
+drop table if exists action cascade;
+drop table if exists metric_systems cascade;
+drop table if exists measurands cascade;
+drop table if exists privilege cascade;
 
 drop table if exists category_files;
 drop table if exists units_conversions;
@@ -155,9 +131,12 @@ CREATE TABLE files (
 CREATE TABLE categories(
     parent_category_id    INTEGER     REFERENCES categories(uid),
     description           TEXT        CHECK(length(description) < 100000 ),
+    parent_path           LTREE,
     CONSTRAINT categories_pkey PRIMARY KEY (uid),
     CONSTRAINT categorieowner_fk FOREIGN KEY (owner) REFERENCES users (uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (stat);
+
+CREATE INDEX categories_parent_path_idx ON categories USING GIST (parent_path);
 
 COMMENT ON TABLE categories IS 'categories of items';
 -- COMMENT ON COLUMN categories.c_hide IS 'hide group from user, when true';
@@ -334,7 +313,26 @@ CREATE TRIGGER update_inventories_operations_las_update BEFORE UPDATE ON invento
 CREATE OR REPLACE FUNCTION objects_with_action (m_tab VARCHAR, m_action varchar, userid int)
 RETURNS setof int AS $$
 
+CREATE OR REPLACE FUNCTION update_category_parent_path() RETURNS TRIGGER AS $$
+    DECLARE
+        path ltree;
+    BEGIN
+        IF NEW.parent_category_id IS NULL THEN
+            NEW.parent_path = 'root'::ltree;
+        ELSEIF TG_OP = 'INSERT' OR OLD.parent_category_id IS NULL OR OLD.parent_category_id != NEW.parent_category_id THEN
+            SELECT parent_path || uid::text FROM categories WHERE uid = NEW.parent_category_id INTO path;
+            IF path IS NULL THEN
+                RAISE EXCEPTION 'Invalid parent_id %', NEW.parent_category_id;
+            END IF;
+            NEW.parent_path = path;
+        END IF;
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
 
+CREATE TRIGGER parent_path_tgr
+    BEFORE INSERT OR UPDATE ON categories
+    FOR EACH ROW EXECUTE PROCEDURE update_category_parent_path();
 
 DECLARE r int;
 DECLARE usergroups INT;

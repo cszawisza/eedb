@@ -10,6 +10,9 @@
 using namespace eedb::db;
 using namespace test;
 
+constexpr schema::categories c;
+constexpr schema::users u;
+constexpr schema::stat st;
 
 class CategoryHelpertest : public ::testing::Test
 {
@@ -38,8 +41,6 @@ public:
 
     void upgradeUserPrivileges(){
         auth::Privilege priv;
-        constexpr schema::categories c;
-        constexpr schema::users u;
         priv.giveGroup(auth::GROUP_categories).privilegeFor("write").forTable(c).force_save(db);
         db(update(u).set(u.stat_group = sqlpp::verbatim<sqlpp::integer>( std::string(tableName<decltype(u)>()) + ".stat_group | (1<<3)" )).where(u.name == "xxxxxxx" ));
     }
@@ -112,3 +113,18 @@ TEST_F(CategoryHelpertest, doubleInsertShouldFail){
     EXPECT_EQ   ( CategoryRes_Replay_CategoryExists, catRes.code());
 }
 
+TEST_F(CategoryHelpertest, addCategorySetsProperAclData){
+    upgradeUserPrivileges();
+    addMsg.set_name("New Category");
+    addMsg.set_parent_id(CategoryHelper::rootCategoryId(db).get_value_or(0));
+    addMsg.set_returningid(true);
+
+    ServerResponse res = runMessageHandlerProcess();
+    auto inserted = res.categoryres().id();
+
+    auto groupStat = db(select(all_of(st)).from(st).where(st.uid == inserted ));
+    auto userStat = db(select(all_of(st)).from(st).where(st.uid == handler.user()->id() ));
+
+    EXPECT_EQ( groupStat.front().owner, userStat.front().uid );
+    EXPECT_EQ( groupStat.front().stat_group, auth::GROUP_categories );
+}

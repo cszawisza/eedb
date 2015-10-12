@@ -18,3 +18,7 @@ inline void LogDbError(const sqlpp::postgresql::pg_exception &e, const char* fun
 inline void LogDbWarning(const sqlpp::postgresql::pg_exception &e, const char* function){
     spdlog::get("Server")->warn("{}: {}", function, e.what() );
 }
+
+inline std::shared_ptr<spdlog::logger> getServerLoger(){
+    return spdlog::get("Server");
+}

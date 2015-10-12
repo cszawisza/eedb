@@ -12,6 +12,7 @@ int keepassx_main_impl(int argc, char *argv[], int (*app_run)() )
     QCoreApplication::setOrganizationName(QStringLiteral("eedb"));
 
     auto logger = spdlog::get("Server");
+    logger->set_level( spdlog::level::trace );
 
     EEDB server;
     try{
