@@ -5,6 +5,7 @@
 
 #include <LoginDialog.hpp>
 #include <LoginVerificatorMock.hpp>
+#include <UserRegisterMock.hpp>
 #include <ui_LoginDialog.h> // to get loginDialog UI definition
 
 using namespace testing;
@@ -14,13 +15,15 @@ struct LoginDialogTestSuite : public ::testing::Test
     LoginDialogTestSuite();
     StrictMock<LoginVerificatorMock> loginVerificatorMock;
     StrictMock<QWebSocket> webSocketMock;
+    StrictMock<UserRegisterMock> userRegisterMock;
     LoginDialog m_sut;
 };
 
 LoginDialogTestSuite::LoginDialogTestSuite()
     : loginVerificatorMock{},
       webSocketMock{},
-      m_sut(loginVerificatorMock, webSocketMock)
+      userRegisterMock{},
+      m_sut(loginVerificatorMock, webSocketMock, userRegisterMock)
 {}
 
 TEST_F(LoginDialogTestSuite, InvokeMainWindowAfterSuccesfullServerConnection)
@@ -54,6 +57,16 @@ TEST_F(LoginDialogTestSuite, DontInvokeMainWindowAfterSuccesfullServerConnection
 
     EXPECT_EQ(1, buttonSpy.count());
     EXPECT_EQ(0, spy.count());
+}
+
+TEST_F(LoginDialogTestSuite, InvokeRegisterWindowAfterSuccesfullServerConnection)
+{
+    QSignalSpy buttonSpy(m_sut.getUi()->registerNewUser, SIGNAL(clicked(bool)));
+    QTest::mouseClick(m_sut.getUi()->registerNewUser, Qt::LeftButton);
+
+    EXPECT_CALL(userRegisterMock, registerUser());
+    emit webSocketMock.connected();
+    EXPECT_EQ(1, buttonSpy.count());
 }
 
 //#include "LoginDialogTestSuite.moc"

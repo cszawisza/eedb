@@ -3,12 +3,14 @@
 #include <QDebug>
 #include <QTimer>
 #include <QByteArray>
+#include <QWebSocket>
+
 #include <LoginDialog.hpp>
 #include <CommunicationManager.hpp>
 #include <LoginVerificator.hpp>
-#include "ApplicationMainWindow.hpp"
-#include <QWebSocket>
+#include <ApplicationMainWindow.hpp>
 #include <ProtobufConverters.hpp>
+#include <UserRegister.hpp>
 
 namespace
 {
@@ -45,12 +47,13 @@ void showLoginDialog(QApplication &a)
     {
         return convertQByteArrayToProtobufServerResponse(p_serverResponse);
     };
+    UserRegister l_userRegister{l_webSocket};
     LoginVerificator l_loginVerificator(l_webSocket);
     CommunicationManager l_communicationManager(l_webSocket,
                                                 l_protobufToQbyteArrayConverter,
                                                 l_qbyteArrayToProtobufConverter);
     ApplicationMainWindow l_mainApp(l_communicationManager);
-    LoginDialog lDialog(l_loginVerificator, l_webSocket);
+    LoginDialog lDialog(l_loginVerificator, l_webSocket, l_userRegister);
     QObject::connect(&lDialog, SIGNAL(showOtherWindow()), &l_mainApp, SLOT(show()));
     lDialog.exec();
     if(!a.exec())

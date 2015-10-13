@@ -15,7 +15,7 @@ class AddUserDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit AddUserDialog(QWebSocket *ws, QWidget *parent = 0);
+    explicit AddUserDialog(QWebSocket & p_webSocket, QWidget *parent = 0);
     ~AddUserDialog();
 
 public slots:
@@ -25,5 +25,5 @@ private slots:
 
 private:
     Ui::AddUserDialog *ui;
-    QWebSocket & socket;
+    QWebSocket & m_socket;
 };

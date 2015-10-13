@@ -5,13 +5,13 @@
 #include "message_conteiner.pb.h"
 #include <QInputDialog>
 
-AddUserDialog::AddUserDialog(QWebSocket p_webSocket, QWidget *parent) :
+AddUserDialog::AddUserDialog(QWebSocket & p_webSocket, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AddUserDialog),
-    socket(p_webSocket)
+    m_socket(p_webSocket)
 {
     ui->setupUi(this);
-    connect(socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));
+    connect(&m_socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));
 }
 
 ///TODO add print error field, wher you can put all messages from server
@@ -58,7 +58,7 @@ void AddUserDialog::readyRead(QByteArray msg){
 
 AddUserDialog::~AddUserDialog()
 {
-    disconnect(socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));
+    disconnect(&m_socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));
     delete ui;
 }
 
@@ -90,5 +90,5 @@ void AddUserDialog::on_registerNewUser_clicked()
     ba.resize(fullMessage.ByteSize());
     fullMessage.SerializeToArray(ba.data(), ba.size() );
 
-    socket->sendBinaryMessage(ba);
+    m_socket.sendBinaryMessage(ba);
 }

@@ -9,16 +9,19 @@
 #include "user.pb.h"
 
 #include "AddUserDialog.hpp"
-#include <ILoginVerificator.hpp>
+#include <LoginVerificator.hpp>
+#include <UserRegister.hpp>
 
 LoginDialog::LoginDialog(const ILoginVerificator & p_loginVerificator,
                          QWebSocket & p_webSocket,
+                         const IUserRegister & p_userRegister,
                          QWidget *parent) :
     QDialog(parent),
     ui(new Ui::LoginDialog),
     m_loginVerificator(p_loginVerificator),
     m_socket(p_webSocket),
-    m_action(Action::LOGIN)
+    m_action(Action::LOGIN),
+    m_userRegister(p_userRegister)
 {
     ui->setupUi(this);
     ui->connection_groupbox->setChecked(false);
@@ -30,22 +33,6 @@ LoginDialog::LoginDialog(const ILoginVerificator & p_loginVerificator,
     setDeafultServerInfo();
 
     connect(ui->testConnction, SIGNAL(clicked()), this, SLOT(doConnectTest()));
-
-    connect(ui->registerNewUser, static_cast<void (QPushButton::*)(bool)>(&QPushButton::clicked),
-            [=](){
-        m_action = Action::REGISTER;
-        connectToServer();
-//        doReconnect();
-//        if(m_socket.state() == QAbstractSocket::ConnectedState){
-//            disconnect(&m_socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));
-//            AddUserDialog *dialog = new AddUserDialog(&m_socket, this);
-//            dialog->exec();
-//            connect(&m_socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));
-//        }
-//        else{
-//            ui->connectResponseLabel->setText("peer disconnected");
-//        }
-    });
 
     connect(this, &LoginDialog::loginFailure, [=](){
         ui->connectResponseLabel->setText("Autentification error");
@@ -69,6 +56,20 @@ LoginDialog::LoginDialog(const ILoginVerificator & p_loginVerificator,
 
 
 
+    connect(ui->registerNewUser, static_cast<void (QPushButton::*)(bool)>(&QPushButton::clicked), [=](){
+        m_action = Action::REGISTER;
+        connectToServer();
+//        doReconnect();
+//        if(m_socket.state() == QAbstractSocket::ConnectedState){
+//            disconnect(&m_socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));
+//            AddUserDialog *dialog = new AddUserDialog(&m_socket, this);
+//            dialog->exec();
+//            connect(&m_socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));
+//        }
+//        else{
+//            ui->connectResponseLabel->setText("peer disconnected");
+//        }
+    });
 
     connect(ui->login, static_cast<void (QPushButton::*)(bool)>(&QPushButton::clicked), [=](){
         m_action = Action::LOGIN;
@@ -234,5 +235,5 @@ void LoginDialog::loginOrRegister()
     if (m_action == Action::LOGIN)
         loginToServer();
     else if (m_action == Action::REGISTER)
-        qDebug() << "Register";
+        m_userRegister.registerUser();
 }
