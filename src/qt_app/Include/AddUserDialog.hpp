@@ -25,5 +25,5 @@ private slots:
 
 private:
     Ui::AddUserDialog *ui;
-    QWebSocket *socket;
+    QWebSocket & socket;
 };

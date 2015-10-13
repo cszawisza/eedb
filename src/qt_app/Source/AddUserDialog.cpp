@@ -5,10 +5,10 @@
 #include "message_conteiner.pb.h"
 #include <QInputDialog>
 
-AddUserDialog::AddUserDialog(QWebSocket *ws, QWidget *parent) :
+AddUserDialog::AddUserDialog(QWebSocket p_webSocket, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AddUserDialog),
-    socket(ws)
+    socket(p_webSocket)
 {
     ui->setupUi(this);
     connect(socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));

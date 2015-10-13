@@ -14,17 +14,18 @@
 LoginDialog::LoginDialog(const ILoginVerificator & p_loginVerificator,
                          QWebSocket & p_webSocket,
                          QWidget *parent) :
+    QDialog(parent),
     ui(new Ui::LoginDialog),
     m_loginVerificator(p_loginVerificator),
     m_socket(p_webSocket),
-    QDialog(parent)
+    m_action(Action::LOGIN)
 {
     ui->setupUi(this);
     ui->connection_groupbox->setChecked(false);
     connect(this, SIGNAL(loginSucces()), SLOT(close()));
     connect(this, SIGNAL(loginSucces()), SIGNAL(showOtherWindow()));
 
-    qRegisterMetaType<QAbstractSocket::SocketState>();
+    //qRegisterMetaType<QAbstractSocket::SocketState>();
 
     setDeafultServerInfo();
 
@@ -32,16 +33,18 @@ LoginDialog::LoginDialog(const ILoginVerificator & p_loginVerificator,
 
     connect(ui->registerNewUser, static_cast<void (QPushButton::*)(bool)>(&QPushButton::clicked),
             [=](){
-        doReconnect();
-        if(m_socket.state() == QAbstractSocket::ConnectedState){
-            disconnect(&m_socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));
-            AddUserDialog *dialog = new AddUserDialog(&m_socket, this);
-            dialog->exec();
-            connect(&m_socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));
-        }
-        else{
-            ui->connectResponseLabel->setText("peer disconnected");
-        }
+        m_action = Action::REGISTER;
+        connectToServer();
+//        doReconnect();
+//        if(m_socket.state() == QAbstractSocket::ConnectedState){
+//            disconnect(&m_socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));
+//            AddUserDialog *dialog = new AddUserDialog(&m_socket, this);
+//            dialog->exec();
+//            connect(&m_socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));
+//        }
+//        else{
+//            ui->connectResponseLabel->setText("peer disconnected");
+//        }
     });
 
     connect(this, &LoginDialog::loginFailure, [=](){
@@ -68,13 +71,12 @@ LoginDialog::LoginDialog(const ILoginVerificator & p_loginVerificator,
 
 
     connect(ui->login, static_cast<void (QPushButton::*)(bool)>(&QPushButton::clicked), [=](){
+        m_action = Action::LOGIN;
         connectToServer();
-        qDebug() << "WebSocket state: " << m_socket.state();
-        if (m_socket.state() == QAbstractSocket::ConnectedState)
-        {
-            loginToServer();
-        }
-        qDebug() << "WebSocket state: " << m_socket.state();
+    });
+
+    connect(&m_socket, &QWebSocket::connected, [&]() {
+        loginOrRegister();
     });
 }
 
@@ -199,11 +201,6 @@ void LoginDialog::doConnectTest()
     qDebug() << "WebSocket state: " << socket->state();
 }
 
-void showMsg()
-{
-    qDebug() << "Some MSG";
-}
-
 void LoginDialog::connectToServer()
 {
     QUrl l_url{};
@@ -211,10 +208,6 @@ void LoginDialog::connectToServer()
     l_url.setPort(ui->serverPort->text().toInt());
     l_url.setScheme("ws");
     m_socket.open(l_url);
-    connect(&m_socket, &QWebSocket::connected, [&]() {
-        qDebug() << "WebSocket state (connectToServer): " << m_socket.state();
-        showMsg();
-    });
 }
 
 void LoginDialog::loginToServer()
@@ -234,4 +227,12 @@ void LoginDialog::setDeafultServerInfo()
     ui->serverPort->setText(setup.value("ServerPort", 6666).toString());
     ui->userLogin->setText(setup.value("Login", "").toString());
     ui->userPassword->setEchoMode(QLineEdit::Password);
+}
+
+void LoginDialog::loginOrRegister()
+{
+    if (m_action == Action::LOGIN)
+        loginToServer();
+    else if (m_action == Action::REGISTER)
+        qDebug() << "Register";
 }

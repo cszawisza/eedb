@@ -43,12 +43,15 @@ private slots:
     void doLogin();
 
 private:
+    enum class Action {LOGIN, REGISTER};
     void connectToServer();
     void loginToServer();
     void setDeafultServerInfo();
-    //    User user;
-    QSettings setup;
+    void loginOrRegister();
+
     const ILoginVerificator & m_loginVerificator;
     QWebSocket & m_socket;
+    Action m_action;
+    QSettings setup;
 };
 
