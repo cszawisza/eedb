@@ -69,4 +69,5 @@ TEST_F(LoginDialogTestSuite, InvokeRegisterWindowAfterSuccesfullServerConnection
     EXPECT_EQ(1, buttonSpy.count());
 }
 
+
 //#include "LoginDialogTestSuite.moc"
