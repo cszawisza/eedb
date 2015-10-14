@@ -4,7 +4,7 @@
 #include <boost/optional.hpp>
 #include "user.pb.h"
 
-void handleConvertedMessage(const pb::ServerResponses & p_serverResponse)
+void handleConvertedServerResponse(const pb::ServerResponses & p_serverResponse)
 {
     switch(p_serverResponse.response(0).data_case())
     {
@@ -41,9 +41,16 @@ void CommunicationManager::handle() const
         auto l_serverResponseArray = m_convertQByteArrayToProtobuf(p_serverResponse);
         if (l_serverResponseArray)
         {
-            handleConvertedMessage(l_serverResponseArray.get());
+            handleConvertedServerResponse(l_serverResponseArray.get());
         }
     });
+}
+
+void CommunicationManager::handleRegister(std::string & p_userName, std::string & p_userPassword,
+                                          std::string & p_userEmail,std::string & p_userAdress,
+                                          std::string & p_userDescritpion, std::string & p_userPhoneNumber) const
+{
+    m_webSocket.close();
 }
 
 void CommunicationManager::sendBinaryMessageOverQWebSocket(const pb::ClientRequests & p_clientRequests) const

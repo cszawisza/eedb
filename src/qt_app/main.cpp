@@ -47,11 +47,11 @@ void showLoginDialog(QApplication &a)
     {
         return convertQByteArrayToProtobufServerResponse(p_serverResponse);
     };
-    UserRegister l_userRegister{l_webSocket};
     LoginVerificator l_loginVerificator(l_webSocket);
     CommunicationManager l_communicationManager(l_webSocket,
                                                 l_protobufToQbyteArrayConverter,
                                                 l_qbyteArrayToProtobufConverter);
+    UserRegister l_userRegister{l_communicationManager};
     ApplicationMainWindow l_mainApp(l_communicationManager);
     LoginDialog lDialog(l_loginVerificator, l_webSocket, l_userRegister);
     QObject::connect(&lDialog, SIGNAL(showOtherWindow()), &l_mainApp, SLOT(show()));

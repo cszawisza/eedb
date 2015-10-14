@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include <ICommunicationManager.hpp>
 #include <ProtobufConverters.hpp>
 
@@ -18,6 +20,8 @@ public:
                          ProtobufToQByteArrayConverter p_convertProtobufToString,
                          QByteArrayToProtobufConverter p_convertQByteArrayToProtobuf);
     void handle() const override;
+    void handleRegister(std::string &, std::string &, std::string &,
+                        std::string &, std::string &, std::string &) const override;
 
 private:
     void sendBinaryMessageOverQWebSocket(const pb::ClientRequests & p_clientRequests) const;

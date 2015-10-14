@@ -39,7 +39,7 @@ message UserReq{
   message Add{
     required UserBasic basic = 1;
     optional UserConfig config = 2;
-    optional string password = 3;
+    required string password = 3;
     optional pb.Acl acl = 4;
     optional UserDetails details = 5;
   }
@@ -124,8 +124,8 @@ message UserRes {
 
 message UserBasic{
   optional int32 id = 7;
-  optional string email = 1;
-  optional string name = 2;
+  required string email = 1;
+  required string name = 2;
   optional bytes description = 5; 
   optional bytes avatar = 6;
 }

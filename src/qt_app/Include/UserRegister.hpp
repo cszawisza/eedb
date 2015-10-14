@@ -2,14 +2,14 @@
 
 #include "IUserRegister.hpp"
 
-class QWebSocket;
+class ICommunicationManager;
 
 class UserRegister : public IUserRegister
 {
 public:
-    UserRegister(QWebSocket &);
+    UserRegister(ICommunicationManager &);
     void registerUser() const override;
 
 private:
-    QWebSocket & m_qWebSocket;
+    ICommunicationManager & m_communicatioManager;
 };

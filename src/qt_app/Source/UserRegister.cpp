@@ -1,10 +1,12 @@
 #include "UserRegister.hpp"
+#include "AddUserDialog.hpp"
 
-UserRegister::UserRegister(QWebSocket & p_qWebSocket)
-    : m_qWebSocket(p_qWebSocket)
+UserRegister::UserRegister(ICommunicationManager & p_communicatioManager)
+    : m_communicatioManager(p_communicatioManager)
 { }
 
 void UserRegister::registerUser() const
 {
-    // to do
+    AddUserDialog dialog(m_communicatioManager);
+    dialog.exec();
 }

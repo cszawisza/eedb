@@ -31,7 +31,6 @@ CommunicationManagerTestSuite::CommunicationManagerTestSuite()
 
 TEST_F(CommunicationManagerTestSuite, ServerResponseParseError)
 {
-    const pb::ClientRequests & p_clientRequests{};
     QByteArray l_dummyArray{};
     EXPECT_CALL(*this, convertQByteArrayToProtobufServerResponseMock(l_dummyArray)).WillOnce(Return(boost::none));
     emit webSocketMock.binaryMessageReceived(l_dummyArray);

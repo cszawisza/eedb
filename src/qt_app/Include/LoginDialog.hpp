@@ -2,7 +2,6 @@
 
 #include <QDialog>
 #include <QSettings>
-#include <QAbstractSocket>
 
 namespace Ui
 {
@@ -28,7 +27,7 @@ public:
     Ui::LoginDialog *getUi();
 
 public slots:
-    void readyRead(QByteArray msg);
+    //void readyRead(QByteArray msg);
 
 signals:
     void loginOk();
@@ -41,15 +40,15 @@ protected:
 
 private slots:
     void doConnectTest();
-    void doReconnect();
-    void doLogin();
+    //void doReconnect();
+    //void doLogin();
 
 private:
-    enum class Action {LOGIN, REGISTER};
+    enum class Action {LOGIN, REGISTER, TESTCONNECTION};
     void connectToServer();
     void loginToServer();
     void setDeafultServerInfo();
-    void loginOrRegister();
+    void chooseAction();
 
     const ILoginVerificator & m_loginVerificator;
     QWebSocket & m_socket;
