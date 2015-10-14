@@ -1,5 +1,7 @@
 #include "DbConnection.hpp"
 
+using namespace std;
+
 static string dbName = "postgres";
 
 DbConnection::DbConnection(std::shared_ptr<sqlpp::postgresql::connection_config> conf):

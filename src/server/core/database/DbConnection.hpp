@@ -4,6 +4,7 @@
 #include <sqlpp11/postgresql/postgresql.h>
 
 #include <memory>
+#include <string>
 
 using namespace sqlpp::postgresql;
 

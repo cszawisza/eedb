@@ -223,7 +223,7 @@ CREATE TABLE items (
     package_id    INTEGER NOT NULL REFERENCES packages(uid),
     category_id   INTEGER NOT NULL REFERENCES categories(uid),
     symbol        VARCHAR(300) NOT NULL,
-    name_scope     VARCHAR(64) DEFAULT 'std' NOT NULL,
+    name_scope    VARCHAR(64) DEFAULT 'std' NOT NULL,
     parameters    jsonb NOT NULL,
     description   TEXT,
     CONSTRAINT items_pkey PRIMARY KEY (uid),

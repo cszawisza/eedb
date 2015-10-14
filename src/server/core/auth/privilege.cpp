@@ -164,6 +164,15 @@ bool Privilege::saveInDb(DB &db, const PrivilegeRow &row) const {
     static constexpr schema::privilege pr;
 
     try{
+        if (db(select(sqlpp::exists(select(pr.role)
+                             .from(pr)
+                             .where(pr.role == row.role and
+                                    pr.who == row.who and
+                                    pr.action == row.action and
+                                    pr.type == row.type and
+                                    pr.related_table_name == row.related_table and
+                                    pr.related_object_uid == row.related_uid ) ))).front().exists )
+            return true;
         db(sqlpp::postgresql::insert_into(pr)
            .set(pr.role = row.role,
                 pr.who = row.who,

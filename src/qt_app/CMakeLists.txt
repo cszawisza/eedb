@@ -13,6 +13,7 @@ FILE(GLOB UI_FILES Forms/*.ui)
 
 #files containing Q_OBJECT makro
 set(QT_HEADERS
+    Include/CategoryWidget.hpp
     Include/AddUserDialog.hpp
     Include/ApplicationMainWindow.hpp
     Include/LoginDialog.hpp
