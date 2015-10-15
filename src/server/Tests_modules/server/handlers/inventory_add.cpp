@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include <core/inventory.hpp>
+#include <core/InventoryPU.hpp>
 
 #include <memory>
 

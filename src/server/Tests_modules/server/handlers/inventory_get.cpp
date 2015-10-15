@@ -4,7 +4,7 @@
 #include "sql_schema/shelfs.h"
 
 #include <core/database/idatabase.h>
-#include <core/inventory.hpp>
+#include <core/InventoryPU.hpp>
 
 #include "TestCommon.hpp"
 
@@ -56,7 +56,7 @@ public:
 
     DB db;
     eedb::pu::UserPU userHandler;
-    eedb::pu::Inventory inventoryHandler;
+    eedb::pu::InventoryPU inventoryHandler;
 
     uint64_t m_userId = 0;
     uint64_t m_invId = 0;

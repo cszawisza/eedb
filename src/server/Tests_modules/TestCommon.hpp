@@ -6,7 +6,7 @@
 #include <sqlpp11/sqlpp11.h>
 #include <sqlpp11/sqlpp11.h>
 
-#include <core/inventory.hpp>
+#include <core/InventoryPU.hpp>
 
 #include <sql_schema/shelfs.h>
 #include <sql_schema/inventories.h>
@@ -17,7 +17,7 @@
 #include "database/InventoryHelper.hpp"
 #include "database/UserHelper.hpp"
 
-#include "user.h"
+#include "UserPU.hpp"
 
 using std::string;
 
@@ -56,7 +56,7 @@ inline SharedUserData login(DB &db, const string &name, const std::string &pass 
 inline quint64 addInventory(DB &db, string name, SharedUserData data )
 {
     pb::ClientRequest req;
-    eedb::pu::Inventory inventoryHandler;
+    eedb::pu::InventoryPU inventoryHandler;
     inventoryHandler.setUserData( data );
 
     auto add_inv = pb::MsgInventoryRequest_Add::default_instance();
@@ -81,7 +81,7 @@ inline quint64 addShelf(DB &db,uint64_t storageId, string name, SharedUserData d
 
     auto userReq = req.mutable_msginventoryreq();
     userReq->mutable_addshelf()->CopyFrom(add);
-    eedb::pu::Inventory inventoryHandler;
+    eedb::pu::InventoryPU inventoryHandler;
     inventoryHandler.setUserData(data);
     inventoryHandler.process(db, req);
 

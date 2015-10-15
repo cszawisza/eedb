@@ -35,8 +35,8 @@ set(Core_CPP
 
     core/CategoryPU.cpp
     core/ItemPU.cpp
-    core/user.cpp
-    core/inventory.cpp
+    core/UserPU.cpp
+    core/InventoryPU.cpp
 )
 
 set(Core_H
