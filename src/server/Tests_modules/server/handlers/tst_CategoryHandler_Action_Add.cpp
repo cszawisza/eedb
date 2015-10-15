@@ -3,7 +3,7 @@
 #include <core/database/idatabase.h>
 #include <core/database/CategoryHelper.hpp>
 
-#include <core/category.hpp>
+#include <core/CategoryPU.hpp>
 
 #include "TestCommon.hpp"
 
@@ -48,7 +48,7 @@ public:
 protected:
     DB db;
     CategoryReq_Add addMsg;
-    eedb::pu::Category handler;
+    eedb::pu::CategoryPU handler;
 };
 
 TEST_F(CategoryHelpertest, userWithDefaultPermsShoudCannotAddCategory ){

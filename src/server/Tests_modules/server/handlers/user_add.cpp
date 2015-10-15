@@ -31,7 +31,7 @@ public:
     }
 
     DB db;
-    eedb::pu::User handler;
+    eedb::pu::UserPU handler;
 };
 
 TEST_F( userCreateTest, user_no_name_and_email){

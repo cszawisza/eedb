@@ -4,7 +4,7 @@
 
 #include "user.h"
 #include "inventory.hpp"
-#include "category.hpp"
+#include "CategoryPU.hpp"
 #include "ItemPU.hpp"
 
 #include "utils/LogUtils.hpp"
@@ -19,9 +19,9 @@ ClientWorker::ClientWorker(QObject *parent) :
     m_responseFrame = SharedResponses( new pb::ServerResponses );
 
     m_msgHandlers.insert( pb::ClientRequest::kItemReq, QSharedPointer<eedb::pu::ItemPU>(new eedb::pu::ItemPU() ));
-    m_msgHandlers.insert( pb::ClientRequest::kUserReq, QSharedPointer<eedb::pu::User>(new eedb::pu::User()) );
+    m_msgHandlers.insert( pb::ClientRequest::kUserReq, QSharedPointer<eedb::pu::UserPU>(new eedb::pu::UserPU()) );
     m_msgHandlers.insert( pb::ClientRequest::kMsgInventoryReq, QSharedPointer<eedb::pu::Inventory>( new eedb::pu::Inventory() ));
-    m_msgHandlers.insert( pb::ClientRequest::kCategoryReq, QSharedPointer<eedb::pu::Category>(new eedb::pu::Category() ));
+    m_msgHandlers.insert( pb::ClientRequest::kCategoryReq, QSharedPointer<eedb::pu::CategoryPU>(new eedb::pu::CategoryPU() ));
 }
 
 void ClientWorker::printMessageInfo(const pb::ClientRequest &request)

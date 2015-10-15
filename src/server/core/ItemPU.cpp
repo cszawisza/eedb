@@ -1,10 +1,11 @@
 #include "ItemPU.hpp"
-
+#include "item.pb.h"
 #include "sql_schema/items.h"
-namespace eedb{
-namespace pu{
 
 using namespace pb;
+
+namespace eedb{
+namespace pu{
 
 ItemPU::ItemPU(){
 

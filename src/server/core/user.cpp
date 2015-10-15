@@ -2,6 +2,7 @@
 #include "database/UserHelper.hpp"
 #include "auth/acl.hpp"
 #include "utils/LogUtils.hpp"
+#include "user.pb.h"
 
 #include <iostream>
 #include <QRegExp>
@@ -31,13 +32,13 @@ void saveUserActionInDatabase(DB& db, uint64_t uid, const string &action){
     }
 }
 
-void User::process(pb::ClientRequest &msgReq)
+void UserPU::process(pb::ClientRequest &msgReq)
 {
     DB db;
     process(db, msgReq);
 }
 
-void User::process(DB &db, ClientRequest &msgReq)
+void UserPU::process(DB &db, ClientRequest &msgReq)
 {
     m_response.Clear();
     // Check if this is the message that handler wants
@@ -85,7 +86,7 @@ void User::process(DB &db, ClientRequest &msgReq)
     addResponseMessage();
 }
 
-void User::addUser(DB &db, const UserReq_Add &msg)
+void UserPU::addUser(DB &db, const UserReq_Add &msg)
 {
     try{
         auto uid = eedb::db::UserHelper::insertUser(db, msg);
@@ -99,12 +100,12 @@ void User::addUser(DB &db, const UserReq_Add &msg)
     }
 }
 
-void User::addErrorCode(UserRes_Reply err)
+void UserPU::addErrorCode(UserRes_Reply err)
 {
     m_response.add_code(err);
 }
 
-void User::loadUserCache(DB &db, uint64_t uid)
+void UserPU::loadUserCache(DB &db, uint64_t uid)
 {
     constexpr users u;
 //    constexpr inventories i;
@@ -135,12 +136,12 @@ void User::loadUserCache(DB &db, uint64_t uid)
 
 }
 
-void User::addResponseMessage()
+void UserPU::addResponseMessage()
 {
     add_response()->mutable_userres()->CopyFrom(m_response);
 }
 
-void User::handle_add(DB &db, UserReq_Add &msg)
+void UserPU::handle_add(DB &db, UserReq_Add &msg)
 {
     QRegExp mailREX("\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b");
     bool error = false;
@@ -213,7 +214,7 @@ void User::handle_add(DB &db, UserReq_Add &msg)
     }
 }
 
-void User::goToOnlineState(DB &db, uint64_t uid)
+void UserPU::goToOnlineState(DB &db, uint64_t uid)
 {
     saveUserActionInDatabase(db, uid, "login");
     addErrorCode(UserRes_Reply_LoginPass);
@@ -223,7 +224,7 @@ void User::goToOnlineState(DB &db, uint64_t uid)
     loadUserCache(db, uid);
 }
 
-void User::handle_login(DB &db, const UserReq_Login &loginMsg)
+void UserPU::handle_login(DB &db, const UserReq_Login &loginMsg)
 {
     if(user()->isOnline()){
         addErrorCode(UserRes_Reply_UserOnline );
@@ -266,19 +267,19 @@ void User::handle_login(DB &db, const UserReq_Login &loginMsg)
     }
 }
 
-void User::handle_logout(DB &db, const UserReq_Logout &logoutMsg)
+void UserPU::handle_logout(DB &db, const UserReq_Logout &logoutMsg)
 {
     Q_UNUSED(logoutMsg);
     saveUserActionInDatabase(db, user()->id(), "logout");
     user()->goOffLine();
 }
 
-void User::handle_modify(DB &db, const UserReq_Modify &msg)
+void UserPU::handle_modify(DB &db, const UserReq_Modify &msg)
 {
     ///TODO implement
 }
 
-void User::handle_remove( DB &db, const UserReq_Remove &msg)
+void UserPU::handle_remove( DB &db, const UserReq_Remove &msg)
 {
     if(!msg.has_cred()){
         addErrorCode(UserRes_Reply_MissingRequiredField);
@@ -305,12 +306,12 @@ void User::handle_remove( DB &db, const UserReq_Remove &msg)
         sendServerError(pb::Error_AccesDeny);
 }
 
-void User::handle_get(DB &db, const UserReq_Get &getMsg)
+void UserPU::handle_get(DB &db, const UserReq_Get &getMsg)
 {
     ///TODO check if can read from users table/user
 }
 
-void User::handle_changePasswd(DB &db, const UserReq_ChangePasswd &msg)
+void UserPU::handle_changePasswd(DB &db, const UserReq_ChangePasswd &msg)
 {
     auth::AccesControl stat(user()->id());
 
@@ -332,7 +333,7 @@ void User::handle_changePasswd(DB &db, const UserReq_ChangePasswd &msg)
     }
 }
 
-bool User::userExists(DB &db, string name, string email)
+bool UserPU::userExists(DB &db, string name, string email)
 {
     auto query = db.prepare(uh::selectExists(u.name == parameter(u.name) || u.email == parameter(u.email)));
 

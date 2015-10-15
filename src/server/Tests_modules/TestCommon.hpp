@@ -48,7 +48,7 @@ inline SharedUserData login(DB &db, const string &name, const std::string &pass 
 
     auto userReq = req.mutable_userreq();
     userReq->mutable_login()->CopyFrom(msg);
-    eedb::pu::User userHandler;
+    eedb::pu::UserPU userHandler;
     userHandler.process(db, req);
     return userHandler.user();
 }

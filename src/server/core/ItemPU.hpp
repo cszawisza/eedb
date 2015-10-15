@@ -1,7 +1,6 @@
 #pragma once
 
 #include "iprocessor.h"
-#include "item.pb.h"
 
 class DB;
 
@@ -22,8 +21,8 @@ public:
 
     // MessageHandler interface
 public:
-    void process(ClientRequest &msgReq );
-    void process(DB &db, ClientRequest &msgReq );
+    void process(pb::ClientRequest &msgReq );
+    void process(DB &db, pb::ClientRequest &msgReq );
 
 private:
     void handle_add(DB &db, pb::ItemRequest_Add &msg);

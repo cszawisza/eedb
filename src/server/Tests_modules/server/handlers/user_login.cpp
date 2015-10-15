@@ -52,7 +52,7 @@ public:
        return handler.getLastResponse().userres().code(0);
    }
     DB db;
-   eedb::pu::User handler;
+   eedb::pu::UserPU handler;
 };
 
 

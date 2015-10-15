@@ -33,10 +33,10 @@ set(Core_CPP
     core/iprocessor.cpp
     core/server.cpp
 
-    core/user.cpp
+    core/CategoryPU.cpp
     core/ItemPU.cpp
+    core/user.cpp
     core/inventory.cpp
-    core/category.cpp
 )
 
 set(Core_H

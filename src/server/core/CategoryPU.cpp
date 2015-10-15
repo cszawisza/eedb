@@ -1,6 +1,6 @@
-#include "category.hpp"
+#include "CategoryPU.hpp"
 #include "database/idatabase.h"
-
+#include "category.pb.h"
 #include "database/CategoryHelper.hpp"
 #include "auth/implementedaction.hpp"
 #include "auth/acl.hpp"
@@ -10,16 +10,18 @@
 
 using CH = eedb::db::CategoryHelper;
 using sqlpp::fieldName;
+using namespace pb;
+
 namespace eedb{
 namespace pu{
 
-void Category::process(ClientRequest &msgReq)
+void CategoryPU::process(ClientRequest &msgReq)
 {
     DB db;
     process(db, msgReq);
 }
 
-void Category::process(DB &db, pb::ClientRequest &msgReq)
+void CategoryPU::process(DB &db, pb::ClientRequest &msgReq)
 {
     // Check if this is the message that handler wants
     Q_ASSERT( msgReq.data_case() == pb::ClientRequest::kCategoryReqFieldNumber );
@@ -32,7 +34,7 @@ void Category::process(DB &db, pb::ClientRequest &msgReq)
         return;
     }
     else{
-        CategoryReq::ActionCase msgType = req.action_case();
+        auto msgType = req.action_case();
         switch ( msgType ) {
         case CategoryReq::kAdd:
             handle_add(db, *req.mutable_add() );
@@ -53,7 +55,7 @@ void Category::process(DB &db, pb::ClientRequest &msgReq)
     }
 }
 
-void Category::handle_add(DB &db, CategoryReq_Add &msg)
+void CategoryPU::handle_add(DB &db, CategoryReq_Add &msg)
 {
     static constexpr schema::categories cat;
     auth::AccesControl stat( user().data()->id() );
@@ -107,7 +109,7 @@ void Category::handle_add(DB &db, CategoryReq_Add &msg)
     }
 }
 
-void Category::handle_get(DB &db, CategoryReq_Get &msg)
+void CategoryPU::handle_get(DB &db, CategoryReq_Get &msg)
 {
     static constexpr schema::categories cat;
     auth::AccesControl stat( user().data()->id() );

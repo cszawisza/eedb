@@ -55,7 +55,7 @@ public:
     }
 
     DB db;
-    eedb::pu::User userHandler;
+    eedb::pu::UserPU userHandler;
     eedb::pu::Inventory inventoryHandler;
 
     uint64_t m_userId = 0;
