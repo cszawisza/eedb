@@ -3,7 +3,7 @@ project(EEDB_SERVER)
 include_directories( ../ )
 include_directories( core )
 
-include_directories( ${Common_SOURCE_DIR}    )
+include_directories( ${Common_SOURCE_DIR} )
 
 add_subdirectory(Tests_modules)
 
@@ -33,10 +33,10 @@ set(Core_CPP
     core/iprocessor.cpp
     core/server.cpp
 
-    core/CategoryPU.cpp
-    core/ItemPU.cpp
-    core/UserPU.cpp
-    core/InventoryPU.cpp
+    core/ProcessingUnits/CategoryPU.cpp
+    core/ProcessingUnits/ItemPU.cpp
+    core/ProcessingUnits/UserPU.cpp
+    core/ProcessingUnits/InventoryPU.cpp
 )
 
 set(Core_H

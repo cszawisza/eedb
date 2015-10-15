@@ -1,14 +1,5 @@
 #include "gtest/gtest.h"
-
-#include <sqlpp11/sqlpp11.h>
-#include "sql_schema/shelfs.h"
-
-#include <core/database/idatabase.h>
-#include <core/InventoryPU.hpp>
-
 #include "TestCommon.hpp"
-
-
 
 using namespace test;
 

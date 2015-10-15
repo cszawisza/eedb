@@ -1,9 +1,4 @@
 #include "gtest/gtest.h"
-
-#include <core/InventoryPU.hpp>
-
-#include <memory>
-
 #include "TestCommon.hpp"
 
 using namespace eedb::db;

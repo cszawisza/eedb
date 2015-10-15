@@ -1,9 +1,4 @@
 #include "gtest/gtest.h"
-
-#include <core/database/idatabase.h>
-#include <core/ItemPU.hpp>
-#include <core/database/ItemHelper.hpp>
-
 #include "TestCommon.hpp"
 
 using namespace eedb::db;

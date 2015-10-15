@@ -1,10 +1,4 @@
 #include "gtest/gtest.h"
-
-#include <core/database/idatabase.h>
-#include <core/database/CategoryHelper.hpp>
-
-#include <core/CategoryPU.hpp>
-
 #include "TestCommon.hpp"
 
 using namespace eedb::db;

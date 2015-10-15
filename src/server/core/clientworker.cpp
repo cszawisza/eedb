@@ -2,10 +2,10 @@
 
 #include <QDebug>
 
-#include "UserPU.hpp"
-#include "InventoryPU.hpp"
-#include "CategoryPU.hpp"
-#include "ItemPU.hpp"
+#include "ProcessingUnits/UserPU.hpp"
+#include "ProcessingUnits/InventoryPU.hpp"
+#include "ProcessingUnits/CategoryPU.hpp"
+#include "ProcessingUnits/ItemPU.hpp"
 
 #include "utils/LogUtils.hpp"
 
