@@ -55,7 +55,7 @@ public:
 protected:
     DB db;
     CategoryReq_Get getMsg;
-    eedb::handlers::Category handler;
+    eedb::pu::Category handler;
 };
 
 TEST_F(CategoryHelperGetTest, userWithDefaultPermsShoudCanGetCategory ){

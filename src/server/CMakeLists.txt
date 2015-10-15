@@ -23,6 +23,8 @@ set(Core_CPP
     core/database/AclHelper.cpp
     core/database/DbConnection.cpp
     core/database/CategoryHelper.cpp
+    core/database/ItemHelper.cpp
+
 
     core/clientcache.cpp
     core/clientconnection.cpp
@@ -32,38 +34,13 @@ set(Core_CPP
     core/server.cpp
 
     core/user.cpp
-    core/ItemHandler.cpp
+    core/ItemPU.cpp
     core/inventory.cpp
     core/category.cpp
 )
 
 set(Core_H
-    core/auth/acl.hpp
-    core/auth/action.hpp
-    core/auth/implementedaction.hpp
-    core/auth/privilege.hpp
-
-    core/database/initialize.hpp
-    core/database/idatabase.h
-    core/database/UserHelper.hpp
-    core/database/InventoryHelper.hpp
-    core/database/AclHelper.hpp
-    core/database/DbConnection.hpp
-    core/database/CategoryHelper.hpp
-
     core/database/config.h
-
-    core/clientcache.h
-    core/clientconnection.h
-    core/clientworker.h
-    core/frameparser.h
-    core/iprocessor.h
-    core/server.h
-
-    core/user.h
-    core/inventory.hpp
-    core/ItemHandler.hpp
-    core/category.hpp
 )
 
 set( Utils_H

@@ -17,7 +17,7 @@ using sqlpp::postgresql::pg_exception;
 constexpr users u;
 
 namespace eedb{
-namespace handlers{
+namespace pu{
 
 
 void saveUserActionInDatabase(DB& db, uint64_t uid, const string &action){

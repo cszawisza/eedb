@@ -11,7 +11,7 @@
 using CH = eedb::db::CategoryHelper;
 using sqlpp::fieldName;
 namespace eedb{
-namespace handlers{
+namespace pu{
 
 void Category::process(ClientRequest &msgReq)
 {

@@ -16,15 +16,15 @@ using pb::ClientRequests;
  * @brief The IProcessor class
  */
 
-class MessageHandler
+class IMessageProcessingUint
 {
 public:
     typedef QSharedPointer<pb::ClientRequests> SharedRequests;
     typedef QSharedPointer<pb::ServerResponses> SharedResponses;
-    MessageHandler(){
+    IMessageProcessingUint(){
         m_outputFrame = SharedResponses(new pb::ServerResponses );
     }
-    virtual ~MessageHandler(){}
+    virtual ~IMessageProcessingUint(){}
 
     pb::ServerResponse getLastResponse(){
         if(m_outputFrame->response_size() == 0 )

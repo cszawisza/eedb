@@ -25,7 +25,8 @@ enum Groups {
     GROUP_root  = 1<<0,
     GROUP_users = 1<<1,
     GROUP_inventories = 1<<2,
-    GROUP_categories = 1<<3
+    GROUP_categories = 1<<3,
+    GROUP_items = 1<<4
 };
 
 

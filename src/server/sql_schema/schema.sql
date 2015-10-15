@@ -218,12 +218,17 @@ COMMENT ON COLUMN parameters.name   IS 'Parameter name e.g. "Load current max." 
 COMMENT ON COLUMN parameters.symbol IS 'Parameter symbol e.g. "I<sub>R</sub>';
 COMMENT ON COLUMN parameters.unit   IS 'Parameter unit e.g. id od Amper unit from unit table';
 
+--CREATE TABLE producers (
+--    description TEXT
+--) INHERITS (stat)
 
 CREATE TABLE items (
-    package_id    INTEGER NOT NULL REFERENCES packages(uid),
+    package_id    INTEGER REFERENCES packages(uid),
+    producer      TEXT,
     category_id   INTEGER NOT NULL REFERENCES categories(uid),
     symbol        VARCHAR(300) NOT NULL,
-    name_scope    VARCHAR(64) DEFAULT 'std' NOT NULL,
+    is_public     boolean DEFAULT(false),
+--    name_scope    VARCHAR(64) DEFAULT 'std' NOT NULL,
     parameters    jsonb NOT NULL,
     description   TEXT,
     CONSTRAINT items_pkey PRIMARY KEY (uid),

@@ -48,7 +48,7 @@ public:
 protected:
     DB db;
     CategoryReq_Add addMsg;
-    eedb::handlers::Category handler;
+    eedb::pu::Category handler;
 };
 
 TEST_F(CategoryHelpertest, userWithDefaultPermsShoudCannotAddCategory ){

@@ -6,11 +6,11 @@
 class DB;
 
 namespace eedb {
-namespace handlers {
+namespace pu {
 
 using namespace pb;
 
-class Category : public MessageHandler
+class Category : public IMessageProcessingUint
 {
 public:
     Category() {}

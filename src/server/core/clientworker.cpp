@@ -5,7 +5,7 @@
 #include "user.h"
 #include "inventory.hpp"
 #include "category.hpp"
-#include "ItemHandler.hpp"
+#include "ItemPU.hpp"
 
 #include "utils/LogUtils.hpp"
 
@@ -18,10 +18,10 @@ ClientWorker::ClientWorker(QObject *parent) :
     m_inputFrame = SharedRequests(new pb::ClientRequests );
     m_responseFrame = SharedResponses( new pb::ServerResponses );
 
-    m_msgHandlers.insert( pb::ClientRequest::kItemReq, QSharedPointer<eedb::handlers::ItemProcessor>(new eedb::handlers::ItemProcessor() ));
-    m_msgHandlers.insert( pb::ClientRequest::kUserReq, QSharedPointer<eedb::handlers::User>(new eedb::handlers::User()) );
-    m_msgHandlers.insert( pb::ClientRequest::kMsgInventoryReq, QSharedPointer<eedb::handlers::Inventory>( new eedb::handlers::Inventory() ));
-    m_msgHandlers.insert( pb::ClientRequest::kCategoryReq, QSharedPointer<eedb::handlers::Category>(new eedb::handlers::Category() ));
+    m_msgHandlers.insert( pb::ClientRequest::kItemReq, QSharedPointer<eedb::pu::ItemPU>(new eedb::pu::ItemPU() ));
+    m_msgHandlers.insert( pb::ClientRequest::kUserReq, QSharedPointer<eedb::pu::User>(new eedb::pu::User()) );
+    m_msgHandlers.insert( pb::ClientRequest::kMsgInventoryReq, QSharedPointer<eedb::pu::Inventory>( new eedb::pu::Inventory() ));
+    m_msgHandlers.insert( pb::ClientRequest::kCategoryReq, QSharedPointer<eedb::pu::Category>(new eedb::pu::Category() ));
 }
 
 void ClientWorker::printMessageInfo(const pb::ClientRequest &request)
@@ -33,7 +33,7 @@ void ClientWorker::processMessages()
 {
     for(int msgId=0; msgId<m_inputFrame->request_size(); msgId++ ){
         printMessageInfo(m_inputFrame->request(msgId));
-        auto processor = m_msgHandlers.value(m_inputFrame->request(msgId).data_case(),  QSharedPointer<MessageHandler>(new MessageHandler()));
+        auto processor = m_msgHandlers.value(m_inputFrame->request(msgId).data_case(),  QSharedPointer<IMessageProcessingUint>(new IMessageProcessingUint()));
         processor->setUserData(m_cache);
         processor->setInputData(m_inputFrame);
         processor->setOutputData(m_responseFrame);

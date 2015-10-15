@@ -19,8 +19,9 @@ message ItemRequest{
     message Add{
         required string name = 1;
         optional string symbol = 2;
-        optional string name_scope = 3;
+        optional bool is_private = 3 [default=true];
         optional string description = 4;
+
 //        repeated ParameterValues parameters = 6;
 //        optional Package packageId = 7;
 //        repeated FileStat files = 8; // only id and namel

@@ -15,7 +15,7 @@ using eedb::db::InventoryHelper;
 using sqlpp::postgresql::pg_exception;
 
 namespace eedb{
-namespace handlers{
+namespace pu{
 
 void Inventory::process(DB &db, ClientRequest &msg)
 {

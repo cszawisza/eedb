@@ -7,10 +7,10 @@
 #include "inventory_operation.pb.h"
 
 namespace eedb {
-namespace handlers {
+namespace pu {
 
 using namespace pb;
-class Inventory : public MessageHandler
+class Inventory : public IMessageProcessingUint
 {
 public:
     Inventory() {}

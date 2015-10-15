@@ -48,7 +48,7 @@ inline SharedUserData login(DB &db, const string &name, const std::string &pass 
 
     auto userReq = req.mutable_userreq();
     userReq->mutable_login()->CopyFrom(msg);
-    eedb::handlers::User userHandler;
+    eedb::pu::User userHandler;
     userHandler.process(db, req);
     return userHandler.user();
 }
@@ -56,7 +56,7 @@ inline SharedUserData login(DB &db, const string &name, const std::string &pass 
 inline quint64 addInventory(DB &db, string name, SharedUserData data )
 {
     pb::ClientRequest req;
-    eedb::handlers::Inventory inventoryHandler;
+    eedb::pu::Inventory inventoryHandler;
     inventoryHandler.setUserData( data );
 
     auto add_inv = pb::MsgInventoryRequest_Add::default_instance();
@@ -81,7 +81,7 @@ inline quint64 addShelf(DB &db,uint64_t storageId, string name, SharedUserData d
 
     auto userReq = req.mutable_msginventoryreq();
     userReq->mutable_addshelf()->CopyFrom(add);
-    eedb::handlers::Inventory inventoryHandler;
+    eedb::pu::Inventory inventoryHandler;
     inventoryHandler.setUserData(data);
     inventoryHandler.process(db, req);
 
