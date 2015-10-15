@@ -1,7 +1,10 @@
-#include "inventory.hpp"
+#include "InventoryPU.hpp"
 
 #include <iostream>
 
+#include "database/idatabase.h"
+#include "inventory.pb.h"
+#include "inventory_operation.pb.h"
 #include "utils/unixPerms.hpp"
 #include "database/InventoryHelper.hpp"
 #include "utils/LogUtils.hpp"
@@ -17,7 +20,7 @@ using sqlpp::postgresql::pg_exception;
 namespace eedb{
 namespace pu{
 
-void Inventory::process(DB &db, ClientRequest &msg)
+void InventoryPU::process(DB &db, ClientRequest &msg)
 {
     // Check if this is the message that handler wants
     Q_ASSERT( msg.data_case() == pb::ClientRequest::kMsgInventoryReq );
@@ -53,13 +56,13 @@ void Inventory::process(DB &db, ClientRequest &msg)
     }
 }
 
-void Inventory::process(pb::ClientRequest &msg )
+void InventoryPU::process(pb::ClientRequest &msg )
 {
     DB db;
     process(db, msg);
 }
 
-void Inventory::handle_add( DB &db, MsgInventoryRequest_Add &msg)
+void InventoryPU::handle_add( DB &db, MsgInventoryRequest_Add &msg)
 {
     auto res = add_response();
     bool error = false;
@@ -89,7 +92,7 @@ void Inventory::handle_add( DB &db, MsgInventoryRequest_Add &msg)
     }
 }
 
-void Inventory::insertInventory(DB &db, MsgInventoryRequest_Add &msg ){
+void InventoryPU::insertInventory(DB &db, MsgInventoryRequest_Add &msg ){
     auth::AccesControl accessControl( user()->id() );
 
     if( accessControl.checkUserAction<inventories>(db, "write")){
@@ -100,7 +103,11 @@ void Inventory::insertInventory(DB &db, MsgInventoryRequest_Add &msg ){
     }
 }
 
-void Inventory::handle_get( DB &db, MsgInventoryRequest_Get &msg)
+void InventoryPU::addErrorCode(MsgInventoryResponse_Error code, ServerResponse *res){
+    res->mutable_msginventoryres()->add_code(code);
+}
+
+void InventoryPU::handle_get( DB &db, MsgInventoryRequest_Get &msg)
 {
     auto where = msg.where().cred_case();
 
@@ -149,17 +156,17 @@ void Inventory::handle_get( DB &db, MsgInventoryRequest_Get &msg)
     ///TODO get all storage shelfs
 }
 
-void Inventory::handle_modify( const MsgInventoryRequest_Modify &msg)
+void InventoryPU::handle_modify( const MsgInventoryRequest_Modify &msg)
 {
     ///TODO implement
 }
 
-void Inventory::handle_remove( const MsgInventoryRequest_Remove &msg)
+void InventoryPU::handle_remove( const MsgInventoryRequest_Remove &msg)
 {
     ///TODO implement
 }
 
-void Inventory::handle_addShelf(DB &db, MsgInventoryRequest_AddShelf &msg)
+void InventoryPU::handle_addShelf(DB &db, MsgInventoryRequest_AddShelf &msg)
 {
     auto res = add_response();
 

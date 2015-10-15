@@ -3,7 +3,7 @@
 #include <QDebug>
 
 #include "UserPU.hpp"
-#include "inventory.hpp"
+#include "InventoryPU.hpp"
 #include "CategoryPU.hpp"
 #include "ItemPU.hpp"
 
@@ -20,7 +20,7 @@ ClientWorker::ClientWorker(QObject *parent) :
 
     m_msgHandlers.insert( pb::ClientRequest::kItemReq, QSharedPointer<eedb::pu::ItemPU>(new eedb::pu::ItemPU() ));
     m_msgHandlers.insert( pb::ClientRequest::kUserReq, QSharedPointer<eedb::pu::UserPU>(new eedb::pu::UserPU()) );
-    m_msgHandlers.insert( pb::ClientRequest::kMsgInventoryReq, QSharedPointer<eedb::pu::Inventory>( new eedb::pu::Inventory() ));
+    m_msgHandlers.insert( pb::ClientRequest::kMsgInventoryReq, QSharedPointer<eedb::pu::InventoryPU>( new eedb::pu::InventoryPU() ));
     m_msgHandlers.insert( pb::ClientRequest::kCategoryReq, QSharedPointer<eedb::pu::CategoryPU>(new eedb::pu::CategoryPU() ));
 }
 
