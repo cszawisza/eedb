@@ -1,4 +1,4 @@
-#include "user.h"
+#include "UserPU.hpp"
 #include "database/UserHelper.hpp"
 #include "auth/acl.hpp"
 #include "utils/LogUtils.hpp"

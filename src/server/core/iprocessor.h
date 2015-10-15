@@ -21,59 +21,26 @@ class IMessageProcessingUint
 public:
     typedef QSharedPointer<pb::ClientRequests> SharedRequests;
     typedef QSharedPointer<pb::ServerResponses> SharedResponses;
-    IMessageProcessingUint(){
-        m_outputFrame = SharedResponses(new pb::ServerResponses );
-    }
+
+    IMessageProcessingUint();
     virtual ~IMessageProcessingUint(){}
-
-    pb::ServerResponse getLastResponse(){
-        if(m_outputFrame->response_size() == 0 )
-            return pb::ServerResponse::default_instance();
-        return m_outputFrame->response(m_outputFrame->response_size()-1);
-    }
-
-    void setInputData( SharedRequests frame ){
-        m_inputFrame.swap(frame);
-    }
-
-    void setOutputData( SharedResponses frame ){
-        m_outputFrame.swap( frame );
-    }
+    pb::ServerResponse getLastResponse();
+    void setInputData( SharedRequests frame );
+    void setOutputData( SharedResponses frame );
 
     /**
      * @brief setClientCache
      * @param cache: sets a pointer to common cache (containing user status information and session stuf)
      */
-    void setUserData( SharedUserData userData){
-        m_userData.swap(userData);
-    }
-
-    void process( int msgId ){
-        auto req = m_inputFrame->mutable_request( msgId );
-        m_currentRequestId = req->requestid();
-        process(*req);
-    }
-
-    void clear(){
-        m_userData.clear();
-        m_outputFrame.clear();
-    }
-
-    SharedUserData user(){
-        if(!m_userData)
-            m_userData = SharedUserData(new UserData() );
-        return m_userData;
-    }
-
-    size_t responseCount() const {
-        return m_outputFrame ? m_outputFrame->response_size() :0;
-    }
+    void setUserData( SharedUserData userData);
+    void process( int msgId );
+    void clear();
+    SharedUserData user();
+    size_t responseCount() const;
 protected:
-    /**
-     * @brief process data given in setWorkingCapsule;
-     */
     virtual void process(pb::ClientRequest &req);
     virtual void process(DB &db, pb::ClientRequest &req);
+
     pb::ServerResponse *add_response();
     void sendServerError(pb::ServerError e);
 

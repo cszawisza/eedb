@@ -3,7 +3,7 @@
 #include "sql_schema/system_info.h"
 #include "sql_schema/users.h"
 
-#include "../user.h"
+#include "../UserPU.hpp"
 #include "../auth/privilege.hpp"
 
 #include "database/UserHelper.hpp"

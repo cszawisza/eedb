@@ -2,7 +2,7 @@
 
 #include <QDebug>
 
-#include "user.h"
+#include "UserPU.hpp"
 #include "inventory.hpp"
 #include "CategoryPU.hpp"
 #include "ItemPU.hpp"
