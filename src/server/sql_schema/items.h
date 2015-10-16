@@ -141,7 +141,22 @@ namespace schema {
 					};
 			};
 
-			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::require_insert>;
+			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::can_be_null>;
+		};
+
+		struct Producer {
+			struct _alias_t {
+				static constexpr const char _literal[] ="producer";
+				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+				template<typename T>
+					struct _member_t {
+						T producer;
+						T &operator()() { return producer; }
+						const T &operator()() const { return producer; }
+					};
+			};
+
+			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::can_be_null>;
 		};
 
 		struct Category_id {
@@ -174,19 +189,19 @@ namespace schema {
 			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::require_insert>;
 		};
 
-		struct Name_scope {
+		struct Is_public {
 			struct _alias_t {
-				static constexpr const char _literal[] ="name_scope";
+				static constexpr const char _literal[] ="is_public";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T name_scope;
-						T &operator()() { return name_scope; }
-						const T &operator()() const { return name_scope; }
+						T is_public;
+						T &operator()() { return is_public; }
+						const T &operator()() const { return is_public; }
 					};
 			};
 
-			using _traits = ::sqlpp::make_traits<::sqlpp::varchar>;
+			using _traits = ::sqlpp::make_traits<::sqlpp::boolean, sqlpp::tag::can_be_null>;
 		};
 
 		struct Parameters {
@@ -201,7 +216,7 @@ namespace schema {
 					};
 			};
 
-			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::require_insert>;
+			using _traits = ::sqlpp::make_traits<::sqlpp::varchar>;
 		};
 
 		struct Description {
@@ -230,9 +245,10 @@ namespace schema {
 				items_::Creation_date,
 				items_::Last_update,
 				items_::Package_id,
+				items_::Producer,
 				items_::Category_id,
 				items_::Symbol,
-				items_::Name_scope,
+				items_::Is_public,
 				items_::Parameters,
 				items_::Description> {
 		using _value_type = sqlpp::no_value_t;

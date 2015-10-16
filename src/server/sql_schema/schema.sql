@@ -229,13 +229,13 @@ CREATE TABLE items (
     symbol        VARCHAR(300) NOT NULL,
     is_public     boolean DEFAULT(false),
 --    name_scope    VARCHAR(64) DEFAULT 'std' NOT NULL,
-    parameters    jsonb NOT NULL,
+    parameters    jsonb NOT NULL DEFAULT('{}'),
     description   TEXT,
     CONSTRAINT items_pkey PRIMARY KEY (uid),
     CONSTRAINT itemowner_fk FOREIGN KEY (owner) REFERENCES users (uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (stat);
 
-CREATE UNIQUE INDEX items_unique ON items(name, symbol, name_scope);
+CREATE UNIQUE INDEX items_unique ON items(name, symbol, is_public);
 CREATE INDEX items_parameters_idx ON items USING GIN (parameters);
 
 CREATE TABLE item_files (
@@ -315,8 +315,7 @@ CREATE TRIGGER update_inventories_las_update BEFORE UPDATE ON inventories FOR EA
 CREATE TRIGGER update_shelfs_las_update BEFORE UPDATE ON shelfs FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
 CREATE TRIGGER update_inventories_operations_las_update BEFORE UPDATE ON inventories_operations FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
 
-CREATE OR REPLACE FUNCTION objects_with_action (m_tab VARCHAR, m_action varchar, userid int)
-RETURNS setof int AS $$
+
 
 CREATE OR REPLACE FUNCTION update_category_parent_path() RETURNS TRIGGER AS $$
     DECLARE
@@ -335,9 +334,13 @@ CREATE OR REPLACE FUNCTION update_category_parent_path() RETURNS TRIGGER AS $$
     END;
 $$ LANGUAGE plpgsql;
 
+
 CREATE TRIGGER parent_path_tgr
     BEFORE INSERT OR UPDATE ON categories
     FOR EACH ROW EXECUTE PROCEDURE update_category_parent_path();
+
+CREATE OR REPLACE FUNCTION objects_with_action (m_tab VARCHAR, m_action varchar, userid int)
+RETURNS setof int AS $$
 
 DECLARE r int;
 DECLARE usergroups INT;

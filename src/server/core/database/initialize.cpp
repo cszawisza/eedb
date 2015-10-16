@@ -11,6 +11,7 @@
 #include "sql_schema/inventories.h"
 #include "sql_schema/shelfs.h"
 #include "sql_schema/categories.h"
+#include "sql_schema/items.h"
 
 
 using auth::Action;
@@ -25,6 +26,7 @@ int DBInitialize::initializeDB(DB &db)
     static constexpr schema::categories cat;
     static constexpr schema::inventories inv;
     static constexpr schema::shelfs sh;
+    static constexpr schema::items i;
 
     if(! rootExists(db)){
         pb::UserReq_Add add;
@@ -73,6 +75,15 @@ int DBInitialize::initializeDB(DB &db)
             .forTable(cat)
             .force_save(db);
 
+    priv.giveGroup(auth::GROUP_users)
+            .privilegeFor("add_private_item")
+            .forTable(i)
+            .force_save(db);
+
+    priv.giveGroup(auth::GROUP_items)
+            .privilegeFor("add_public_item")
+            .forTable(i)
+            .force_save(db);
 }
 
 bool DBInitialize::rootExists(DB &db) const

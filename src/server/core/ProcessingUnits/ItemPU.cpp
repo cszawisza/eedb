@@ -1,11 +1,15 @@
 #include "ItemPU.hpp"
 #include "item.pb.h"
+#include <sqlpp11/sqlpp11.h>
+#include <sqlpp11/postgresql/insert.h>
 #include "sql_schema/items.h"
 
 using namespace pb;
 
 namespace eedb{
 namespace pu{
+
+constexpr schema::items i;
 
 ItemPU::ItemPU(){
 
@@ -63,10 +67,19 @@ void ItemPU::handle_add(DB &db, ItemRequest_Add &msg)
         allow = stat.checkUserAction<schema::items>(db, "add_public_item");
 
     if(allow){
-
+        run_saveItemInDb(db, msg);
     } else {
         sendServerError(pb::Error_AccesDeny);
     }
+}
+
+void ItemPU::run_saveItemInDb(DB &db, ItemRequest_Add &msg)
+{
+    auto res = add_response();
+
+    auto ret = db(sqlpp::postgresql::insert_into(i).set(i.name = msg.name(), i.category_id = 2, i.symbol = "blah", i.owner = 1, i.parameters = "{}" ).returning(i.uid) );
+
+    res->mutable_itemres();
 }
 
 }

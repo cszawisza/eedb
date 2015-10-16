@@ -26,6 +26,8 @@ public:
 
 private:
     void handle_add(DB &db, pb::ItemRequest_Add &msg);
+
+    void run_saveItemInDb(DB &db, pb::ItemRequest_Add &msg);
 };
 
 }

@@ -14,9 +14,6 @@ public:
     ItemHandlerAddTest(){
         db.start_transaction();
 
-        auth::Privilege priv;
-        priv.giveGroup(auth::GROUP_users).privilegeFor("add_private_item").forTable(i).force_save(db);
-
         test::addUser(db, "xxxxxxx");
         sut.setUserData(test::login(db, "xxxxxxx")); // go online
     }
@@ -44,8 +41,6 @@ public:
     }
 
     void upgradeUserPrivileges(){
-        auth::Privilege priv;
-        priv.giveGroup(auth::GROUP_items).privilegeFor("add_public_item").forTable(i).force_save(db);
         db(update(u).set(u.stat_group = sqlpp::verbatim<sqlpp::integer>( std::string(tableName<decltype(u)>()) + ".stat_group | (1<<4)" )).where(u.name == "xxxxxxx" )); ///FIXME
     }
 
@@ -67,6 +62,25 @@ TEST_F(ItemHandlerAddTest, normalUserCanAddOnlyPrivateItems ){
 
     addMsg.set_is_private(true);
     res = runMessageHandlerProcess();
-    EXPECT_NE(res.code(), Error_AccesDeny );
+    EXPECT_NE(res.has_code(), Error_AccesDeny );
+}
+
+TEST_F(ItemHandlerAddTest, addItemSavesItInDatabase ){
+    addMsg.set_name("new item name");
+    addMsg.set_symbol("SYMBOL1234567890");
+    addMsg.set_description("My description");
+    addMsg.set_is_private(true);
+
+    auto res = runMessageHandlerProcess();
+
+    const auto &sel = select(all_of(i)).from(i).where(i.name == "new item name");
+
+    EXPECT_TRUE( res.has_itemres() );
+    ASSERT_TRUE( db(select(exists(sel))).front().exists );
+
+    const auto &row = db(sel).front();
+    EXPECT_EQ( sut.user()->id(), row.owner );
+    EXPECT_EQ( "new item name", string(row.name) );
+    EXPECT_EQ( "SYMBOL1234567890", string(row.symbol));
 }
 

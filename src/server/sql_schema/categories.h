@@ -158,6 +158,21 @@ namespace schema {
 
 			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::can_be_null>;
 		};
+
+		struct Parent_path {
+			struct _alias_t {
+				static constexpr const char _literal[] ="parent_path";
+				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+				template<typename T>
+					struct _member_t {
+						T parent_path;
+						T &operator()() { return parent_path; }
+						const T &operator()() const { return parent_path; }
+					};
+			};
+
+			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::can_be_null>;
+		};
 	}
 
 	struct categories : sqlpp::table_t<categories,
@@ -170,7 +185,8 @@ namespace schema {
 				categories_::Creation_date,
 				categories_::Last_update,
 				categories_::Parent_category_id,
-				categories_::Description> {
+				categories_::Description,
+				categories_::Parent_path> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {
 			static constexpr const char _literal[] = "categories";
