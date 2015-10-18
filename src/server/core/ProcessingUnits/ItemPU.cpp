@@ -77,7 +77,13 @@ void ItemPU::run_saveItemInDb(DB &db, ItemRequest_Add &msg)
 {
     auto res = add_response();
 
-    auto ret = db(sqlpp::postgresql::insert_into(i).set(i.name = msg.name(), i.category_id = 2, i.symbol = "blah", i.owner = 1, i.parameters = "{}" ).returning(i.uid) );
+    auto ret = db(sqlpp::postgresql::insert_into(i).set(
+                      i.name = msg.name(),
+                      i.category_id = 2,
+                      i.symbol = "blah",
+                      i.owner = 1,
+                      i.parameters = "{}"
+            ).returning(i.uid) );
 
     res->mutable_itemres();
 }
