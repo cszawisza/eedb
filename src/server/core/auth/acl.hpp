@@ -164,7 +164,7 @@ private:
         stat.set_group     ( statInfo.front().stat_group       );
     }
 
-    uint64_t m_userId;
+    int64_t m_userId;
     pb::Acl m_userAcl;
 };
 }

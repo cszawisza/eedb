@@ -75,17 +75,28 @@ void ItemPU::handle_add(DB &db, ItemRequest_Add &msg)
 
 void ItemPU::run_saveItemInDb(DB &db, ItemRequest_Add &msg)
 {
-    auto res = add_response();
-
-    auto ret = db(sqlpp::postgresql::insert_into(i).set(
-                      i.name = msg.name(),
-                      i.category_id = 2,
-                      i.symbol = "blah",
-                      i.owner = 1,
-                      i.parameters = "{}"
+    auto res = add_response()->mutable_itemres();
+    auto prep = db.prepare(sqlpp::postgresql::insert_into(i).set(
+                               i.name = parameter(i.name),
+                               i.category_id = msg.category_id(),
+                               i.symbol = parameter(i.symbol),
+                               i.owner = user()->id(),
+                               i.description = parameter(i.description),
+                               i.parameters = "{}"
             ).returning(i.uid) );
 
-    res->mutable_itemres();
+    prep.params.name = msg.name();
+    prep.params.symbol = msg.symbol();
+
+    if(msg.has_description() && !msg.description().empty())
+        prep.params.description = msg.description();
+
+    auto return_value = db(prep);
+
+    if(msg.has_returning_id() && msg.returning_id())
+        res->set_id(return_value.front().uid);
+
+    res->set_code(ItemResponse_Replay_OK);
 }
 
 }

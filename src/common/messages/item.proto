@@ -21,12 +21,11 @@ message ItemRequest{
         optional string symbol = 2;
         optional bool is_private = 3 [default=true];
         optional string description = 4;
+        required int32 category_id = 5;
 
-//        repeated ParameterValues parameters = 6;
-//        optional Package packageId = 7;
-//        repeated FileStat files = 8; // only id and namel
-//        repeated Parameter nerParameters = 9;
-//        optional pb.Acl acl = 10;
+        repeated ParameterData parameters = 6;
+
+        optional bool returning_id = 7 [default = false];
     }
 
     message Remove {
@@ -50,6 +49,16 @@ message ItemRequest{
     }
 }
 
-message ItemResponse{
+message ParameterData{
+    required int32 parameter_id=1;
+    optional pb.Variant data = 2;
+}
 
+message ItemResponse{
+    enum Replay{
+    OK=1;
+    }
+
+    optional Replay code = 1;
+    optional uint32 id = 2;
 }

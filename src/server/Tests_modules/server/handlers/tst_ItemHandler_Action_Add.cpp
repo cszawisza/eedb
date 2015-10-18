@@ -16,6 +16,7 @@ public:
 
         test::addUser(db, "xxxxxxx");
         sut.setUserData(test::login(db, "xxxxxxx")); // go online
+        rootCategoryId = eedb::db::CategoryHelper::rootCategoryId(db).get_value_or(0);
     }
 
     ~ItemHandlerAddTest(){
@@ -48,6 +49,7 @@ protected:
     DB db;
     ItemRequest_Add addMsg;
     eedb::pu::ItemPU sut;
+    quint64 rootCategoryId;
 };
 
 TEST_F(ItemHandlerAddTest, normalUserCanAddOnlyPrivateItems ){
@@ -55,6 +57,7 @@ TEST_F(ItemHandlerAddTest, normalUserCanAddOnlyPrivateItems ){
     addMsg.set_symbol("SYMBOL1234567890");
     addMsg.set_description("My description");
     addMsg.set_is_private(false);
+    addMsg.set_category_id(rootCategoryId);
 
     auto res = runMessageHandlerProcess();
     EXPECT_EQ(res.code(), Error_AccesDeny );
@@ -70,6 +73,7 @@ TEST_F(ItemHandlerAddTest, addItemSavesItInDatabase ){
     addMsg.set_symbol("SYMBOL1234567890");
     addMsg.set_description("My description");
     addMsg.set_is_private(true);
+    addMsg.set_category_id(rootCategoryId);
 
     auto res = runMessageHandlerProcess();
 
@@ -78,9 +82,21 @@ TEST_F(ItemHandlerAddTest, addItemSavesItInDatabase ){
     EXPECT_TRUE( res.has_itemres() );
     ASSERT_TRUE( db(select(exists(sel))).front().exists );
 
-//    const auto &row = db(sel).front();
-//    EXPECT_EQ( sut.user()->id(), row.owner );
-//    EXPECT_EQ( "new item name", string(row.name) );
-//    EXPECT_EQ( "SYMBOL1234567890", string(row.symbol));
+    const auto &row = db(sel).front();
+    EXPECT_EQ( sut.user()->id(), row.owner );
+    EXPECT_EQ( "new item name", string(row.name) );
+    EXPECT_EQ( "SYMBOL1234567890", string(row.symbol));
+    EXPECT_EQ( "My description", string(row.description));
 }
 
+
+TEST_F(ItemHandlerAddTest, returnsId){
+    addMsg.set_name("new item name");
+    addMsg.set_symbol("SYMBOL1234567890");
+    addMsg.set_description("My description");
+    addMsg.set_is_private(true);
+    addMsg.set_category_id(rootCategoryId);
+    addMsg.set_returning_id(true);
+    auto res = runMessageHandlerProcess();
+    EXPECT_GT( res.itemres().id(), 0 );
+}
