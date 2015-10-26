@@ -56,7 +56,8 @@ message ParameterData{
 
 message ItemResponse{
     enum Replay{
-    OK=1;
+        OK=1;
+        ParameterDontExists = 2;
     }
 
     optional Replay code = 1;
