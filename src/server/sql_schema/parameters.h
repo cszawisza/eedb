@@ -173,6 +173,21 @@ namespace schema {
 
 			using _traits = ::sqlpp::make_traits<::sqlpp::text, sqlpp::tag::can_be_null>;
 		};
+
+		struct Ptype {
+			struct _alias_t {
+				static constexpr const char _literal[] ="ptype";
+				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+				template<typename T>
+					struct _member_t {
+						T ptype;
+						T &operator()() { return ptype; }
+						const T &operator()() const { return ptype; }
+					};
+			};
+
+			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::can_be_null>;
+		};
 	}
 
 	struct parameters : sqlpp::table_t<parameters,
@@ -186,7 +201,8 @@ namespace schema {
 				parameters_::Last_update,
 				parameters_::Symbol,
 				parameters_::Unit,
-				parameters_::Description> {
+				parameters_::Description,
+				parameters_::Ptype> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {
 			static constexpr const char _literal[] = "parameters";

@@ -14,12 +14,32 @@ BEGIN
 END $$
 LANGUAGE plpgsql IMMUTABLE COST 1;
 
+--create types
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'parameter_type') THEN
+        CREATE TYPE parameter_type AS ENUM
+        ( 'stored','pointed');
+    END IF;
+
+--    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'privilege_role') THEN
+--        CREATE TYPE privilege_role AS ENUM
+--        ();
+--    END IF;
+
+--    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'privilege_type') THEN
+--        CREATE TYPE privilege_type AS ENUM
+--        ();
+--    END IF;
+    --more types here...
+END$$;
 
 drop table if exists stat cascade;
 drop table if exists action cascade;
 drop table if exists metric_systems cascade;
 drop table if exists measurands cascade;
 drop table if exists privilege cascade;
+drop table if exists pointed_values cascade;
 
 drop table if exists category_files;
 drop table if exists units_conversions;
@@ -152,19 +172,6 @@ CREATE TABLE category_files (
     CONSTRAINT category_files_pk PRIMARY KEY (category_id, file_id)
 );
 
-CREATE TABLE packages (
-    pin_count   INTEGER,
-    mount_type  TEXT CHECK(length(mount_type) < 100 ),
-    config      jsonb,
-    CONSTRAINT packages_pkey PRIMARY KEY (uid)
-) INHERITS (stat);
-
-CREATE TABLE packages_files (
-    package_id INTEGER NOT NULL REFERENCES packages,
-    file_id INTEGER NOT NULL REFERENCES files,
-    CONSTRAINT packages_files_pk PRIMARY KEY (package_id, file_id)
-);
-
 CREATE TABLE measurands(
     id serial not null unique primary key,
     name VARCHAR(32) not null unique,
@@ -205,10 +212,17 @@ CREATE TABLE units_conversions(
 COMMENT ON TABLE units_conversions IS 'This table contains a mathematical equation for converting one unitl to other, more info available at http://www.partow.net/programming/exprtk/index.html';
 COMMENT ON COLUMN units_conversions.equation IS 'this equation should be a proper exprtk equation';
 
+CREATE TABLE pointed_values(
+    id serial primary key,
+    data jsonb default('{}')
+);
+CREATE INDEX items_pointed_values_idx ON pointed_values USING GIN (data);
+
 CREATE TABLE parameters (
     symbol VARCHAR(20),
     unit INTEGER REFERENCES units(uid),
     description TEXT CHECK(length(description) < 100000),
+    ptype parameter_type default('stored'),
     CONSTRAINT parameters_pkey PRIMARY KEY (uid),
     CONSTRAINT parametereowner_fk FOREIGN KEY (owner) REFERENCES users (uid) DEFERRABLE INITIALLY IMMEDIATE,
     CONSTRAINT parameters_unique UNIQUE(name, symbol)
@@ -217,26 +231,27 @@ CREATE TABLE parameters (
 COMMENT ON COLUMN parameters.name   IS 'Parameter name e.g. "Load current max." ';
 COMMENT ON COLUMN parameters.symbol IS 'Parameter symbol e.g. "I<sub>R</sub>';
 COMMENT ON COLUMN parameters.unit   IS 'Parameter unit e.g. id od Amper unit from unit table';
+COMMENT ON COLUMN parameters.ptype  IS '''stored'' parameter is a parameter which value is stored directly in items table, ''pointed'' means that the value of parameter is an ID of value stored in parameter_values table';
 
 --CREATE TABLE producers (
 --    description TEXT
 --) INHERITS (stat)
 
 CREATE TABLE items (
-    package_id    INTEGER REFERENCES packages(uid),
     producer      TEXT,
     category_id   INTEGER NOT NULL REFERENCES categories(uid),
     symbol        VARCHAR(300) NOT NULL,
     is_public     boolean DEFAULT(false),
 --    name_scope    VARCHAR(64) DEFAULT 'std' NOT NULL,
-    parameters    jsonb NOT NULL DEFAULT('{}'),
+    stored_values    jsonb NOT NULL DEFAULT('{}'),
+    pointed_values INTEGER REFERENCES pointed_values(id),
     description   TEXT,
     CONSTRAINT items_pkey PRIMARY KEY (uid),
     CONSTRAINT itemowner_fk FOREIGN KEY (owner) REFERENCES users (uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (stat);
 
 CREATE UNIQUE INDEX items_unique ON items(name, symbol, is_public);
-CREATE INDEX items_parameters_idx ON items USING GIN (parameters);
+CREATE INDEX items_stored_values_idx ON items USING GIN (stored_values);
 
 CREATE TABLE item_files (
     item_id INTEGER NOT NULL REFERENCES items,
@@ -291,9 +306,7 @@ create table inventories_history(
 -- CREATE INDEX categories_stat_index 	ON categories 	(uid, owner, stat_group, unixperms, status) WITH ( FILLFACTOR=100 );
 -- CREATE INDEX storages_stat_index 	ON storages 	(uid, owner, stat_group, unixperms, status) WITH ( FILLFACTOR=100 );
 -- CREATE INDEX files_stat_index 	ON files 	(uid, owner, stat_group, unixperms, status) WITH ( FILLFACTOR=100 );
--- CREATE INDEX packages_stat_index 	ON packages 	(uid, owner, stat_group, unixperms, status) WITH ( FILLFACTOR=100 );
 -- CREATE INDEX items_stat_index 	ON items 	(uid, owner, stat_group, unixperms, status) WITH ( FILLFACTOR=100 );
--- CREATE INDEX parameters_stat_index 	ON parameters 	(uid, owner, stat_group, unixperms, status) WITH ( FILLFACTOR=100 );
 
 CREATE OR REPLACE FUNCTION last_update_column()
 RETURNS TRIGGER AS $$
@@ -308,7 +321,7 @@ CREATE TRIGGER update_user_las_update BEFORE UPDATE ON users FOR EACH ROW EXECUT
 CREATE TRIGGER update_item_las_update BEFORE UPDATE ON items FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
 CREATE TRIGGER update_files_las_update BEFORE UPDATE ON files FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
 CREATE TRIGGER update_categories_las_update BEFORE UPDATE ON categories FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
-CREATE TRIGGER update_packages_las_update BEFORE UPDATE ON packages FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
+--CREATE TRIGGER update_packages_las_update BEFORE UPDATE ON packages FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
 CREATE TRIGGER update_units_las_update BEFORE UPDATE ON units FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
 CREATE TRIGGER update_items_las_update BEFORE UPDATE ON items FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
 CREATE TRIGGER update_inventories_las_update BEFORE UPDATE ON inventories FOR EACH ROW EXECUTE PROCEDURE  last_update_column();

@@ -129,21 +129,6 @@ namespace schema {
 			using _traits = ::sqlpp::make_traits<::sqlpp::varchar, sqlpp::tag::can_be_null>;
 		};
 
-		struct Package_id {
-			struct _alias_t {
-				static constexpr const char _literal[] ="package_id";
-				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-				template<typename T>
-					struct _member_t {
-						T package_id;
-						T &operator()() { return package_id; }
-						const T &operator()() const { return package_id; }
-					};
-			};
-
-			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::can_be_null>;
-		};
-
 		struct Producer {
 			struct _alias_t {
 				static constexpr const char _literal[] ="producer";
@@ -204,19 +189,34 @@ namespace schema {
 			using _traits = ::sqlpp::make_traits<::sqlpp::boolean, sqlpp::tag::can_be_null>;
 		};
 
-		struct Parameters {
+		struct Stored_values {
 			struct _alias_t {
-				static constexpr const char _literal[] ="parameters";
+				static constexpr const char _literal[] ="stored_values";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T parameters;
-						T &operator()() { return parameters; }
-						const T &operator()() const { return parameters; }
+						T stored_values;
+						T &operator()() { return stored_values; }
+						const T &operator()() const { return stored_values; }
 					};
 			};
 
 			using _traits = ::sqlpp::make_traits<::sqlpp::varchar>;
+		};
+
+		struct Pointed_values {
+			struct _alias_t {
+				static constexpr const char _literal[] ="pointed_values";
+				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+				template<typename T>
+					struct _member_t {
+						T pointed_values;
+						T &operator()() { return pointed_values; }
+						const T &operator()() const { return pointed_values; }
+					};
+			};
+
+			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::can_be_null>;
 		};
 
 		struct Description {
@@ -244,12 +244,12 @@ namespace schema {
 				items_::Name,
 				items_::Creation_date,
 				items_::Last_update,
-				items_::Package_id,
 				items_::Producer,
 				items_::Category_id,
 				items_::Symbol,
 				items_::Is_public,
-				items_::Parameters,
+				items_::Stored_values,
+				items_::Pointed_values,
 				items_::Description> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {
