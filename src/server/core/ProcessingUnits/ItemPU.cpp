@@ -3,6 +3,8 @@
 #include <sqlpp11/sqlpp11.h>
 #include <sqlpp11/postgresql/insert.h>
 #include "sql_schema/items.h"
+#include "sql_schema/parameters.h"
+
 
 using namespace pb;
 
@@ -75,14 +77,23 @@ void ItemPU::handle_add(DB &db, ItemRequest_Add &msg)
 
 void ItemPU::run_saveItemInDb(DB &db, ItemRequest_Add &msg)
 {
+    //check parameters
+    if(msg.parameters_size() > 0){
+        std::vector<quint64> parametersIds;
+        for(const auto &parameter:msg.parameters()){
+            parametersIds.push_back( parameter.id() );
+        }
+
+//        db();
+    }
+
     auto res = add_response()->mutable_itemres();
     auto prep = db.prepare(sqlpp::postgresql::insert_into(i).set(
                                i.name = parameter(i.name),
                                i.category_id = msg.category_id(),
                                i.symbol = parameter(i.symbol),
                                i.owner = user()->id(),
-                               i.description = parameter(i.description),
-                               i.parameters = "{}"
+                               i.description = parameter(i.description)
             ).returning(i.uid) );
 
     prep.params.name = msg.name();

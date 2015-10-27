@@ -50,7 +50,7 @@ message ItemRequest{
 }
 
 message ParameterData{
-    required int32 parameter_id=1;
+    required int32 id=1;
     optional pb.Variant data = 2;
 }
 
