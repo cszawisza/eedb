@@ -1,4 +1,3 @@
-start transaction;
 DO
 $$
 DECLARE rootid int;
@@ -10,7 +9,7 @@ BEGIN
 
 select uid from users where name = 'ROOT' limit 1 into rootid;
 
-insert into metric_system(name)
+insert into metric_systems(name)
 values ('SI')
 returning id into metric_sys;
 
@@ -23,27 +22,26 @@ insert into units (owner, name, symbol, measurand_id, description, metric_system
 returning uid into base;
 
 insert into units (owner, name, symbol, measurand_id, base_unit, metric_system ) values
-( rootid, 'tera ampere',  'TA', measurand, base, metric_sys ),
-( rootid, 'giga ampere',  'GA', measurand, base, metric_sys ),
-( rootid, 'mega ampere',  'MA', measurand, base, metric_sys ),
-( rootid, 'kilo ampere',  'kA', measurand, base, metric_sys ),
-( rootid, 'hekto ampere', 'hA', measurand, base, metric_sys ),
-( rootid, 'deka ampere', 'daA', measurand, base, metric_sys ),
-( rootid, 'deci ampere',  'dA', measurand, base, metric_sys ),
-( rootid, 'centi ampere', 'cA', measurand, base, metric_sys ),
-( rootid, 'milli ampere', 'mA', measurand, base, metric_sys ),
-( rootid, 'micro ampere', 'µA', measurand, base, metric_sys ),
-( rootid, 'nano ampere',  'nA', measurand, base, metric_sys ),
-( rootid, 'pico ampere',  'pA', measurand, base, metric_sys ),
-( rootid, 'femto ampere', 'fA', measurand, base, metric_sys );
-
+( rootid, 'teraampere',  'TA', measurand, base, metric_sys ),
+( rootid, 'gigaampere',  'GA', measurand, base, metric_sys ),
+( rootid, 'megaampere',  'MA', measurand, base, metric_sys ),
+( rootid, 'kiloampere',  'kA', measurand, base, metric_sys ),
+( rootid, 'hektoampere', 'hA', measurand, base, metric_sys ),
+( rootid, 'dekaampere', 'daA', measurand, base, metric_sys ),
+( rootid, 'deciampere',  'dA', measurand, base, metric_sys ),
+( rootid, 'centiampere', 'cA', measurand, base, metric_sys ),
+( rootid, 'milliampere', 'mA', measurand, base, metric_sys ),
+( rootid, 'microampere', 'µA', measurand, base, metric_sys ),
+( rootid, 'nanoampere',  'nA', measurand, base, metric_sys ),
+( rootid, 'picoampere',  'pA', measurand, base, metric_sys ),
+( rootid, 'femtoampere', 'fA', measurand, base, metric_sys );
 
 insert into measurands (name, description, dimension_symbol )
 values('Length', 'In geometric measurements, length is the most extended dimension of an object', 'L' )
 returning id into measurand;
 
-insert into units (owner, name, symbol, measurand_id, description ) values
-( rootid, 'metre', 'm', mes_L, 'The meter is the length of the path travelled by light in vacuum during a time interval of 1/299 792 458 of a second.')
+insert into units (owner, name, symbol, measurand_id, description, metric_system ) values
+( rootid, 'metre', 'm', measurand, 'The meter is the length of the path travelled by light in vacuum during a time interval of 1/299 792 458 of a second.', metric_sys)
 returning uid into base;
 
 insert into units (owner, name, symbol, measurand_id, base_unit, metric_system ) values
@@ -61,14 +59,45 @@ insert into units (owner, name, symbol, measurand_id, base_unit, metric_system )
 ( rootid, 'picometre', 'pm',  measurand, base, metric_sys ),
 ( rootid, 'femtometre', 'fm', measurand, base, metric_sys );
 
---insert into measurands (name, description, dimension_symbol ) values('Mass', '', 'M' ) returning id into mes_M;
---insert into measurands (name, description, dimension_symbol ) values('Time', '', 'T' ) returning id into mes_T;
---insert into measurands (name, description, dimension_symbol ) values('Thermodynamic temperature', '', 'Θ')returning id into mes_o;
---insert into measurands (name, description, dimension_symbol ) values('Amount of substance', '', 'N')returning id into mes_N;
---insert into measurands (name, description, dimension_symbol ) values('Luminous intensity', '', 'J')returning id into mes_J;
+insert into measurands (name, description, dimension_symbol )
+values('Mass', 'In physics, mass is a property of a physical body which determines the strength of its mutual gravitational attraction to other bodies, its resistance to being accelerated by a force, and in the theory of relativity gives the mass–energy content of a system', 'M' )
+returning id into measurand;
+
+insert into units (owner, name, symbol, measurand_id, description, metric_system  ) values
+( rootid, 'kilogram', 'kg', measurand, 'The kilogram is the unit of mass; it is equal to the mass of the international prototype of the kilogram - Pavillon de Breteuil (Sèvres).', metric_sys )
+returning uid into base;
+
+insert into units (owner, name, symbol, measurand_id, base_unit, metric_system ) values
+( rootid, 'teragram', 'Tg',  measurand, base, metric_sys ),
+( rootid, 'gigagram', 'Gg',  measurand, base, metric_sys ),
+( rootid, 'megagram', 'Mg',  measurand, base, metric_sys ),
+( rootid, 'hektogram', 'hg', measurand, base, metric_sys ),
+( rootid, 'decagram', 'dag', measurand, base, metric_sys ),
+( rootid, 'decigram', 'dg',  measurand, base, metric_sys ),
+( rootid, 'centigram', 'cg', measurand, base, metric_sys ),
+( rootid, 'milligram', 'mg', measurand, base, metric_sys ),
+( rootid, 'microgram', 'µg', measurand, base, metric_sys ),
+( rootid, 'nanogram', 'ng',  measurand, base, metric_sys ),
+( rootid, 'picogram', 'pg',  measurand, base, metric_sys ),
+( rootid, 'femtogram', 'fg', measurand, base, metric_sys );
+
+insert into measurands (name, description, dimension_symbol )
+values('Time', 'Time is a measure in which events can be ordered from the past through the present into the future, and also the measure of durations of events and the intervals between them.', 'T' )
+returning id into measurand;
+
+insert into measurands (name, description, dimension_symbol )
+values('Thermodynamic temperature', '', 'Θ' )
+returning id into measurand;
+
+insert into measurands (name, description, dimension_symbol )
+values('Amount of substance', '', 'N')
+returning id into measurand;
+
+insert into measurands (name, description, dimension_symbol )
+values('Luminous intensity', '', 'J')
+returning id into measurand;
 
 --insert into units (owner, name, symbol, measurand_id, description ) values
--- ( rootid, 'kilogram', 'kg', mes_M, 'The kilogram is the unit of mass; it is equal to the mass of the international prototype of the kilogram - Pavillon de Breteuil (Sèvres).' ),
 -- ( rootid, 'second', 's', mes_T, 'The second is the duration of 9 192 631 770 periods of the radiation corresponding to the transition between the two hyperfine levels of the ground state of the cesium 133 atom.' ),
 -- ( rootid, 'kelvin', 'K', mes_o, 'The kelvin, unit of thermodynamic temperature, is the fraction 1/273.16 of the thermodynamic temperature of the triple point of water.'),
 -- ( rootid, 'mole', 'mol', mes_N, '1. The mole is the amount of substance of a system which contains as many elementary entities as there are atoms in 0.012 kilogram of carbon 12; its symbol is "mol." 2. When the mole is used, the elementary entities must be specified and may be atoms, molecules, ions, electrons, other particles, or specified groups of such particles.'),
@@ -76,4 +105,3 @@ insert into units (owner, name, symbol, measurand_id, base_unit, metric_system )
 
 
 END $$;
-rollback transaction;

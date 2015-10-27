@@ -84,7 +84,7 @@ void ItemPU::run_saveItemInDb(DB &db, ItemRequest_Add &msg)
             parametersIds.push_back( parameter.id() );
         }
 
-//        db();
+        db();
     }
 
     auto res = add_response()->mutable_itemres();

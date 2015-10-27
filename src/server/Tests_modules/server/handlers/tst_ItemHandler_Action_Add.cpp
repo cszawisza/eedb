@@ -99,13 +99,13 @@ TEST_F(ItemHandlerAddTest, returnsId){
     EXPECT_GT( res.itemres().id(), 0 );
 }
 
-//TEST_F(ItemHandlerAddTest, addUnexistingParameterShouldFail ){
-//    prepareMessage();
+TEST_F(ItemHandlerAddTest, addUnexistingParameterShouldFail ){
+    prepareMessage();
 
-//    auto parameter = addMsg.add_parameters();
-//    parameter->set_id(0);
-//    addMsg.set_returning_id(true);
+    auto parameter = addMsg.add_parameters();
+    parameter->set_id(0);
+    addMsg.set_returning_id(true);
     
-//    auto res = runMessageHandlerProcess();
-//    EXPECT_GT( res.itemres().code(), ItemResponse_Replay_ParameterDontExists );
-//}
+    auto res = runMessageHandlerProcess();
+    EXPECT_GT( res.itemres().code(), ItemResponse_Replay_ParameterDontExists );
+}
