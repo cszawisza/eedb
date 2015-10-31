@@ -189,34 +189,19 @@ namespace schema {
 			using _traits = ::sqlpp::make_traits<::sqlpp::boolean, sqlpp::tag::can_be_null>;
 		};
 
-		struct Stored_values {
+		struct Params {
 			struct _alias_t {
-				static constexpr const char _literal[] ="stored_values";
+				static constexpr const char _literal[] ="params";
 				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t {
-						T stored_values;
-						T &operator()() { return stored_values; }
-						const T &operator()() const { return stored_values; }
+						T params;
+						T &operator()() { return params; }
+						const T &operator()() const { return params; }
 					};
 			};
 
 			using _traits = ::sqlpp::make_traits<::sqlpp::varchar>;
-		};
-
-		struct Pointed_values {
-			struct _alias_t {
-				static constexpr const char _literal[] ="pointed_values";
-				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-				template<typename T>
-					struct _member_t {
-						T pointed_values;
-						T &operator()() { return pointed_values; }
-						const T &operator()() const { return pointed_values; }
-					};
-			};
-
-			using _traits = ::sqlpp::make_traits<::sqlpp::integer, sqlpp::tag::can_be_null>;
 		};
 
 		struct Description {
@@ -248,8 +233,7 @@ namespace schema {
 				items_::Category_id,
 				items_::Symbol,
 				items_::Is_public,
-				items_::Stored_values,
-				items_::Pointed_values,
+				items_::Params,
 				items_::Description> {
 		using _value_type = sqlpp::no_value_t;
 		struct _alias_t {

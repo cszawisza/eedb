@@ -243,15 +243,15 @@ CREATE TABLE items (
     symbol        VARCHAR(300) NOT NULL,
     is_public     boolean DEFAULT(false),
 --    name_scope    VARCHAR(64) DEFAULT 'std' NOT NULL,
-    stored_values    jsonb NOT NULL DEFAULT('{}'),
-    pointed_values INTEGER REFERENCES pointed_values(id),
+    params    jsonb NOT NULL DEFAULT('{}'),
+--    pointed_values INTEGER REFERENCES pointed_values(id),
     description   TEXT,
     CONSTRAINT items_pkey PRIMARY KEY (uid),
     CONSTRAINT itemowner_fk FOREIGN KEY (owner) REFERENCES users (uid) DEFERRABLE INITIALLY IMMEDIATE
 ) INHERITS (stat);
 
 CREATE UNIQUE INDEX items_unique ON items(name, symbol, is_public);
-CREATE INDEX items_stored_values_idx ON items USING GIN (stored_values);
+CREATE INDEX items_stored_values_idx ON items USING GIN (params);
 
 CREATE TABLE item_files (
     item_id INTEGER NOT NULL REFERENCES items,

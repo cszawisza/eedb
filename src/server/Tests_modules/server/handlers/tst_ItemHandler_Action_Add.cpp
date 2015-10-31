@@ -107,5 +107,5 @@ TEST_F(ItemHandlerAddTest, addUnexistingParameterShouldFail ){
     addMsg.set_returning_id(true);
     
     auto res = runMessageHandlerProcess();
-    EXPECT_GT( res.itemres().code(), ItemResponse_Replay_ParameterDontExists );
+    EXPECT_EQ( res.itemres().code(), ItemResponse_Replay_ParameterDontExists );
 }

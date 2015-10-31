@@ -75,16 +75,34 @@ void ItemPU::handle_add(DB &db, ItemRequest_Add &msg)
     }
 }
 
+#include <QJsonObject>
+
 void ItemPU::run_saveItemInDb(DB &db, ItemRequest_Add &msg)
 {
     //check parameters
+
+    QJsonObject params;
+
     if(msg.parameters_size() > 0){
+        static constexpr schema::parameters p;
         std::vector<quint64> parametersIds;
-        for(const auto &parameter:msg.parameters()){
+        for(const auto &parameter:msg.parameters())
             parametersIds.push_back( parameter.id() );
+
+        // check is all parameters are avalible in database
+        bool allAvalible = db( select(count(p.uid))
+                               .from(p)
+                               .where(p.uid.in(sqlpp::value_list(parametersIds))))
+                .front().count == parametersIds.size();
+
+        if(!allAvalible){
+            add_response()->mutable_itemres()->set_code(pb::ItemResponse_Replay_ParameterDontExists);
+            return;
         }
 
-        db();
+        for(const auto &parameter:msg.parameters()){
+            params.insert("id", parameter.id() );
+        }
     }
 
     auto res = add_response()->mutable_itemres();
@@ -93,7 +111,8 @@ void ItemPU::run_saveItemInDb(DB &db, ItemRequest_Add &msg)
                                i.category_id = msg.category_id(),
                                i.symbol = parameter(i.symbol),
                                i.owner = user()->id(),
-                               i.description = parameter(i.description)
+                               i.description = parameter(i.description),
+                               i.params = parameter(i.params)
             ).returning(i.uid) );
 
     prep.params.name = msg.name();
