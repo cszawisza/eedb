@@ -100,9 +100,9 @@ void ItemPU::run_saveItemInDb(DB &db, ItemRequest_Add &msg)
             return;
         }
 
-        for(const auto &parameter:msg.parameters()){
-            params.insert("id", parameter.id() );
-        }
+//        for(const auto &parameter:msg.parameters()){
+//            params.insert("id", parameter.id() );
+//        }
     }
 
     auto res = add_response()->mutable_itemres();
