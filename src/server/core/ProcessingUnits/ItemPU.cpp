@@ -75,13 +75,13 @@ void ItemPU::handle_add(DB &db, ItemRequest_Add &msg)
     }
 }
 
-#include <QJsonObject>
+//#include <QJsonObject>
 
 void ItemPU::run_saveItemInDb(DB &db, ItemRequest_Add &msg)
 {
     //check parameters
 
-    QJsonObject params;
+///    QJsonObject params;
 
     if(msg.parameters_size() > 0){
         static constexpr schema::parameters p;
@@ -111,8 +111,8 @@ void ItemPU::run_saveItemInDb(DB &db, ItemRequest_Add &msg)
                                i.category_id = msg.category_id(),
                                i.symbol = parameter(i.symbol),
                                i.owner = user()->id(),
-                               i.description = parameter(i.description),
-                               i.params = parameter(i.params)
+                               i.description = parameter(i.description)
+//                               i.params = parameter(i.params)
             ).returning(i.uid) );
 
     prep.params.name = msg.name();
