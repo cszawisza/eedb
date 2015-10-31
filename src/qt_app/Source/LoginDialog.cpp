@@ -202,7 +202,10 @@ void LoginDialog::chooseAction()
     if (m_action == Action::LOGIN)
         loginToServer();
     else if (m_action == Action::REGISTER)
+    {
         m_userRegister.registerUser();
+        m_socket.close();
+    }
     else if (m_action == Action::TESTCONNECTION)
         doConnectTest();
 }
