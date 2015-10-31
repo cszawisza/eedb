@@ -27,10 +27,10 @@ void AddUserDialog::on_registerNewUser_clicked()
     std::string l_userDescritpion{};
     std::string l_userPhoneNumber{};
 
-    if(!(!(ui->name->text().isEmpty()) && !(ui->email->text().isEmpty()))) // NOR
+    if(!(!(ui->name->text().isEmpty()) && !(ui->email->text().isEmpty()) && !(ui->password->text().isEmpty()))) // NOR
     {
         QMessageBox msgBox{};
-        msgBox.setText("Podaj nazwę użytkownika i email");
+        msgBox.setText("Podaj nazwę użytkownika, hasło oraz email");
         msgBox.exec();
         return;
     }
@@ -38,6 +38,7 @@ void AddUserDialog::on_registerNewUser_clicked()
     {
         l_userEmail = ui->email->text().toStdString();
         l_userName = ui->name->text().toStdString();
+        l_userPassword = ui->password->text().toStdString();
     }
     l_userAdress = ui->address->toPlainText().toStdString();
     l_userDescritpion = ui->description->toPlainText().toStdString();
