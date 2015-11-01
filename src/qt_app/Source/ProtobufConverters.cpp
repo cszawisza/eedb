@@ -1,5 +1,6 @@
 #include <QByteArray>
 #include <ProtobufConverters.hpp>
+#include <QDebug>
 
 QByteArray convertProtobufClientRequestsToQByteArray(const pb::ClientRequests & p_clientRequests)
 {
@@ -12,7 +13,7 @@ boost::optional<pb::ServerResponses> convertQByteArrayToProtobufServerResponse(c
     pb::ServerResponses l_serverResponse{};
     if(!l_serverResponse.ParseFromArray(p_serverResponse.data(), p_serverResponse.size()))
     {
-        //qDebug() << "Could not parse server response";
+        qDebug() << "Could not parse server response";
         return boost::none;
     }
     return l_serverResponse;

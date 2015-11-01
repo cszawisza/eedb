@@ -9,22 +9,26 @@ namespace
 
 void handleConvertedServerResponse(const pb::ServerResponses & p_serverResponse)
 {
-    switch(p_serverResponse.response(0).data_case())
+    auto l_serverResponse = p_serverResponse.response(0);
+    switch(l_serverResponse.data_case())
     {
     case pb::ServerResponse::kUserRes:
+        qDebug() << "UserRes";
         break;
     case pb::ServerResponse::kMsgInventoryRes:
+        qDebug() << "MsgInventoryRes";
         break;
     case pb::ServerResponse::kItemRes:
+        qDebug() << "ItemRes";
         break;
     case pb::ServerResponse::kCategoryRes:
+        qDebug() << "CategoryRes";
         break;
     case pb::ServerResponse::kMsgParameterRes:
+        qDebug() << "MsgParameterRes";
         break;
     case pb::ServerResponse::DATA_NOT_SET:
-        break;
-    default:
-        break;
+        qDebug() << "Data not set";break;
     }
 }
 
@@ -36,9 +40,6 @@ CommunicationManager::CommunicationManager(QWebSocket & p_webSocket,
     : m_webSocket(p_webSocket),
       m_convertProtobufToQByteArray(p_convertProtobufToString),
       m_convertQByteArrayToProtobuf(p_convertQByteArrayToProtobuf)
-{ }
-
-void CommunicationManager::handle() const
 {
     QObject::connect(&m_webSocket, &QWebSocket::binaryMessageReceived, [=](const QByteArray & p_serverResponse)
     {
@@ -51,36 +52,40 @@ void CommunicationManager::handle() const
     });
 }
 
+void CommunicationManager::handle() const
+{
+    qDebug() << "CommunicationManager::handle()";
+}
+
 void CommunicationManager::handleRegister(std::string & p_userName, std::string & p_userPassword,
                                           std::string & p_userEmail,std::string & p_userAdress,
                                           std::string & p_userDescritpion, std::string & p_userPhoneNumber) const
 {
     pb::ClientRequests l_mainMsg;
-    qDebug() << "handleRegister()";
+    qDebug() << "CommunicationManager::handleRegister()";
     auto l_request = l_mainMsg.add_request();
     {
         auto l_userreg = l_request->mutable_userreq();
         {
-            auto l_login = l_userreg->mutable_login();
+            auto l_add = l_userreg->mutable_add();
             {
                 {
-                    auto l_cred = l_login->mutable_cred();
+                    auto l_userBasic = l_add->mutable_basic();
                     {
-                        l_cred->set_name(p_userName);
+                        l_userBasic->set_email(p_userEmail);
+                        l_userBasic->set_name(p_userName);
                     }
                 }
-                l_login->set_password(p_userPassword);
+                l_add->set_password(p_userPassword);
             }
         }
     }
-    qDebug() << QString::fromStdString(p_userName);
-    qDebug() << QString::fromStdString(p_userPassword);
-    sendBinaryMessageOverQWebSocket(l_mainMsg);
 }
 
 void CommunicationManager::sendBinaryMessageOverQWebSocket(const pb::ClientRequests & p_clientRequests) const
 {
-    qDebug() << "sendBinaryMessageOverQWebSocket()";
+    qDebug() << "CommunicationManager::sendBinaryMessageOverQWebSocket()";
+    qDebug() << m_webSocket.state();
     m_webSocket.sendBinaryMessage(m_convertProtobufToQByteArray(p_clientRequests));
 }
 
