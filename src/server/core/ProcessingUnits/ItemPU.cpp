@@ -5,6 +5,8 @@
 #include "sql_schema/items.h"
 #include "sql_schema/parameters.h"
 
+#include <QJsonObject>
+#include <QJsonDocument>
 
 using namespace pb;
 
@@ -75,13 +77,12 @@ void ItemPU::handle_add(DB &db, ItemRequest_Add &msg)
     }
 }
 
-//#include <QJsonObject>
 
 void ItemPU::run_saveItemInDb(DB &db, ItemRequest_Add &msg)
 {
     //check parameters
 
-///    QJsonObject params;
+    QJsonObject params;
 
     if(msg.parameters_size() > 0){
         static constexpr schema::parameters p;
@@ -90,6 +91,7 @@ void ItemPU::run_saveItemInDb(DB &db, ItemRequest_Add &msg)
             parametersIds.push_back( parameter.id() );
 
         // check is all parameters are avalible in database
+        ///TODO check if pointed value exists
         bool allAvalible = db( select(count(p.uid))
                                .from(p)
                                .where(p.uid.in(sqlpp::value_list(parametersIds))))
@@ -100,9 +102,13 @@ void ItemPU::run_saveItemInDb(DB &db, ItemRequest_Add &msg)
             return;
         }
 
-//        for(const auto &parameter:msg.parameters()){
-//            params.insert("id", parameter.id() );
-//        }
+        for(const pb::ParameterValue &parameter:msg.parameters()){
+            params.insert("id", (qint64)parameter.id() );
+            if(parameter.has_stored_value() )
+                params.insert("storedValue", "");
+            else
+                params.insert("pointedValue", (qint64)parameter.pointed_value() );
+        }
     }
 
     auto res = add_response()->mutable_itemres();
@@ -111,12 +117,13 @@ void ItemPU::run_saveItemInDb(DB &db, ItemRequest_Add &msg)
                                i.category_id = msg.category_id(),
                                i.symbol = parameter(i.symbol),
                                i.owner = user()->id(),
-                               i.description = parameter(i.description)
-//                               i.params = parameter(i.params)
+                               i.description = parameter(i.description),
+                               i.params = parameter(i.params)
             ).returning(i.uid) );
 
     prep.params.name = msg.name();
     prep.params.symbol = msg.symbol();
+    prep.params.params = QJsonDocument(params).toJson().toStdString();
 
     if(msg.has_description() && !msg.description().empty())
         prep.params.description = msg.description();

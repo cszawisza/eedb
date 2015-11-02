@@ -4,6 +4,7 @@ DECLARE rootid int;
 DECLARE measurand int;
 DECLARE base int;
 DECLARE metric_sys int;
+DECLARE unit_id int;
 
 BEGIN
 
@@ -35,6 +36,26 @@ insert into units (owner, name, symbol, measurand_id, base_unit, metric_system )
 ( rootid, 'nanoampere',  'nA', measurand, base, metric_sys ),
 ( rootid, 'picoampere',  'pA', measurand, base, metric_sys ),
 ( rootid, 'femtoampere', 'fA', measurand, base, metric_sys );
+
+insert into measurands (name, description, dimension_symbol )
+values('electrical resistance', '', 'R')
+returning id into measurand;
+
+insert into units (owner, name, symbol, measurand_id, metric_system ) values
+( rootid, 'ohm', 'Ω', measurand, metric_sys) returning uid into unit_id;
+
+--CREATE TABLE parameters (
+--    symbol VARCHAR(20),
+--    unit INTEGER REFERENCES units(uid),
+--    description TEXT CHECK(length(description) < 100000),
+--    ptype parameter_type default('stored'),
+--    CONSTRAINT parameters_pkey PRIMARY KEY (uid),
+--    CONSTRAINT parametereowner_fk FOREIGN KEY (owner) REFERENCES users (uid) DEFERRABLE INITIALLY IMMEDIATE,
+--    CONSTRAINT parameters_unique UNIQUE(name, symbol)
+--) INHERITS (stat);
+
+insert into parameters (owner, name, symbol, unit, description, ptype) values
+( rootid, 'Rezystancja', 'R', unit_id, '', 'stored' );
 
 insert into measurands (name, description, dimension_symbol )
 values('Length', 'In geometric measurements, length is the most extended dimension of an object', 'L' )
