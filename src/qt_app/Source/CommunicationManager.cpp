@@ -80,6 +80,7 @@ void CommunicationManager::handleRegister(std::string & p_userName, std::string 
             }
         }
     }
+    sendBinaryMessageOverQWebSocket(l_mainMsg);
 }
 
 void CommunicationManager::sendBinaryMessageOverQWebSocket(const pb::ClientRequests & p_clientRequests) const

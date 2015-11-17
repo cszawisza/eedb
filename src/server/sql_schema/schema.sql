@@ -316,17 +316,18 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
-CREATE TRIGGER update_stat_las_update BEFORE UPDATE ON  stat FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
-CREATE TRIGGER update_user_las_update BEFORE UPDATE ON users FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
-CREATE TRIGGER update_item_las_update BEFORE UPDATE ON items FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
-CREATE TRIGGER update_files_las_update BEFORE UPDATE ON files FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
-CREATE TRIGGER update_categories_las_update BEFORE UPDATE ON categories FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
---CREATE TRIGGER update_packages_las_update BEFORE UPDATE ON packages FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
-CREATE TRIGGER update_units_las_update BEFORE UPDATE ON units FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
-CREATE TRIGGER update_items_las_update BEFORE UPDATE ON items FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
-CREATE TRIGGER update_inventories_las_update BEFORE UPDATE ON inventories FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
-CREATE TRIGGER update_shelfs_las_update BEFORE UPDATE ON shelfs FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
-CREATE TRIGGER update_inventories_operations_las_update BEFORE UPDATE ON inventories_operations FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
+CREATE TRIGGER update_stat_last_update BEFORE UPDATE ON  stat FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
+CREATE TRIGGER update_user_last_update BEFORE UPDATE ON users FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
+CREATE TRIGGER update_parameters_last_update BEFORE UPDATE ON parameters FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
+CREATE TRIGGER update_item_last_update BEFORE UPDATE ON items FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
+CREATE TRIGGER update_files_last_update BEFORE UPDATE ON files FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
+CREATE TRIGGER update_categories_last_update BEFORE UPDATE ON categories FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
+--CREATE TRIGGER update_packages_last_update BEFORE UPDATE ON packages FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
+CREATE TRIGGER update_units_last_update BEFORE UPDATE ON units FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
+CREATE TRIGGER update_items_last_update BEFORE UPDATE ON items FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
+CREATE TRIGGER update_inventories_last_update BEFORE UPDATE ON inventories FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
+CREATE TRIGGER update_shelfs_last_update BEFORE UPDATE ON shelfs FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
+CREATE TRIGGER update_inventories_operations_lats_update BEFORE UPDATE ON inventories_operations FOR EACH ROW EXECUTE PROCEDURE  last_update_column();
 
 
 

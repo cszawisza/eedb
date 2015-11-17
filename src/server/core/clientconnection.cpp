@@ -32,7 +32,7 @@ ClientConnection::ClientConnection(QWebSocket *socket, QObject *parent) :
     });
 
     connect(m_socket, &QWebSocket::stateChanged, [=](QAbstractSocket::SocketState state ){
-        getServerLoger()->info( "{}, state changed to: {}", m_socket->peerAddress().toString().toStdString(), (int)state );
+        getServerLoger()->info( "{}, state changed to: {}", m_socket->peerAddress().toString(), state );
     });
 
     m_worker->moveToThread(m_workerThread);
@@ -42,7 +42,7 @@ ClientConnection::ClientConnection(QWebSocket *socket, QObject *parent) :
 void ClientConnection::sendData(QByteArray ba){
     m_bytesSend += ba.size();
     auto sent = m_socket->sendBinaryMessage(ba);
-    getServerLoger()->trace( "Request handled in: {}ms, sending {} bytes to {}",timer.nsecsElapsed() / 1000.0/1000.0, sent, m_socket->peerAddress().toString().toStdString() );
+    getServerLoger()->trace( "Request handled in: {}ms, sending {} bytes to {}",timer.nsecsElapsed() / 1000.0/1000.0, sent, m_socket->peerAddress().toString() );
 }
 
 ClientConnection::~ClientConnection()

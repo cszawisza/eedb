@@ -4,15 +4,21 @@ DECLARE rootid int;
 DECLARE measurand int;
 DECLARE base int;
 DECLARE metric_sys int;
+DECLARE derived_SI_sys int;
 DECLARE unit_id int;
-
+DECLARE text_unit_id int;
 BEGIN
 
 select uid from users where name = 'ROOT' limit 1 into rootid;
 
-insert into metric_systems(name)
-values ('SI')
-returning id into metric_sys;
+insert into metric_systems(name) values ('SI')          returning id into metric_sys;
+insert into metric_systems(name) values ('SI derived')  returning id into derived_SI_sys;
+
+insert into units (owner, name, symbol) values ( rootid, 'Text',  'TXT' ) returning uid into text_unit_id;
+
+insert into parameters (owner, name, symbol, unit, description, ptype) values
+( rootid, 'Typ Rezystora', '', text_unit_id, '', 'pointed' ),
+( rootid, 'Producent', '', text_unit_id, '', 'pointed' ) ;
 
 insert into measurands (name, description, dimension_symbol )
 values('Electric current', '', 'I')
@@ -27,10 +33,6 @@ insert into units (owner, name, symbol, measurand_id, base_unit, metric_system )
 ( rootid, 'gigaampere',  'GA', measurand, base, metric_sys ),
 ( rootid, 'megaampere',  'MA', measurand, base, metric_sys ),
 ( rootid, 'kiloampere',  'kA', measurand, base, metric_sys ),
-( rootid, 'hektoampere', 'hA', measurand, base, metric_sys ),
-( rootid, 'dekaampere', 'daA', measurand, base, metric_sys ),
-( rootid, 'deciampere',  'dA', measurand, base, metric_sys ),
-( rootid, 'centiampere', 'cA', measurand, base, metric_sys ),
 ( rootid, 'milliampere', 'mA', measurand, base, metric_sys ),
 ( rootid, 'microampere', 'µA', measurand, base, metric_sys ),
 ( rootid, 'nanoampere',  'nA', measurand, base, metric_sys ),
@@ -42,20 +44,39 @@ values('electrical resistance', '', 'R')
 returning id into measurand;
 
 insert into units (owner, name, symbol, measurand_id, metric_system ) values
-( rootid, 'ohm', 'Ω', measurand, metric_sys) returning uid into unit_id;
+( rootid, 'ohm', 'Ω', measurand, derived_SI_sys) returning uid into base;
 
---CREATE TABLE parameters (
---    symbol VARCHAR(20),
---    unit INTEGER REFERENCES units(uid),
---    description TEXT CHECK(length(description) < 100000),
---    ptype parameter_type default('stored'),
---    CONSTRAINT parameters_pkey PRIMARY KEY (uid),
---    CONSTRAINT parametereowner_fk FOREIGN KEY (owner) REFERENCES users (uid) DEFERRABLE INITIALLY IMMEDIATE,
---    CONSTRAINT parameters_unique UNIQUE(name, symbol)
---) INHERITS (stat);
+insert into units (owner, name, symbol, measurand_id, base_unit, metric_system ) values
+( rootid, 'teraohm',  'TΩ', measurand, base, derived_SI_sys ),
+( rootid, 'gigaohm',  'GΩ', measurand, base, derived_SI_sys ),
+( rootid, 'megaohm',  'MΩ', measurand, base, derived_SI_sys ),
+( rootid, 'kiloohm',  'kΩ', measurand, base, derived_SI_sys ),
+( rootid, 'milliohm', 'mΩ', measurand, base, derived_SI_sys ),
+( rootid, 'microohm', 'µΩ', measurand, base, derived_SI_sys ),
+( rootid, 'nanoohm',  'nΩ', measurand, base, derived_SI_sys ),
+( rootid, 'picoohm',  'pΩ', measurand, base, derived_SI_sys ),
+( rootid, 'femtoohm', 'fΩ', measurand, base, derived_SI_sys );
+
+insert into measurands (name, description, dimension_symbol )
+values('Electric power', 'Electric power is the rate at which electrical energy is transferred by an electric circuit. The SI unit of power is the watt, one joule per second', 'P')
+returning id into measurand;
+
+insert into units (owner, name, symbol, measurand_id, metric_system ) values
+( rootid, 'watt', 'W', measurand, derived_SI_sys) returning uid into base;
+
+insert into units (owner, name, symbol, measurand_id, base_unit, metric_system ) values
+( rootid, 'terawatt',  'TW', measurand, base, derived_SI_sys ),
+( rootid, 'gigawatt',  'GW', measurand, base, derived_SI_sys ),
+( rootid, 'megawatt',  'MW', measurand, base, derived_SI_sys ),
+( rootid, 'kilowatt',  'kW', measurand, base, derived_SI_sys ),
+( rootid, 'milliwatt', 'mW', measurand, base, derived_SI_sys ),
+( rootid, 'microwatt', 'µW', measurand, base, derived_SI_sys ),
+( rootid, 'nanowatt',  'nW', measurand, base, derived_SI_sys ),
+( rootid, 'picowatt',  'pW', measurand, base, derived_SI_sys ),
+( rootid, 'femtowatt', 'fW', measurand, base, derived_SI_sys );
 
 insert into parameters (owner, name, symbol, unit, description, ptype) values
-( rootid, 'Rezystancja', 'R', unit_id, '', 'stored' );
+( rootid, 'Moc', 'W', base, '', 'stored' );
 
 insert into measurands (name, description, dimension_symbol )
 values('Length', 'In geometric measurements, length is the most extended dimension of an object', 'L' )
@@ -70,10 +91,6 @@ insert into units (owner, name, symbol, measurand_id, base_unit, metric_system )
 ( rootid, 'gigametre', 'Gm',  measurand, base, metric_sys ),
 ( rootid, 'megametre', 'Mm',  measurand, base, metric_sys ),
 ( rootid, 'kilometre', 'km',  measurand, base, metric_sys ),
-( rootid, 'hektometre', 'hm', measurand, base, metric_sys ),
-( rootid, 'dekametre', 'dam', measurand, base, metric_sys ),
-( rootid, 'decimetre', 'dm',  measurand, base, metric_sys ),
-( rootid, 'centimetre', 'cm', measurand, base, metric_sys ),
 ( rootid, 'millimetre', 'mm', measurand, base, metric_sys ),
 ( rootid, 'micrometre', 'µm', measurand, base, metric_sys ),
 ( rootid, 'nanometre', 'nm',  measurand, base, metric_sys ),
@@ -92,10 +109,6 @@ insert into units (owner, name, symbol, measurand_id, base_unit, metric_system )
 ( rootid, 'teragram', 'Tg',  measurand, base, metric_sys ),
 ( rootid, 'gigagram', 'Gg',  measurand, base, metric_sys ),
 ( rootid, 'megagram', 'Mg',  measurand, base, metric_sys ),
-( rootid, 'hektogram', 'hg', measurand, base, metric_sys ),
-( rootid, 'decagram', 'dag', measurand, base, metric_sys ),
-( rootid, 'decigram', 'dg',  measurand, base, metric_sys ),
-( rootid, 'centigram', 'cg', measurand, base, metric_sys ),
 ( rootid, 'milligram', 'mg', measurand, base, metric_sys ),
 ( rootid, 'microgram', 'µg', measurand, base, metric_sys ),
 ( rootid, 'nanogram', 'ng',  measurand, base, metric_sys ),
