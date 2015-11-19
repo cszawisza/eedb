@@ -39,16 +39,16 @@ void ItemPU::process(DB &db, ClientRequest &msgReq)
     else{
         auto msgType = req.action_case();
         switch ( msgType ) {
-        case ItemRequest::kAdd:
+        case ItemReq::kAdd:
             handle_add(db, *req.mutable_add() );
             break;
-        case ItemRequest::kGet:
+        case ItemReq::kGet:
 //            handle_login(db, req.login() );
             break;
-        case ItemRequest::kModify:
+        case ItemReq::kModify:
 //            handle_logout(db, req.logout() );
             break;
-        case ItemRequest::kRemove:
+        case ItemReq::kRemove:
 //            handle_get(db, req.get() );
             break;
         case UserReq::ACTION_NOT_SET:
@@ -58,7 +58,7 @@ void ItemPU::process(DB &db, ClientRequest &msgReq)
     }
 }
 
-void ItemPU::handle_add(DB &db, ItemRequest_Add &msg)
+void ItemPU::handle_add(DB &db, ItemReq_Add &msg)
 {
     constexpr schema::items it;
 
@@ -78,7 +78,7 @@ void ItemPU::handle_add(DB &db, ItemRequest_Add &msg)
 }
 
 
-void ItemPU::run_saveItemInDb(DB &db, ItemRequest_Add &msg)
+void ItemPU::run_saveItemInDb(DB &db, ItemReq_Add &msg)
 {
     //check parameters
 

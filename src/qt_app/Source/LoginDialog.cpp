@@ -1,13 +1,11 @@
 #include "LoginDialog.hpp"
 #include "ui_LoginDialog.h"
 
-#include <QWebSocket>
-
 #include <LoginVerificator.hpp>
 #include <UserRegister.hpp>
 
 LoginDialog::LoginDialog(const ILoginVerificator & p_loginVerificator,
-                         QWebSocket & p_webSocket,
+                         QSharedPointer<ISocket> p_webSocket,
                          const IUserRegister & p_userRegister,
                          QWidget *parent) :
     QDialog(parent),
@@ -58,15 +56,16 @@ LoginDialog::LoginDialog(const ILoginVerificator & p_loginVerificator,
         connectToServer();
     });
 
-    connect(&m_socket, &QWebSocket::connected, [=]() {
+    connect(m_socket.data(), &ISocket::connected, [=]() {
         chooseAction();
     });
 
-    connect(&m_socket, static_cast< void(QWebSocket::*)(QAbstractSocket::SocketError)>(&QWebSocket::error),
-            [=](QAbstractSocket::SocketError e){
-        ui->connectResponseLabel->setText("Connection error: " + QString::number(e));
-        m_socket.close();
-    });
+    ///TODO repair
+//    connect(m_socket.data(), static_cast< void(ISocket::*)(QAbstractSocket::SocketError)>(&QWebSocket::error),
+//            [=](QAbstractSocket::SocketError e){
+//        ui->connectResponseLabel->setText("Connection error: " + QString::number(e));
+//        m_socket->close();
+//    });
 }
 
 Ui::LoginDialog *LoginDialog::getUi()
@@ -121,11 +120,11 @@ Ui::LoginDialog *LoginDialog::getUi()
 //        port = url.port();
 //        host = url.host();
 //        qDebug() << "closing socket";
-//        m_socket.close();
+//        m_socket->close();
 //    }
 
-//    if(m_socket.state() == QAbstractSocket::UnconnectedState){
-//        m_socket.open(url);
+//    if(m_socket->state() == QAbstractSocket::UnconnectedState){
+//        m_socket->open(url);
 //        QEventLoop pause;
 //        QTimer *timer = new QTimer();
 //        timer->setSingleShot(1000);
@@ -151,12 +150,12 @@ Ui::LoginDialog *LoginDialog::getUi()
 
 //    qDebug()<<" socket connected!: sending message: "<< QString(ba.toHex());
 
-//    m_socket.sendBinaryMessage(ba);
+//    m_socket->sendBinaryMessage(ba);
 //}
 
-QWebSocket *LoginDialog::socket() const
+QSharedPointer<ISocket> LoginDialog::socket() const
 {
-    return &m_socket;
+    return m_socket;
 }
 
 LoginDialog::~LoginDialog()
@@ -167,7 +166,7 @@ LoginDialog::~LoginDialog()
 void LoginDialog::doConnectTest()
 {
     ui->connectResponseLabel->setText("Connection ok!");
-    m_socket.close(QWebSocketProtocol::CloseCodeNormal, "Test connection, sorry for interrupt ;)");
+    m_socket->close(ISocket::CloseCodeNormal, "Test connection, sorry for interrupt ;)");
 }
 
 void LoginDialog::connectToServer()
@@ -176,7 +175,7 @@ void LoginDialog::connectToServer()
     l_url.setHost(ui->serverIp->text());
     l_url.setPort(ui->serverPort->text().toInt());
     l_url.setScheme("ws");
-    m_socket.open(l_url);
+    m_socket->open(l_url);
 }
 
 void LoginDialog::loginToServer()
@@ -204,7 +203,7 @@ void LoginDialog::chooseAction()
     else if (m_action == Action::REGISTER)
     {
         m_userRegister.registerUser();
-        m_socket.close();
+        m_socket->close();
     }
     else if (m_action == Action::TESTCONNECTION)
         doConnectTest();

@@ -4,7 +4,7 @@
 #include <QAbstractSocket>
 
 inline std::ostream& operator<<(std::ostream& os, const QString& c) {
-        os << c.toStdString();
+        return os << c.toStdString();
 }
 
 inline std::ostream& operator<<(std::ostream& os, const QAbstractSocket::SocketState& c) {
@@ -32,6 +32,7 @@ inline std::ostream& operator<<(std::ostream& os, const QAbstractSocket::SocketS
         os << "QAbstractSocket::ClosingState";
         break;
     }
+    return os;
 }
 
 #define LOG_DB_EXCEPTION(e)\

@@ -6,6 +6,7 @@
 #include <LoginDialog.hpp>
 #include <LoginVerificatorMock.hpp>
 #include <UserRegisterMock.hpp>
+#include <ISocketMock.hpp>
 #include <ui_LoginDialog.h> // to get loginDialog UI definition
 
 using namespace testing;
@@ -14,14 +15,14 @@ struct LoginDialogTestSuite : public ::testing::Test
 {
     LoginDialogTestSuite();
     StrictMock<LoginVerificatorMock> loginVerificatorMock;
-    StrictMock<QWebSocket> webSocketMock;
+    QSharedPointer<SocketMock> webSocketMock;
     StrictMock<UserRegisterMock> userRegisterMock;
     LoginDialog m_sut;
 };
 
 LoginDialogTestSuite::LoginDialogTestSuite()
     : loginVerificatorMock{},
-      webSocketMock{},
+      webSocketMock(QSharedPointer<SocketMock>(new StrictMock<SocketMock>() )),
       userRegisterMock{},
       m_sut(loginVerificatorMock, webSocketMock, userRegisterMock)
 {}
@@ -33,9 +34,10 @@ TEST_F(LoginDialogTestSuite, InvokeMainWindowAfterSuccesfullServerConnection)
 
     m_sut.getUi()->userLogin->setText("login");
     m_sut.getUi()->userPassword->setText("pass");
+    EXPECT_CALL(*(webSocketMock.data()), open( _ ));
     EXPECT_CALL(loginVerificatorMock, tryLogin(m_sut.getUi()->userPassword->text().toStdString(),
                                                m_sut.getUi()->userLogin->text().toStdString())).WillOnce(Return(true));
-    emit webSocketMock.connected();
+    emit webSocketMock->connected();
     QTest::mouseClick(m_sut.getUi()->login, Qt::LeftButton);
 
     EXPECT_EQ(1, buttonSpy.count());
@@ -50,9 +52,11 @@ TEST_F(LoginDialogTestSuite, DontInvokeMainWindowAfterSuccesfullServerConnection
 
     m_sut.getUi()->userLogin->setText("login");
     m_sut.getUi()->userPassword->setText("pass");
+
+    EXPECT_CALL(*(webSocketMock.data()), open( _ ));
     EXPECT_CALL(loginVerificatorMock, tryLogin(m_sut.getUi()->userPassword->text().toStdString(),
                                                m_sut.getUi()->userLogin->text().toStdString())).WillOnce(Return(false));
-    emit webSocketMock.connected();
+    emit webSocketMock->connected();
     QTest::mouseClick(m_sut.getUi()->login, Qt::LeftButton);
 
     EXPECT_EQ(1, buttonSpy.count());
@@ -61,11 +65,15 @@ TEST_F(LoginDialogTestSuite, DontInvokeMainWindowAfterSuccesfullServerConnection
 
 TEST_F(LoginDialogTestSuite, InvokeRegisterWindowAfterSuccesfullServerConnection)
 {
+    EXPECT_CALL(*(webSocketMock.data()), open( _ ));
+    EXPECT_CALL(*(webSocketMock.data()), close( _ , _));
+
+    EXPECT_CALL(userRegisterMock, registerUser());
+
     QSignalSpy buttonSpy(m_sut.getUi()->registerNewUser, SIGNAL(clicked(bool)));
     QTest::mouseClick(m_sut.getUi()->registerNewUser, Qt::LeftButton);
 
-    EXPECT_CALL(userRegisterMock, registerUser());
-    emit webSocketMock.connected();
+    emit webSocketMock->connected();
     EXPECT_EQ(1, buttonSpy.count());
 }
 

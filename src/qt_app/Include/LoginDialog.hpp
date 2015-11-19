@@ -2,14 +2,16 @@
 
 #include <QDialog>
 #include <QSettings>
+#include <QSharedPointer>
 
+#include "ISocket.hpp"
 namespace Ui
 {
 class LoginDialog;
 }
 
 class ILoginVerificator;
-class QWebSocket;
+
 class IUserRegister;
 
 class LoginDialog : public QDialog
@@ -18,12 +20,12 @@ class LoginDialog : public QDialog
 
 public:
     explicit LoginDialog(const ILoginVerificator & p_loginVerificator,
-                         QWebSocket & p_webSocket,
+                         QSharedPointer<ISocket> p_webSocket,
                          const IUserRegister & p_userRegister,
                          QWidget *parent = 0);
     ~LoginDialog();
 
-    QWebSocket *socket() const;
+    QSharedPointer<ISocket> socket() const;
     Ui::LoginDialog *getUi();
 
 public slots:
@@ -51,7 +53,7 @@ private:
     void chooseAction();
 
     const ILoginVerificator & m_loginVerificator;
-    QWebSocket & m_socket;
+    QSharedPointer<ISocket> m_socket;
     Action m_action;
     const IUserRegister & m_userRegister;
     QSettings setup;

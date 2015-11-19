@@ -4,8 +4,8 @@
 
 #include <ICommunicationManager.hpp>
 #include <ProtobufConverters.hpp>
+#include "ISocket.hpp"
 
-class QWebSocket;
 class QByteArray;
 
 namespace pb
@@ -15,17 +15,29 @@ namespace pb
 
 class CommunicationManager : public ICommunicationManager
 {
+    Q_OBJECT
 public:
-    CommunicationManager(QWebSocket & p_webSocket,
+    CommunicationManager(QSharedPointer<ISocket> p_webSocket,
                          ProtobufToQByteArrayConverter p_convertProtobufToString,
                          QByteArrayToProtobufConverter p_convertQByteArrayToProtobuf);
-    void handle() const override;
-    void handleRegister(std::string &, std::string &, std::string &,
-                        std::string &, std::string &, std::string &) const override;
 
+
+    void handleRegister(std::string &, std::string &, std::string &,
+                        std::string &, std::string &, std::string &) ;
+    ~CommunicationManager(){}
 private:
-    void sendBinaryMessageOverQWebSocket(const pb::ClientRequests & p_clientRequests) const;
-    QWebSocket & m_webSocket;
+    QSharedPointer<ISocket> m_socket;
     ProtobufToQByteArrayConverter m_convertProtobufToQByteArray;
     QByteArrayToProtobufConverter m_convertQByteArrayToProtobuf;
+
+    // ICommunicationManager interface
+public:
+    pb::ClientRequest *newRequest(uint64_t &request_id );
+
+    void sendRequest();
+public slots:
+    void sendUserRequest(std::shared_ptr<pb::UserRes> data);
+
+private:
+    pb::ClientRequests p_clientRequests;
 };

@@ -20,6 +20,10 @@ set(QT_HEADERS
     Include/MrichTextEdit.hpp
     Include/MTextEdit.hpp
     Include/QScienceSpinBox.hpp
+    Include/WebSocket.hpp
+    Include/ISocket.hpp
+    Include/ICommunicationManager.hpp
+    Include/CommunicationManager.hpp
 )
 
 QT5_WRAP_UI(UIS_HDRS ${UI_FILES})

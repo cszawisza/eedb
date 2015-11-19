@@ -44,8 +44,9 @@ void AddUserDialog::on_registerNewUser_clicked()
     l_userDescritpion = ui->description->toPlainText().toStdString();
     l_userPhoneNumber = ui->phonenumber->text().toStdString();
 
-    m_communicatioManager.handleRegister(l_userName, l_userPassword, l_userEmail,
-                                         l_userAdress, l_userDescritpion, l_userPhoneNumber);
+    ///FIXME
+//    m_communicatioManager.handleRegister(l_userName, l_userPassword, l_userEmail,
+//                                         l_userAdress, l_userDescritpion, l_userPhoneNumber);
 //    pb::ClientRequests fullMessage;
 //    auto loginReq = fullMessage.add_request();
 //    auto userMsg = loginReq->mutable_userreq();

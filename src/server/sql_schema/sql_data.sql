@@ -39,6 +39,14 @@ insert into units (owner, name, symbol, measurand_id, base_unit, metric_system )
 ( rootid, 'picoampere',  'pA', measurand, base, metric_sys ),
 ( rootid, 'femtoampere', 'fA', measurand, base, metric_sys );
 
+insert into parameters (owner, name, symbol, unit, description, ptype) values
+( rootid, 'Prąd Znamionowy', '', base, '', 'stored' ),
+( rootid, 'Zdolność wyłączania', '', base, '', 'stored' ),
+( rootid, 'Prąd ładowania maks.', '', base, '', 'stored' ),
+( rootid, 'Prąd zwarciowy', '', base, '', 'stored' ),
+( rootid, 'Prąd znamionowy', '', base, '', 'stored' ),
+( rootid, 'Prąd zasilania DC', '', base, '', 'stored' );
+
 insert into measurands (name, description, dimension_symbol )
 values('electrical resistance', '', 'R')
 returning id into measurand;

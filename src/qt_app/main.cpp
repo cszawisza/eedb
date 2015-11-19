@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <QTimer>
 #include <QByteArray>
-#include <QWebSocket>
+#include "WebSocket.hpp"
 
 #include <LoginDialog.hpp>
 #include <CommunicationManager.hpp>
@@ -38,7 +38,7 @@ void showHelloMessage(const char *argv)
 
 void showLoginDialog(QApplication &a)
 {
-    QWebSocket l_webSocket("EKatalog client");
+    QSharedPointer<ISocket> l_webSocket = QSharedPointer<ISocket>(new WebSocket());
     auto l_protobufToQbyteArrayConverter = [](const pb::ClientRequests & p_clientRequests)
     {
         return convertProtobufClientRequestsToQByteArray(p_clientRequests);
@@ -47,7 +47,7 @@ void showLoginDialog(QApplication &a)
     {
         return convertQByteArrayToProtobufServerResponse(p_serverResponse);
     };
-    LoginVerificator l_loginVerificator(l_webSocket);
+    LoginVerificator l_loginVerificator;
     CommunicationManager l_communicationManager(l_webSocket,
                                                 l_protobufToQbyteArrayConverter,
                                                 l_qbyteArrayToProtobufConverter);

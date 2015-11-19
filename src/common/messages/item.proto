@@ -8,7 +8,7 @@ import public "package.proto";
 import public "parameters.proto";
 import public "common.proto";
 
-message ItemRequest{
+message ItemReq{
     oneof action{
       Add add = 2;
       Remove remove = 5;
