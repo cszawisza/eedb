@@ -1,5 +1,4 @@
 #pragma once
-
 #include <string>
 
 #include <ICommunicationManager.hpp>
@@ -25,19 +24,17 @@ public:
     void handleRegister(std::string &, std::string &, std::string &,
                         std::string &, std::string &, std::string &) ;
     ~CommunicationManager(){}
+
+    pb::ClientRequest *newRequest(uint64_t &request_id ) override;
+
+    void sendRequest();
+public slots:
+    void sendUserRequest(std::shared_ptr<pb::UserReq> data) override;
+    QSharedPointer<ISocket> socket() const override;
+
 private:
     QSharedPointer<ISocket> m_socket;
     ProtobufToQByteArrayConverter m_convertProtobufToQByteArray;
     QByteArrayToProtobufConverter m_convertQByteArrayToProtobuf;
-
-    // ICommunicationManager interface
-public:
-    pb::ClientRequest *newRequest(uint64_t &request_id );
-
-    void sendRequest();
-public slots:
-    void sendUserRequest(std::shared_ptr<pb::UserRes> data);
-
-private:
     pb::ClientRequests p_clientRequests;
 };

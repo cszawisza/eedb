@@ -3,24 +3,142 @@
 
 #include <LoginVerificator.hpp>
 #include <UserRegister.hpp>
+#include <WebSocket.hpp>
+#include <QUrl>
+#include <QTimer>
 
-LoginDialog::LoginDialog(const ILoginVerificator & p_loginVerificator,
-                         QSharedPointer<ISocket> p_webSocket,
-                         const IUserRegister & p_userRegister,
-                         QWidget *parent) :
-    QDialog(parent),
+#include "AddUserDialog.hpp"
+
+#define STR(x) #x
+#define STATE_GUARD(statename) \
+    connect( statename, &QState::entered, [&](){ qDebug() << STR(statename) << " entered "; } );\
+    connect( statename, &QState::exited, [&](){ qDebug() << STR(statename) << " exited "; } );
+
+void LoginDialog::prepareUnconnectedState(QState* unconnectedState, QState* tryConnect)
+{
+
+}
+
+void LoginDialog::prepareTryConnectState(QState* tryConnect, QState* connected, QState* unconnected)
+{
+
+}
+
+void LoginDialog::prepareConnectedState(QState* connected, QState* disconnect, QState* login, QState* userRegister)
+{
+
+}
+
+LoginDialog::LoginDialog(const ILoginVerificator &p_loginVerificator,
+                         QSharedPointer<ICommunicationManager> p_communicationManager,
+                         const IUserRegister &p_userRegister,
+                         QWidget *parent):    QDialog(parent),
     ui(new Ui::LoginDialog),
+    m_manager(p_communicationManager),
     m_loginVerificator(p_loginVerificator),
-    m_socket(p_webSocket),
     m_action(Action::LOGIN),
     m_userRegister(p_userRegister)
 {
     ui->setupUi(this);
-    ui->connection_groupbox->setChecked(false);
-    connect(this, SIGNAL(loginSucces()), SLOT(close()));
-    connect(this, SIGNAL(loginSucces()), SIGNAL(showOtherWindow()));
-    setDeafultServerInfo();
 
+    userReg = new AddUserDialog(m_manager, this);
+    
+    stateMachine = new QStateMachine(this);
+
+    QState* connectedState = new QState();//, waitForSend, waitForResponse, werify;
+    QState* tryConnectState = new QState();
+
+    QState* tryDisconnect = new QState(connectedState);
+    QState* disconnectedState = new QState(connectedState);
+    QState* canLoginState = new QState(connectedState);
+    QState* login = new QState(connectedState);
+    QState* tryLogin = new QState(connectedState);
+    QState* loginFail = new QState(connectedState);
+    QState* loginOk = new QState(connectedState);
+
+//    QState* disconnect = new QState(disconnectedState);
+    QState* userRegister = new QState(connectedState);
+    QState* userRegisterFail = new QState(connectedState);
+
+    STATE_GUARD(connectedState);
+    STATE_GUARD(tryConnectState);
+    STATE_GUARD(tryDisconnect);
+    STATE_GUARD(disconnectedState);
+    STATE_GUARD(canLoginState);
+    STATE_GUARD(login);
+    STATE_GUARD(tryLogin);
+    STATE_GUARD(userRegister);
+    STATE_GUARD(userRegisterFail);
+
+    disconnectedState->assignProperty( ui->login_groupbox, "enabled", false );
+    disconnectedState->assignProperty( ui->connection_groupbox, "enabled", true );
+    disconnectedState->assignProperty( ui->connectBtn, "text", "Connect");
+    disconnectedState->addTransition(ui->connectBtn, SIGNAL(clicked()), tryConnectState);
+
+    tryConnectState->assignProperty(ui->connection_groupbox, "enabled", false );
+    tryConnectState->assignProperty(ui->connectBtn, "text", "Try to connect" );
+    tryConnectState->addTransition(m_manager->socket().data(), SIGNAL(opened()), connectedState);
+    tryConnectState->addTransition(m_manager->socket().data(), SIGNAL(error(QAbstractSocket::SocketError)), disconnectedState);
+
+    connect(tryConnectState,  &QState::entered, [&](){
+        QUrl url;
+        url.setHost(ui->serverIp->text());
+        url.setPort(ui->serverPort->text().toInt());
+        url.setScheme("ws");
+
+        m_manager->socket()->open(url);
+    });
+
+    connectedState->assignProperty(ui->connectBtn, "text", "Disconnect");
+    connectedState->assignProperty(ui->login_groupbox, "enabled", true );
+
+    connectedState->addTransition(ui->registerNewUser, SIGNAL(clicked()), userRegister);
+    connectedState->addTransition(ui->login, SIGNAL(clicked()), login);
+    connectedState->addTransition(ui->connectBtn, SIGNAL(clicked()), tryDisconnect);
+    connectedState->addTransition(m_manager->socket().data(), SIGNAL(closed()), disconnectedState);
+    connectedState->setInitialState(canLoginState);
+
+    connect( tryDisconnect, &QState::entered, [this](){
+       m_manager->socket()->close();
+    });
+
+//    userRegister->assignProperty( this, "visible", false);
+    userRegister->assignProperty( userReg, "visible", true);
+    userRegister->addTransition( userReg, SIGNAL(rejected()), canLoginState);
+    userRegister->addTransition( userReg, SIGNAL(registrationSuccesfull()), canLoginState );
+    connect( userRegister, &QState::exited, [this](){
+        userReg->hide();
+    });
+
+    canLoginState->assignProperty( ui->login, "enabled", true);
+
+    connect( canLoginState, &QState::entered, [this](){
+        ui->userLogin->setText(userReg->name());
+        ui->userPassword->setText(userReg->password());
+     });
+
+    canLoginState->addTransition( ui->login, SIGNAL(clicked()), tryLogin );
+    userRegister->addTransition( userReg, SIGNAL(registrationFailed()), userRegisterFail);
+    userRegister->addTransition( userReg, SIGNAL(registrationAborted()), connectedState) ;
+
+    stateMachine->addState(disconnectedState);
+    stateMachine->addState(tryConnectState);
+    stateMachine->addState(connectedState);
+//    stateMachine->addState(tryConnect);
+//    stateMachine->addState(connected);
+//    stateMachine->addState(login);
+//    stateMachine->addState(userRegister);
+//    stateMachine->addState(canLoginState);
+//    stateMachine->addState(userRegisterFail);
+
+
+    stateMachine->setInitialState(disconnectedState);
+    stateMachine->start();
+
+//    ui->connection_groupbox->setChecked(false);
+//    connect(this, SIGNAL(loginSucces()), SLOT(close()));
+//    connect(this, SIGNAL(loginSucces()), SIGNAL(showOtherWindow()));
+//    setDeafultServerInfo();
 
 //    connect(this, &LoginDialog::loginFailure, [=](){
 //        ui->connectResponseLabel->setText("Autentification error");
@@ -41,24 +159,24 @@ LoginDialog::LoginDialog(const ILoginVerificator & p_loginVerificator,
 
     //connect(&m_socket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(readyRead(QByteArray)));
 
-    connect(ui->testConnction, static_cast<void (QPushButton::*)(bool)>(&QPushButton::clicked), [=](){
-        m_action = Action::TESTCONNECTION;
-        connectToServer();
-    });
+//    connect(ui->testConnction, static_cast<void (QPushButton::*)(bool)>(&QPushButton::clicked), [=](){
+//        m_action = Action::TESTCONNECTION;
+//        connectToServer();
+//    });
 
-    connect(ui->registerNewUser, static_cast<void (QPushButton::*)(bool)>(&QPushButton::clicked), [=](){
-        m_action = Action::REGISTER;
-        connectToServer();
-    });
+//    connect(ui->registerNewUser, static_cast<void (QPushButton::*)(bool)>(&QPushButton::clicked), [=](){
+//        m_action = Action::REGISTER;
+//        connectToServer();
+//    });
 
-    connect(ui->login, static_cast<void (QPushButton::*)(bool)>(&QPushButton::clicked), [=](){
-        m_action = Action::LOGIN;
-        connectToServer();
-    });
+//    connect(ui->login, static_cast<void (QPushButton::*)(bool)>(&QPushButton::clicked), [=](){
+//        m_action = Action::LOGIN;
+//        connectToServer();
+//    });
 
-    connect(m_socket.data(), &ISocket::connected, [=]() {
-        chooseAction();
-    });
+//    connect(m_socket.data(), &ISocket::connected, [=]() {
+//        chooseAction();
+//    });
 
     ///TODO repair
 //    connect(m_socket.data(), static_cast< void(ISocket::*)(QAbstractSocket::SocketError)>(&QWebSocket::error),
@@ -66,6 +184,12 @@ LoginDialog::LoginDialog(const ILoginVerificator & p_loginVerificator,
 //        ui->connectResponseLabel->setText("Connection error: " + QString::number(e));
 //        m_socket->close();
 //    });
+
+//    setDeafultServerInfo();
+
+    QTimer::singleShot(10, [&](){
+        ui->connectBtn->click();
+    });
 }
 
 Ui::LoginDialog *LoginDialog::getUi()
@@ -153,10 +277,10 @@ Ui::LoginDialog *LoginDialog::getUi()
 //    m_socket->sendBinaryMessage(ba);
 //}
 
-QSharedPointer<ISocket> LoginDialog::socket() const
-{
-    return m_socket;
-}
+//QSharedPointer<ISocket> LoginDialog::socket() const
+//{
+//    return m_socket;
+//}
 
 LoginDialog::~LoginDialog()
 {
@@ -165,8 +289,9 @@ LoginDialog::~LoginDialog()
 
 void LoginDialog::doConnectTest()
 {
-    ui->connectResponseLabel->setText("Connection ok!");
-    m_socket->close(ISocket::CloseCodeNormal, "Test connection, sorry for interrupt ;)");
+//    emit testConnection(
+//    ui->connectResponseLabel->setText("Connection ok!");
+//    m_socket->close(ISocket::CloseCodeNormal, "Test connection, sorry for interrupt ;)");
 }
 
 void LoginDialog::connectToServer()
@@ -175,7 +300,7 @@ void LoginDialog::connectToServer()
     l_url.setHost(ui->serverIp->text());
     l_url.setPort(ui->serverPort->text().toInt());
     l_url.setScheme("ws");
-    m_socket->open(l_url);
+    emit testConnection(l_url);
 }
 
 void LoginDialog::loginToServer()
@@ -198,13 +323,13 @@ void LoginDialog::setDeafultServerInfo()
 
 void LoginDialog::chooseAction()
 {
-    if (m_action == Action::LOGIN)
-        loginToServer();
-    else if (m_action == Action::REGISTER)
-    {
-        m_userRegister.registerUser();
-        m_socket->close();
-    }
-    else if (m_action == Action::TESTCONNECTION)
-        doConnectTest();
+//    if (m_action == Action::LOGIN)
+//        loginToServer();
+//    else if (m_action == Action::REGISTER)
+//    {
+//        m_userRegister.registerUser();
+//        m_manager->close();
+//    }
+//    else if (m_action == Action::TESTCONNECTION)
+//        doConnectTest();
 }

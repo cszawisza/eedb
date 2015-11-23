@@ -11,6 +11,7 @@ public slots:
     void sendBinaryMessage(QByteArray message) = 0;
     void open(const QUrl &url) = 0;
     void close(ISocket::CloseCode closeCode, const QString &reason) = 0;
+    QAbstractSocket::SocketState state() const = 0;
 };
 
 class SocketMock : public ISocketMock
@@ -20,6 +21,7 @@ public:
   MOCK_METHOD1(sendBinaryMessage, void(QByteArray ba));
   MOCK_METHOD1(open, void (const QUrl &url));
   MOCK_METHOD2_T(close, void (ISocket::CloseCode closeCode, const QString &reason));
+  MOCK_CONST_METHOD0(state, QAbstractSocket::SocketState());
 };
 
 

@@ -24,7 +24,7 @@ LoginDialogTestSuite::LoginDialogTestSuite()
     : loginVerificatorMock{},
       webSocketMock(QSharedPointer<SocketMock>(new StrictMock<SocketMock>() )),
       userRegisterMock{},
-      m_sut(loginVerificatorMock, webSocketMock, userRegisterMock)
+      m_sut(loginVerificatorMock, userRegisterMock)
 {}
 
 TEST_F(LoginDialogTestSuite, InvokeMainWindowAfterSuccesfullServerConnection)

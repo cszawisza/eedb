@@ -49,6 +49,14 @@ public:
         CommunicationErrorSocketNotConnected
     };
 
+    enum ConnectionState {
+        UnconnectedState,
+        ConnectingState,
+        ConnectedNotLoggedState,
+        ConnectedAndLoggedState, // when connected via socket to host, ald loged in to server
+        ClosingState
+    };
+
     ICommunicationManager():
     QObject(){}
     virtual ~ICommunicationManager(){}
@@ -59,10 +67,20 @@ public:
      */
     virtual pb::ClientRequest *newRequest( uint64_t &request_id ) = 0;
 
+    /**
+     * @brief socket
+     * @return pointer to socket object
+     */
+    virtual QSharedPointer<ISocket> socket() const = 0;
 public slots:
-    virtual void sendUserRequest( std::shared_ptr<pb::UserRes> data) = 0;
+    virtual void sendUserRequest( std::shared_ptr<pb::UserReq> data) = 0;
+
 signals:
+    void connected();
+    void disconnected();
+
     void error( CommunicationError error );
+
     void userRequestSent( RequestMetadata meta );
     void userResponse( ResponseMetadata meta, std::shared_ptr<pb::UserRes> data);
 };

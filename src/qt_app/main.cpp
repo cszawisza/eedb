@@ -39,27 +39,38 @@ void showHelloMessage(const char *argv)
 void showLoginDialog(QApplication &a)
 {
     QSharedPointer<ISocket> l_webSocket = QSharedPointer<ISocket>(new WebSocket());
+
     auto l_protobufToQbyteArrayConverter = [](const pb::ClientRequests & p_clientRequests)
     {
         return convertProtobufClientRequestsToQByteArray(p_clientRequests);
     };
+
     auto l_qbyteArrayToProtobufConverter = [](const QByteArray & p_serverResponse)
     {
         return convertQByteArrayToProtobufServerResponse(p_serverResponse);
     };
+
+    QSharedPointer<ICommunicationManager>  l_communicationManager =
+            QSharedPointer<ICommunicationManager>(
+                new CommunicationManager(l_webSocket,
+                                         l_protobufToQbyteArrayConverter,
+                                         l_qbyteArrayToProtobufConverter));
     LoginVerificator l_loginVerificator;
-    CommunicationManager l_communicationManager(l_webSocket,
-                                                l_protobufToQbyteArrayConverter,
-                                                l_qbyteArrayToProtobufConverter);
-    UserRegister l_userRegister{l_communicationManager};
-    ApplicationMainWindow l_mainApp(l_communicationManager);
-    LoginDialog lDialog(l_loginVerificator, l_webSocket, l_userRegister);
-    QObject::connect(&lDialog, SIGNAL(showOtherWindow()), &l_mainApp, SLOT(show()));
+    UserRegister l_userRegisterDialog;
+
+    LoginDialog lDialog(l_loginVerificator, l_communicationManager, l_userRegisterDialog);
+    QObject::connect(&lDialog, &LoginDialog::testConnection, [&]( const QUrl &url ){
+        l_webSocket->open(url);
+    } );
+
+//    ApplicationMainWindow l_mainApp(l_communicationManager);
+
+//    QObject::connect(&lDialog, SIGNAL(showOtherWindow()), &l_mainApp, SLOT(show()));
     lDialog.exec();
-    if(!a.exec())
-    {
-        QTimer::singleShot(1, &a, SLOT(quit()));
-    }
+//    if(!a.exec())
+//    {
+//        QTimer::singleShot(1, &a, SLOT(quit()));
+//    }
 }
 
 } // anonymous

@@ -43,7 +43,9 @@ CommunicationManager::CommunicationManager(QSharedPointer<ISocket> p_webSocket,
       m_convertProtobufToQByteArray(p_convertProtobufToString),
       m_convertQByteArrayToProtobuf(p_convertQByteArrayToProtobuf)
 {
-    QObject::connect(m_socket.data(), &ISocket::binaryMessageReceived, [=](const QByteArray & p_serverResponse)
+    auto socket = m_socket.data();
+
+    QObject::connect(socket, &ISocket::binaryMessageReceived, [=](const QByteArray & p_serverResponse)
     {
         qDebug() << "Binary message recceived";
         auto l_serverResponseArray = m_convertQByteArrayToProtobuf(p_serverResponse);
@@ -51,6 +53,10 @@ CommunicationManager::CommunicationManager(QSharedPointer<ISocket> p_webSocket,
         {
             handleConvertedServerResponse(l_serverResponseArray.get());
         }
+    });
+
+    QObject::connect(socket, &ISocket::opened, [this](){
+       emit connected();
     });
 }
 
@@ -92,8 +98,15 @@ void CommunicationManager::sendRequest()
     m_socket->sendBinaryMessage(m_convertProtobufToQByteArray(p_clientRequests));
 }
 
-void CommunicationManager::sendUserRequest(std::shared_ptr<pb::UserRes> data)
+void CommunicationManager::sendUserRequest(std::shared_ptr<pb::UserReq> data)
 {
+    if(m_socket->state() == QAbstractSocket::ConnectedState ){
+        sendRequest();
+    }
+}
 
+QSharedPointer<ISocket> CommunicationManager::socket() const
+{
+    return m_socket;
 }
 

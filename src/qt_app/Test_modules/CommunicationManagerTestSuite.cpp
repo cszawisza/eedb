@@ -4,7 +4,7 @@
 #include "message_conteiner.pb.h"
 #include "user.pb.h"
 #include "ISocketMock.hpp"
-
+#include <QSignalSpy>
 using namespace testing;
 
 struct CommunicationManagerTestSuite : public ::testing::Test
@@ -13,19 +13,25 @@ struct CommunicationManagerTestSuite : public ::testing::Test
     MOCK_METHOD1(convertQByteArrayToProtobufServerResponseMock, boost::optional<pb::ServerResponses>(const QByteArray &));
 
     CommunicationManagerTestSuite();
-    QSharedPointer<StrictMock<SocketMock>> webSocketMock;
+    QSharedPointer<SocketMock> webSocketMock;
     CommunicationManager m_sut;
 };
 
 CommunicationManagerTestSuite::CommunicationManagerTestSuite()
-    : webSocketMock{},
+    : webSocketMock(QSharedPointer<SocketMock>(new StrictMock<SocketMock>() )),
       m_sut(webSocketMock,
             [this](const pb::ClientRequests & p_clientRequest)
                 { return convertProtobufClientRequestsToQByteArrayMock(p_clientRequest);},
             [this](const QByteArray & p_serverResponse)
                 { return convertQByteArrayToProtobufServerResponseMock(p_serverResponse);})
 {
-//    m_sut.handle();
+}
+
+TEST_F(CommunicationManagerTestSuite, signalAndSlotMechanismCheck ){
+    EXPECT_CALL( *(webSocketMock.data()), state() ).WillOnce( Return(QAbstractSocket::ConnectedState) );
+
+    QSignalSpy spy(&m_sut, SIGNAL( userRequestSent(RequestMetadata)));
+    m_sut.sendUserRequest( std::make_shared<pb::UserReq>() );
 }
 
 TEST_F(CommunicationManagerTestSuite, ServerResponseParseError)

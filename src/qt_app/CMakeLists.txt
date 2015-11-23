@@ -22,6 +22,8 @@ set(QT_HEADERS
     Include/QScienceSpinBox.hpp
     Include/WebSocket.hpp
     Include/ISocket.hpp
+    Include/IUserRegister.hpp
+    Include/UserRegister.hpp
     Include/ICommunicationManager.hpp
     Include/CommunicationManager.hpp
 )

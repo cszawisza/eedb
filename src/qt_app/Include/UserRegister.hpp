@@ -6,10 +6,11 @@ class ICommunicationManager;
 
 class UserRegister : public IUserRegister
 {
+    Q_OBJECT
 public:
-    UserRegister(ICommunicationManager &);
+    UserRegister(/*ICommunicationManager &*/);
     void registerUser() const override;
 
 private:
-    ICommunicationManager & m_communicatioManager;
+//    ICommunicationManager & m_communicatioManager;
 };
