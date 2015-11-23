@@ -4,6 +4,7 @@
 #include <QPointer>
 
 #include "database/initialize.hpp"
+#include "utils/LogUtils.hpp"
 
 EEDB::EEDB(QObject *parent) :
     QWebSocketServer(QStringLiteral("EKATALOG"),QWebSocketServer::NonSecureMode, parent)
@@ -34,6 +35,7 @@ void EEDB::incomingConnection()
 {
     while(hasPendingConnections()){
         QWebSocket *ws = nextPendingConnection();
+        getServerLoger()->info( "{}, state changed to: {}", ws->peerAddress().toString(), QAbstractSocket::ConnectedState );
         ClientConnection *connection = new ClientConnection(ws);
         m_connectedClients.append(connection);
         connect(connection, SIGNAL(disconnected()),

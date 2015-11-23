@@ -26,7 +26,7 @@ void IMessageProcessingUint::setUserData(SharedUserData userData){
 
 void IMessageProcessingUint::process(int msgId){
     auto req = m_inputFrame->mutable_request( msgId );
-    m_currentRequestId = req->requestid();
+    m_currentRequestId = req->request_id();
     process(*req);
 }
 
@@ -48,7 +48,7 @@ size_t IMessageProcessingUint::responseCount() const {
 void IMessageProcessingUint::process(pb::ClientRequest &req){
     auto msg = m_outputFrame->add_response();
     msg->CopyFrom( pb::ServerResponse::default_instance() );
-    msg->set_responseid( req.requestid() );
+    msg->set_response_id( req.request_id() );
     msg->set_code(pb::Error_MsgUnknown);
 }
 
@@ -61,7 +61,7 @@ pb::ServerResponse *IMessageProcessingUint::add_response() {
         m_outputFrame = SharedResponses(new pb::ServerResponses);
     auto res = m_outputFrame->add_response();
     res->CopyFrom(pb::ServerResponse::default_instance());
-    res->set_responseid( m_response_id++ );
+    res->set_response_id( m_response_id++ );
     res->set_in_response_to(m_currentRequestId);
     return res;
 }

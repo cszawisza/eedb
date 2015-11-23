@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <QTimer>
 #include <QByteArray>
-#include <QWebSocket>
+#include "WebSocket.hpp"
 
 #include <LoginDialog.hpp>
 #include <CommunicationManager.hpp>
@@ -36,29 +36,48 @@ void showHelloMessage(const char *argv)
     qDebug() << msg.toUtf8();
 }
 
+void killApp(QApplication &a)
+{
+    QTimer::singleShot(1, &a, SLOT(quit()));
+    a.exec();
+}
+
+void showMainWindow(QApplication &a, QSharedPointer<ICommunicationManager> l_communicationManager)
+{
+    ApplicationMainWindow l_mainApp(l_communicationManager);
+    l_mainApp.show();
+    a.exec();
+}
+
 void showLoginDialog(QApplication &a)
 {
-    QWebSocket l_webSocket("EKatalog client");
+    QSharedPointer<ISocket> l_webSocket = QSharedPointer<ISocket>(new WebSocket());
+
     auto l_protobufToQbyteArrayConverter = [](const pb::ClientRequests & p_clientRequests)
     {
         return convertProtobufClientRequestsToQByteArray(p_clientRequests);
     };
+
     auto l_qbyteArrayToProtobufConverter = [](const QByteArray & p_serverResponse)
     {
         return convertQByteArrayToProtobufServerResponse(p_serverResponse);
     };
-    LoginVerificator l_loginVerificator(l_webSocket);
-    CommunicationManager l_communicationManager(l_webSocket,
-                                                l_protobufToQbyteArrayConverter,
-                                                l_qbyteArrayToProtobufConverter);
-    UserRegister l_userRegister{l_communicationManager};
-    ApplicationMainWindow l_mainApp(l_communicationManager);
-    LoginDialog lDialog(l_loginVerificator, l_webSocket, l_userRegister);
-    QObject::connect(&lDialog, SIGNAL(showOtherWindow()), &l_mainApp, SLOT(show()));
-    lDialog.exec();
-    if(!a.exec())
-    {
-        QTimer::singleShot(1, &a, SLOT(quit()));
+
+    QSharedPointer<ICommunicationManager>  l_communicationManager =
+            QSharedPointer<ICommunicationManager>(
+                new CommunicationManager(l_webSocket,
+                                         l_protobufToQbyteArrayConverter,
+                                         l_qbyteArrayToProtobufConverter));
+    LoginVerificator l_loginVerificator;
+    UserRegister l_userRegisterDialog;
+
+    auto *lDialog = new LoginDialog(l_loginVerificator, l_communicationManager, l_userRegisterDialog);
+
+    if(lDialog->exec() != QDialog::Accepted )
+        killApp(a);
+    else{
+        lDialog->deleteLater();
+        showMainWindow(a, l_communicationManager);
     }
 }
 

@@ -5,7 +5,7 @@
 #include "ui_AddUserDialog.h"
 #include "CommunicationManager.hpp"
 
-AddUserDialog::AddUserDialog(ICommunicationManager & p_communicatioManager, QWidget *parent) :
+AddUserDialog::AddUserDialog(QSharedPointer<ICommunicationManager> p_communicatioManager, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AddUserDialog),
     m_communicatioManager(p_communicatioManager)
@@ -16,6 +16,15 @@ AddUserDialog::AddUserDialog(ICommunicationManager & p_communicatioManager, QWid
 AddUserDialog::~AddUserDialog()
 {
     delete ui;
+}
+
+QString AddUserDialog::name() const {
+    return ui->name->text();
+}
+
+QString AddUserDialog::password() const
+{
+    return ui->password->text();
 }
 
 void AddUserDialog::on_registerNewUser_clicked()
@@ -44,8 +53,11 @@ void AddUserDialog::on_registerNewUser_clicked()
     l_userDescritpion = ui->description->toPlainText().toStdString();
     l_userPhoneNumber = ui->phonenumber->text().toStdString();
 
-    m_communicatioManager.handleRegister(l_userName, l_userPassword, l_userEmail,
-                                         l_userAdress, l_userDescritpion, l_userPhoneNumber);
+    emit registrationSuccesfull();
+    close();
+    ///FIXME
+//    m_communicatioManager.handleRegister(l_userName, l_userPassword, l_userEmail,
+//                                         l_userAdress, l_userDescritpion, l_userPhoneNumber);
 //    pb::ClientRequests fullMessage;
 //    auto loginReq = fullMessage.add_request();
 //    auto userMsg = loginReq->mutable_userreq();

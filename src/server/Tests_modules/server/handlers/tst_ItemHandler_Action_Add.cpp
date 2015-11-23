@@ -47,7 +47,7 @@ public:
 
 protected:
     DB db;
-    ItemRequest_Add addMsg;
+    ItemReq_Add addMsg;
     eedb::pu::ItemPU sut;
     quint64 rootCategoryId;
     void prepareMessage();

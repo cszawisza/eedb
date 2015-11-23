@@ -2,9 +2,9 @@
 #include "user.pb.h"
 #include "message_conteiner.pb.h"
 
-LoginVerificator::LoginVerificator(QWebSocket & p_qWebSocket)
-    : m_qWebSocket(p_qWebSocket)
-{ }
+LoginVerificator::LoginVerificator()
+{
+}
 
 bool LoginVerificator::tryLogin(const std::string & p_password, const std::string & p_login) const
 {

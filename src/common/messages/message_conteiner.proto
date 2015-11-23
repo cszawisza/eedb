@@ -25,6 +25,7 @@ enum ServerError{
   Error_UnhandledMessage = 3;
   Error_NoActionChoosen = 4;
   Error_UserOffilne=5;
+  Error_MsgSpecificError=100;
 }
 
 message ClientRequests{
@@ -32,14 +33,14 @@ message ClientRequests{
 }
 
 message ClientRequest{
-  optional uint32	requestId	= 1 [default = 1];
+  optional uint32	request_id	= 1 [default = 1];
 //  required MsgCoding	msgCoding 	= 3 [default = msgProtbuf]; // type that is stored in data field
 //  optional MsgTypeId	msgTypeId 	= 4; // used only for not protbuf type messages
   
   oneof data {
     pb.UserReq                  userReq = 12;
     pb.MsgInventoryRequest      msgInventoryReq = 13;
-    pb.ItemRequest              itemReq = 14;
+    pb.ItemReq                  itemReq = 14;
     pb.CategoryReq              categoryReq = 15;
     pb.MsgParameterRequest      msgParameterReq = 16;
   }
@@ -51,9 +52,9 @@ message ServerResponses{
 
 message ServerResponse {
   optional ServerError code         = 1 [default = No_Error];
-  optional uint64   responseId      = 2 [default = 0]; // server unique response id
-  optional uint64   in_response_to  = 3 [default = 0]; // in response to request ID
-  optional bool     isLastResponse  = 4 [default = true];
+  optional uint64   response_id      = 2 [default = 0]; // server unique response id
+  optional uint64   in_response_to  = 3 [default = 0]; // in response to: request_if
+  optional bool     is_last_response  = 4 [default = true];
 //  required MsgCoding	msgCoding 	= 5 [default = msgProtbuf]; // type that is stored in data field
 //  optional MsgTypeId	msgTypeId 	= 6; // used only for not protbuf type messages
   

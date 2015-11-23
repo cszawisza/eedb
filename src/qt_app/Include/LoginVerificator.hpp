@@ -3,15 +3,12 @@
 #include <string>
 
 #include "ILoginVerificator.hpp"
-
-class QWebSocket;
+#include "ICommunicationManager.hpp"
+#include <QSharedPointer>
 
 class LoginVerificator : public ILoginVerificator
 {
 public:
-    LoginVerificator(QWebSocket &);
+    LoginVerificator();
     bool tryLogin(const std::string &, const std::string &) const override;
-
-private:
-    QWebSocket & m_qWebSocket;
 };

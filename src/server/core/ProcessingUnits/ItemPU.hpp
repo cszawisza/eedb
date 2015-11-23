@@ -6,8 +6,8 @@ class DB;
 
 namespace pb{
     class ClientRequest;
-    class ItemRequest;
-    class ItemRequest_Add;
+    class ItemReq;
+    class ItemReq_Add;
 }
 
 namespace eedb {
@@ -25,9 +25,9 @@ public:
     void process(DB &db, pb::ClientRequest &msgReq );
 
 private:
-    void handle_add(DB &db, pb::ItemRequest_Add &msg);
+    void handle_add(DB &db, pb::ItemReq_Add &msg);
 
-    void run_saveItemInDb(DB &db, pb::ItemRequest_Add &msg);
+    void run_saveItemInDb(DB &db, pb::ItemReq_Add &msg);
 };
 
 }

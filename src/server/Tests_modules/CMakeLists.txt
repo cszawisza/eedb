@@ -13,7 +13,12 @@ INCLUDE_DIRECTORIES( ../server_lib )
 set(TEST_EXECUTABLE_NAME Tests )
 
 set(MAIN_SRC main.cpp)
-file(GLOB_RECURSE TESTS_SRC Test Common.hpp DbCon/* common/* server/*)
+file(GLOB_RECURSE TESTS_SRC Test Common.hpp
+DbCon/*
+common/*
+server/*
+#Benchmarks/*
+)
 add_executable(${TEST_EXECUTABLE_NAME} ${MAIN_SRC} ${TESTS_SRC})
 add_test( ${TEST_EXECUTABLE_NAME} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TEST_EXECUTABLE_NAME} )
 install(TARGETS ${TEST_EXECUTABLE_NAME}

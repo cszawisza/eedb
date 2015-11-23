@@ -2,7 +2,7 @@
 #include <ICommunicationManager.hpp>
 #include "ui_ApplicationMainWindow.h"
 
-ApplicationMainWindow::ApplicationMainWindow(const ICommunicationManager & p_communicationManager,
+ApplicationMainWindow::ApplicationMainWindow(QSharedPointer<ICommunicationManager> p_communicationManager,
                                              QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ApplicationMainWindow),

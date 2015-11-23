@@ -15,5 +15,13 @@ add_definitions(-DQT_NO_WARNING_OUTPUT)
 #add_compile_options(-DQT_NO_DEBUG_OUTPUT)
 #add_compile_options(-DQT_NO_WARNING_OUTPUT)
 
-add_executable(ClientTests main.cpp ${TEST_SRC_FILES} ${TEST_MOCK_FILES})
-target_link_libraries(ClientTests Common client_lib gtest gmock Qt5::Widgets Qt5::Test)
+#files containing Q_OBJECT makro
+set(QT_HEADERS
+    Mocks/ISocketMock.hpp
+    Mocks/CommunicationManagerMock.hpp
+)
+
+QT5_WRAP_CPP(GUI_MOC_SRCS ${QT_HEADERS})
+
+add_executable(ClientTests main.cpp ${TEST_SRC_FILES} ${TEST_MOCK_FILES} ${GUI_MOC_SRCS})
+target_link_libraries( ClientTests Common client_lib gtest gmock Qt5::Core Qt5::Widgets Qt5::Test)
