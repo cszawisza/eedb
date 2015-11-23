@@ -4,6 +4,7 @@
 #include <QtTest/QtTest>
 
 #include <LoginDialog.hpp>
+#include <CommunicationManagerMock.hpp>
 #include <LoginVerificatorMock.hpp>
 #include <UserRegisterMock.hpp>
 #include <ISocketMock.hpp>
@@ -14,31 +15,39 @@ using namespace testing;
 struct LoginDialogTestSuite : public ::testing::Test
 {
     LoginDialogTestSuite();
+    ~LoginDialogTestSuite(){
+        delete m_sut;
+    }
+
     StrictMock<LoginVerificatorMock> loginVerificatorMock;
-    QSharedPointer<SocketMock> webSocketMock;
     StrictMock<UserRegisterMock> userRegisterMock;
-    LoginDialog m_sut;
+    QSharedPointer<SocketMock> webSocketMock;
+    QSharedPointer<CommunicationManagerMock> communicationManager;
+    LoginDialog *m_sut;
 };
 
 LoginDialogTestSuite::LoginDialogTestSuite()
     : loginVerificatorMock{},
-      webSocketMock(QSharedPointer<SocketMock>(new StrictMock<SocketMock>() )),
       userRegisterMock{},
-      m_sut(loginVerificatorMock, userRegisterMock)
-{}
+      webSocketMock(QSharedPointer<SocketMock>(new StrictMock<SocketMock>() )),
+      communicationManager( QSharedPointer<CommunicationManagerMock>(new CommunicationManagerMock() ))
+{
+    EXPECT_CALL(*communicationManager, socket()).WillRepeatedly( Return(webSocketMock) );
+    m_sut = new LoginDialog(loginVerificatorMock, communicationManager, userRegisterMock);
+}
 
 TEST_F(LoginDialogTestSuite, InvokeMainWindowAfterSuccesfullServerConnection)
 {
-    QSignalSpy buttonSpy(m_sut.getUi()->login, SIGNAL(clicked(bool)));
-    QSignalSpy spy(&m_sut, SIGNAL(loginSucces()));
+    QSignalSpy buttonSpy(m_sut->getUi()->login, SIGNAL(clicked(bool)));
+    QSignalSpy spy(m_sut, SIGNAL(loginSucces()));
 
-    m_sut.getUi()->userLogin->setText("login");
-    m_sut.getUi()->userPassword->setText("pass");
-    EXPECT_CALL(*(webSocketMock.data()), open( _ ));
-    EXPECT_CALL(loginVerificatorMock, tryLogin(m_sut.getUi()->userPassword->text().toStdString(),
-                                               m_sut.getUi()->userLogin->text().toStdString())).WillOnce(Return(true));
-    emit webSocketMock->connected();
-    QTest::mouseClick(m_sut.getUi()->login, Qt::LeftButton);
+    m_sut->getUi()->userLogin->setText("login");
+    m_sut->getUi()->userPassword->setText("pass");
+    EXPECT_CALL(*webSocketMock, open( _ ));
+    EXPECT_CALL(loginVerificatorMock, tryLogin(m_sut->getUi()->userPassword->text().toStdString(),
+                                               m_sut->getUi()->userLogin->text().toStdString())).WillOnce(Return(true));
+    emit webSocketMock->opened();
+    QTest::mouseClick(m_sut->getUi()->login, Qt::LeftButton);
 
     EXPECT_EQ(1, buttonSpy.count());
     //QVERIFY(buttonSpy.wait(10));
@@ -47,17 +56,17 @@ TEST_F(LoginDialogTestSuite, InvokeMainWindowAfterSuccesfullServerConnection)
 
 TEST_F(LoginDialogTestSuite, DontInvokeMainWindowAfterSuccesfullServerConnection)
 {
-    QSignalSpy buttonSpy(m_sut.getUi()->login, SIGNAL(clicked(bool)));
-    QSignalSpy spy(&m_sut, SIGNAL(loginSucces()));
+    QSignalSpy buttonSpy(m_sut->getUi()->login, SIGNAL(clicked(bool)));
+    QSignalSpy spy(m_sut, SIGNAL(loginSucces()));
 
-    m_sut.getUi()->userLogin->setText("login");
-    m_sut.getUi()->userPassword->setText("pass");
+    m_sut->getUi()->userLogin->setText("login");
+    m_sut->getUi()->userPassword->setText("pass");
 
     EXPECT_CALL(*(webSocketMock.data()), open( _ ));
-    EXPECT_CALL(loginVerificatorMock, tryLogin(m_sut.getUi()->userPassword->text().toStdString(),
-                                               m_sut.getUi()->userLogin->text().toStdString())).WillOnce(Return(false));
-    emit webSocketMock->connected();
-    QTest::mouseClick(m_sut.getUi()->login, Qt::LeftButton);
+    EXPECT_CALL(loginVerificatorMock, tryLogin(m_sut->getUi()->userPassword->text().toStdString(),
+                                               m_sut->getUi()->userLogin->text().toStdString())).WillOnce(Return(false));
+    emit webSocketMock->opened();
+    QTest::mouseClick(m_sut->getUi()->login, Qt::LeftButton);
 
     EXPECT_EQ(1, buttonSpy.count());
     EXPECT_EQ(0, spy.count());
@@ -70,10 +79,10 @@ TEST_F(LoginDialogTestSuite, InvokeRegisterWindowAfterSuccesfullServerConnection
 
     EXPECT_CALL(userRegisterMock, registerUser());
 
-    QSignalSpy buttonSpy(m_sut.getUi()->registerNewUser, SIGNAL(clicked(bool)));
-    QTest::mouseClick(m_sut.getUi()->registerNewUser, Qt::LeftButton);
+    QSignalSpy buttonSpy(m_sut->getUi()->registerNewUser, SIGNAL(clicked(bool)));
+    QTest::mouseClick(m_sut->getUi()->registerNewUser, Qt::LeftButton);
 
-    emit webSocketMock->connected();
+    emit webSocketMock->opened();
     EXPECT_EQ(1, buttonSpy.count());
 }
 

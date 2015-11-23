@@ -18,6 +18,7 @@ add_definitions(-DQT_NO_WARNING_OUTPUT)
 #files containing Q_OBJECT makro
 set(QT_HEADERS
     Mocks/ISocketMock.hpp
+    Mocks/CommunicationManagerMock.hpp
 )
 
 QT5_WRAP_CPP(GUI_MOC_SRCS ${QT_HEADERS})

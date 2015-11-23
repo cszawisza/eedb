@@ -14,11 +14,11 @@ class ApplicationMainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit ApplicationMainWindow(const ICommunicationManager & p_communicationManager,
+    explicit ApplicationMainWindow(QSharedPointer<ICommunicationManager> p_communicationManager,
                                    QWidget *parent = 0);
     ~ApplicationMainWindow();
 
 private:
     Ui::ApplicationMainWindow *ui;
-    const ICommunicationManager & m_communicationManager;
+    QSharedPointer<ICommunicationManager> m_communicationManager;
 };

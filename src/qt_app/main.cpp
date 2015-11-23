@@ -36,6 +36,19 @@ void showHelloMessage(const char *argv)
     qDebug() << msg.toUtf8();
 }
 
+void killApp(QApplication &a)
+{
+    QTimer::singleShot(1, &a, SLOT(quit()));
+    a.exec();
+}
+
+void showMainWindow(QApplication &a, QSharedPointer<ICommunicationManager> l_communicationManager)
+{
+    ApplicationMainWindow l_mainApp(l_communicationManager);
+    l_mainApp.show();
+    a.exec();
+}
+
 void showLoginDialog(QApplication &a)
 {
     QSharedPointer<ISocket> l_webSocket = QSharedPointer<ISocket>(new WebSocket());
@@ -58,19 +71,14 @@ void showLoginDialog(QApplication &a)
     LoginVerificator l_loginVerificator;
     UserRegister l_userRegisterDialog;
 
-    LoginDialog lDialog(l_loginVerificator, l_communicationManager, l_userRegisterDialog);
-    QObject::connect(&lDialog, &LoginDialog::testConnection, [&]( const QUrl &url ){
-        l_webSocket->open(url);
-    } );
+    auto *lDialog = new LoginDialog(l_loginVerificator, l_communicationManager, l_userRegisterDialog);
 
-//    ApplicationMainWindow l_mainApp(l_communicationManager);
-
-//    QObject::connect(&lDialog, SIGNAL(showOtherWindow()), &l_mainApp, SLOT(show()));
-    lDialog.exec();
-//    if(!a.exec())
-//    {
-//        QTimer::singleShot(1, &a, SLOT(quit()));
-//    }
+    if(lDialog->exec() != QDialog::Accepted )
+        killApp(a);
+    else{
+        lDialog->deleteLater();
+        showMainWindow(a, l_communicationManager);
+    }
 }
 
 } // anonymous
