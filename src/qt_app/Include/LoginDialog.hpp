@@ -13,13 +13,11 @@ class LoginDialog;
 }
 
 class ILoginVerificator;
-
 class IUserRegister;
 
 class LoginDialog : public QDialog
 {
     Q_OBJECT
-
 public:
     explicit LoginDialog(const ILoginVerificator & p_loginVerificator,
                          QSharedPointer<ICommunicationManager> p_communicationManager,
@@ -43,7 +41,6 @@ private:
     void connectToServer();
     void loginToServer();
     void setDeafultServerInfo();
-    void chooseAction();
 
     QStateMachine *stateMachine;
     QSharedPointer<ICommunicationManager> m_manager;

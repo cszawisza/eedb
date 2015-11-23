@@ -250,16 +250,3 @@ void LoginDialog::setDeafultServerInfo()
     ui->userLogin->setText(setup.value("Login", "").toString());
     ui->userPassword->setEchoMode(QLineEdit::Password);
 }
-
-void LoginDialog::chooseAction()
-{
-//    if (m_action == Action::LOGIN)
-//        loginToServer();
-//    else if (m_action == Action::REGISTER)
-//    {
-//        m_userRegister.registerUser();
-//        m_manager->close();
-//    }
-//    else if (m_action == Action::TESTCONNECTION)
-//        doConnectTest();
-}
