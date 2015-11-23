@@ -1,6 +1,7 @@
 #pragma once
 #include <QObject>
 #include <memory>
+#include <QUrl>
 #include <QSharedPointer>
 #include "message_conteiner.pb.h"
 
@@ -44,21 +45,6 @@ Q_DECLARE_METATYPE( std::shared_ptr<pb::CategoryRes> )
 class ICommunicationManager : public QObject{
     Q_OBJECT
 public:
-    enum CommunicationError {
-        CommunicationErrorNone,
-        CommunicationErrorSocketNotConnected
-    };
-
-    enum ConnectionState {
-        UnconnectedState,
-        ConnectingState,
-        ConnectedNotLoggedState,
-        ConnectedAndLoggedState, // when connected via socket to host, ald loged in to server
-        ClosingState
-    };
-
-    ICommunicationManager():
-    QObject(){}
     virtual ~ICommunicationManager(){}
 
     /**
@@ -72,14 +58,33 @@ public:
      * @return pointer to socket object
      */
     virtual QSharedPointer<ISocket> socket() const = 0;
+
 public slots:
+    /**
+     * @brief openConnection, try to open a socket
+     * @param url to open
+     */
+    virtual void openConnection( const QUrl &url ) const = 0;
+
+    /**
+     * @brief closeConnection logout and close connection to server
+     */
+    virtual void closeConnection( ) const = 0;
+//    virtual void loginToServerAs( const QString &name, const QString &password) const =0;
+
+    /**
+     * @brief sendUserRequest
+     * @param data
+     */
     virtual void sendUserRequest( std::shared_ptr<pb::UserReq> data) = 0;
 
 signals:
-    void connected();
-    void disconnected();
+    void socketConnected();
+    void loggedin();
+    void socketDisconnected();
+    void logout();
 
-    void error( CommunicationError error );
+//    void error( CommunicationError error );
 
     void userRequestSent( RequestMetadata meta );
     void userResponse( ResponseMetadata meta, std::shared_ptr<pb::UserRes> data);

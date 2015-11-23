@@ -27,12 +27,12 @@ CommunicationManagerTestSuite::CommunicationManagerTestSuite()
 {
 }
 
-TEST_F(CommunicationManagerTestSuite, signalAndSlotMechanismCheck ){
-    EXPECT_CALL( *(webSocketMock.data()), state() ).WillOnce( Return(QAbstractSocket::ConnectedState) );
+//TEST_F(CommunicationManagerTestSuite, signalAndSlotMechanismCheck ){
+//    EXPECT_CALL( *(webSocketMock.data()), state() ).WillOnce( Return(QAbstractSocket::ConnectedState) );
 
-    QSignalSpy spy(&m_sut, SIGNAL( userRequestSent(RequestMetadata)));
-    m_sut.sendUserRequest( std::make_shared<pb::UserReq>() );
-}
+//    QSignalSpy spy(&m_sut, SIGNAL( userRequestSent(RequestMetadata)));
+//    m_sut.sendUserRequest( std::make_shared<pb::UserReq>() );
+//}
 
 TEST_F(CommunicationManagerTestSuite, ServerResponseParseError)
 {

@@ -12,8 +12,8 @@
 
 #define STR(x) #x
 #define STATE_GUARD(statename) \
-    connect( statename, &QState::entered, [&](){ qDebug() << STR(statename) << " entered "; } );\
-    connect( statename, &QState::exited, [&](){ qDebug() << STR(statename) << " exited "; } );
+    //connect( statename, &QState::entered, [&](){ qDebug() << STR(statename) << " entered "; } );\
+    //connect( statename, &QState::exited, [&](){ qDebug() << STR(statename) << " exited "; } );
 
 
 LoginDialog::LoginDialog(const ILoginVerificator &p_loginVerificator,
@@ -65,8 +65,8 @@ LoginDialog::LoginDialog(const ILoginVerificator &p_loginVerificator,
 
     tryConnectState->assignProperty(ui->connection_groupbox, "enabled", false );
     tryConnectState->assignProperty(ui->connectBtn, "text", "Try to connect" );
-    tryConnectState->addTransition(m_manager->socket().data(), SIGNAL(opened()), connectedState);
-    tryConnectState->addTransition(m_manager->socket().data(), SIGNAL(error(QAbstractSocket::SocketError)), disconnectedState);
+    tryConnectState->addTransition(m_manager.data(), SIGNAL(socketConnected()), connectedState);
+    tryConnectState->addTransition(m_manager.data(), SIGNAL(socketDisconnected()), disconnectedState);
 
     connect(tryConnectState,  &QState::entered, [&](){
         connectToServer();
@@ -78,11 +78,11 @@ LoginDialog::LoginDialog(const ILoginVerificator &p_loginVerificator,
     connectedState->addTransition(ui->registerNewUser, SIGNAL(clicked()), userRegister);
     connectedState->addTransition(ui->login, SIGNAL(clicked()), login);
     connectedState->addTransition(ui->connectBtn, SIGNAL(clicked()), tryDisconnect);
-    connectedState->addTransition(m_manager->socket().data(), SIGNAL(closed()), disconnectedState);
+    connectedState->addTransition(m_manager.data(), SIGNAL(socketDisconnected()), disconnectedState);
     connectedState->setInitialState(canLoginState);
 
     connect( tryDisconnect, &QState::entered, [this](){
-       m_manager->socket()->close();
+       m_manager->closeConnection();
     });
 
     userRegister->assignProperty( userReg, "visible", true);
@@ -109,11 +109,7 @@ LoginDialog::LoginDialog(const ILoginVerificator &p_loginVerificator,
     tryLogin->addTransition(this, SIGNAL(loginSucces()), loginOk);
     tryLogin->addTransition(this, SIGNAL(loginFailure()), loginFail);
     connect(tryLogin, &QState::entered, [this](){
-        if(m_loginVerificator.tryLogin(ui->userLogin->text().toStdString(),
-                                       ui->userPassword->text().toStdString()))
-            emit loginSucces();
-        else
-            emit loginFailure();
+        loginToServer();
     });
 
     connect(loginOk, &QState::entered, [this](){
@@ -129,7 +125,7 @@ LoginDialog::LoginDialog(const ILoginVerificator &p_loginVerificator,
 
     setDeafultServerInfo();
 
-    QTimer::singleShot(10, [&](){
+    QTimer::singleShot(0, [&](){
         ui->connectBtn->click();
     });
 }
@@ -230,7 +226,7 @@ void LoginDialog::connectToServer()
     l_url.setHost(ui->serverIp->text());
     l_url.setPort(ui->serverPort->text().toInt());
     l_url.setScheme("ws");
-    m_manager->socket()->open(l_url);
+    m_manager->openConnection(l_url);
 }
 
 void LoginDialog::loginToServer()
@@ -241,6 +237,8 @@ void LoginDialog::loginToServer()
     {
         emit loginSucces();
     }
+    else
+        emit loginFailure();
 }
 
 void LoginDialog::setDeafultServerInfo()

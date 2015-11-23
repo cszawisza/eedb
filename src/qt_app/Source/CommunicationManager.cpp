@@ -56,7 +56,11 @@ CommunicationManager::CommunicationManager(QSharedPointer<ISocket> p_webSocket,
     });
 
     QObject::connect(socket, &ISocket::opened, [this](){
-       emit connected();
+       emit socketConnected();
+    });
+
+    QObject::connect(socket, &ISocket::closed, [this](){
+        emit socketDisconnected();
     });
 }
 
@@ -96,6 +100,8 @@ void CommunicationManager::sendRequest()
 {
     qDebug() << "CommunicationManager::sendBinaryMessageOverQWebSocket()";
     m_socket->sendBinaryMessage(m_convertProtobufToQByteArray(p_clientRequests));
+    for(const auto &req :*p_clientRequests.mutable_request() )
+        emit userRequestSent( RequestMetadata(req) );
 }
 
 void CommunicationManager::sendUserRequest(std::shared_ptr<pb::UserReq> data)
@@ -103,6 +109,16 @@ void CommunicationManager::sendUserRequest(std::shared_ptr<pb::UserReq> data)
     if(m_socket->state() == QAbstractSocket::ConnectedState ){
         sendRequest();
     }
+}
+
+void CommunicationManager::openConnection(const QUrl &url) const
+{
+    m_socket->open(url);
+}
+
+void CommunicationManager::closeConnection() const
+{
+    m_socket->close();
 }
 
 QSharedPointer<ISocket> CommunicationManager::socket() const

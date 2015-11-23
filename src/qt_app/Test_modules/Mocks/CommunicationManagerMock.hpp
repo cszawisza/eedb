@@ -4,6 +4,7 @@
 #include <string>
 #include <ICommunicationManager.hpp>
 
+
 class ICommunicationManagerMock : public ICommunicationManager
 {
     Q_OBJECT
@@ -13,6 +14,8 @@ public:
     virtual QSharedPointer<ISocket> socket() const=0;
 
 public slots:
+    virtual void openConnection( const QUrl &url)const=0;
+    virtual void closeConnection()const=0;
     virtual void sendUserRequest(std::shared_ptr<pb::UserReq> data)=0;
 };
 
@@ -23,4 +26,6 @@ public:
     MOCK_METHOD1_T(newRequest, pb::ClientRequest *(uint64_t &request_id));
     MOCK_CONST_METHOD0_T(socket, QSharedPointer<ISocket> ());
     MOCK_METHOD1_T(sendUserRequest, void (std::shared_ptr<pb::UserReq> data));
+    MOCK_CONST_METHOD1_T(openConnection, void(const QUrl&));
+    MOCK_CONST_METHOD0_T(closeConnection, void ());
 };

@@ -28,9 +28,11 @@ public:
     pb::ClientRequest *newRequest(uint64_t &request_id ) override;
 
     void sendRequest();
+    QSharedPointer<ISocket> socket() const override;
 public slots:
     void sendUserRequest(std::shared_ptr<pb::UserReq> data) override;
-    QSharedPointer<ISocket> socket() const override;
+    void openConnection(const QUrl &url) const override;
+    void closeConnection() const override;
 
 private:
     QSharedPointer<ISocket> m_socket;
