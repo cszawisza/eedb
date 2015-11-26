@@ -74,10 +74,10 @@ public slots:
     virtual void sendUserRequest( std::shared_ptr<pb::UserReq> data) = 0;
 
 signals:
-    void socketConnected();
-    void socketDisconnected();
-    void loggedin();
-    void logout();
+    void socketConnected() const;
+    void socketDisconnected() const;
+    void loggedin() const;
+    void logout() const;
 
     void userRequestSent( RequestMetadata meta );
     void userResponse( ResponseMetadata meta, std::shared_ptr<pb::UserRes> data);

@@ -9,11 +9,11 @@ UID UserHelper::insertUser(DB &db, const UserReq_Add &msg)
     const auto &stat = msg.acl();
     const auto &basic = msg.basic();
     const auto &det = msg.details();
-    const auto &conf= msg.config();
+//    const auto &conf= msg.config();
     PasswordHash passwd;
     passwd.setPassword( msg.password() );
 
-    utils::UserConfig userConfig( conf );
+//    utils::UserConfig userConfig( conf );
 
     // run query
     auto pre = db.prepare(sqlpp::postgresql::insert_into(u)
@@ -29,7 +29,7 @@ UID UserHelper::insertUser(DB &db, const UserReq_Add &msg)
                               u.address = parameter(u.address),
                               u.phonenumber = parameter(u.phonenumber),
                               u.description = parameter(u.description),
-                              u.config = userConfig.toStdString(), // must be a proper JSON document no need to parametrize
+//                              u.config = userConfig.toStdString(), // must be a proper JSON document no need to parametrize
                               u.avatar = parameter(u.avatar)
             ).returning(u.uid));
 

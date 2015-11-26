@@ -13,7 +13,7 @@
 
 #define STR(x) #x
 #define STATE_GUARD(statename) \
-    // connect( statename, &QState::entered, [&](){ qDebug() << STR(statename) << " entered "; } );  connect( statename, &QState::exited, [&](){ qDebug() << STR(statename) << " exited "; } );
+     connect( statename, &QState::entered, [&](){ qDebug() << STR(statename) << " entered "; } );  connect( statename, &QState::exited, [&](){ qDebug() << STR(statename) << " exited "; } );
 
 
 LoginDialog::LoginDialog(const ILoginVerificator &p_loginVerificator,
@@ -66,6 +66,7 @@ LoginDialog::LoginDialog(const ILoginVerificator &p_loginVerificator,
     tryConnectState->assignProperty(ui->connectBtn, "text", "Try to connect" );
     tryConnectState->addTransition(m_manager.data(), SIGNAL(socketConnected()), connectedState);
     tryConnectState->addTransition(m_manager.data(), SIGNAL(socketDisconnected()), disconnectedState);
+    tryConnectState->addTransition(ui->connectBtn, SIGNAL(clicked()), tryDisconnect);
 
     connect(tryConnectState,  &QState::entered, [&](){
         connectToServer();
@@ -80,6 +81,7 @@ LoginDialog::LoginDialog(const ILoginVerificator &p_loginVerificator,
     connectedState->addTransition(m_manager.data(), SIGNAL(socketDisconnected()), disconnectedState);
     connectedState->setInitialState(canLoginState);
 
+    tryDisconnect->addTransition( m_manager.data(), SIGNAL(socketDisconnected()), disconnectedState);
     connect( tryDisconnect, &QState::entered, [this](){
        m_manager->closeConnection();
     });
@@ -245,7 +247,7 @@ void LoginDialog::loginToServer()
 
 void LoginDialog::setDeafultServerInfo()
 {
-    ui->serverIp->setText(setup.value("ServerIp", "eedb.pl").toString());
+    ui->serverIp->setText(setup.value("ServerIp", "localhost").toString());
     ui->serverPort->setText(setup.value("ServerPort", 6666).toString());
     ui->userLogin->setText(setup.value("Login", "").toString());
     ui->userPassword->setEchoMode(QLineEdit::Password);

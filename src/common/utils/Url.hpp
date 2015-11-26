@@ -11,6 +11,7 @@ public:
         QUrl url;
         url.setHost(QString::fromStdString(host()));
         url.setPort(port());
+        url.setScheme("ws");
         return url;
     }
 

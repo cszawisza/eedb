@@ -21,10 +21,16 @@ if(NOT MSVC)
         link_libraries( gcov )
     endif() # CMAKE_BUILD_TYPE STREQUAL "Coverage"
 
-    if ( CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" OR CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
+    if ( CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" )
         add_definitions(  -Wall -Wextra  -Wswitch )
         add_definitions( -march=native -finline-functions -faggressive-loop-optimizations )
     endif() # CMAKE_BUILD_TYPE STREQUAL "Release"
+
+    if( CMAKE_BUILD_TYPE STREQUAL "MinSizeRel" )
+        set(CMAKE_CXX_FLAGS "-Os -fdata-sections -ffunction-sections")
+        set(CMAKE_EXE_LINKER_FLAGS "-Wl,--gc-sections -Wl,--strip-all")  ## Strip binary
+    endif()
+
 
 elseif( MSVC )
         #set(MY_QT_PATH "D:/Qt/5.2.1/msvc2012_64/lib/cmake")

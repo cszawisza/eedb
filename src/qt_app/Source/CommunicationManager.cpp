@@ -119,8 +119,11 @@ void CommunicationManager::openConnection(const Url &url) const
 
 void CommunicationManager::closeConnection() const
 {
-    if( m_socket->state() == QAbstractSocket::ConnectedState )
+    auto state = m_socket->state();
+    if( state == QAbstractSocket::ConnectedState || state == QAbstractSocket::ConnectingState )
         m_socket->close();
+
+    emit socketDisconnected();
 }
 
 //QSharedPointer<ISocket> CommunicationManager::socket() const
