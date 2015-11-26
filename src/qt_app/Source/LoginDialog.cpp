@@ -8,12 +8,12 @@
 #include <QTimer>
 #include <QFinalState>
 
+#include "utils/Url.hpp"
 #include "AddUserDialog.hpp"
 
 #define STR(x) #x
 #define STATE_GUARD(statename) \
-    //connect( statename, &QState::entered, [&](){ qDebug() << STR(statename) << " entered "; } );\
-    //connect( statename, &QState::exited, [&](){ qDebug() << STR(statename) << " exited "; } );
+    // connect( statename, &QState::entered, [&](){ qDebug() << STR(statename) << " entered "; } );  connect( statename, &QState::exited, [&](){ qDebug() << STR(statename) << " exited "; } );
 
 
 LoginDialog::LoginDialog(const ILoginVerificator &p_loginVerificator,
@@ -27,10 +27,9 @@ LoginDialog::LoginDialog(const ILoginVerificator &p_loginVerificator,
     userReg(nullptr)
 {
     ui->setupUi(this);
+    stateMachine = new QStateMachine(this);
 
     userReg = new AddUserDialog(m_manager, this);
-
-    stateMachine = new QStateMachine(this);
 
     QState* connectedState = new QState();//, waitForSend, waitForResponse, werify;
     QState* tryConnectState = new QState();
@@ -85,12 +84,15 @@ LoginDialog::LoginDialog(const ILoginVerificator &p_loginVerificator,
        m_manager->closeConnection();
     });
 
-    userRegister->assignProperty( userReg, "visible", true);
+//    userRegister->assignProperty( userReg, "visible", true);
     userRegister->addTransition( userReg, SIGNAL(rejected()), canLoginState);
     userRegister->addTransition( userReg, SIGNAL(registrationSuccesfull()), userRegisterOk );
     userRegister->addTransition( userReg, SIGNAL(registrationFailed()), userRegisterFail);
     userRegister->addTransition( userReg, SIGNAL(registrationAborted()), canLoginState) ;
 
+    connect( userRegister, &QState::entered, [&](){
+        QTimer::singleShot( 0, userReg, SIGNAL(exec()));
+    });
     connect( userRegister, &QState::exited, [this](){
         userReg->hide();
     });
@@ -222,10 +224,10 @@ LoginDialog::~LoginDialog()
 
 void LoginDialog::connectToServer()
 {
-    QUrl l_url{};
+    Url l_url;
     l_url.setHost(ui->serverIp->text());
     l_url.setPort(ui->serverPort->text().toInt());
-    l_url.setScheme("ws");
+
     m_manager->openConnection(l_url);
 }
 

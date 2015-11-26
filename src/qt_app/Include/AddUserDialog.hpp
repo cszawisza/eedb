@@ -1,6 +1,9 @@
 #pragma once
 
 #include <QDialog>
+#include <QState>
+#include <QFinalState>
+#include <QStateMachine>
 
 ///TODO description field: use https://github.com/Anchakor/MRichTextEditor
 
@@ -32,4 +35,5 @@ signals:
 private:
     Ui::AddUserDialog *ui;
     QSharedPointer<ICommunicationManager> m_communicatioManager;
+    QStateMachine *stateMachine;
 };

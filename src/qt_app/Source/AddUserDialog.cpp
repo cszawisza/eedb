@@ -8,7 +8,8 @@
 AddUserDialog::AddUserDialog(QSharedPointer<ICommunicationManager> p_communicatioManager, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AddUserDialog),
-    m_communicatioManager(p_communicatioManager)
+    m_communicatioManager(p_communicatioManager),
+    stateMachine( new QStateMachine())
 {
     ui->setupUi(this);
 }

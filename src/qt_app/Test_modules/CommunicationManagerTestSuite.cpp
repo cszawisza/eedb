@@ -5,6 +5,8 @@
 #include "user.pb.h"
 #include "ISocketMock.hpp"
 #include <QSignalSpy>
+#include "utils/Url.hpp"
+
 using namespace testing;
 
 struct CommunicationManagerTestSuite : public ::testing::Test
@@ -25,6 +27,19 @@ CommunicationManagerTestSuite::CommunicationManagerTestSuite()
             [this](const QByteArray & p_serverResponse)
                 { return convertQByteArrayToProtobufServerResponseMock(p_serverResponse);})
 {
+}
+
+TEST_F(CommunicationManagerTestSuite, connectCalsOpenSocket){
+    EXPECT_CALL(*webSocketMock, open(_));
+    Url url;
+    m_sut.openConnection(url);
+}
+
+TEST_F(CommunicationManagerTestSuite, closeConnectionWhenInConnectedState){
+    EXPECT_CALL(*webSocketMock, state()).WillOnce(Return(QAbstractSocket::ConnectedState));
+    EXPECT_CALL(*webSocketMock, close(_,_));
+
+    m_sut.closeConnection();
 }
 
 //TEST_F(CommunicationManagerTestSuite, signalAndSlotMechanismCheck ){

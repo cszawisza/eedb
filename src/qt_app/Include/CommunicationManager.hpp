@@ -6,6 +6,7 @@
 #include "ISocket.hpp"
 
 class QByteArray;
+class Url;
 
 namespace pb
 {
@@ -20,18 +21,17 @@ public:
                          ProtobufToQByteArrayConverter p_convertProtobufToString,
                          QByteArrayToProtobufConverter p_convertQByteArrayToProtobuf);
 
-
-    void handleRegister(std::string &, std::string &, std::string &,
-                        std::string &, std::string &, std::string &) ;
+//    void handleRegister(std::string &, std::string &, std::string &,
+//                        std::string &, std::string &, std::string &) ;
     ~CommunicationManager(){}
 
     pb::ClientRequest *newRequest(uint64_t &request_id ) override;
 
     void sendRequest();
-    QSharedPointer<ISocket> socket() const override;
+//    QSharedPointer<ISocket> socket() const override;
 public slots:
     void sendUserRequest(std::shared_ptr<pb::UserReq> data) override;
-    void openConnection(const QUrl &url) const override;
+    void openConnection(const Url &url) const override;
     void closeConnection() const override;
 
 private:

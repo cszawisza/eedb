@@ -6,6 +6,7 @@
 #include "message_conteiner.pb.h"
 
 class ISocket;
+class Url;
 
 /**
  * @brief The ICommunicationManager class handles the communication between client and serwer
@@ -53,18 +54,12 @@ public:
      */
     virtual pb::ClientRequest *newRequest( uint64_t &request_id ) = 0;
 
-    /**
-     * @brief socket
-     * @return pointer to socket object
-     */
-    virtual QSharedPointer<ISocket> socket() const = 0;
-
 public slots:
     /**
      * @brief openConnection, try to open a socket
      * @param url to open
      */
-    virtual void openConnection( const QUrl &url ) const = 0;
+    virtual void openConnection( const Url &url ) const = 0;
 
     /**
      * @brief closeConnection logout and close connection to server
@@ -80,11 +75,9 @@ public slots:
 
 signals:
     void socketConnected();
-    void loggedin();
     void socketDisconnected();
+    void loggedin();
     void logout();
-
-//    void error( CommunicationError error );
 
     void userRequestSent( RequestMetadata meta );
     void userResponse( ResponseMetadata meta, std::shared_ptr<pb::UserRes> data);

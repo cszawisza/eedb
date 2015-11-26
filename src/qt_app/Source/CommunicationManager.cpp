@@ -4,6 +4,7 @@
 #include "message_conteiner.pb.h"
 #include <boost/optional.hpp>
 #include "user.pb.h"
+#include "utils/Url.hpp"
 
 namespace
 {
@@ -64,21 +65,21 @@ CommunicationManager::CommunicationManager(QSharedPointer<ISocket> p_webSocket,
     });
 }
 
-void CommunicationManager::handleRegister(std::string & p_userName, std::string & p_userPassword,
-                                          std::string & p_userEmail,std::string & p_userAdress,
-                                          std::string & p_userDescritpion, std::string & p_userPhoneNumber)
-{
-//    pb::ClientRequests l_mainMsg;
-    qDebug() << "CommunicationManager::handleRegister()";
-    uint64_t id;
-    auto login = this->newRequest(id)->mutable_userreq()->mutable_add();
+//void CommunicationManager::handleRegister(std::string & p_userName, std::string & p_userPassword,
+//                                          std::string & p_userEmail,std::string & p_userAdress,
+//                                          std::string & p_userDescritpion, std::string & p_userPhoneNumber)
+//{
+////    pb::ClientRequests l_mainMsg;
+//    qDebug() << "CommunicationManager::handleRegister()";
+//    uint64_t id;
+//    auto login = this->newRequest(id)->mutable_userreq()->mutable_add();
 
-    login->set_password( p_userPassword );
-    login->mutable_basic()->set_name(p_userName);
-    login->mutable_basic()->set_email(p_userEmail);
+//    login->set_password( p_userPassword );
+//    login->mutable_basic()->set_name(p_userName);
+//    login->mutable_basic()->set_email(p_userEmail);
 
-    sendRequest();
-}
+//    sendRequest();
+//}
 
 //void CommunicationManager::sendBinaryMessageOverQWebSocket(const pb::ClientRequests & p_clientRequests) const
 //{
@@ -111,18 +112,19 @@ void CommunicationManager::sendUserRequest(std::shared_ptr<pb::UserReq> data)
     }
 }
 
-void CommunicationManager::openConnection(const QUrl &url) const
+void CommunicationManager::openConnection(const Url &url) const
 {
     m_socket->open(url);
 }
 
 void CommunicationManager::closeConnection() const
 {
-    m_socket->close();
+    if( m_socket->state() == QAbstractSocket::ConnectedState )
+        m_socket->close();
 }
 
-QSharedPointer<ISocket> CommunicationManager::socket() const
-{
-    return m_socket;
-}
+//QSharedPointer<ISocket> CommunicationManager::socket() const
+//{
+//    return m_socket;
+//}
 
