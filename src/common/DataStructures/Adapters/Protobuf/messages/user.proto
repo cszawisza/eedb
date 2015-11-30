@@ -21,7 +21,7 @@ message UserReq{
   message Credentials{
     oneof login_id{
       uint32 id = 1;
-      string name = 2;
+      string nickname = 2;
       string email = 3;
     }
   }
@@ -32,6 +32,7 @@ message UserReq{
     required string password = 2;
     optional string sys_info = 3;
   }
+
   message Logout{
     // optional bool save_state = 1;
   }
@@ -52,28 +53,30 @@ message UserReq{
   
   message Modify{
     optional string email = 1;
-    optional string name = 2;
-    optional string address = 3;
-    optional bytes phone_number = 4;
-    optional bytes description = 5; 
-    optional bytes avatar = 6;
-    optional pb.Acl acl = 7;
+    optional string first_name = 2;
+    optional string last_name = 3;
+    optional string address = 4;
+    optional bytes phone_number = 5;
+    optional bytes description = 6;
+    optional bytes avatar = 7;
+    optional pb.Acl acl = 8;
   }
 
   message Get {
     message Where {
       optional bool self = 1; // check only logged user
-      optional int32 uid = 2; // check this uid
-      optional int32 group = 3; // get all from group
+      optional int32 uid = 2; // check this user uid
+//      optional int32 group = 3; // get all from group
     }
     optional bool uid = 1;
-    optional bool name = 2;
-    optional bool address = 3;
-    optional bool phone_number = 4;
-    optional bool description = 5;
-    optional bool avatar = 6;
-    optional bool history = 7;
-    optional Where where = 8;
+//    optional bool first_name = 2;
+//    optional bool last_name = 3;
+    optional bool address = 4;
+    optional bool phone_number = 5;
+    optional bool description = 6;
+    optional bool avatar = 7;
+//    optional bool history = 8;
+    optional Where where = 9;
   }
 
   message ChangePasswd{
@@ -83,7 +86,7 @@ message UserReq{
     }
     optional string old = 3;
     optional string new = 4;
-    optional bool resetPasswd = 5;
+//    optional bool resetPasswd = 5;
   }
 }
 
@@ -123,7 +126,9 @@ message UserRes {
 message UserBasic{
   optional int32 id = 7;
   required string email = 1;
-  required string name = 2;
+  required string nickname = 2;
+//  optional string first_name = 3;
+//  optional string last_name = 4;
   optional bytes description = 5; 
   optional bytes avatar = 6;
 }

@@ -118,7 +118,7 @@ void UserPU::loadUserCache(DB &db, uint64_t uid)
     auto stat   = user()->mutable_acl();
 
     basic->set_id   ( ud.uid );
-    basic->set_name ( ud.name );
+    basic->set_nickname ( ud.name );
     basic->set_email( ud.email );
     basic->set_description( ud.description );
 
@@ -151,7 +151,7 @@ void UserPU::handle_add(DB &db, UserReq_Add &msg)
     const auto &basic = msg.basic();
     const auto &det = msg.details();
 
-    if(!basic.has_name() || !basic.has_email() || !msg.has_password()){
+    if(!basic.has_nickname() || !basic.has_email() || !msg.has_password()){
         addErrorCode( UserRes_Reply_MissingRequiredField);
         error = true;
         return;
@@ -162,7 +162,7 @@ void UserPU::handle_add(DB &db, UserReq_Add &msg)
         addErrorCode(UserRes_Reply_PasswordToShort);
         error = true;
     }
-    if( basic.name().length() > 72){
+    if( basic.nickname().length() > 72){
         addErrorCode(UserRes_Reply_UserNameToLong);
         error = true;
     }
@@ -202,7 +202,7 @@ void UserPU::handle_add(DB &db, UserReq_Add &msg)
         }
     }
     else{
-        if( userExists( db, basic.name(), basic.email() ) )
+        if( userExists( db, basic.nickname(), basic.email() ) )
             addErrorCode(UserRes_Reply_UserAlreadyExists );
         else
         {
@@ -238,8 +238,8 @@ void UserPU::handle_login(DB &db, const UserReq_Login &loginMsg)
                                                      u.email == parameter(u.email) ) );
         auto &param = prep.params;
 
-        if( loginMsg.cred().has_name())
-            param.name = loginMsg.cred().name();
+        if( loginMsg.cred().has_nickname())
+            param.name = loginMsg.cred().nickname();
         else if( loginMsg.cred().has_email() )
             param.email = loginMsg.cred().email();
         else
@@ -294,8 +294,8 @@ void UserPU::handle_remove( DB &db, const UserReq_Remove &msg)
 
     if (stat.checkUserAction<schema::users>("delete", msg.cred().id())){
         auto query = dynamic_remove(db.connection()).from(u).dynamic_where();
-        if( msg.cred().has_name())
-            query.where.add( u.name == msg.cred().name() );
+        if( msg.cred().has_nickname())
+            query.where.add( u.name == msg.cred().nickname() );
         else if( msg.cred().has_email() )
             query.where.add( u.email == msg.cred().email() );
         else
@@ -315,22 +315,22 @@ void UserPU::handle_changePasswd(DB &db, const UserReq_ChangePasswd &msg)
 {
     auth::AccesControl stat(user()->id());
 
-    if(msg.has_resetpasswd() && msg.resetpasswd() ){
-        ///TODO reset passwd
-    }
+    //    if(msg.has_resetpasswd() && msg.resetpasswd() ){
+    //        ///TODO reset passwd
+    //    }
 
-    else{      
-        if(stat.checkUserAction<schema::users>("change_password",msg.uid())){
-            ///TODO check if old pass is same as new
-            ///TODO set new passwd
-//            DB db;
-//            PasswordHash passwd;
-//            passwd.setPassword( msg.new_() );
-//            db(update)
-        }
-        else
-            sendServerError(Error_AccesDeny);
+    //    else{
+    if(stat.checkUserAction<schema::users>("change_password",msg.uid())){
+        ///TODO check if old pass is same as new
+        ///TODO set new passwd
+//        DB db;
+//        PasswordHash passwd;
+//        passwd.setPassword( msg.new_() );
+//        db(update);
     }
+    else
+        sendServerError(Error_AccesDeny);
+    //    }
 }
 
 bool UserPU::userExists(DB &db, string name, string email)

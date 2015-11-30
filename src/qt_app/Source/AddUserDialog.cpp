@@ -63,7 +63,7 @@ void AddUserDialog::on_registerNewUser_clicked()
 //    auto loginReq = fullMessage.add_request();
 //    auto userMsg = loginReq->mutable_userreq();
 //    auto login = userMsg->mutable_add();
-//    login->mutable_basic()->set_name( ui->name->text().toStdString() );
+//    login->mutable_basic()->set_nickname( ui->name->text().toStdString() );
 //    login->mutable_basic()->set_email(ui->email->text().toStdString() );
 
 //    if(! ui->description->toPlainText().isEmpty())

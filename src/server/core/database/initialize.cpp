@@ -36,7 +36,7 @@ int DBInitialize::initializeDB(DB &db)
         stat->set_owner( 1 );
         stat->set_group( 1 );
 
-        basic->set_name("ROOT");
+        basic->set_nickname("ROOT");
         basic->set_description("Root user");
         basic->set_email("b.w@linux.pl");
 

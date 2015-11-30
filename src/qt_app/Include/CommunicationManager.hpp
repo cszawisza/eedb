@@ -8,10 +8,6 @@
 class QByteArray;
 class Url;
 
-namespace pb
-{
-    class ClientRequests;
-}
 
 class CommunicationManager : public ICommunicationManager
 {

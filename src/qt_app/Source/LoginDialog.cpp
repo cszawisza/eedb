@@ -206,7 +206,7 @@ Ui::LoginDialog *LoginDialog::getUi()
 
 //    auto login = userMsg->mutable_login();
 //    login->set_password(ui->userPassword->text().toStdString() );
-//    login->mutable_cred()->set_name(ui->userLogin->text().toStdString());
+//    login->mutable_cred()->set_nickname(ui->userLogin->text().toStdString());
 
 //    QByteArray ba;
 //    ba.resize(fullMessage.ByteSize());

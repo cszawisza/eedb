@@ -36,7 +36,7 @@ inline quint64 addUser(DB &db, const string &name, const std::string &pass = "xx
     constexpr schema::users u;
     pb::UserReq_Add msg;
 
-    msg.mutable_basic()->set_name(name);
+    msg.mutable_basic()->set_nickname(name);
     msg.mutable_basic()->set_email(name + "@fake.xx");
     msg.set_password(pass);
 
@@ -48,7 +48,7 @@ inline quint64 addUser(DB &db, const string &name, const std::string &pass = "xx
 
 inline SharedUserData login(DB &db, const string &name, const std::string &pass = "xxxx"){
     pb::UserReq_Login msg;
-    msg.mutable_cred()->set_name(name);
+    msg.mutable_cred()->set_nickname(name);
     msg.set_password(pass);
 
     pb::ClientRequest req;

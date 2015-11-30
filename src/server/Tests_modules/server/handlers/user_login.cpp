@@ -10,7 +10,7 @@ public:
         db.start_transaction();
 
        pb::UserReq_Add add;
-       add.mutable_basic()->set_name("USER_NAME");
+       add.mutable_basic()->set_nickname("USER_NAME");
        add.mutable_basic()->set_email("EMAIL@asdfg.asdf");
        add.set_password("secret_pass");
 
@@ -50,7 +50,7 @@ public:
 TEST_F(userLoginTest, badCredentials){
     {
         pb::UserReq_Login login;
-        login.mutable_cred()->set_name("BAD_NAME");
+        login.mutable_cred()->set_nickname("BAD_NAME");
         login.set_password("secret_pass");
 
         auto res = requestLogin(login);
@@ -94,7 +94,7 @@ TEST_F(userLoginTest, badCredentials){
 
     {
         pb::UserReq_Login login;
-        login.mutable_cred()->set_name("USER_NAME");
+        login.mutable_cred()->set_nickname("USER_NAME");
         login.set_password("bad_pass");
 
         auto res = requestLogin(login);
@@ -108,7 +108,7 @@ TEST_F(userLoginTest, badCredentials){
 TEST_F(userLoginTest, goodCredentials){
     {
         pb::UserReq_Login login;
-        login.mutable_cred()->set_name("USER_NAME");
+        login.mutable_cred()->set_nickname("USER_NAME");
         login.set_password("secret_pass");
 
         auto res = requestLogin(login);
@@ -130,7 +130,7 @@ TEST_F(userLoginTest, goodCredentials){
 TEST_F(userLoginTest, doubleLogin){
     {
         pb::UserReq_Login login;
-        login.mutable_cred()->set_name("USER_NAME");
+        login.mutable_cred()->set_nickname("USER_NAME");
         login.set_password("secret_pass");
 
         EXPECT_EQ(UserRes_Reply_LoginPass, requestLogin(login));

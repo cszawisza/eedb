@@ -12,7 +12,7 @@ bool LoginVerificator::tryLogin(const std::string & p_password, const std::strin
 //    pb::ClientRequest * l_clientRequest = l_clientRequests.add_request();
 
 //    pb::UserReq::Credentials * l_credentials{};
-//    l_credentials->set_name(p_login);
+//    l_credentials->set_nickname(p_login);
 
 //    pb::UserReq::Login * l_login{};
 //    l_login->set_allocated_cred(l_credentials);

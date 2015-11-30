@@ -47,11 +47,11 @@ message HistoryEntry{
 }
 
 message Acl{
-  optional int32 uid = 1;
-  optional int32 owner = 2;
-  optional int32 group = 3;
-  optional int32 unixperms = 4;
-  optional int32 status = 5;
+  optional int32 uid = 1 [ default = 0];
+  optional int32 owner = 2 [ default = 0 ];
+  optional int32 group = 3 [default = 2 ];
+  optional int32 unixperms = 4 [default = 0]; ///FIXME set to -rwdr--r--
+  optional int32 status = 5 [default = 0];
 }
 
 message Variant{

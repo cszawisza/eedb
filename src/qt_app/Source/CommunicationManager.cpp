@@ -75,7 +75,7 @@ CommunicationManager::CommunicationManager(QSharedPointer<ISocket> p_webSocket,
 //    auto login = this->newRequest(id)->mutable_userreq()->mutable_add();
 
 //    login->set_password( p_userPassword );
-//    login->mutable_basic()->set_name(p_userName);
+//    login->mutable_basic()->set_nickname(p_userName);
 //    login->mutable_basic()->set_email(p_userEmail);
 
 //    sendRequest();

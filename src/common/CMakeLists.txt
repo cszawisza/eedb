@@ -1,10 +1,16 @@
 project( Common )
-add_subdirectory(messages)
+
+add_subdirectory(DataStructures/Adapters/Protobuf)
+add_subdirectory(TestModules)
+
 include_directories( ${ProtobufIncludePath} )
+include_directories( ./Interfaces )
 
-file(GLOB UTILS "utils/*.h" "utils/*.cpp" "utils/*.hpp" )
+file(GLOB UTILS "utils/*.h" "utils/*.cpp" "utils/*.hpp"  )
+file(GLOB DS  "DataStructures/*.*" )
+file(GLOB INT "DataStructures/Interfaces/*.hpp")
+file(GLOB VAL "DataStructures/Validators/*.*")
+add_library( Common STATIC ${UTILS} ${INT} ${VAL} ${DS} ${Interfaces}  )
 
-add_library( Common STATIC ${UTILS} )
-
-target_link_libraries( Common Messages )
+target_link_libraries( Common ProtobufAdapter )
 
