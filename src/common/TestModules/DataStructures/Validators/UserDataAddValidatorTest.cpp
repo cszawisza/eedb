@@ -30,9 +30,11 @@ TEST_F( UserAddDataValidationsTests, allRequiredAvalible ){
 TEST_F( UserAddDataValidationsTests, invalidEmailFails ){
     EXPECT_CALL(sut, get_email())
             .WillOnce(ReturnRefOfCopy(String("invalid email")))
-            .WillOnce(ReturnRefOfCopy(String("valid@email.com")));
+            .WillOnce(ReturnRefOfCopy(String("valid@email.com")))
+            .WillOnce(ReturnRefOfCopy(String("a.em2334ai@ll.d")));
 
 
     EXPECT_FALSE(isValid<IAdd>(sut));
+    EXPECT_TRUE(isValid<IAdd>(sut));
     EXPECT_TRUE(isValid<IAdd>(sut));
 }

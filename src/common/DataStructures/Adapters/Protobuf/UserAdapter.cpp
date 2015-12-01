@@ -7,7 +7,6 @@ using namespace data;
 
 ProtobufUserAddAdapter::ProtobufUserAddAdapter():
     pb::UserReq_Add( pb::UserReq_Add::default_instance() ) {
-//    this->set_allocated_acl(new ProtobufAclAdapter);
 }
 
 UID ProtobufUserAddAdapter::get_id() const
@@ -159,12 +158,12 @@ IAcl *ProtobufUserAddAdapter::acl()
 {
     if( !has_acl() )
         this->set_allocated_acl(new ProtobufAclAdapter);
-    return dynamic_cast<IAcl*>(mutable_acl());
+    return static_cast<IAcl*>(static_cast<ProtobufAclAdapter*>(mutable_acl()));
 }
 
 void ProtobufUserAddAdapter::assign_acl(IAcl *acl)
 {
-    this->set_allocated_acl( dynamic_cast<ProtobufAclAdapter*>(acl) );
+    this->set_allocated_acl( static_cast<ProtobufAclAdapter*>(acl) );
 }
 
 bool ProtobufUserAddAdapter::has_acl() const
