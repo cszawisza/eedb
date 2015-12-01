@@ -1,4 +1,5 @@
 #include "EmailValidator.hpp"
+#include "../StructuresCommon.hpp"
 
 #include <regex>
 #include <QString>
@@ -18,3 +19,7 @@ bool EmailValidator::isValid(const data::String &data) const {
     //            return false;
     return true;
 }
+
+bool EmailValidator::isValid(const QString &email) const { return isValid( email.toStdString() ); }
+
+bool EmailValidator::isValid(const char *email) const { return isValid( data::String( email ) ); }

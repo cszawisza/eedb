@@ -1,4 +1,5 @@
 #include "../Mocks/UserAddMock.hpp"
+#include "../Mocks/NickNameValidatorMock.hpp"
 #include "../Mocks/EmailValidatorMock.hpp"
 
 #include "DataStructures/Validators/UserDataValidator.hpp"
@@ -10,10 +11,19 @@ using data::requests::user::IAdd;
 using namespace testing;
 
 class UserAddDataValidationsTests : public testing::Test{
-
+public:
+    UserAddDataValidationsTests():
+        m_emailValidator(std::make_shared<EmailValidatorMock>()),
+        m_nickValidator(std::make_shared<NickNameValidatorMock>() )
+    {
+        sut.setEmailValidator(m_emailValidator);
+        sut.setNickNameValidator(m_nickValidator);
+    }
 protected:
     UserAddMock dataMock;
     UserAddValidator sut;
+    std::shared_ptr<EmailValidatorMock> m_emailValidator;
+    std::shared_ptr<NickNameValidatorMock> m_nickValidator;
 };
 
 TEST_F( UserAddDataValidationsTests, requiredFieldsFail){
@@ -31,11 +41,11 @@ TEST_F( UserAddDataValidationsTests, allRequiredAvalible ){
 }
 
 TEST_F( UserAddDataValidationsTests, invalidEmailFails ){
-    auto validator = std::make_shared<EmailValidatorMock>();
-    sut.setEmailValidator( validator );
+    EXPECT_CALL( dataMock, get_email()).WillOnce(ReturnRefOfCopy(String()) );
+    EXPECT_CALL( dataMock, get_nickname()).WillOnce(ReturnRefOfCopy(String()));
 
-    EXPECT_CALL( dataMock, get_email());
-    EXPECT_CALL(*validator, isValid( _ )).WillOnce(Return(true));
+    EXPECT_CALL(*m_emailValidator, isValid( _ )).WillOnce(Return(true));
+    EXPECT_CALL(*m_nickValidator, isValid( _ )).WillOnce(Return(true));
 
-    sut.isValid( dataMock );
+    EXPECT_TRUE(sut.isValid( dataMock ));
 }

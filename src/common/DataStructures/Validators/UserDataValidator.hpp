@@ -1,11 +1,20 @@
 #pragma once
 
-#include "../Interfaces/UserData.hpp"
-
-#include "EmailValidator.hpp"
+#include "../Validators/IValidator.hpp"
 #include <memory>
 
 namespace data{
+
+class EmailValidator;
+class NickNameValidator;
+
+namespace requests{
+namespace user{
+class IAdd;
+class ILogin;
+}
+}
+
 class UserAddValidator : public IMessageValidator<requests::user::IAdd>{
 
 public:
@@ -14,15 +23,16 @@ public:
     bool hasRequiredFields( const requests::user::IAdd &m_data ) const override;
 
     void setEmailValidator( std::shared_ptr<EmailValidator> validator);
-
+    void setNickNameValidator( std::shared_ptr<NickNameValidator> validator);
 private:
     std::shared_ptr<EmailValidator> m_emailValidator;
+    std::shared_ptr<NickNameValidator> m_nameValidator;
 };
 
-//template<>
-//bool isValid(const requests::user::ILogin &m_data){
-//    return m_data.has_credentials() !=0 &&
-//            m_data.has_password();
-//}
+class UserLoginValidator : public IMessageValidator<requests::user::ILogin>{
+public:
+    bool isValid(const requests::user::ILogin &data) const;
+    bool hasRequiredFields(const requests::user::ILogin &data) const;
+};
 
 }
