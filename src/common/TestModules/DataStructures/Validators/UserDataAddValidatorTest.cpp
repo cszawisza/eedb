@@ -1,5 +1,7 @@
 #include "../Mocks/UserAddMock.hpp"
-#include "DataStructures/Validators/UserDataValidators.hpp"
+#include "../Mocks/EmailValidatorMock.hpp"
+
+#include "DataStructures/Validators/UserDataValidator.hpp"
 
 #include <memory>
 
@@ -10,31 +12,30 @@ using namespace testing;
 class UserAddDataValidationsTests : public testing::Test{
 
 protected:
-    UserAddMock sut;
+    UserAddMock dataMock;
+    UserAddValidator sut;
 };
 
 TEST_F( UserAddDataValidationsTests, requiredFieldsFail){
-    EXPECT_CALL(sut, has_email()).WillOnce(Return(false));
+    EXPECT_CALL(dataMock, has_email()).WillOnce(Return(false));
 
-    EXPECT_FALSE(hasRequiredFields<IAdd>(sut));
+    EXPECT_FALSE(sut.hasRequiredFields(dataMock));
 }
 
 TEST_F( UserAddDataValidationsTests, allRequiredAvalible ){
-    EXPECT_CALL(sut, has_email()).WillOnce(Return(true));
-    EXPECT_CALL(sut, has_nickname()).WillOnce(Return(true));
-    EXPECT_CALL(sut, has_password()).WillOnce(Return(true));
+    EXPECT_CALL(dataMock, has_email()).WillOnce(Return(true));
+    EXPECT_CALL(dataMock, has_nickname()).WillOnce(Return(true));
+    EXPECT_CALL(dataMock, has_password()).WillOnce(Return(true));
 
-    EXPECT_TRUE(hasRequiredFields<IAdd>(sut) );
+    EXPECT_TRUE(sut.hasRequiredFields(dataMock));
 }
 
 TEST_F( UserAddDataValidationsTests, invalidEmailFails ){
-    EXPECT_CALL(sut, get_email())
-            .WillOnce(ReturnRefOfCopy(String("invalid email")))
-            .WillOnce(ReturnRefOfCopy(String("valid@email.com")))
-            .WillOnce(ReturnRefOfCopy(String("a.em2334ai@ll.d")));
+    auto validator = std::make_shared<EmailValidatorMock>();
+    sut.setEmailValidator( validator );
 
+    EXPECT_CALL( dataMock, get_email());
+    EXPECT_CALL(*validator, isValid( _ )).WillOnce(Return(true));
 
-    EXPECT_FALSE(isValid<IAdd>(sut));
-    EXPECT_TRUE(isValid<IAdd>(sut));
-    EXPECT_TRUE(isValid<IAdd>(sut));
+    sut.isValid( dataMock );
 }

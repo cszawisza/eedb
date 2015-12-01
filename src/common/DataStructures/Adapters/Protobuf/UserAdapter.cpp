@@ -203,7 +203,7 @@ void ProtobufUserAddAdapter::clear_address()
 
 String *ProtobufUserAddAdapter::phoneNumber()
 {
-    mutable_details()->mutable_address();
+    return mutable_details()->mutable_address();
 }
 
 const String &ProtobufUserAddAdapter::get_phoneNumber() const
@@ -246,16 +246,20 @@ bool ProtobufUserLoginAdapter::has_credentials() const
 
 String *ProtobufUserLoginAdapter::password()
 {
+    return mutable_password();
 }
 
 const String &ProtobufUserLoginAdapter::get_password() const
 {
+    return pb::UserReq_Login::password();
 }
 
-void ProtobufUserLoginAdapter::set_password(String)
+void ProtobufUserLoginAdapter::set_password(String pass)
 {
+    pb::UserReq_Login::set_password(move(pass));
 }
 
 bool ProtobufUserLoginAdapter::has_password() const
 {
+    return pb::UserReq_Login::has_password();
 }

@@ -77,6 +77,6 @@ public:
 
     data::String *password();
     const data::String &get_password() const;
-    void set_password(data::String);
+    void set_password(data::String pass);
     bool has_password() const;
 };

@@ -97,7 +97,6 @@ message UserRes {
 
     LogoutOk = 3;
 
-    EmailAddressToLong = 4;
     EmailNotValidate = 5;
     UserNameToLong = 6;
 

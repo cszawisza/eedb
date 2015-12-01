@@ -22,7 +22,7 @@ void ProtobufAclAdapter::clear_id()
 
 data::UID ProtobufAclAdapter::get_owner() const
 {
-    owner();
+    return pb::Acl::owner();
 }
 
 void ProtobufAclAdapter::set_owner(data::UID uid)
@@ -71,7 +71,7 @@ void ProtobufAclAdapter::set_unixperms(UnixPermissions)
 
 bool ProtobufAclAdapter::has_unixperms() const
 {
-    pb::Acl::has_unixperms();
+    return pb::Acl::has_unixperms();
 }
 
 void ProtobufAclAdapter::clear_unixperms()
