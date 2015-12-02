@@ -5,6 +5,8 @@
 
 class QString;
 
+///TODO add some tests for validator
+
 namespace data{
 class TextFieldValidator : public IFieldValidator<String> {
 public:
