@@ -263,3 +263,48 @@ bool ProtobufUserLoginAdapter::has_password() const
 {
     return pb::UserReq_Login::has_password();
 }
+
+
+requests::user::IAdd *ProtobufUserAdapter::add()
+{
+    if( !has_add() )
+        this->set_allocated_add(new ProtobufUserAddAdapter);
+    return static_cast<requests::user::IAdd*>(static_cast<ProtobufUserAddAdapter*>(mutable_add()));
+}
+
+void ProtobufUserAdapter::assign(requests::user::IAdd *add)
+{
+    this->set_allocated_add( static_cast<ProtobufUserAddAdapter*>(add) );
+}
+
+bool ProtobufUserAdapter::has_add() const
+{
+    return pb::UserReq::has_add();
+}
+
+void ProtobufUserAdapter::clear_add()
+{
+    pb::UserReq::clear_add();
+}
+
+requests::user::ILogin *ProtobufUserAdapter::login()
+{
+    if( !has_add() )
+        this->set_allocated_login(new ProtobufUserLoginAdapter);
+    return static_cast<requests::user::ILogin*>(static_cast<ProtobufUserLoginAdapter*>(mutable_login()));
+}
+
+void ProtobufUserAdapter::assign(requests::user::ILogin *login)
+{
+    this->set_allocated_login( static_cast<ProtobufUserLoginAdapter*>(login) );
+}
+
+bool ProtobufUserAdapter::has_login() const
+{
+    return pb::UserReq::has_login();
+}
+
+void ProtobufUserAdapter::clear_login()
+{
+    pb::UserReq::clear_login();
+}

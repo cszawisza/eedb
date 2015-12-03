@@ -8,6 +8,9 @@ PROTOBUF_GENERATE_CPP(ProtoSources ProtoHeaders ${ProtoFiles})
 set( PB
     UserAdapter.cpp
     AclAdapter.cpp
+    ClientRequestAdapter.cpp
+    RequestsSerializer.cpp
+    RequestsDeserializer.cpp
 )
 
 add_library( ProtobufAdapter STATIC ${PB} ${ProtoSources} ${ProtoHeaders} ${ProtoFiles})

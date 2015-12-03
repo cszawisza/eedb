@@ -30,15 +30,43 @@ TEST(ProtobufUserDataAdapterTest, assignAcl ){
 
 TEST(ProtobufUserAddAdapterTest, hasFOO ){
     ProtobufUserAddAdapter sut;
-
     EXPECT_FALSE(sut.has_acl());
 
     sut.acl();
-
     EXPECT_TRUE( sut.has_acl() );
 
     sut.clear_acl();
     sut.acl();
 
     EXPECT_TRUE( sut.has_acl() );
+}
+
+TEST(ProtobufUserAdapterTest, assign ){
+    ProtobufUserAdapter sut;
+
+    EXPECT_FALSE( sut.has_add() );
+    EXPECT_FALSE( sut.has_login() );
+
+    sut.assign( new ProtobufUserAddAdapter() );
+    EXPECT_TRUE ( sut.has_add() );
+    EXPECT_FALSE( sut.has_login() );
+
+    sut.assign( new ProtobufUserLoginAdapter() );
+    EXPECT_TRUE ( sut.has_login() );
+    EXPECT_FALSE( sut.has_add() );
+}
+
+TEST(ProtobufUserAdapterTest, getPointerTest ){
+    ProtobufUserAdapter sut;
+
+    EXPECT_FALSE( sut.has_add() );
+    EXPECT_FALSE( sut.has_login() );
+
+    sut.add();
+    EXPECT_TRUE ( sut.has_add() );
+    EXPECT_FALSE( sut.has_login() );
+
+    sut.login();
+    EXPECT_TRUE ( sut.has_login() );
+    EXPECT_FALSE( sut.has_add() );
 }

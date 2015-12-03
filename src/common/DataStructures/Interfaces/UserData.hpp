@@ -7,10 +7,13 @@ namespace data{
 class IAcl;
 
 namespace requests{
+
 namespace user{
 
 class IAdd{
 public:
+    virtual ~IAdd() = default;
+
     virtual UID get_id() const = 0;
     virtual void set_id( UID ) =0;
     virtual bool has_id() const = 0;
@@ -119,6 +122,22 @@ public:
 };
 
 }
+
+///TODO add "one_off" class that contains info about which Action is in IUser message
+class IUser{
+public:
+    virtual ~IUser() = default;
+
+    virtual user::IAdd* add() =0;
+    virtual void assign( user::IAdd* ) = 0;
+    virtual bool has_add() const = 0;
+    virtual void clear_add() = 0;
+
+    virtual user::ILogin* login() =0;
+    virtual void assign( user::ILogin* ) = 0;
+    virtual bool has_login() const = 0;
+    virtual void clear_login() = 0;
+};
 
 }
 }

@@ -7,6 +7,8 @@ namespace data{
 
 class IAcl{
 public:
+    virtual ~IAcl() = default;
+
     virtual UID get_id() const = 0;
     virtual void set_id( UID ) = 0;
     virtual bool has_id() const = 0;
