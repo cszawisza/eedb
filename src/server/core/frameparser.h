@@ -13,10 +13,8 @@
 class RequestsDecoder
 {
 public:
-    typedef QSharedPointer<pb::ClientRequests> SharedRequests;
-
     explicit RequestsDecoder(QByteArray ba);
-    bool decodeTo(pb::ClientRequests &frame );
+    bool decodeTo(pb::ClientRequest &frame );
     void setData(QByteArray ba);
 private:
     QByteArray m_rawMessage;

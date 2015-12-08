@@ -1,39 +1,36 @@
 #include <QWebSocket>
 #include "ISocket.hpp"
 #include <CommunicationManager.hpp>
-#include "message_conteiner.pb.h"
 #include <boost/optional.hpp>
-#include "user.pb.h"
 #include "utils/Url.hpp"
 
 namespace
 {
 
-void handleConvertedServerResponse(const pb::ServerResponses & p_serverResponse)
-{
-    auto l_serverResponse = p_serverResponse.response(0);
-    switch(l_serverResponse.data_case())
-    {
-    case pb::ServerResponse::kUserRes:
-        qDebug() << "UserRes";
-        break;
-    case pb::ServerResponse::kMsgInventoryRes:
-        qDebug() << "MsgInventoryRes";
-        break;
-    case pb::ServerResponse::kItemRes:
-        qDebug() << "ItemRes";
-        break;
-    case pb::ServerResponse::kCategoryRes:
-        qDebug() << "CategoryRes";
-        break;
-    case pb::ServerResponse::kMsgParameterRes:
-        qDebug() << "MsgParameterRes";
-        break;
-    case pb::ServerResponse::DATA_NOT_SET:
-        qDebug() << "Data not set";
-        break;
-    }
-}
+//void handleConvertedServerResponse(const pb::ServerResponse & p_serverResponse)
+//{
+//    switch(p_serverResponse.data_case())
+//    {
+//    case pb::ServerResponse::kUserRes:
+//        qDebug() << "UserRes";
+//        break;
+//    case pb::ServerResponse::kMsgInventoryRes:
+//        qDebug() << "MsgInventoryRes";
+//        break;
+//    case pb::ServerResponse::kItemRes:
+//        qDebug() << "ItemRes";
+//        break;
+//    case pb::ServerResponse::kCategoryRes:
+//        qDebug() << "CategoryRes";
+//        break;
+//    case pb::ServerResponse::kMsgParameterRes:
+//        qDebug() << "MsgParameterRes";
+//        break;
+//    case pb::ServerResponse::DATA_NOT_SET:
+//        qDebug() << "Data not set";
+//        break;
+//    }
+//}
 
 } // namespace anonymous
 
@@ -52,7 +49,8 @@ CommunicationManager::CommunicationManager(QSharedPointer<ISocket> p_webSocket,
         auto l_serverResponseArray = m_convertQByteArrayToProtobuf(p_serverResponse);
         if (l_serverResponseArray)
         {
-            handleConvertedServerResponse(l_serverResponseArray.get());
+            ///FIXME
+            // handleConvertedServerResponse(l_serverResponseArray.get());
         }
     });
 
@@ -91,7 +89,7 @@ CommunicationManager::CommunicationManager(QSharedPointer<ISocket> p_webSocket,
 pb::ClientRequest *CommunicationManager::newRequest(uint64_t &request_id)
 {
     static quint64 id = 1;
-    auto req = p_clientRequests.add_request();
+    auto req = new pb::ClientRequest();
     req->set_request_id(id);
     request_id = id++;
     return req;
@@ -101,8 +99,8 @@ void CommunicationManager::sendRequest()
 {
     qDebug() << "CommunicationManager::sendBinaryMessageOverQWebSocket()";
     m_socket->sendBinaryMessage(m_convertProtobufToQByteArray(p_clientRequests));
-    for(const auto &req :*p_clientRequests.mutable_request() )
-        emit userRequestSent( RequestMetadata(req) );
+//    for(const auto &req :*p_clientRequests.mutable_request() )
+        emit userRequestSent( RequestMetadata(p_clientRequests) );
 }
 
 void CommunicationManager::sendUserRequest(std::shared_ptr<pb::UserReq> data)

@@ -1,15 +1,18 @@
 #pragma once
 
+#include <memory>
+
 class QByteArray;
 
 namespace data {
 
-class IClientRequests;
+class IClientRequest;
 
 class IRequestsDeserializer {
+public:
     virtual ~IRequestsDeserializer() = default;
 
-    virtual IClientRequests *parseFromByteArray( const QByteArray& ) const = 0;
+    virtual std::shared_ptr<IClientRequest> parseFromByteArray( const QByteArray& ) const = 0;
 };
 
 }

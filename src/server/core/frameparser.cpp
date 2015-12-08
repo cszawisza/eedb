@@ -4,7 +4,7 @@ RequestsDecoder::RequestsDecoder(QByteArray ba):
 {
 }
 
-bool RequestsDecoder::decodeTo(pb::ClientRequests &frame){
+bool RequestsDecoder::decodeTo(pb::ClientRequest &frame){
     return frame.ParseFromArray(m_rawMessage.data(), m_rawMessage.size() );
 }
 

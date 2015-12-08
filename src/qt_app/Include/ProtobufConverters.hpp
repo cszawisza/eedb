@@ -6,8 +6,8 @@
 
 class QByteArray;
 
-using ProtobufToQByteArrayConverter = std::function<QByteArray(const pb::ClientRequests &)>;
-using QByteArrayToProtobufConverter = std::function<boost::optional<pb::ServerResponses>(const QByteArray &)>;
+using ProtobufToQByteArrayConverter = std::function<QByteArray(const pb::ClientRequest &)>;
+using QByteArrayToProtobufConverter = std::function<boost::optional<pb::ServerResponse>(const QByteArray &)>;
 
-QByteArray convertProtobufClientRequestsToQByteArray(const pb::ClientRequests & p_clientRequests);
-boost::optional<pb::ServerResponses> convertQByteArrayToProtobufServerResponse(const QByteArray & p_serverResponse);
+QByteArray convertProtobufClientRequestsToQByteArray(const pb::ClientRequest &p_clientRequest);
+boost::optional<pb::ServerResponse> convertQByteArrayToProtobufServerResponse(const QByteArray & p_serverResponse);

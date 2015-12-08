@@ -1,6 +1,5 @@
 #include "LoginVerificator.hpp"
-#include "user.pb.h"
-#include "message_conteiner.pb.h"
+
 
 LoginVerificator::LoginVerificator()
 {

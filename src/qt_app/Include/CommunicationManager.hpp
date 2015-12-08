@@ -34,5 +34,5 @@ private:
     QSharedPointer<ISocket> m_socket;
     ProtobufToQByteArrayConverter m_convertProtobufToQByteArray;
     QByteArrayToProtobufConverter m_convertQByteArrayToProtobuf;
-    pb::ClientRequests p_clientRequests;
+    pb::ClientRequest p_clientRequests;
 };

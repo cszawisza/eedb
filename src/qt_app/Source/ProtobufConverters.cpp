@@ -2,15 +2,15 @@
 #include <ProtobufConverters.hpp>
 #include <QDebug>
 
-QByteArray convertProtobufClientRequestsToQByteArray(const pb::ClientRequests & p_clientRequests)
+QByteArray convertProtobufClientRequestsToQByteArray(const pb::ClientRequest & p_clientRequest)
 {
-    return {p_clientRequests.SerializeAsString().c_str(),
-            p_clientRequests.ByteSize()};
+    return {p_clientRequest.SerializeAsString().c_str(),
+            p_clientRequest.ByteSize()};
 }
 
-boost::optional<pb::ServerResponses> convertQByteArrayToProtobufServerResponse(const QByteArray & p_serverResponse)
+boost::optional<pb::ServerResponse> convertQByteArrayToProtobufServerResponse(const QByteArray & p_serverResponse)
 {
-    pb::ServerResponses l_serverResponse{};
+    pb::ServerResponse l_serverResponse{};
     if(!l_serverResponse.ParseFromArray(p_serverResponse.data(), p_serverResponse.size()))
     {
         qDebug() << "Could not parse server response";

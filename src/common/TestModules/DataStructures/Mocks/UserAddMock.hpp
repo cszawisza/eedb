@@ -1,6 +1,7 @@
 #include <gmock/gmock.h>
 
 #include "DataStructures/Interfaces/UserData.hpp"
+#include "DataStructures/Interfaces/AclData.hpp"
 
 //   ([\d\D]* )set_([\D]*)\(([\D]*)\); |    MOCK_METHOD1_T(set_\2, \1(\3 \2));
 //   ([:a-zA-Z]*) \*([:a-zA-Z]*)\(\)\; |    MOCK_METHOD0_T(\2, \1*());
@@ -42,8 +43,8 @@ public:
     MOCK_CONST_METHOD0(has_avatar, bool());
     MOCK_METHOD0_T(clear_avatar, void());
 
-    MOCK_METHOD0_T(acl, data::IAcl*());
-    MOCK_METHOD1_T(assign_acl, void(data::IAcl *));
+    MOCK_METHOD0_T(acl, std::shared_ptr<data::IAcl>());
+    MOCK_METHOD1_T(assign_acl, void(std::shared_ptr<data::IAcl>));
     MOCK_CONST_METHOD0_T(has_acl, bool());
     MOCK_METHOD0_T(clear_acl, void());
 

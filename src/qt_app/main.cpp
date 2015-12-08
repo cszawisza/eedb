@@ -3,7 +3,6 @@
 #include <QDebug>
 #include <QTimer>
 #include <QByteArray>
-#include "WebSocket.hpp"
 
 #include <LoginDialog.hpp>
 #include <CommunicationManager.hpp>
@@ -11,6 +10,7 @@
 #include <ApplicationMainWindow.hpp>
 #include <ProtobufConverters.hpp>
 #include <UserRegister.hpp>
+#include <WebSocket.hpp>
 
 namespace
 {
@@ -53,7 +53,7 @@ void showLoginDialog(QApplication &a)
 {
     QSharedPointer<ISocket> l_webSocket = QSharedPointer<ISocket>(new WebSocket());
 
-    auto l_protobufToQbyteArrayConverter = [](const pb::ClientRequests & p_clientRequests)
+    auto l_protobufToQbyteArrayConverter = [](const pb::ClientRequest & p_clientRequests)
     {
         return convertProtobufClientRequestsToQByteArray(p_clientRequests);
     };
@@ -63,22 +63,23 @@ void showLoginDialog(QApplication &a)
         return convertQByteArrayToProtobufServerResponse(p_serverResponse);
     };
 
-    QSharedPointer<ICommunicationManager>  l_communicationManager =
-            QSharedPointer<ICommunicationManager>(
-                new CommunicationManager(l_webSocket,
-                                         l_protobufToQbyteArrayConverter,
-                                         l_qbyteArrayToProtobufConverter));
-    LoginVerificator l_loginVerificator;
-    UserRegister l_userRegisterDialog;
+    ///FIXME
+//    QSharedPointer<ICommunicationManager>  l_communicationManager =
+//            QSharedPointer<ICommunicationManager>(
+//                new CommunicationManager(l_webSocket,
+//                                         l_protobufToQbyteArrayConverter,
+//                                         l_qbyteArrayToProtobufConverter));
+//    LoginVerificator l_loginVerificator;
+//    UserRegister l_userRegisterDialog;
 
-    auto *lDialog = new LoginDialog(l_loginVerificator, l_communicationManager, l_userRegisterDialog);
+//    auto *lDialog = new LoginDialog(l_loginVerificator, l_communicationManager, l_userRegisterDialog);
 
-    if(lDialog->exec() != QDialog::Accepted )
-        killApp(a);
-    else{
-        lDialog->deleteLater();
-        showMainWindow(a, l_communicationManager);
-    }
+//    if(lDialog->exec() != QDialog::Accepted )
+//        killApp(a);
+//    else{
+//        lDialog->deleteLater();
+//        showMainWindow(a, l_communicationManager);
+//    }
 }
 
 } // anonymous

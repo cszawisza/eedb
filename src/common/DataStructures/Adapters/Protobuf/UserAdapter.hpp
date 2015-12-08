@@ -1,18 +1,24 @@
 #pragma once
-
 #include "../../Interfaces/UserData.hpp"
-#include "user.pb.h"
 
 namespace data{
     class Acl;
 }
 
+namespace pb{
+    class UserReq;
+    class UserReq_Login;
+    class UserReq_Add;
+}
+
 class ProtobufAclAdapter;
 
-class ProtobufUserAddAdapter: public data::requests::user::IAdd, public pb::UserReq_Add
+class ProtobufUserAddAdapter: public data::requests::user::IAdd
 {
 public:
     ProtobufUserAddAdapter();
+    ProtobufUserAddAdapter( pb::UserReq_Add * );
+    ~ProtobufUserAddAdapter();
 
     data::UID get_id() const override;
     void set_id(data::UID id) override;
@@ -49,8 +55,8 @@ public:
     bool has_avatar() const override;
     void clear_avatar() override;
 
-    data::IAcl *acl() override;
-    void assign_acl(data::IAcl *acl) override;
+    std::shared_ptr<data::IAcl> acl() override;
+    void assign_acl(std::shared_ptr<data::IAcl> acl) override;
     bool has_acl() const override;
     void clear_acl() override;
 
@@ -65,11 +71,20 @@ public:
     void set_phoneNumber(data::String number) override;
     bool has_phoneNumber() const override;
     void clear_phoneNumber() override;
+
+    pb::UserReq_Add *detachData();
+private:
+    pb::UserReq_Add *m_data;
+    bool take_ovnership = false;
 };
 
-class ProtobufUserLoginAdapter: public data::requests::user::ILogin, public pb::UserReq_Login {
+class ProtobufUserLoginAdapter: public data::requests::user::ILogin {
     // ILogin interface
 public:
+    ProtobufUserLoginAdapter();
+    ProtobufUserLoginAdapter( pb::UserReq_Login *login_msg );
+    ~ProtobufUserLoginAdapter();
+
     data::Credentials *credentials() override;
     const data::Credentials &get_credentials() const override;
     void set_credentials(data::Credentials) override;
@@ -79,18 +94,32 @@ public:
     const data::String &get_password() const override;
     void set_password(data::String) override;
     bool has_password() const override;
+
+    pb::UserReq_Login *detachData();
+private:
+    bool m_takeOvnership = false;
+    pb::UserReq_Login *m_data;
 };
 
-class ProtobufUserAdapter: public data::requests::IUser, public pb::UserReq{
+class ProtobufUserAdapter: public data::requests::IUser {
 public:
-    void assign(data::requests::user::IAdd *add) override;
-    void assign(data::requests::user::ILogin *login) override;
+    ProtobufUserAdapter();
+    ProtobufUserAdapter( pb::UserReq *req );
 
-    data::requests::user::IAdd *add() override;
+    ~ProtobufUserAdapter();
+//    std::shared_ptr<data::requests::user::IAdd> detach() override;
+    void assign(std::shared_ptr<data::requests::user::IAdd> add) override;
+    void assign(std::shared_ptr<data::requests::user::ILogin> login) override;
+
+    std::shared_ptr<data::requests::user::IAdd> add() override;
     bool has_add() const override;
     void clear_add() override;
 
-    data::requests::user::ILogin *login() override;
+    std::shared_ptr<data::requests::user::ILogin> login() override;
     bool has_login() const override;
     void clear_login() override;
+
+private:
+    pb::UserReq *m_data;
+    bool take_ovnership = false;
 };

@@ -5,5 +5,5 @@
 class ProtobufRequestsSerializer : public data::IRequestsSerializer {
     // IRequestsSerializer interface
 public:
-    QByteArray serializeToByteArray(data::IClientRequests *req) const;
+    QByteArray serializeToByteArray(data::IClientRequest *req) const;
 };

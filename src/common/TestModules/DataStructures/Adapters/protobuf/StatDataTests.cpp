@@ -13,16 +13,16 @@ TEST( StatTest, defaultValues ){
 TEST( ProtobufAclAdapterTests, hasFoo ){
     ProtobufAclAdapter sut;
 
-    EXPECT_FALSE( sut.has_group() );
+    EXPECT_FALSE( sut.has_groups() );
     EXPECT_FALSE( sut.has_id() );
     EXPECT_FALSE( sut.has_owner() );
 
     sut.set_id( 1 );
-    sut.set_group( 2 );
+    sut.set_groups( 2 );
     sut.set_owner( 3 );
 
     EXPECT_TRUE ( sut.has_id() );
-    EXPECT_TRUE ( sut.has_group() );
+    EXPECT_TRUE ( sut.has_groups() );
     EXPECT_TRUE ( sut.has_owner() );
     EXPECT_FALSE( sut.has_status() );
 }
@@ -30,9 +30,9 @@ TEST( ProtobufAclAdapterTests, hasFoo ){
 TEST( ProtobufAclAdapterTest, clearField ){
     ProtobufAclAdapter sut;
 
-    EXPECT_FALSE( sut.has_group() );
-    sut.set_group(7);
-    EXPECT_TRUE( sut.has_group() );
-    sut.clear_group();
-    EXPECT_FALSE(sut.has_group() );
+    EXPECT_FALSE( sut.has_groups() );
+    sut.set_groups(7);
+    EXPECT_TRUE( sut.has_groups() );
+    sut.clear_groups();
+    EXPECT_FALSE(sut.has_groups() );
 }

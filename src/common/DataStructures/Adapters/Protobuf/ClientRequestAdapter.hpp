@@ -1,10 +1,10 @@
 #pragma once
 
 #include "../../Interfaces/ClientRequest.hpp"
-#include "message_conteiner.pb.h"
 
-#include <vector>
-#include <memory>
+namespace pb{
+    class ClientRequest;
+}
 
 namespace data{
 namespace requests{
@@ -12,22 +12,22 @@ namespace requests{
 }
 }
 
-class ProtobufClientRequestAdapter : public data::IClientRequest, public pb::ClientRequest {
+class ProtobufClientRequestAdapter : public data::IClientRequest {
 public:
+    ProtobufClientRequestAdapter();
+    ProtobufClientRequestAdapter(pb::ClientRequest *req);
+    ~ProtobufClientRequestAdapter();
+
     int get_requestId() const;
-    data::requests::IUser *user();
+
+    std::unique_ptr<data::requests::IUser> user();
     void assign_user(data::requests::IUser *ur);
     bool has_user() const;
     void clear_user();
-};
 
-class ProtobufClientRequestsAdapter : public data::IClientRequests, public pb::ClientRequests {
-    // IClientRequests interface
-public:
-    data::IClientRequest *newClientRequest();
-    int requests_size() const;
-
-    void form();
+    pb::ClientRequest *rawPointer() const;
 private:
-    std::vector<ProtobufClientRequestAdapter*> m_requests;
+    bool m_takeOvnership = false;
+    pb::ClientRequest *m_data;
 };
+

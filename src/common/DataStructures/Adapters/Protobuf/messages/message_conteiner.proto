@@ -7,7 +7,6 @@ import public "inventory.proto";
 import public "item.proto";
 import public "category.proto";
 
-
 /// message used for sending back code of operation 
 /// (operation succes or error)
 
@@ -28,10 +27,6 @@ enum ServerError{
   Error_MsgSpecificError=100;
 }
 
-message ClientRequests{
-  repeated ClientRequest request=1;
-}
-
 message ClientRequest{
   optional uint32	request_id	= 1 [default = 1];
 //  required MsgCoding	msgCoding 	= 3 [default = msgProtbuf]; // type that is stored in data field
@@ -44,10 +39,6 @@ message ClientRequest{
     pb.CategoryReq              categoryReq = 15;
     pb.MsgParameterRequest      msgParameterReq = 16;
   }
-}
-
-message ServerResponses{
-  repeated ServerResponse response = 1;
 }
 
 message ServerResponse {

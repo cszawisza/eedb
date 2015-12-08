@@ -11,7 +11,6 @@
 #include <atomic>
 
 using pb::ClientRequest;
-using pb::ClientRequests;
 /**
  * @brief The IProcessor class
  */
@@ -19,14 +18,15 @@ using pb::ClientRequests;
 class IMessageProcessingUint
 {
 public:
-    typedef QSharedPointer<pb::ClientRequests> SharedRequests;
-    typedef QSharedPointer<pb::ServerResponses> SharedResponses;
+    typedef QSharedPointer<pb::ClientRequest> SharedRequest;
+//    typedef QSharedPointer<pb::ClientRequest> SharedRequest;
+
 
     IMessageProcessingUint();
     virtual ~IMessageProcessingUint(){}
     pb::ServerResponse getLastResponse();
-    void setInputData( SharedRequests frame );
-    void setOutputData( SharedResponses frame );
+//    void setInputData( SharedRequest frame );
+//    void setOutputData( SharedResponses frame );
 
     /**
      * @brief setClientCache
@@ -48,6 +48,4 @@ private:
     static std::atomic<quint64> m_response_id;
     quint64 m_currentRequestId = 0;
     SharedUserData m_userData;
-    SharedResponses m_outputFrame;
-    SharedRequests m_inputFrame;
 };

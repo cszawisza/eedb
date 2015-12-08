@@ -17,8 +17,8 @@ class ClientWorker : public QObject
 {
     Q_OBJECT
 public:
-    typedef QSharedPointer<pb::ClientRequests> SharedRequests;
-    typedef QSharedPointer<pb::ServerResponses> SharedResponses;
+    typedef QSharedPointer<pb::ClientRequest> SharedRequests;
+    typedef QSharedPointer<pb::ServerResponse> SharedResponses;
     explicit ClientWorker(QObject *parent = 0);
 
     void printMessageInfo(const pb::ClientRequest &request);

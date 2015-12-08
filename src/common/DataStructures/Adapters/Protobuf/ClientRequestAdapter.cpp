@@ -1,47 +1,51 @@
 #include "ClientRequestAdapter.hpp"
-
 #include "UserAdapter.hpp"
+#include "message_conteiner.pb.h"
+
+
+ProtobufClientRequestAdapter::ProtobufClientRequestAdapter():
+    m_data(new pb::ClientRequest() ), m_takeOvnership(true)
+{
+
+}
+
+ProtobufClientRequestAdapter::ProtobufClientRequestAdapter(pb::ClientRequest *req):
+    m_data(req), m_takeOvnership(false)
+{
+
+}
+
+ProtobufClientRequestAdapter::~ProtobufClientRequestAdapter()
+{
+    if(m_takeOvnership)
+        delete m_data;
+}
 
 int ProtobufClientRequestAdapter::get_requestId() const
 {
 }
 
-data::requests::IUser *ProtobufClientRequestAdapter::user()
+std::unique_ptr<data::requests::IUser> ProtobufClientRequestAdapter::user()
 {
-    if(!has_user())
-        this->set_allocated_userreq( new ProtobufUserAdapter() );
-    return static_cast<data::requests::IUser*>( static_cast<ProtobufUserAdapter*>(mutable_userreq()));
+    return std::make_unique<ProtobufUserAdapter>(m_data->mutable_userreq());
 }
 
 void ProtobufClientRequestAdapter::assign_user(data::requests::IUser *ur)
 {
-    this->set_allocated_userreq( static_cast<ProtobufUserAdapter*>(ur) );
+//    this->set_allocated_userreq( static_cast<ProtobufUserAdapter*>(ur) );
 }
 
 bool ProtobufClientRequestAdapter::has_user() const
 {
-    return ClientRequest::has_userreq();
+    return m_data->has_userreq();
 }
 
 void ProtobufClientRequestAdapter::clear_user()
 {
-    ClientRequest::clear_userreq();
+    m_data->clear_userreq();
 }
 
-data::IClientRequest *ProtobufClientRequestsAdapter::newClientRequest()
+pb::ClientRequest *ProtobufClientRequestAdapter::rawPointer() const
 {
-    m_requests.push_back( new ProtobufClientRequestAdapter );
-    return m_requests.back();
-}
-
-int ProtobufClientRequestsAdapter::requests_size() const
-{
-    return ClientRequests::request_size();
-}
-
-void ProtobufClientRequestsAdapter::form()
-{
-    for(auto req: m_requests){
-        this->add_request()->MergeFrom(*req);
-    }
+    return m_data;
 }

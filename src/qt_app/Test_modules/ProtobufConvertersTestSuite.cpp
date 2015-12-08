@@ -23,33 +23,33 @@ ProtobufConvertersTestSuite::ProtobufConvertersTestSuite()
 //    p_clientRequest.set_requestid(1);
 }
 
-TEST_F(ProtobufConvertersTestSuite, EmptyClientRequest)
-{
-    const pb::ClientRequests & l_emptyClientRequests{};
-    QByteArray l_emptyArray{};
-    EXPECT_EQ(l_emptyArray, convertProtobufClientRequestsToQByteArray(l_emptyClientRequests));
-}
+//TEST_F(ProtobufConvertersTestSuite, EmptyClientRequest)
+//{
+//    const pb::ClientRequests & l_emptyClientRequests{};
+//    QByteArray l_emptyArray{};
+//    EXPECT_EQ(l_emptyArray, convertProtobufClientRequestsToQByteArray(l_emptyClientRequests));
+//}
 
-TEST_F(ProtobufConvertersTestSuite, EmptyServerResponse)
-{
-    QByteArray l_emptyArray{};
-    boost::optional<pb::ServerResponses> l_emptyServerResponses = pb::ServerResponses();
-    std::string l_emptyServerResponsesString;
-    l_emptyServerResponses->SerializeToString(&l_emptyServerResponsesString);
+//TEST_F(ProtobufConvertersTestSuite, EmptyServerResponse)
+//{
+//    QByteArray l_emptyArray{};
+//    boost::optional<pb::ServerResponses> l_emptyServerResponses = pb::ServerResponses();
+//    std::string l_emptyServerResponsesString;
+//    l_emptyServerResponses->SerializeToString(&l_emptyServerResponsesString);
 
-    std::string l_emptyConvertedServerResponseString;
-    auto l_convertedResponse = convertQByteArrayToProtobufServerResponse(l_emptyArray);
-    l_convertedResponse->SerializeToString(&l_emptyConvertedServerResponseString);
+//    std::string l_emptyConvertedServerResponseString;
+//    auto l_convertedResponse = convertQByteArrayToProtobufServerResponse(l_emptyArray);
+//    l_convertedResponse->SerializeToString(&l_emptyConvertedServerResponseString);
 
-    EXPECT_TRUE(l_convertedResponse.is_initialized());
-    EXPECT_EQ(l_emptyServerResponsesString, l_emptyConvertedServerResponseString);
-}
+//    EXPECT_TRUE(l_convertedResponse.is_initialized());
+//    EXPECT_EQ(l_emptyServerResponsesString, l_emptyConvertedServerResponseString);
+//}
 
-TEST_F(ProtobufConvertersTestSuite, ServerResponseParseError)
-{
-    boost::optional<pb::ServerResponses> l_emptyServerResponses{};
-    QByteArray l_emptyArray("12213");
-    EXPECT_FALSE(convertQByteArrayToProtobufServerResponse(l_emptyArray).is_initialized());
-}
+//TEST_F(ProtobufConvertersTestSuite, ServerResponseParseError)
+//{
+//    boost::optional<pb::ServerResponses> l_emptyServerResponses{};
+//    QByteArray l_emptyArray("12213");
+//    EXPECT_FALSE(convertQByteArrayToProtobufServerResponse(l_emptyArray).is_initialized());
+//}
 
 //#include "ProtobufConvertersTestSuite.moc"

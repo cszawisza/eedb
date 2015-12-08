@@ -1,15 +1,20 @@
 #pragma once
 
 #include "../../Interfaces/AclData.hpp"
-#include "common.pb.h"
+
+namespace pb{
+    class Acl;
+}
 
 namespace data{
     class Acl;
 }
 
-class ProtobufAclAdapter : public data::IAcl, public pb::Acl {
+class ProtobufAclAdapter : public data::IAcl {
 public:
     ProtobufAclAdapter();
+    ProtobufAclAdapter( pb::Acl *p);
+    ~ProtobufAclAdapter();
 
     data::UID get_id() const;
     void set_id(data::UID uid);
@@ -35,4 +40,9 @@ public:
     void set_status(data::Status status);
     bool has_status() const;
     void clear_status();
+
+    pb::Acl *detachData();
+private:
+    pb::Acl *m_data;
+    bool take_ovnership = false;
 };

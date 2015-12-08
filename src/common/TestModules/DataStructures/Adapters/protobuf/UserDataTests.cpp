@@ -8,7 +8,7 @@
 TEST( ProtobufUserDataAdapterTest, getAcl ){
     ProtobufUserAddAdapter sut;
 
-    data::IAcl *acl = sut.acl();
+    auto acl = sut.acl();
     acl->set_owner(7);
     acl->set_id(1);
 
@@ -19,7 +19,7 @@ TEST( ProtobufUserDataAdapterTest, getAcl ){
 TEST(ProtobufUserDataAdapterTest, assignAcl ){
     ProtobufUserAddAdapter sut;
 
-    data::IAcl *acl = new ProtobufAclAdapter();
+    auto acl = std::make_shared<ProtobufAclAdapter>();
     acl->set_owner(7);
     acl->set_id(1);
     sut.assign_acl(acl); // move ovnership to adapter
@@ -47,11 +47,11 @@ TEST(ProtobufUserAdapterTest, assign ){
     EXPECT_FALSE( sut.has_add() );
     EXPECT_FALSE( sut.has_login() );
 
-    sut.assign( new ProtobufUserAddAdapter() );
+    sut.assign( std::make_shared<ProtobufUserAddAdapter>() );
     EXPECT_TRUE ( sut.has_add() );
     EXPECT_FALSE( sut.has_login() );
 
-    sut.assign( new ProtobufUserLoginAdapter() );
+    sut.assign( std::make_shared<ProtobufUserLoginAdapter>() );
     EXPECT_TRUE ( sut.has_login() );
     EXPECT_FALSE( sut.has_add() );
 }

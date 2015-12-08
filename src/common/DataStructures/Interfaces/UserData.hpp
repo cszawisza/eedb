@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../StructuresCommon.hpp"
-
+#include <memory>
 namespace data{
 
 class IAcl;
@@ -49,8 +49,8 @@ public:
     virtual bool has_avatar() const = 0;
     virtual void clear_avatar() = 0;
 
-    virtual IAcl* acl() =0;
-    virtual void assign_acl( IAcl* ) = 0;
+    virtual std::shared_ptr<IAcl> acl() =0;
+    virtual void assign_acl(std::shared_ptr<data::IAcl>) = 0;
     virtual bool has_acl() const = 0;
     virtual void clear_acl() = 0;
 
@@ -69,6 +69,8 @@ public:
 
 class ILogin{
 public:
+    virtual ~ILogin() = default;
+
     virtual Credentials* credentials() = 0;
     virtual const Credentials& get_credentials() const = 0;
     virtual void set_credentials( Credentials ) = 0;
@@ -84,6 +86,8 @@ class ILogout{
 };
 
 class IModify{
+public:
+    ~IModify() = default;
     /** set new value of email field */
     virtual bool modify_email() const =0;
     /** new value of email (NULL or not) */
@@ -99,6 +103,8 @@ public:
         void userId( UID );
     };
 public:
+    virtual ~IGet() = default;
+
     virtual bool has_requestedUid() const = 0;
     virtual void request_uid( bool ) = 0;
 
@@ -128,13 +134,14 @@ class IUser{
 public:
     virtual ~IUser() = default;
 
-    virtual user::IAdd* add() =0;
-    virtual void assign( user::IAdd* ) = 0;
+//    virtual std::unique_ptr<user::IAdd> detach_add() = 0;
+    virtual std::shared_ptr<user::IAdd> add() =0;
+    virtual void assign( std::shared_ptr<user::IAdd> ) = 0;
     virtual bool has_add() const = 0;
     virtual void clear_add() = 0;
 
-    virtual user::ILogin* login() =0;
-    virtual void assign( user::ILogin* ) = 0;
+    virtual std::shared_ptr<user::ILogin> login() =0;
+    virtual void assign( std::shared_ptr<user::ILogin> ) = 0;
     virtual bool has_login() const = 0;
     virtual void clear_login() = 0;
 };

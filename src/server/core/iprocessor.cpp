@@ -12,7 +12,7 @@ pb::ServerResponse IMessageProcessingUint::getLastResponse(){
     return m_outputFrame->response(m_outputFrame->response_size()-1);
 }
 
-void IMessageProcessingUint::setInputData(IMessageProcessingUint::SharedRequests frame){
+void IMessageProcessingUint::setInputData(IMessageProcessingUint::SharedRequest frame){
     m_inputFrame.swap(frame);
 }
 
