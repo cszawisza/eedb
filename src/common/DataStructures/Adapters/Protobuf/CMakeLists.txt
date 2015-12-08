@@ -11,6 +11,8 @@ set( PB
     ClientRequestAdapter.cpp
     RequestsSerializer.cpp
     RequestsDeserializer.cpp
+    ResponsesSerializer.cpp
+    ResponsesDeserializer.cpp
 )
 
 add_library( ProtobufAdapter STATIC ${PB} ${ProtoSources} ${ProtoHeaders} ${ProtoFiles})

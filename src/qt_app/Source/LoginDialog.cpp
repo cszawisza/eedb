@@ -31,7 +31,7 @@ LoginDialog::LoginDialog(const ILoginVerificator &p_loginVerificator,
 
     userReg = new AddUserDialog(m_manager, this);
 
-    QState* connectedState = new QState();//, waitForSend, waitForResponse, werify;
+    QState* connectedState = new QState();
     QState* tryConnectState = new QState();
 
     QState* tryDisconnect = new QState(connectedState);

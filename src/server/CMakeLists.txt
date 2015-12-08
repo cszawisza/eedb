@@ -4,6 +4,7 @@ include_directories( ../ )
 include_directories( core )
 
 include_directories( ${Common_SOURCE_DIR} )
+include_directories( ${Common_SOURCE_DIR}/DataStructures )
 
 add_subdirectory(Tests_modules)
 
