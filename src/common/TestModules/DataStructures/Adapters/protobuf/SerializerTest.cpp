@@ -2,10 +2,11 @@
 
 #include <QByteArray>
 #include "DataStructures/Interfaces/UserRequests.hpp"
+#include "DataStructures/Adapters/Protobuf/ServerResponseAdapter.hpp"
 #include "DataStructures/Adapters/Protobuf/UserAdapter.hpp"
 #include "DataStructures/Adapters/Protobuf/ClientRequestAdapter.hpp"
-#include "DataStructures/Adapters/Protobuf/RequestsSerializer.hpp"
-#include "DataStructures/Adapters/Protobuf/RequestsDeserializer.hpp"
+#include "DataStructures/Adapters/Protobuf/RequestSerializer.hpp"
+#include "DataStructures/Adapters/Protobuf/ResponsesSerializer.hpp"
 
 class ProtobufSerializerTest : public testing::Test {
 public:
@@ -16,6 +17,16 @@ protected:
     ProtobufClientRequestAdapter m_data;
 };
 
+void set_data(requests::user::IAdd* add)
+{
+    add->set_nickname("asdf");
+    add->set_password("asdfg");
+    add->set_email("cycki@xy.xy");
+    add->set_address("my address");
+    add->set_avatar("ajdshajhsdadsjkfkjhgsadgfjhasd");
+    add->set_phoneNumber("asd12344");
+    add->set_description("alskdalksdjlkalkjsdjalkjsklkjlkjlkjlkjlkjlkjlkjlkjlkj");
+}
 
 TEST_F( ProtobufSerializerTest, ctor ){
     auto addAdp =  new requests::user::ProtobufUserAddAdapter();
@@ -36,13 +47,7 @@ TEST_F( ProtobufSerializerTest, ctor ){
 TEST_F( ProtobufSerializerTest, goUp ){
     auto addAdp = m_data.user()->add();
 
-    addAdp->set_nickname("asdf");
-    addAdp->set_password("asdfg");
-    addAdp->set_email("cycki@xy.xy");
-    addAdp->set_address("my address");
-    addAdp->set_avatar("ajdshajhsdadsjkfkjhgsadgfjhasd");
-    addAdp->set_phoneNumber("asd12344");
-    addAdp->set_description("alskdalksdjlkalkjsdjalkjsklkjlkjlkjlkjlkjlkjlkjlkjlkj");
+    set_data(addAdp);
 
     auto array = sut.serializeToByteArray( &m_data );
 
@@ -58,31 +63,48 @@ public:
     ProtobufDeserializerTest()
     {}
 protected:
-    ProtobufRequestsSerializer serializer;
-    ProtobufRequestsDeserializer sut;
+    ProtobufResponseSerializer res_sut;
+
+    ProtobufRequestsSerializer sut;
     ProtobufClientRequestAdapter m_data;
 };
 
 TEST_F( ProtobufDeserializerTest, goUp ){
     auto add = m_data.user()->add();
 
-    add->set_nickname("asdf");
-    add->set_password("asdfg");
-    add->set_email("cycki@xy.xy");
-    add->set_address("my address");
-    add->set_avatar("ajdshajhsdadsjkfkjhgsadgfjhasd");
-    add->set_phoneNumber("asd12344");
-    add->set_description("alskdalksdjlkalkjsdjalkjsklkjlkjlkjlkjlkjlkjlkjlkjlkj");
+    set_data(add);
 
-    auto req = sut.parseFromByteArray(serializer.serializeToByteArray( &m_data ));
+    auto req = res_sut.parseFromByteArray(sut.serializeToByteArray( &m_data ));
 
     ASSERT_TRUE(req->has_user());
     auto addReq = req->user()->add();
 
-    EXPECT_EQ(add->get_nickname(), addReq->get_nickname());
-    EXPECT_EQ(add->get_password(), addReq->get_password());
-    EXPECT_EQ(add->get_email(), addReq->get_email());
-    EXPECT_EQ(add->get_avatar(), addReq->get_avatar());
-    EXPECT_EQ(add->get_phoneNumber(), addReq->get_phoneNumber());
-    EXPECT_EQ(add->get_description(), addReq->get_description());
+    EXPECT_EQ(add->get_nickname(),      addReq->get_nickname());
+    EXPECT_EQ(add->get_password(),      addReq->get_password());
+    EXPECT_EQ(add->get_email(),         addReq->get_email());
+    EXPECT_EQ(add->get_avatar(),        addReq->get_avatar());
+    EXPECT_EQ(add->get_phoneNumber(),   addReq->get_phoneNumber());
+    EXPECT_EQ(add->get_description(),   addReq->get_description());
+}
+
+TEST_F( ProtobufDeserializerTest, reuseMessages ){
+    auto add = m_data.user()->add();
+    auto req = new ProtobufClientRequestAdapter();
+    auto dat = QByteArray();
+
+    set_data(add);
+    sut.serializeToByteArray( &m_data, dat );
+    res_sut.parseFromByteArray(dat, req);
+
+    ASSERT_TRUE(req->has_user());
+    auto addReq = req->user()->add();
+
+    EXPECT_EQ(add->get_nickname(),      addReq->get_nickname());
+    EXPECT_EQ(add->get_password(),      addReq->get_password());
+    EXPECT_EQ(add->get_email(),         addReq->get_email());
+    EXPECT_EQ(add->get_avatar(),        addReq->get_avatar());
+    EXPECT_EQ(add->get_phoneNumber(),   addReq->get_phoneNumber());
+    EXPECT_EQ(add->get_description(),   addReq->get_description());
+
+    delete req;
 }

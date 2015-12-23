@@ -3,8 +3,7 @@
 #include <QSharedPointer>
 #include <QUrl>
 
-#include "DataStructures/IRequestsSerializer.hpp"
-#include <DataStructures/IRequestsDeserializer.hpp>
+#include "DataStructures/IRequestSerializer.hpp"
 
 class ISocket;
 class Url;

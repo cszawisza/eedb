@@ -3,8 +3,7 @@
 
 #include <ICommunicationManager.hpp>
 
-#include "IRequestsDeserializer.hpp"
-#include "IResponseDeserializer.hpp"
+#include "IRequestSerializer.hpp"
 
 #include "ISocket.hpp"
 

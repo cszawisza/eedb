@@ -35,6 +35,26 @@ void ProtobufServerResponseAdapter::set_response_code(int code)
     m_data->set_code(code);
 }
 
+requests::IUser *ProtobufServerResponseAdapter::user()
+{
+///FIXME
+}
+
+void ProtobufServerResponseAdapter::assign_user(requests::IUser *ur)
+{
+///FIXME
+}
+
+bool ProtobufServerResponseAdapter::has_user() const
+{
+    return m_data->has_userres();
+}
+
+void ProtobufServerResponseAdapter::clear_user()
+{
+    m_data->clear_userres();
+}
+
 pb::ServerResponse *ProtobufServerResponseAdapter::rawPointer() const
 {
     return m_data;

@@ -22,10 +22,11 @@ public:
     void set_in_response_to(uint64_t id);
     void set_response_code(int code);
 //    int get_requestId() const;
-//    std::unique_ptr<requests::IUser> user();
-//    void assign_user(requests::IUser *ur);
-//    bool has_user() const;
-//    void clear_user();
+
+    requests::IUser* user();
+    void assign_user(requests::IUser *ur);
+    bool has_user() const;
+    void clear_user();
 
     pb::ServerResponse *rawPointer() const;
 private:

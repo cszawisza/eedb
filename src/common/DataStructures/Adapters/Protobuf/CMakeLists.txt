@@ -9,10 +9,10 @@ set( PB
     UserAdapter.cpp
     AclAdapter.cpp
     ClientRequestAdapter.cpp
-    RequestsSerializer.cpp
-    RequestsDeserializer.cpp
+
+    RequestSerializer.cpp
     ResponsesSerializer.cpp
-    ResponsesDeserializer.cpp
+
     ServerResponseAdapter.cpp
     CommonDataStructuresAdapter.cpp
 )
