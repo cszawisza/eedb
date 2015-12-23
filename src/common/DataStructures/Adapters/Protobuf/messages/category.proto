@@ -5,7 +5,7 @@ import public "parameters.proto";
 import public "common.proto";
 
 message CategoryReq{
-// USER MESSAGE STRUCTURE 
+// Category MESSAGE STRUCTURE
 
   oneof action{
     Add add = 2;

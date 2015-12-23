@@ -1,6 +1,5 @@
 #include "TextFieldValidator.hpp"
 
-using namespace data;
 TextFieldValidator::TextFieldValidator():
     TextFieldValidator(0, 100000)
 {
@@ -21,7 +20,7 @@ bool TextFieldValidator::isValid(const QString &data) const
     return isValid(data.toStdString());
 }
 
-bool TextFieldValidator::hasValidLength(const data::String &data) const
+bool TextFieldValidator::hasValidLength(const String &data) const
 {
     auto len = data.length();
     if( len > maxNickNameLength() ||

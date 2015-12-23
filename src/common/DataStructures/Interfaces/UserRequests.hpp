@@ -1,14 +1,16 @@
 #pragma once
 
 #include "../StructuresCommon.hpp"
-#include <memory>
-namespace data{
 
 class IAcl;
 
 namespace requests{
-
 namespace user{
+
+struct ICriterion{
+    virtual void require_data_own( bool self = true ) = 0;
+    virtual void require_data_of_user(const IAuthorizationData &) = 0;
+};
 
 class IAdd{
 public:
@@ -49,8 +51,9 @@ public:
     virtual bool has_avatar() const = 0;
     virtual void clear_avatar() = 0;
 
-    virtual std::shared_ptr<IAcl> acl() =0;
-    virtual void assign_acl(std::shared_ptr<data::IAcl>) = 0;
+    virtual IAcl* acl() =0;
+    virtual const IAcl& get_acl() const = 0;
+    virtual void assign_acl( IAcl* ) = 0;
     virtual bool has_acl() const = 0;
     virtual void clear_acl() = 0;
 
@@ -71,9 +74,8 @@ class ILogin{
 public:
     virtual ~ILogin() = default;
 
-    virtual Credentials* credentials() = 0;
-    virtual const Credentials& get_credentials() const = 0;
-    virtual void set_credentials( Credentials ) = 0;
+    virtual IAuthorizationData* credentials() = 0;
+    virtual void assign_credentials( IAuthorizationData* cred ) = 0;
     virtual bool has_credentials() const = 0;
 
     virtual String* password() = 0;
@@ -98,33 +100,29 @@ public:
 
 class IGet{
 public:
-    struct Criterion{
-        void self( bool );
-        void userId( UID );
-    };
-public:
     virtual ~IGet() = default;
 
     virtual bool has_requestedUid() const = 0;
-    virtual void request_uid( bool ) = 0;
+    virtual void request_uid( bool request = true ) = 0;
 
     virtual bool has_requestedAddress() const = 0;
-    virtual void request_address( bool ) = 0;
+    virtual void request_address( bool request = true ) = 0;
 
     virtual bool has_requestedPhoneNumber() const = 0;
-    virtual void request_phoneNumber( bool ) = 0;
+    virtual void request_phoneNumber( bool request = true ) = 0;
 
     virtual bool has_requestedDescription() const = 0;
-    virtual void request_description( bool ) = 0;
+    virtual void request_description( bool request = true ) = 0;
 
     virtual bool has_requestedAvatar() const = 0;
-    virtual void request_avatar( bool ) = 0;
+    virtual void request_avatar( bool request = true ) = 0;
 
     virtual bool has_requestedAcl() const = 0;
-    virtual void request_acl( bool ) = 0;
+    virtual void request_acl( bool request = true ) = 0;
 
-    virtual void set_requestCriterion( Criterion ) = 0;
-    virtual const Criterion get_criteria() const = 0;
+    virtual ICriterion *criteria() = 0;
+    virtual const ICriterion &getCriteria() const = 0;
+    virtual void set_requestCriterion( ICriterion * ) = 0;
 };
 
 }
@@ -134,17 +132,19 @@ class IUser{
 public:
     virtual ~IUser() = default;
 
-//    virtual std::unique_ptr<user::IAdd> detach_add() = 0;
-    virtual std::shared_ptr<user::IAdd> add() =0;
-    virtual void assign( std::shared_ptr<user::IAdd> ) = 0;
+    virtual user::IAdd* add() =0;
+    virtual void assign( user::IAdd* ) = 0;
     virtual bool has_add() const = 0;
     virtual void clear_add() = 0;
 
-    virtual std::shared_ptr<user::ILogin> login() =0;
-    virtual void assign( std::shared_ptr<user::ILogin> ) = 0;
+    virtual user::ILogin* login() =0;
+    virtual void assign( user::ILogin* ) = 0;
     virtual bool has_login() const = 0;
     virtual void clear_login() = 0;
-};
 
-}
+    virtual user::IGet* get() = 0;
+    virtual void assign( user::IGet* ) = 0;
+    virtual bool has_get() const = 0;
+    virtual void clear_get() = 0;
+};
 }

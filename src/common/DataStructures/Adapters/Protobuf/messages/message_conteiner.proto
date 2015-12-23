@@ -17,15 +17,15 @@ enum MsgCoding{
 }
 
 
-enum ServerError{
-  No_Error = 0;
-  Error_MsgUnknown = 1;
-  Error_AccesDeny = 2;
-  Error_UnhandledMessage = 3;
-  Error_NoActionChoosen = 4;
-  Error_UserOffilne=5;
-  Error_MsgSpecificError=100;
-}
+//enum ServerError{
+//  No_Error = 0;
+//  Error_MsgUnknown = 1;
+//  Error_AccesDeny = 2;
+//  Error_UnhandledMessage = 3;
+//  Error_NoActionChoosen = 4;
+//  Error_UserOffilne=5;
+//  Error_MsgSpecificError=100;
+//}
 
 message ClientRequest{
   optional uint32	request_id	= 1 [default = 1];
@@ -42,10 +42,10 @@ message ClientRequest{
 }
 
 message ServerResponse {
-  optional ServerError code         = 1 [default = No_Error];
-  optional uint64   response_id      = 2 [default = 0]; // server unique response id
-  optional uint64   in_response_to  = 3 [default = 0]; // in response to: request_if
-  optional bool     is_last_response  = 4 [default = true];
+  optional int32    code                = 1 [default = 0];
+  optional uint64   response_id         = 2 [default = 0]; // server unique response id
+  optional uint64   in_response_to      = 3 [default = 0]; // in response to: request_if
+  optional bool     is_last_response    = 4 [default = true];
 //  required MsgCoding	msgCoding 	= 5 [default = msgProtbuf]; // type that is stored in data field
 //  optional MsgTypeId	msgTypeId 	= 6; // used only for not protbuf type messages
   

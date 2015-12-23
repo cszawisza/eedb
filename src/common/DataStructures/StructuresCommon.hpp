@@ -10,8 +10,6 @@
 
 #include <QString>
 
-namespace data{
-
 using Int64 = int64_t;
 using UInt64 = uint64_t;
 using UID = uint64_t;
@@ -23,12 +21,19 @@ enum Status{
 
 };
 
-struct Credentials{
-    boost::variant<
-        boost::blank,
-        String,
-        UID
-    > data;
-};
+class  IAuthorizationData{
+public:
+    virtual ~IAuthorizationData() = default;
 
-}
+    virtual void set_authorization( boost::variant<String, UID> auth ) = 0;
+
+    virtual bool is_authorized_by_email() const = 0;
+    virtual bool is_authorized_by_nickname() const = 0;
+    virtual bool is_authorized_by_id() const = 0;
+
+    virtual const String &get_email() const =0;
+    virtual const String &get_nickname() const =0;
+    virtual UID           get_uid() const = 0;
+
+    virtual void Clear() const = 0;
+};

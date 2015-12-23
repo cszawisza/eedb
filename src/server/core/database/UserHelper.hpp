@@ -1,6 +1,5 @@
 #pragma once
 
-#include "user.pb.h"
 #include "idatabase.h"
 
 #include "sql_schema/users.h"
@@ -17,21 +16,14 @@
 #include "auth/privilege.hpp"
 #include "auth/acl.hpp"
 
-
-using namespace pb;
-using eedb::utils::PasswordHash;
-
+namespace requests{
+namespace user{
+class IAdd;
+}
+}
 
 namespace eedb{
 namespace db{
-
-//struct UserData {
-//    UserData():
-//        uid(0){}
-
-//    uint64_t uid;
-//    string name;
-//};
 
 class UserHelper {
 public:
@@ -87,7 +79,7 @@ public:
                 .limit(1);
     }
 
-    static UID insertUser(DB &db, const UserReq_Add &msg);
+    static UID insertUser(DB &db, const requests::user::IAdd &msg);
 };
 
 }

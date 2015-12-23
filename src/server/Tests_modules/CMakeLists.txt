@@ -13,7 +13,7 @@ INCLUDE_DIRECTORIES( ../server_lib )
 set(TEST_EXECUTABLE_NAME Tests )
 
 set(MAIN_SRC main.cpp)
-file(GLOB_RECURSE TESTS_SRC Test Common.hpp
+file(GLOB_RECURSE TESTS_SRC Test TestCommon.cpp
 DbCon/*
 common/*
 server/*

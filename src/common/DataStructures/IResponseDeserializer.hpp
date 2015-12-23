@@ -4,8 +4,6 @@
 
 class QByteArray;
 
-namespace data {
-
 class IServerResponse;
 
 class IResponsesDeserializer {
@@ -14,4 +12,4 @@ public:
 
     virtual std::shared_ptr<IServerResponse> parseFromByteArray( const QByteArray& ) const = 0;
 };
-}
+

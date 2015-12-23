@@ -1,30 +1,28 @@
 #pragma once
 // interface allowing to create message parsers
+#include <atomic>
+
 #include <QObject>
 #include <QSharedPointer>
 #include <QDebug>
-#include <QSharedPointer>
-#include "message_conteiner.pb.h"
+
 #include "clientcache.h"
 #include "database/idatabase.h"
 #include "auth/acl.hpp"
-#include <atomic>
 
-using pb::ClientRequest;
+#include <Interfaces/ClientRequest.hpp>
+#include <Interfaces/ServerResponse.hpp>
+
 /**
  * @brief The IProcessor class
  */
 
-class IMessageProcessingUint
+class IMessageProcessingUnit
 {
 public:
-    typedef QSharedPointer<pb::ClientRequest> SharedRequest;
-//    typedef QSharedPointer<pb::ClientRequest> SharedRequest;
-
-
-    IMessageProcessingUint();
-    virtual ~IMessageProcessingUint(){}
-    pb::ServerResponse getLastResponse();
+    IMessageProcessingUnit();
+    virtual ~IMessageProcessingUnit(){}
+//    IServerResponse getLastResponse();
 //    void setInputData( SharedRequest frame );
 //    void setOutputData( SharedResponses frame );
 
@@ -38,11 +36,11 @@ public:
     SharedUserData user();
     size_t responseCount() const;
 protected:
-    virtual void process(pb::ClientRequest &req);
-    virtual void process(DB &db, pb::ClientRequest &req);
+    virtual void process(IClientRequest *req);
+    virtual void process(DB &db, IClientRequest *req);
 
-    pb::ServerResponse *add_response();
-    void sendServerError(pb::ServerError e);
+    IServerResponse *add_response();
+    void sendServerError( int e);
 
 private:
     static std::atomic<quint64> m_response_id;

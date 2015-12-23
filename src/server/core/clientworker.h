@@ -50,6 +50,6 @@ private:
     SharedUserData m_cache;
     SharedResponses m_responseFrame;
     SharedRequests m_inputFrame;
-    QHash<pb::ClientRequest::DataCase, QSharedPointer<IMessageProcessingUint>> m_msgHandlers;
-    QSharedPointer<IMessageProcessingUint> m_defaultProcessor;
+    QHash<pb::ClientRequest::DataCase, QSharedPointer<IMessageProcessingUnit>> m_msgHandlers;
+    QSharedPointer<IMessageProcessingUnit> m_defaultProcessor;
 };

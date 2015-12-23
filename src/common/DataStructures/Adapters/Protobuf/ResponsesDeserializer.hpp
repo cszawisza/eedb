@@ -2,7 +2,7 @@
 
 #include "../../IResponseDeserializer.hpp"
 
-class ProtobufResponsesDesrializer : public data::IResponsesDeserializer {
+class ProtobufResponsesDesrializer : public IResponsesDeserializer {
 public:
-    std::shared_ptr<data::IServerResponse> parseFromByteArray(const QByteArray &) const;
+    std::shared_ptr<IServerResponse> parseFromByteArray(const QByteArray &) const;
 };

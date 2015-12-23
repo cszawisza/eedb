@@ -7,7 +7,6 @@ class QString;
 
 ///TODO add some tests for validator
 
-namespace data{
 class TextFieldValidator : public IFieldValidator<String> {
 public:
     TextFieldValidator();
@@ -27,4 +26,3 @@ private:
     size_t m_maxNickNameLength;
     size_t m_minNickNameLength;
 };
-}

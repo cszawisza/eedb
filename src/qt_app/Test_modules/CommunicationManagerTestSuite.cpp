@@ -15,8 +15,8 @@ struct CommunicationManagerTestSuite : public ::testing::Test
 {
     CommunicationManagerTestSuite();
     QSharedPointer<SocketMock> webSocketMock;
-    std::shared_ptr<data::IRequestsSerializer> m_serializer;
-    std::shared_ptr<data::IResponsesDeserializer> m_deserializer;
+    std::shared_ptr<IRequestsSerializer> m_serializer;
+    std::shared_ptr<IResponsesDeserializer> m_deserializer;
     CommunicationManager m_sut;
 };
 

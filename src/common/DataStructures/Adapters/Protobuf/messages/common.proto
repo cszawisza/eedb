@@ -1,6 +1,15 @@
 option optimize_for = LITE_RUNTIME;
 package pb;
 
+message Credentials{
+  oneof login_id{
+    uint32 id = 1;
+    string nickname = 2;
+    string email = 3;
+  }
+}
+
+
 //message Filter {
 //  message FilterComponent {
 //    enum Operation {

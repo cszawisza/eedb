@@ -30,8 +30,8 @@ struct ResponseMetadata{
 
 struct RequestMetadata{
 //    RequestMetadata():
-//        RequestMetadata( data::IClientRequest &req){}
-//    RequestMetadata( const data::IClientRequest &req ){
+//        RequestMetadata( IClientRequest &req){}
+//    RequestMetadata( const IClientRequest &req ){
 //        request_id = req.get_requestId();
 //    }
 
@@ -70,7 +70,7 @@ public slots:
      * @brief sendUserRequest
      * @param data
      */
-    virtual void sendUserRequest( std::shared_ptr<data::IClientRequest> data) = 0;
+    virtual void sendUserRequest( std::shared_ptr<IClientRequest> data) = 0;
 
 signals:
     void socketConnected();

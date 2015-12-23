@@ -3,8 +3,6 @@
 #include "../StructuresCommon.hpp"
 #include "../../utils/unixPerms.hpp"
 
-namespace data{
-
 class IAcl{
 public:
     virtual ~IAcl() = default;
@@ -34,5 +32,3 @@ public:
     virtual bool has_status() const = 0;
     virtual void clear_status() = 0;
 };
-
-}

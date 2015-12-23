@@ -2,12 +2,12 @@
 
 #include "common.pb.h"
 
-data::UID ProtobufAclAdapter::get_id() const
+UID ProtobufAclAdapter::get_id() const
 {
     return m_data->uid();
 }
 
-void ProtobufAclAdapter::set_id(data::UID uid)
+void ProtobufAclAdapter::set_id(UID uid)
 {
     m_data->set_uid(uid);
 }
@@ -22,12 +22,12 @@ void ProtobufAclAdapter::clear_id()
     m_data->clear_uid();
 }
 
-data::UID ProtobufAclAdapter::get_owner() const
+UID ProtobufAclAdapter::get_owner() const
 {
     return m_data->owner();
 }
 
-void ProtobufAclAdapter::set_owner(data::UID uid)
+void ProtobufAclAdapter::set_owner(UID uid)
 {
     m_data->set_owner( uid );
 }
@@ -42,12 +42,12 @@ void ProtobufAclAdapter::clear_owner()
     m_data->clear_owner();
 }
 
-data::UID ProtobufAclAdapter::get_groups() const
+UID ProtobufAclAdapter::get_groups() const
 {
     return m_data->group();
 }
 
-void ProtobufAclAdapter::set_groups(data::UID uid)
+void ProtobufAclAdapter::set_groups(UID uid)
 {
     m_data->set_group( uid );
 }
@@ -81,12 +81,12 @@ void ProtobufAclAdapter::clear_unixperms()
     m_data->clear_unixperms();
 }
 
-data::Status ProtobufAclAdapter::get_status() const
+Status ProtobufAclAdapter::get_status() const
 {
-    return static_cast<data::Status>(m_data->status());
+    return static_cast<Status>(m_data->status());
 }
 
-void ProtobufAclAdapter::set_status(data::Status status)
+void ProtobufAclAdapter::set_status(Status status)
 {
     m_data->set_status(static_cast<uint32_t>(status));
 }
@@ -111,7 +111,7 @@ ProtobufAclAdapter::ProtobufAclAdapter():
 
 
 ProtobufAclAdapter::ProtobufAclAdapter(pb::Acl *p):
-    m_data(p)
+    m_data(p), take_ovnership(false)
 {
 }
 

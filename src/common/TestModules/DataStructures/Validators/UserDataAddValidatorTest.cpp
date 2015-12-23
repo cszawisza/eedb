@@ -6,8 +6,7 @@
 
 #include <memory>
 
-using namespace data;
-using data::requests::user::IAdd;
+using requests::user::IAdd;
 using namespace testing;
 
 class UserAddDataValidationsTests : public testing::Test{
@@ -21,7 +20,7 @@ public:
     }
 protected:
     UserAddMock dataMock;
-    UserAddValidator sut;
+    requests::UserAddValidator sut;
     std::shared_ptr<EmailValidatorMock> m_emailValidator;
     std::shared_ptr<NickNameValidatorMock> m_nickValidator;
 };

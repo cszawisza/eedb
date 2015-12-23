@@ -3,7 +3,6 @@
 #include "../Validators/IValidator.hpp"
 #include <memory>
 
-namespace data{
 
 class EmailValidator;
 class NickNameValidator;
@@ -12,7 +11,6 @@ namespace requests{
 namespace user{
 class IAdd;
 class ILogin;
-}
 }
 
 class UserAddValidator : public IMessageValidator<requests::user::IAdd>{
@@ -34,5 +32,4 @@ public:
     bool isValid(const requests::user::ILogin &data) const;
     bool hasRequiredFields(const requests::user::ILogin &data) const;
 };
-
 }

@@ -15,17 +15,18 @@ using namespace pb;
 namespace eedb{
 namespace pu{
 
-void CategoryPU::process(ClientRequest &msgReq)
+void CategoryPU::process(data::IClientRequest *msgReq)
 {
     DB db;
     process(db, msgReq);
 }
 
-void CategoryPU::process(DB &db, pb::ClientRequest &msgReq)
+void CategoryPU::process(DB &db, data::IClientRequest *msgReq)
 {
     // Check if this is the message that handler wants
-    Q_ASSERT( msgReq.data_case() == pb::ClientRequest::kCategoryReqFieldNumber );
-    Q_ASSERT( msgReq.has_categoryreq() );
+    ///FIXME asserts
+//    Q_ASSERT( msgReq.data_case() == pb::ClientRequest::kCategoryReqFieldNumber );
+    Q_ASSERT( msgReq->has_category() );
 
     auto req = msgReq.categoryreq();
 

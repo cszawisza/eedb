@@ -2,8 +2,8 @@
 
 #include "../../IRequestsDeserializer.hpp"
 
-class ProtobufRequestsDeserializer : public data::IRequestsDeserializer {
+class ProtobufRequestsDeserializer : public IRequestsDeserializer {
     // IRequestsDeserializer interface
 public:
-    std::shared_ptr<data::IClientRequest> parseFromByteArray(const QByteArray &) const;
+    std::shared_ptr<IClientRequest> parseFromByteArray(const QByteArray &) const;
 };

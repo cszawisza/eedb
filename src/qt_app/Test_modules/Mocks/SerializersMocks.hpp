@@ -6,17 +6,17 @@
 #include "DataStructures/IRequestsDeserializer.hpp"
 #include "DataStructures/IResponseDeserializer.hpp"
 
-class IRequestSerializerMock : public data::IRequestsSerializer{
+class IRequestSerializerMock : public IRequestsSerializer{
 public:
-    MOCK_CONST_METHOD1_T(serializeToByteArray, QByteArray (data::IClientRequest *req));
+    MOCK_CONST_METHOD1_T(serializeToByteArray, QByteArray (IClientRequest *req));
 };
 
-class IRequestDeserializerMock : public data::IRequestsDeserializer{
+class IRequestDeserializerMock : public IRequestsDeserializer{
 public:
-    MOCK_CONST_METHOD1_T(parseFromByteArray, std::shared_ptr<data::IClientRequest> (const QByteArray &));
+    MOCK_CONST_METHOD1_T(parseFromByteArray, std::shared_ptr<IClientRequest> (const QByteArray &));
 };
 
-class IResponseDeserializerMock : public data::IResponsesDeserializer{
+class IResponseDeserializerMock : public IResponsesDeserializer{
 public:
-    MOCK_CONST_METHOD1_T(parseFromByteArray, std::shared_ptr<data::IServerResponse> (const QByteArray &));
+    MOCK_CONST_METHOD1_T(parseFromByteArray, std::shared_ptr<IServerResponse> (const QByteArray &));
 };

@@ -2,8 +2,6 @@
 
 #include <QString>
 
-using namespace data;
-
 constexpr auto notAllowedCharacters = "@";
 
 NickNameValidator::NickNameValidator() :

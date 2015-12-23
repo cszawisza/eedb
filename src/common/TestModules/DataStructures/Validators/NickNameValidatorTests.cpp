@@ -1,7 +1,6 @@
 #include "gtest/gtest.h"
 #include "DataStructures/Validators/NickNameValidator.hpp"
 
-using namespace data;
 using namespace testing;
 
 class NickNameValidatorTest : public testing::Test{

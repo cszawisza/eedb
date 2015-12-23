@@ -10,24 +10,24 @@ namespace data{
     class Acl;
 }
 
-class ProtobufAclAdapter : public data::IAcl {
+class ProtobufAclAdapter : public IAcl {
 public:
     ProtobufAclAdapter();
     ProtobufAclAdapter( pb::Acl *p);
     ~ProtobufAclAdapter();
 
-    data::UID get_id() const;
-    void set_id(data::UID uid);
+    UID get_id() const;
+    void set_id(UID uid);
     bool has_id() const;
     void clear_id();
 
-    data::UID get_owner() const;
-    void set_owner(data::UID uid);
+    UID get_owner() const;
+    void set_owner(UID uid);
     bool has_owner() const;
     void clear_owner();
 
-    data::UID get_groups() const;
-    void set_groups(data::UID uid);
+    UID get_groups() const;
+    void set_groups(UID uid);
     bool has_groups() const;
     void clear_groups();
 
@@ -36,8 +36,8 @@ public:
     bool has_unixperms() const;
     void clear_unixperms();
 
-    data::Status get_status() const;
-    void set_status(data::Status status);
+    Status get_status() const;
+    void set_status(Status status);
     bool has_status() const;
     void clear_status();
 

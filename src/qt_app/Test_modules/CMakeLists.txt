@@ -28,4 +28,4 @@ set(QT_HEADERS
 QT5_WRAP_CPP(GUI_MOC_SRCS ${QT_HEADERS})
 
 add_executable(ClientTests main.cpp ${TEST_SRC_FILES} ${TEST_MOCK_FILES} ${GUI_MOC_SRCS})
-target_link_libraries( ClientTests Common client_lib gtest gmock Qt5::Core Qt5::Widgets Qt5::Test)
+target_link_libraries( ClientTests Common  ProtobufAdapter client_lib gtest gmock Qt5::Core Qt5::Widgets Qt5::Test)

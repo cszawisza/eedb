@@ -17,14 +17,6 @@ message UserReq{
     ChangePasswd changePasswd = 8;
   }
 
-// INTERNAL MESSAGES ///////////////
-  message Credentials{
-    oneof login_id{
-      uint32 id = 1;
-      string nickname = 2;
-      string email = 3;
-    }
-  }
 
 // ACTION MESSAGES /////////////////////
   message Login{
@@ -75,6 +67,7 @@ message UserReq{
     optional bool phone_number = 5;
     optional bool description = 6;
     optional bool avatar = 7;
+    optional bool acl = 8;
 //    optional bool history = 8;
     optional Where where = 9;
   }

@@ -13,8 +13,11 @@ set( PB
     RequestsDeserializer.cpp
     ResponsesSerializer.cpp
     ResponsesDeserializer.cpp
+    ServerResponseAdapter.cpp
+    CommonDataStructuresAdapter.cpp
 )
 
 add_library( ProtobufAdapter STATIC ${PB} ${ProtoSources} ${ProtoHeaders} ${ProtoFiles})
+target_link_libraries( ProtobufAdapter Common )
 
 set(ProtobufIncludePath ${CMAKE_CURRENT_BINARY_DIR} CACHE INTERNAL "Path to generated protobuf files.")

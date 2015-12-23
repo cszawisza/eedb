@@ -14,7 +14,7 @@ public:
 public slots:
     virtual void openConnection( const Url &url) const=0;
     virtual void closeConnection()const=0;
-    virtual void sendUserRequest(std::shared_ptr<data::IClientRequest> data)=0;
+    virtual void sendUserRequest(std::shared_ptr<IClientRequest> data)=0;
 };
 
 
@@ -23,7 +23,7 @@ class CommunicationManagerMock : public ICommunicationManagerMock
     Q_OBJECT
 public:
 //    MOCK_METHOD1_T(newRequest, pb::ClientRequest *(uint64_t &request_id));
-    MOCK_METHOD1_T(sendUserRequest, void (std::shared_ptr<data::IClientRequest> data));
+    MOCK_METHOD1_T(sendUserRequest, void (std::shared_ptr<IClientRequest> data));
     MOCK_CONST_METHOD1_T(openConnection, void(const Url&));
     MOCK_CONST_METHOD0_T(closeConnection, void ());
 };

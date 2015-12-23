@@ -1,24 +1,35 @@
 #include "UserAdapter.hpp"
 #include "AclAdapter.hpp"
 #include "user.pb.h"
+
+#include "CommonDataStructuresAdapter.hpp"
+#include "UserAdapter.hpp"
+
 #include "../../Interfaces/AclData.hpp"
+#include "../../Interfaces/UserRequests.hpp"
 
 using namespace data;
 
+namespace requests {
+namespace user{
+
 ProtobufUserAddAdapter::ProtobufUserAddAdapter():
-    m_data(new pb::UserReq_Add()), take_ovnership(true)
+    m_data(new pb::UserReq_Add()), take_ovnership(true), m_adp( new ProtobufAclAdapter() )
 {
 }
 
 ProtobufUserAddAdapter::ProtobufUserAddAdapter(pb::UserReq_Add *msg):
-    m_data(msg)
+    m_data(msg), m_adp( new ProtobufAclAdapter() )
 {
 }
 
 ProtobufUserAddAdapter::~ProtobufUserAddAdapter()
 {
-    if(take_ovnership)
+    if(take_ovnership){
         delete m_data;
+        if(m_adp)
+            delete m_adp;
+    }
 }
 
 UID ProtobufUserAddAdapter::get_id() const
@@ -153,7 +164,7 @@ const Bytes &ProtobufUserAddAdapter::get_avatar() const
 
 void ProtobufUserAddAdapter::set_avatar(Bytes avatar)
 {
-    m_data-> mutable_basic()->set_avatar(move(avatar));
+    m_data->mutable_basic()->set_avatar(move(avatar));
 }
 
 bool ProtobufUserAddAdapter::has_avatar() const
@@ -166,14 +177,25 @@ void ProtobufUserAddAdapter::clear_avatar()
     m_data->mutable_basic()->clear_avatar();
 }
 
-std::shared_ptr<IAcl> ProtobufUserAddAdapter::acl()
+IAcl *ProtobufUserAddAdapter::acl()
 {
-    return std::make_shared<ProtobufAclAdapter>(m_data->mutable_acl());
+    if( !m_adp )
+        m_adp = new ProtobufAclAdapter(m_data->mutable_acl());
+    else
+        m_adp->operator=(ProtobufAclAdapter(m_data->mutable_acl()));
+    return m_adp;
 }
 
-void ProtobufUserAddAdapter::assign_acl(std::shared_ptr<IAcl> acl)
+const IAcl &ProtobufUserAddAdapter::get_acl() const
 {
-    m_data->set_allocated_acl( std::dynamic_pointer_cast<ProtobufAclAdapter>(acl)->detachData() );
+    m_adp->operator=( ProtobufAclAdapter(const_cast<pb::Acl*>(&m_data->acl())));
+    return *m_adp;
+}
+
+void ProtobufUserAddAdapter::assign_acl( IAcl *acl)
+{
+    m_data->set_allocated_acl( dynamic_cast<ProtobufAclAdapter*>(acl)->detachData() );
+    delete acl;
 }
 
 bool ProtobufUserAddAdapter::has_acl() const
@@ -213,7 +235,7 @@ void ProtobufUserAddAdapter::clear_address()
 
 String *ProtobufUserAddAdapter::phoneNumber()
 {
-    return m_data->mutable_details()->mutable_address();
+    return m_data->mutable_details()->mutable_phone_number();
 }
 
 const String &ProtobufUserAddAdapter::get_phoneNumber() const
@@ -233,7 +255,7 @@ bool ProtobufUserAddAdapter::has_phoneNumber() const
 
 void ProtobufUserAddAdapter::clear_phoneNumber()
 {
-    m_data->mutable_details()->mutable_phone_number();
+    m_data->mutable_details()->clear_phone_number();
 }
 
 pb::UserReq_Add *ProtobufUserAddAdapter::detachData()
@@ -243,34 +265,41 @@ pb::UserReq_Add *ProtobufUserAddAdapter::detachData()
 }
 
 ProtobufUserLoginAdapter::ProtobufUserLoginAdapter():
-    m_data(new pb::UserReq_Login() ), m_takeOvnership(true)
+    m_data(new pb::UserReq_Login() ), m_takeOvnership(true), m_auth(nullptr)
 {
 }
 
 ProtobufUserLoginAdapter::ProtobufUserLoginAdapter(pb::UserReq_Login *login_msg):
-    m_data(login_msg){
+    m_data(login_msg), m_auth(nullptr){
 }
 
 ProtobufUserLoginAdapter::~ProtobufUserLoginAdapter()
 {
-    if(m_takeOvnership)
+    if(m_takeOvnership){
         delete m_data;
+        if(m_auth)
+            delete m_auth;
+    }
 }
 
-Credentials *ProtobufUserLoginAdapter::credentials()
+IAuthorizationData* ProtobufUserLoginAdapter::credentials()
 {
+    if(!m_auth)
+        m_auth = new ProtobufAuthorizationDataAdapter( m_data->mutable_cred() );
+    else
+        m_auth->operator=(ProtobufAuthorizationDataAdapter( m_data->mutable_cred() ));
+    return m_auth;
 }
 
-const Credentials &ProtobufUserLoginAdapter::get_credentials() const
+void ProtobufUserLoginAdapter::assign_credentials(IAuthorizationData* cred)
 {
-}
-
-void ProtobufUserLoginAdapter::set_credentials(Credentials)
-{
+    m_data->set_allocated_cred( dynamic_cast<ProtobufAuthorizationDataAdapter*>(cred)->detachData() );
+    delete cred;
 }
 
 bool ProtobufUserLoginAdapter::has_credentials() const
 {
+    return m_data->has_cred();
 }
 
 String *ProtobufUserLoginAdapter::password()
@@ -299,31 +328,156 @@ pb::UserReq_Login *ProtobufUserLoginAdapter::detachData()
     return m_data;
 }
 
-
-std::shared_ptr<requests::user::IAdd> ProtobufUserAdapter::add()
+ProtobufUserGetAdapter::ProtobufUserGetAdapter():
+    m_data( new pb::UserReq_Get(pb::UserReq_Get::default_instance() ) ),
+    m_takeOvnership(true)
 {
-    return std::make_shared<ProtobufUserAddAdapter>( m_data->mutable_add() );
+
+}
+
+ProtobufUserGetAdapter::ProtobufUserGetAdapter(pb::UserReq_Get *get):
+    m_data( get ),
+    m_takeOvnership(false)
+{
+
+}
+
+ProtobufUserGetAdapter::~ProtobufUserGetAdapter()
+{
+    if(m_takeOvnership)
+        delete m_data;
+}
+
+bool ProtobufUserGetAdapter::has_requestedUid() const
+{
+    return m_data->has_uid() && m_data->uid();
+}
+
+void ProtobufUserGetAdapter::request_uid(bool request)
+{
+    if(request)
+        m_data->set_uid(true);
+    else
+        m_data->clear_uid();
+}
+
+bool ProtobufUserGetAdapter::has_requestedAddress() const
+{
+    return m_data->has_address() && m_data->address();
+}
+
+void ProtobufUserGetAdapter::request_address(bool request)
+{
+    if(request)
+        m_data->set_address(true);
+    else
+        m_data->clear_address();
+}
+
+bool ProtobufUserGetAdapter::has_requestedPhoneNumber() const
+{
+    return m_data->has_phone_number() && m_data->phone_number();
+}
+
+void ProtobufUserGetAdapter::request_phoneNumber(bool request)
+{
+    if(request)
+        m_data->set_phone_number(true);
+    else
+        m_data->clear_phone_number();
+}
+
+bool ProtobufUserGetAdapter::has_requestedDescription() const
+{
+    return m_data->has_description() && m_data->description();
+}
+
+void ProtobufUserGetAdapter::request_description(bool request)
+{
+    if(request)
+        m_data->set_description(true);
+    else
+        m_data->clear_description();
+}
+
+bool ProtobufUserGetAdapter::has_requestedAvatar() const
+{
+    return m_data->has_avatar() && m_data->avatar();
+}
+
+void ProtobufUserGetAdapter::request_avatar(bool request)
+{
+    if(request)
+        m_data->set_avatar(true);
+    else
+        m_data->clear_avatar();
+}
+
+bool ProtobufUserGetAdapter::has_requestedAcl() const
+{
+    return m_data->has_acl() && m_data->acl();
+}
+
+void ProtobufUserGetAdapter::request_acl(bool request)
+{
+    if(request)
+        m_data->set_acl(true);
+    else
+        m_data->clear_acl();
+}
+
+requests::user::ICriterion *ProtobufUserGetAdapter::criteria()
+{
+
+}
+
+void ProtobufUserGetAdapter::set_requestCriterion(ICriterion *)
+{
+    ///FIXME
+}
+
+const ICriterion &ProtobufUserGetAdapter::getCriteria() const
+{
+    ///FIXME
+}
+
+pb::UserReq_Get *ProtobufUserGetAdapter::detachData()
+{
+    m_takeOvnership = false;
+    return m_data;
+}
+}
+requests::user::IAdd* ProtobufUserAdapter::add()
+{
+    if( !m_add )
+        m_add = new user::ProtobufUserAddAdapter(m_data->mutable_add());
+    else
+        m_add->operator=(user::ProtobufUserAddAdapter(m_data->mutable_add()));
+    return m_add;
 }
 
 ProtobufUserAdapter::ProtobufUserAdapter():
-    m_data(new pb::UserReq), take_ovnership(true)
+    m_data(new pb::UserReq), m_takeOvnership(true), m_add(nullptr), m_login(nullptr), m_get(nullptr)
 {
 }
 
 ProtobufUserAdapter::ProtobufUserAdapter(pb::UserReq *req):
-    m_data(req)
+    m_data(req), m_add(nullptr), m_login(nullptr), m_get(nullptr)
 {
 }
 
 ProtobufUserAdapter::~ProtobufUserAdapter()
 {
-    if(take_ovnership)
+    if(m_takeOvnership){
         delete m_data;
-}
 
-void ProtobufUserAdapter::assign(std::shared_ptr<requests::user::IAdd> add)
-{
-    m_data->set_allocated_add( std::dynamic_pointer_cast<ProtobufUserAddAdapter>(add)->detachData() );
+        if(m_add)
+            delete m_add;
+        if(m_get)
+            delete m_get;
+        if(m_login)
+            delete m_login;
+    }
 }
 
 bool ProtobufUserAdapter::has_add() const
@@ -336,14 +490,34 @@ void ProtobufUserAdapter::clear_add()
     m_data->clear_add();
 }
 
-std::shared_ptr<requests::user::ILogin> ProtobufUserAdapter::login()
+requests::user::ILogin* ProtobufUserAdapter::login()
 {
-    return std::make_shared<ProtobufUserLoginAdapter>(m_data->mutable_login());
+    if( !m_login )
+        m_login = new user::ProtobufUserLoginAdapter(m_data->mutable_login());
+    else
+        m_login->operator=(user::ProtobufUserLoginAdapter(m_data->mutable_login()));
+    return m_login;
 }
 
-void ProtobufUserAdapter::assign(std::shared_ptr<requests::user::ILogin> login)
+void ProtobufUserAdapter::assign(requests::user::IAdd* add)
 {
-    m_data->set_allocated_login( std::dynamic_pointer_cast<ProtobufUserLoginAdapter>(login)->detachData() );
+    ///TODO check if dynamic cast failed, copy data if so
+    m_data->set_allocated_add( dynamic_cast<user::ProtobufUserAddAdapter*>(add)->detachData() );
+    delete add;
+}
+
+void ProtobufUserAdapter::assign(requests::user::ILogin* login)
+{
+    ///TODO check if dynamic cast failed, copy data if so
+    m_data->set_allocated_login( dynamic_cast<user::ProtobufUserLoginAdapter*>(login)->detachData() );
+    delete login;
+}
+
+void ProtobufUserAdapter::assign(requests::user::IGet* get)
+{
+    ///TODO check if dynamic cast failed, copy data if so
+    m_data->set_allocated_get( dynamic_cast<user::ProtobufUserGetAdapter*>(get)->detachData() );
+    delete get;
 }
 
 bool ProtobufUserAdapter::has_login() const
@@ -354,4 +528,31 @@ bool ProtobufUserAdapter::has_login() const
 void ProtobufUserAdapter::clear_login()
 {
     m_data->clear_login();
+}
+
+requests::user::IGet* ProtobufUserAdapter::get()
+{
+    if( !m_get )
+        m_get = new user::ProtobufUserGetAdapter(m_data->mutable_get());
+    else
+        m_get->operator=(user::ProtobufUserGetAdapter(m_data->mutable_get()));
+    return m_get;
+}
+
+bool ProtobufUserAdapter::has_get() const
+{
+    return m_data->has_get();
+}
+
+void ProtobufUserAdapter::clear_get()
+{
+    m_data->clear_get();
+}
+
+pb::UserReq *ProtobufUserAdapter::detachData()
+{
+    m_takeOvnership = false;
+    return m_data;
+}
+
 }

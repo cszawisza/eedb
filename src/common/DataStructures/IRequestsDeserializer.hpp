@@ -4,8 +4,6 @@
 
 class QByteArray;
 
-namespace data {
-
 class IClientRequest;
 
 class IRequestsDeserializer {
@@ -15,4 +13,3 @@ public:
     virtual std::shared_ptr<IClientRequest> parseFromByteArray( const QByteArray& ) const = 0;
 };
 
-}

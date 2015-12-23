@@ -37,6 +37,6 @@ QT5_WRAP_CPP(GUI_MOC_SRCS ${QT_HEADERS})
 add_library(client_lib ${SRC_FILES} ${HEADER_FILES} ${GUI_MOC_SRCS} ${UIS_HDRS})
 add_executable( Client main.cpp)
 target_link_libraries( client_lib Qt5::Widgets  )
-target_link_libraries( Client Common client_lib )
+target_link_libraries( Client Common  ProtobufAdapter client_lib )
 
-add_dependencies(client_lib Common)
+add_dependencies(client_lib Common ProtobufAdapter )

@@ -2,37 +2,47 @@
 #include "UserAdapter.hpp"
 #include "message_conteiner.pb.h"
 
+using namespace requests;
+using namespace requests::user;
 
 ProtobufClientRequestAdapter::ProtobufClientRequestAdapter():
-    m_data(new pb::ClientRequest() ), m_takeOvnership(true)
+    m_data(new pb::ClientRequest() ), m_takeOvnership(true), m_userreq(nullptr)
 {
 
 }
 
 ProtobufClientRequestAdapter::ProtobufClientRequestAdapter(pb::ClientRequest *req):
-    m_data(req), m_takeOvnership(false)
+    m_data(req), m_takeOvnership(false), m_userreq(nullptr)
 {
 
 }
 
 ProtobufClientRequestAdapter::~ProtobufClientRequestAdapter()
 {
-    if(m_takeOvnership)
+    if(m_takeOvnership){
         delete m_data;
+        if(m_userreq)
+            delete m_userreq;
+    }
 }
 
 int ProtobufClientRequestAdapter::get_requestId() const
 {
 }
 
-std::unique_ptr<data::requests::IUser> ProtobufClientRequestAdapter::user()
+requests::IUser* ProtobufClientRequestAdapter::user()
 {
-    return std::make_unique<ProtobufUserAdapter>(m_data->mutable_userreq());
+    if(!m_userreq)
+        m_userreq = new ProtobufUserAdapter(m_data->mutable_userreq());
+    else
+        m_userreq->operator =( ProtobufUserAdapter(m_data->mutable_userreq()));
+    return m_userreq;
 }
 
-void ProtobufClientRequestAdapter::assign_user(data::requests::IUser *ur)
+void ProtobufClientRequestAdapter::assign_user(requests::IUser *ur)
 {
-//    this->set_allocated_userreq( static_cast<ProtobufUserAdapter*>(ur) );
+    m_data->set_allocated_userreq( dynamic_cast<ProtobufUserAdapter*>(ur)->detachData() );
+    delete ur;
 }
 
 bool ProtobufClientRequestAdapter::has_user() const

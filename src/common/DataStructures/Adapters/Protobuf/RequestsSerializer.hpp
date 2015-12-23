@@ -2,8 +2,8 @@
 
 #include "../../IRequestsSerializer.hpp"
 
-class ProtobufRequestsSerializer : public data::IRequestsSerializer {
+class ProtobufRequestsSerializer : public IRequestsSerializer {
     // IRequestsSerializer interface
 public:
-    QByteArray serializeToByteArray(data::IClientRequest *req) const;
+    QByteArray serializeToByteArray(IClientRequest *req) const;
 };

@@ -15,7 +15,7 @@ namespace pb{
 namespace eedb {
 namespace pu {
 
-class InventoryPU : public IMessageProcessingUint
+class InventoryPU : public IMessageProcessingUnit
 {
 public:
     InventoryPU() {}
@@ -35,7 +35,7 @@ private:
 
     void insertInventory(DB &db, pb::MsgInventoryRequest_Add &msg);
 
-    void addErrorCode( pb::MsgInventoryResponse_Error code, pb::ServerResponse *res );
+//    void addErrorCode( pb::MsgInventoryResponse_Error code, pb::ServerResponse *res );
 };
 
 }

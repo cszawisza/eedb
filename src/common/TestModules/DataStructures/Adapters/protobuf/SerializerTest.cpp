@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
 #include <QByteArray>
-#include "DataStructures/Interfaces/UserData.hpp"
+#include "DataStructures/Interfaces/UserRequests.hpp"
 #include "DataStructures/Adapters/Protobuf/UserAdapter.hpp"
 #include "DataStructures/Adapters/Protobuf/ClientRequestAdapter.hpp"
 #include "DataStructures/Adapters/Protobuf/RequestsSerializer.hpp"
@@ -17,23 +17,21 @@ protected:
 };
 
 
-//TEST_F( ProtobufSerializerTest, ctor ){
-//    auto addAdp =  new ProtobufUserAddAdapter();
-//    addAdp->set_nickname("asdf");
-//    addAdp->set_password("asdfg");
-//    addAdp->set_email("cycki@xy.xy");
+TEST_F( ProtobufSerializerTest, ctor ){
+    auto addAdp =  new requests::user::ProtobufUserAddAdapter();
+    addAdp->set_nickname("asdf");
+    addAdp->set_password("asdfg");
+    addAdp->set_email("cycki@xy.xy");
 
-//    data::requests::IUser *usrAdp = new ProtobufUserAdapter();
-//    usrAdp->assign(addAdp);
+    auto usrAdp = new requests::ProtobufUserAdapter();
+    usrAdp->assign(addAdp);
 
-//    m_data.assign_user(usrAdp);
-////    auto req = m_data.newClientRequest();
-////    req->assign_user( usrAdp );
+    m_data.assign_user(usrAdp);
 
-//    auto array = sut.serializeToByteArray( &m_data );
-//    EXPECT_GT(array.size(), 0);
-//    EXPECT_TRUE(array.contains("cycki@xy.xy"));
-//}
+    auto array = sut.serializeToByteArray( &m_data );
+    EXPECT_GT(array.size(), 0);
+    EXPECT_TRUE(array.contains("cycki@xy.xy"));
+}
 
 TEST_F( ProtobufSerializerTest, goUp ){
     auto addAdp = m_data.user()->add();
@@ -50,6 +48,9 @@ TEST_F( ProtobufSerializerTest, goUp ){
 
     EXPECT_GT(array.size(), 0);
     EXPECT_TRUE(array.contains("cycki@xy.xy"));
+    EXPECT_TRUE(array.contains("ajdshajhsdadsjkfkjhgsadgfjhasd"));
+    EXPECT_TRUE(array.contains("alskdalksdjlkalkjsdjalkjsklkjlkjlkjlkjlkjlkjlkjlkjlkj"));
+    EXPECT_TRUE(array.contains("asd12344"));
 }
 
 class ProtobufDeserializerTest : public testing::Test {
