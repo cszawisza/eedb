@@ -16,14 +16,14 @@ struct CommunicationManagerTestSuite : public ::testing::Test
     CommunicationManagerTestSuite();
     QSharedPointer<SocketMock> webSocketMock;
     std::shared_ptr<IRequestsSerializer> m_serializer;
-    std::shared_ptr<IResponsesDeserializer> m_deserializer;
+    std::shared_ptr<IResponseSerializer> m_deserializer;
     CommunicationManager m_sut;
 };
 
 CommunicationManagerTestSuite::CommunicationManagerTestSuite()
     : webSocketMock(QSharedPointer<SocketMock>(new StrictMock<SocketMock>() )),
       m_serializer( new IRequestSerializerMock() ),
-      m_deserializer( new IResponseDeserializerMock() ),
+      m_deserializer( new IResponseSerializerMock() ),
       m_sut(webSocketMock,
             m_serializer,
             m_deserializer )

@@ -16,17 +16,6 @@ enum MsgCoding{
   msgJson = 3;
 }
 
-
-//enum ServerError{
-//  No_Error = 0;
-//  Error_MsgUnknown = 1;
-//  Error_AccesDeny = 2;
-//  Error_UnhandledMessage = 3;
-//  Error_NoActionChoosen = 4;
-//  Error_UserOffilne=5;
-//  Error_MsgSpecificError=100;
-//}
-
 message ClientRequest{
   optional uint32	request_id	= 1 [default = 1];
 //  required MsgCoding	msgCoding 	= 3 [default = msgProtbuf]; // type that is stored in data field

@@ -93,6 +93,7 @@ TEST_F( ProtobufDeserializerTest, reuseMessages ){
     auto dat = QByteArray();
 
     set_data(add);
+
     sut.serializeToByteArray( &m_data, dat );
     res_sut.parseFromByteArray(dat, req);
 

@@ -69,7 +69,7 @@ public slots:
      * @brief sendUserRequest
      * @param data
      */
-    virtual void sendUserRequest( std::shared_ptr<IClientRequest> data) = 0;
+    virtual void sendUserRequest( IClientRequest* data) = 0;
 
 signals:
     void socketConnected();

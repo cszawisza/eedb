@@ -6,6 +6,8 @@ namespace requests{
 namespace categories{
 
 class IAdd {
+    ~IAdd() = default;
+
     virtual String get_name() const = 0;
     virtual void set_name( String ) =0;
     virtual bool has_name() const = 0;

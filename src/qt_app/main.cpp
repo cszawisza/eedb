@@ -12,8 +12,10 @@
 #include <WebSocket.hpp>
 
 #include <Adapters/Protobuf/ClientRequestAdapter.hpp>
-#include <Adapters/Protobuf/RequestsSerializer.hpp>
-#include <Adapters/Protobuf/ResponsesDeserializer.hpp>
+#include <Adapters/Protobuf/RequestSerializer.hpp>
+#include <Adapters/Protobuf/ResponsesSerializer.hpp>
+
+#include <memory>
 
 namespace
 {
@@ -60,7 +62,7 @@ void showLoginDialog(QApplication &a)
             QSharedPointer<ICommunicationManager>(
                 new CommunicationManager(l_webSocket,
                                          std::make_shared<ProtobufRequestsSerializer>(),
-                                         std::make_shared<ProtobufResponsesDesrializer>() ));
+                                         std::make_shared<ProtobufResponseSerializer>() ));
     LoginVerificator l_loginVerificator;
     UserRegister l_userRegisterDialog;
 

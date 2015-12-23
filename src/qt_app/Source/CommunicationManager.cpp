@@ -36,8 +36,10 @@ void handleConvertedServerResponse(const auto p_serverResponse)
 
 CommunicationManager::CommunicationManager(QSharedPointer<ISocket> p_webSocket,
                                            std::shared_ptr<IRequestsSerializer> p_serializer,
-                                           std::shared_ptr<IResponsesDeserializer> p_deserializer)
-    : m_socket(p_webSocket), m_convertProtobufToQByteArray(p_serializer), m_convertQByteArrayToProtobuf(p_deserializer)
+                                           std::shared_ptr<IResponseSerializer> p_deserializer)
+    : m_socket(p_webSocket),
+      m_convertProtobufToQByteArray(p_serializer),
+      m_convertQByteArrayToProtobuf(p_deserializer)
 {
     auto socket = m_socket.data();
 
@@ -48,7 +50,7 @@ CommunicationManager::CommunicationManager(QSharedPointer<ISocket> p_webSocket,
         if (l_serverResponseArray)
         {
             ///FIXME
-            handleConvertedServerResponse(l_serverResponseArray.get());
+//            handleConvertedServerResponse(l_serverResponseArray.get());
         }
     });
 
@@ -103,7 +105,7 @@ void CommunicationManager::sendRequest()
 //        emit userRequestSent( RequestMetadata(p_clientRequests) );
 }
 
-void CommunicationManager::sendUserRequest(std::shared_ptr<IClientRequest> data)
+void CommunicationManager::sendUserRequest(IClientRequest* data)
 {
     if(m_socket->state() == QAbstractSocket::ConnectedState ){
         sendRequest();
