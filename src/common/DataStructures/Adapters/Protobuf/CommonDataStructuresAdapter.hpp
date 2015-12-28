@@ -1,6 +1,6 @@
 #include "../../StructuresCommon.hpp"
 
-namespace pb{
+namespace protobuf{
 class Credentials;
 }
 
@@ -9,7 +9,7 @@ class ProtobufAuthorizationDataAdapter : public IAuthorizationData{
     // IAuthorizationData interface
 public:
     ProtobufAuthorizationDataAdapter();
-    ProtobufAuthorizationDataAdapter(pb::Credentials *cred);
+    ProtobufAuthorizationDataAdapter(protobuf::Credentials *cred);
     ~ProtobufAuthorizationDataAdapter();
     void set_authorization(boost::variant<String, UID> auth);
 
@@ -22,8 +22,8 @@ public:
     UID get_uid() const;
 
     void Clear() const;
-    pb::Credentials *detachData();
+    protobuf::Credentials *detachData();
 private:
-    pb::Credentials *m_data;
+    protobuf::Credentials *m_data;
     bool m_takeOvnership = false;
 };

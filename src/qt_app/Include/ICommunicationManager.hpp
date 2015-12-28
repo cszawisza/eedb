@@ -15,8 +15,8 @@ class Url;
 
 struct ResponseMetadata{
 //    ResponseMetadata():
-//        ResponseMetadata( pb::ServerResponse::default_instance() ){}
-//    ResponseMetadata(const pb::ServerResponse &res){
+//        ResponseMetadata( protobuf::ServerResponse::default_instance() ){}
+//    ResponseMetadata(const protobuf::ServerResponse &res){
 //        response_id = res.response_id();
 //        in_response_to = res.in_response_to();
 //        is_last_response = res.is_last_response();
@@ -50,7 +50,7 @@ public:
      * @brief newRequest
      * @return new a pointer to ClientRequests structure held in Communication Manager body
      */
-//    virtual pb::ClientRequest *newRequest( uint64_t &request_id ) = 0;
+//    virtual protobuf::ClientRequest *newRequest( uint64_t &request_id ) = 0;
 
 public slots:
     /**
@@ -78,5 +78,5 @@ signals:
     void logout();
 
 //    void userRequestSent( RequestMetadata meta );
-//    void userResponse( ResponseMetadata meta, std::shared_ptr<pb::UserRes> data);
+//    void userResponse( ResponseMetadata meta, std::shared_ptr<protobuf::UserRes> data);
 };

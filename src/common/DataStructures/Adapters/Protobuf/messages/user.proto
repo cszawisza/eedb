@@ -1,5 +1,5 @@
 option optimize_for = LITE_RUNTIME;
-package pb;
+package protobuf;
 
 import public "stats.proto";
 import public "common.proto";
@@ -20,7 +20,7 @@ message UserReq{
 
 // ACTION MESSAGES /////////////////////
   message Login{
-    required Credentials cred = 1;
+    required protobuf.Credentials cred = 1;
     required string password = 2;
     optional string sys_info = 3;
   }
@@ -32,12 +32,12 @@ message UserReq{
   message Add{
     required UserBasic basic = 1;
     required string password = 3;
-    optional pb.Acl acl = 4;
+    optional protobuf.Acl acl = 4;
     optional UserDetails details = 5;
   }
   
   message Remove{
-    required Credentials cred = 1;
+    required protobuf.Credentials cred = 1;
     optional string password = 2;
     optional bool remove_config = 4;
     optional bool remove_userdata = 5;
@@ -51,7 +51,7 @@ message UserReq{
     optional bytes phone_number = 5;
     optional bytes description = 6;
     optional bytes avatar = 7;
-    optional pb.Acl acl = 8;
+    optional protobuf.Acl acl = 8;
   }
 
   message Get {
@@ -84,35 +84,13 @@ message UserReq{
 }
 
 message UserRes {
-  enum Reply{
-    LoginPass = 1;
-    LoginDeny = 2;
-
-    LogoutOk = 3;
-
-    EmailNotValidate = 5;
-    UserNameToLong = 6;
-
-    UserAlreadyExists=7;
-    UserAddOk = 8;
-    UserDontExist = 9;
-    UserOnline = 10;
-
-    PasswordToShort = 11;
-
-    AddressToLong = 12;
-    DescriptionToLong = 13;
-    BadPhoneNumber = 14;
-
-    MissingRequiredField = 15;
-  }
-
-  repeated Reply code = 1;
-
-  optional UserBasic basic = 2;
-  optional UserConfig config = 3;
-  optional UserStats stats = 4;
-  optional UserDetails details = 5;
+    optional bool has_error = 1 [default=false];
+    optional bool login_success = 2 [default=false];
+    optional int32 error_code = 3 [default=0];
+//    optional UserBasic basic = 2;
+//    optional UserConfig config = 3;
+//    optional UserStats stats = 4;
+//    optional UserDetails details = 5;
 }
 
 message UserBasic{
@@ -146,6 +124,6 @@ message UserStats{
   optional uint32 totalNumOfRequests = 4; // number of requests to server
   optional uint32 totalModifiedItems = 5; // total number of modified elements by user
   optional uint32 totalAddItems = 6; // total items that user add to groups
-  optional DateTime last_login = 7;  // last login date
-  optional DateTime registration_date = 8; // registration date
+  optional protobuf.DateTime last_login = 7;  // last login date
+  optional protobuf.DateTime registration_date = 8; // registration date
 }

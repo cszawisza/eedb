@@ -140,15 +140,15 @@ Ui::LoginDialog *LoginDialog::getUi()
 //void LoginDialog::readyRead(QByteArray msg){
 //    //Server response handler code
 //    qDebug()<< msg.toHex();
-//    pb::ServerResponses sr;
+//    protobuf::ServerResponses sr;
 //    sr.ParseFromArray(msg.data(), msg.size());
 
-//    pb::UserRes loginRes = sr.response(0).userres();
+//    protobuf::UserRes loginRes = sr.response(0).userres();
 
-//    if(loginRes.code(0) == pb::UserRes_Reply_LoginPass ){
+//    if(loginRes.code(0) == protobuf::UserRes_Reply_LoginPass ){
 //        qDebug() << "Login pass";
 //    }
-//    else if(loginRes.code(0) == pb::UserRes_Reply_LoginDeny){
+//    else if(loginRes.code(0) == protobuf::UserRes_Reply_LoginDeny){
 //        qDebug() << "login deny";
 //    }
 
@@ -156,12 +156,12 @@ Ui::LoginDialog *LoginDialog::getUi()
 //    for(int i = 0; i<mc.capsules().size();++i)
 //        if(mc.getCapsule(i).msgtype() == MsgType::resLogin ){
 //            qDebug()<<" got login response";
-//            pb::LoginResponse res;
+//            protobuf::LoginResponse res;
 //            res.ParseFromString(mc.getCapsule(i).data());
-//            if(res.replay() == pb::Replay::LoginPass){
+//            if(res.replay() == protobuf::Replay::LoginPass){
 //                emit loginOk();
 //            }
-//            else if(res.replay() == pb::Replay::LoginDeny ){
+//            else if(res.replay() == protobuf::Replay::LoginDeny ){
 //                emit loginFailure();
 //            }
 //        }
@@ -199,7 +199,7 @@ Ui::LoginDialog *LoginDialog::getUi()
 
 //void LoginDialog::doLogin()
 //{
-//    pb::ClientRequests fullMessage;
+//    protobuf::ClientRequests fullMessage;
 //    auto loginReq = fullMessage.add_request();
 
 //    auto userMsg = loginReq->mutable_userreq();

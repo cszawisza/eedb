@@ -3,7 +3,7 @@
 #include <QByteArray>
 #include "DataStructures/Interfaces/UserRequests.hpp"
 #include "DataStructures/Adapters/Protobuf/ServerResponseAdapter.hpp"
-#include "DataStructures/Adapters/Protobuf/UserAdapter.hpp"
+#include "DataStructures/Adapters/Protobuf/UserRequestAdapter.hpp"
 #include "DataStructures/Adapters/Protobuf/ClientRequestAdapter.hpp"
 #include "DataStructures/Adapters/Protobuf/RequestSerializer.hpp"
 #include "DataStructures/Adapters/Protobuf/ResponsesSerializer.hpp"
@@ -13,8 +13,8 @@ public:
     ProtobufSerializerTest()
     {}
 protected:
-    ProtobufRequestsSerializer sut;
-    ProtobufClientRequestAdapter m_data;
+    RequestsSerializer sut;
+    ClientRequest m_data;
 };
 
 void set_data(requests::user::IAdd* add)
@@ -29,17 +29,17 @@ void set_data(requests::user::IAdd* add)
 }
 
 TEST_F( ProtobufSerializerTest, ctor ){
-    auto addAdp =  new requests::user::ProtobufUserAddAdapter();
+    auto addAdp =  new requests::user::Add();
     addAdp->set_nickname("asdf");
     addAdp->set_password("asdfg");
     addAdp->set_email("cycki@xy.xy");
 
-    auto usrAdp = new requests::ProtobufUserAdapter();
+    auto usrAdp = new requests::User();
     usrAdp->assign(addAdp);
 
     m_data.assign_user(usrAdp);
 
-    auto array = sut.serializeToByteArray( &m_data );
+    auto array = sut.serializeClientRequest( &m_data );
     EXPECT_GT(array.size(), 0);
     EXPECT_TRUE(array.contains("cycki@xy.xy"));
 }
@@ -49,7 +49,7 @@ TEST_F( ProtobufSerializerTest, goUp ){
 
     set_data(addAdp);
 
-    auto array = sut.serializeToByteArray( &m_data );
+    auto array = sut.serializeClientRequest( &m_data );
 
     EXPECT_GT(array.size(), 0);
     EXPECT_TRUE(array.contains("cycki@xy.xy"));
@@ -63,10 +63,10 @@ public:
     ProtobufDeserializerTest()
     {}
 protected:
-    ProtobufResponseSerializer res_sut;
+    ResponseSerializer res_sut;
 
-    ProtobufRequestsSerializer sut;
-    ProtobufClientRequestAdapter m_data;
+    RequestsSerializer sut;
+    ClientRequest m_data;
 };
 
 TEST_F( ProtobufDeserializerTest, goUp ){
@@ -74,7 +74,7 @@ TEST_F( ProtobufDeserializerTest, goUp ){
 
     set_data(add);
 
-    auto req = res_sut.parseFromByteArray(sut.serializeToByteArray( &m_data ));
+    auto req = res_sut.parseClientRequest(sut.serializeClientRequest(&m_data));
 
     ASSERT_TRUE(req->has_user());
     auto addReq = req->user()->add();
@@ -89,13 +89,13 @@ TEST_F( ProtobufDeserializerTest, goUp ){
 
 TEST_F( ProtobufDeserializerTest, reuseMessages ){
     auto add = m_data.user()->add();
-    auto req = new ProtobufClientRequestAdapter();
+    auto req = new ClientRequest();
     auto dat = QByteArray();
 
     set_data(add);
 
-    sut.serializeToByteArray( &m_data, dat );
-    res_sut.parseFromByteArray(dat, req);
+    sut.serializeClientRequest(&m_data, dat );
+    res_sut.parseClientRequest(dat, req);
 
     ASSERT_TRUE(req->has_user());
     auto addReq = req->user()->add();

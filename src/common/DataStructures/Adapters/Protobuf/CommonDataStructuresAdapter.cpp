@@ -6,12 +6,12 @@
 #include "../Validators/NickNameValidator.hpp"
 
 ProtobufAuthorizationDataAdapter::ProtobufAuthorizationDataAdapter():
-    m_data( new pb::Credentials() ), m_takeOvnership(true)
+    m_data( new protobuf::Credentials() ), m_takeOvnership(true)
 {
 
 }
 
-ProtobufAuthorizationDataAdapter::ProtobufAuthorizationDataAdapter(pb::Credentials *cred):
+ProtobufAuthorizationDataAdapter::ProtobufAuthorizationDataAdapter(protobuf::Credentials *cred):
     m_data( cred ), m_takeOvnership(false)
 {
 
@@ -75,7 +75,7 @@ void ProtobufAuthorizationDataAdapter::Clear() const
     m_data->Clear();
 }
 
-pb::Credentials *ProtobufAuthorizationDataAdapter::detachData()
+protobuf::Credentials *ProtobufAuthorizationDataAdapter::detachData()
 {
     m_takeOvnership = false;
     return m_data;

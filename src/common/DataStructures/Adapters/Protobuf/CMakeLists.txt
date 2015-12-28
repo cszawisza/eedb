@@ -6,7 +6,8 @@ include_directories( ${Common_SOURCE_DIR}/DataStructures/Interfaces )
 
 PROTOBUF_GENERATE_CPP(ProtoSources ProtoHeaders ${ProtoFiles})
 set( PB
-    UserAdapter.cpp
+    UserRequestAdapter.cpp
+    UserResponseAdapter.cpp
     AclAdapter.cpp
     ClientRequestAdapter.cpp
 

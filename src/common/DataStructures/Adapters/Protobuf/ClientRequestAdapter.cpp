@@ -1,23 +1,23 @@
 #include "ClientRequestAdapter.hpp"
-#include "UserAdapter.hpp"
+#include "UserRequestAdapter.hpp"
 #include "message_conteiner.pb.h"
 
 using namespace requests;
 using namespace requests::user;
 
-ProtobufClientRequestAdapter::ProtobufClientRequestAdapter():
-    m_data(new pb::ClientRequest() ), m_takeOvnership(true), m_userreq(nullptr)
+ClientRequest::ClientRequest():
+    m_data(new protobuf::ClientRequest() ), m_takeOvnership(true), m_userreq(nullptr)
 {
 
 }
 
-ProtobufClientRequestAdapter::ProtobufClientRequestAdapter(pb::ClientRequest *req):
+ClientRequest::ClientRequest(protobuf::ClientRequest *req):
     m_data(req), m_takeOvnership(false), m_userreq(nullptr)
 {
 
 }
 
-ProtobufClientRequestAdapter::~ProtobufClientRequestAdapter()
+ClientRequest::~ClientRequest()
 {
     if(m_takeOvnership){
         delete m_data;
@@ -26,36 +26,53 @@ ProtobufClientRequestAdapter::~ProtobufClientRequestAdapter()
     }
 }
 
-int ProtobufClientRequestAdapter::get_requestId() const
+int ClientRequest::get_requestId() const
 {
 }
 
-requests::IUser* ProtobufClientRequestAdapter::user()
+requests::IUser* ClientRequest::user()
 {
     if(!m_userreq)
-        m_userreq = new ProtobufUserAdapter(m_data->mutable_userreq());
+        m_userreq = new User(m_data->mutable_userreq());
     else
-        m_userreq->operator =( ProtobufUserAdapter(m_data->mutable_userreq()));
+        m_userreq->operator =( User(m_data->mutable_userreq()));
     return m_userreq;
 }
 
-void ProtobufClientRequestAdapter::assign_user(requests::IUser *ur)
+const IUser &ClientRequest::get_user() const
 {
-    m_data->set_allocated_userreq( dynamic_cast<ProtobufUserAdapter*>(ur)->detachData() );
+    if(!m_userreq)
+        m_userreq = new User();
+    m_userreq->operator=( User(const_cast<protobuf::UserReq*>(&m_data->userreq())));
+    return *m_userreq;
+}
+
+void ClientRequest::assign_user(requests::IUser *ur)
+{
+    m_data->set_allocated_userreq( dynamic_cast<User*>(ur)->detachData() );
     delete ur;
 }
 
-bool ProtobufClientRequestAdapter::has_user() const
+bool ClientRequest::has_user() const
 {
     return m_data->has_userreq();
 }
 
-void ProtobufClientRequestAdapter::clear_user()
+void ClientRequest::clear_user()
 {
     m_data->clear_userreq();
 }
 
-pb::ClientRequest *ProtobufClientRequestAdapter::rawPointer() const
+protobuf::ClientRequest *ClientRequest::rawPointer() const
 {
     return m_data;
+}
+
+
+const IRequestParser &ClientRequest::parser() const
+{
+}
+
+const QByteArray &ClientRequest::serializer() const
+{
 }

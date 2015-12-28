@@ -14,8 +14,8 @@ public:
         db.rollback_transaction(false);
     }
 
-    UserRes_Reply sendRequest( pb::UserReq_Add &msg){
-        pb::ClientRequest req;
+    UserRes_Reply sendRequest( protobuf::UserReq_Add &msg){
+        protobuf::ClientRequest req;
 
         auto userReq = req.mutable_userreq();
         userReq->mutable_add()->CopyFrom(msg);
@@ -30,7 +30,7 @@ public:
 };
 
 TEST_F( userCreateTest, user_no_name_and_email){
-    pb::UserReq_Add req;
+    protobuf::UserReq_Add req;
 
     req.set_password("passwd");
     auto res = sendRequest(req);
@@ -38,7 +38,7 @@ TEST_F( userCreateTest, user_no_name_and_email){
 }
 
 TEST_F( userCreateTest, user_no_email){
-    pb::UserReq_Add req;
+    protobuf::UserReq_Add req;
 
     req.set_password("passwd");
     req.mutable_basic()->set_nickname("Test_user_asdf");
@@ -47,7 +47,7 @@ TEST_F( userCreateTest, user_no_email){
 }
 
 TEST_F( userCreateTest, create_withBasicData ){
-    pb::UserReq_Add req;
+    protobuf::UserReq_Add req;
 
     req.set_password("passwd");
     req.mutable_basic()->set_nickname("Test_user_asdf");
@@ -57,7 +57,7 @@ TEST_F( userCreateTest, create_withBasicData ){
 }
 
 TEST_F( userCreateTest, user_name_to_long ){
-    pb::UserReq_Add req;
+    protobuf::UserReq_Add req;
 
     req.set_password("passwd");
     req.mutable_basic()->set_nickname( random_string(73) );
@@ -67,7 +67,7 @@ TEST_F( userCreateTest, user_name_to_long ){
 }
 
 TEST_F( userCreateTest, user_duplicated ){
-    pb::UserReq_Add req;
+    protobuf::UserReq_Add req;
 
     string name = "RANDOM_USER_NAME";
     string email= "RANDOM_USER_NAME@email.com";
@@ -89,7 +89,7 @@ TEST_F( userCreateTest, user_duplicated ){
 }
 
 TEST_F( userCreateTest, full_data ){
-    pb::UserReq_Add add_msg;
+    protobuf::UserReq_Add add_msg;
 
     auto basic = add_msg.mutable_basic();
     auto det   = add_msg.mutable_details();

@@ -1,6 +1,5 @@
 option optimize_for = LITE_RUNTIME;
-
-package pb;
+package protobuf;
 
 import public "user.proto";
 import public "category.proto";
@@ -23,7 +22,7 @@ message ItemReq{
         optional string description = 4;
         required uint32 category_id = 5;
 
-        repeated pb.ParameterValue parameters = 6;
+        repeated protobuf.ParameterValue parameters = 6;
 
         optional bool returning_id = 7 [default = false];
     }
@@ -40,7 +39,7 @@ message ItemReq{
 //        optional string name_scope = 4;
 //        optional string description = 5;
 //        repeated ParameterValues parameters = 6;
-//        optional pb.Acl acl = 7;
+//        optional protobuf.Acl acl = 7;
     }
 
     message Get{
@@ -51,7 +50,7 @@ message ItemReq{
 
 //message ParameterData{
 //    required uint32 id=1;
-//    optional pb.Variant stored_data = 2;
+//    optional protobuf.Variant stored_data = 2;
 //    optional uint32 pointed_data = 3;
 //}
 

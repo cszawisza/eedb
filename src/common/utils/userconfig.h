@@ -3,7 +3,7 @@
 #include <QJsonObject>
 #include <string>
 
-#include "user.pb.h"
+//#include "user.pb.h"
 
 namespace eedb {
 namespace utils {
@@ -14,7 +14,7 @@ class UserConfig
 {
 public:
     explicit UserConfig( string json );
-    UserConfig(const pb::UserConfig &conf);
+//    UserConfig(const protobuf::UserConfig &conf);
 
     QString toString() const;
     string toStdString() const;
@@ -22,7 +22,7 @@ public:
 private:
     QByteArray getJson() const ;
     QJsonObject m_config; ///TODO replace with protbuf message
-    pb::UserConfig m_conf;
+//    protobuf::UserConfig m_conf;
 };
 
 }

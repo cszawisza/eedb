@@ -1,5 +1,5 @@
 option optimize_for = LITE_RUNTIME;
-package pb;
+package protobuf;
 import public "common.proto";
 
 import public "user.proto";
@@ -11,22 +11,22 @@ import public "category.proto";
 /// (operation succes or error)
 
 enum MsgCoding{
-  msgProtbuf = 1;
+  msgprotobuf = 1;
   msgBin = 2;
   msgJson = 3;
 }
 
 message ClientRequest{
   optional uint32	request_id	= 1 [default = 1];
-//  required MsgCoding	msgCoding 	= 3 [default = msgProtbuf]; // type that is stored in data field
-//  optional MsgTypeId	msgTypeId 	= 4; // used only for not protbuf type messages
+//  required MsgCoding	msgCoding 	= 3 [default = msgprotobuf]; // type that is stored in data field
+//  optional MsgTypeId	msgTypeId 	= 4; // used only for not protobuf type messages
   
   oneof data {
-    pb.UserReq                  userReq = 12;
-    pb.MsgInventoryRequest      msgInventoryReq = 13;
-    pb.ItemReq                  itemReq = 14;
-    pb.CategoryReq              categoryReq = 15;
-    pb.MsgParameterRequest      msgParameterReq = 16;
+    protobuf.UserReq                  userReq = 12;
+    protobuf.MsgInventoryRequest      msgInventoryReq = 13;
+    protobuf.ItemReq                  itemReq = 14;
+    protobuf.CategoryReq              categoryReq = 15;
+    protobuf.MsgParameterRequest      msgParameterReq = 16;
   }
 }
 
@@ -35,15 +35,15 @@ message ServerResponse {
   optional uint64   response_id         = 2 [default = 0]; // server unique response id
   optional uint64   in_response_to      = 3 [default = 0]; // in response to: request_if
   optional bool     is_last_response    = 4 [default = true];
-//  required MsgCoding	msgCoding 	= 5 [default = msgProtbuf]; // type that is stored in data field
-//  optional MsgTypeId	msgTypeId 	= 6; // used only for not protbuf type messages
+//  required MsgCoding	msgCoding 	= 5 [default = msgprotobuf]; // type that is stored in data field
+//  optional MsgTypeId	msgTypeId 	= 6; // used only for not protobuf type messages
   
   oneof data {
-    pb.UserRes                  userRes = 12;
-    pb.MsgInventoryResponse     msgInventoryRes = 13;
-    pb.ItemResponse             itemRes = 14;
-    pb.CategoryRes              categoryRes = 15;
-    pb.MsgParameterResponse     msgParameterRes = 16;
+    protobuf.UserRes                  userRes = 12;
+    protobuf.MsgInventoryResponse     msgInventoryRes = 13;
+    protobuf.ItemResponse             itemRes = 14;
+    protobuf.CategoryRes              categoryRes = 15;
+    protobuf.MsgParameterResponse     msgParameterRes = 16;
     
 //    ServerResponse msgServerResponse = 1000;
   }

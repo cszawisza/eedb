@@ -30,18 +30,18 @@ public:
             return 0;
     }
 
-//    pb::UserBasic *mutable_basic(){
+//    protobuf::UserBasic *mutable_basic(){
 //        return &m_basicData;
 //    }
 
-//    pb::Acl *mutable_acl(){
+//    protobuf::Acl *mutable_acl(){
 //        return &m_stat;
 //    }
 
 private:
     Status m_status;
-//    pb::UserBasic m_basicData;
-//    pb::Acl m_stat;
+//    protobuf::UserBasic m_basicData;
+//    protobuf::Acl m_stat;
 };
 
 class ClientCache

@@ -2,33 +2,33 @@
 
 #include "../../Interfaces/ClientRequest.hpp"
 
-namespace pb{
+namespace protobuf{
     class ClientRequest;
 }
 
 namespace requests{
 class IUser;
-class ProtobufUserAdapter;
+class User;
 }
 
-
-class ProtobufClientRequestAdapter : public IClientRequest {
+class ClientRequest : public IClientRequest {
 public:
-    ProtobufClientRequestAdapter();
-    ProtobufClientRequestAdapter(pb::ClientRequest *req);
-    ~ProtobufClientRequestAdapter();
+    ClientRequest();
+    ClientRequest(protobuf::ClientRequest *req);
+    ~ClientRequest();
 
     int get_requestId() const;
 
-    requests::IUser* user();
-    void assign_user(requests::IUser *ur);
-    bool has_user() const;
-    void clear_user();
+    requests::IUser* user() override;
+    const requests::IUser &get_user() const override;
+    void assign_user(requests::IUser *ur) override;
+    bool has_user() const override;
+    void clear_user() override;
 
-    pb::ClientRequest *rawPointer() const;
+    protobuf::ClientRequest *rawPointer() const;
 private:
-    pb::ClientRequest *m_data;
+    protobuf::ClientRequest *m_data;
     bool m_takeOvnership = false;
-    mutable requests::ProtobufUserAdapter *m_userreq;
+    mutable requests::User *m_userreq;
 };
 

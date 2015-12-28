@@ -1,61 +1,74 @@
 #include "ServerResponseAdapter.hpp"
-
+#include "UserResponseAdapter.hpp"
 #include "message_conteiner.pb.h"
 
-ProtobufServerResponseAdapter::ProtobufServerResponseAdapter():
-    m_data(new pb::ServerResponse(pb::ServerResponse::default_instance()) ), m_takeOvnership(true)
+ServerResponse::ServerResponse():
+    m_data(new protobuf::ServerResponse(protobuf::ServerResponse::default_instance()) ), m_takeOvnership(true), m_user(nullptr)
 {
 
 }
 
-ProtobufServerResponseAdapter::ProtobufServerResponseAdapter(pb::ServerResponse *req):
-    m_data(req), m_takeOvnership(false)
+ServerResponse::ServerResponse(protobuf::ServerResponse *req):
+    m_data(req), m_takeOvnership(false), m_user(nullptr)
 {
 
 }
 
-ProtobufServerResponseAdapter::~ProtobufServerResponseAdapter()
+ServerResponse::~ServerResponse()
 {
     if(m_takeOvnership)
         delete m_data;
 }
 
-void ProtobufServerResponseAdapter::set_response_id(uint64_t id)
+void ServerResponse::set_response_id(uint64_t id)
 {
     m_data->set_response_id(id);
 }
 
-void ProtobufServerResponseAdapter::set_in_response_to(uint64_t id)
+void ServerResponse::set_in_response_to(uint64_t id)
 {
     m_data->set_in_response_to(id);
 }
 
-void ProtobufServerResponseAdapter::set_response_code(int code)
+void ServerResponse::set_response_code(int code)
 {
     m_data->set_code(code);
 }
 
-requests::IUser *ProtobufServerResponseAdapter::user()
+responses::IUser *ServerResponse::user()
 {
-///FIXME
+    if(!m_user)
+        m_user = new responses::User();
+    m_user->operator=(responses::User(m_data->mutable_userres()));
+    return m_user;
 }
 
-void ProtobufServerResponseAdapter::assign_user(requests::IUser *ur)
+void ServerResponse::assign(responses::IUser *ur)
 {
-///FIXME
+    m_data->set_allocated_userres( dynamic_cast<responses::User*>(ur)->detachData() );
+    delete ur;
 }
 
-bool ProtobufServerResponseAdapter::has_user() const
+bool ServerResponse::has_user() const
 {
     return m_data->has_userres();
 }
 
-void ProtobufServerResponseAdapter::clear_user()
+void ServerResponse::clear_user()
 {
     m_data->clear_userres();
 }
 
-pb::ServerResponse *ProtobufServerResponseAdapter::rawPointer() const
+protobuf::ServerResponse *ServerResponse::rawPointer() const
 {
     return m_data;
+}
+
+
+const IServerResponse &ServerResponse::parser() const
+{
+}
+
+const QByteArray &ServerResponse::serializer() const
+{
 }

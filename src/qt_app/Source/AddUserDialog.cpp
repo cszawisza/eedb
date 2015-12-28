@@ -59,7 +59,7 @@ void AddUserDialog::on_registerNewUser_clicked()
     ///FIXME
 //    m_communicatioManager.handleRegister(l_userName, l_userPassword, l_userEmail,
 //                                         l_userAdress, l_userDescritpion, l_userPhoneNumber);
-//    pb::ClientRequests fullMessage;
+//    protobuf::ClientRequests fullMessage;
 //    auto loginReq = fullMessage.add_request();
 //    auto userMsg = loginReq->mutable_userreq();
 //    auto login = userMsg->mutable_add();

@@ -17,11 +17,11 @@ class ClientWorker : public QObject
 {
     Q_OBJECT
 public:
-    typedef QSharedPointer<pb::ClientRequest> SharedRequests;
-    typedef QSharedPointer<pb::ServerResponse> SharedResponses;
+    typedef QSharedPointer<protobuf::ClientRequest> SharedRequests;
+    typedef QSharedPointer<protobuf::ServerResponse> SharedResponses;
     explicit ClientWorker(QObject *parent = 0);
 
-    void printMessageInfo(const pb::ClientRequest &request);
+    void printMessageInfo(const protobuf::ClientRequest &request);
     void processMessages();
 signals:
     /**
@@ -50,6 +50,6 @@ private:
     SharedUserData m_cache;
     SharedResponses m_responseFrame;
     SharedRequests m_inputFrame;
-    QHash<pb::ClientRequest::DataCase, QSharedPointer<IMessageProcessingUnit>> m_msgHandlers;
+    QHash<protobuf::ClientRequest::DataCase, QSharedPointer<IMessageProcessingUnit>> m_msgHandlers;
     QSharedPointer<IMessageProcessingUnit> m_defaultProcessor;
 };

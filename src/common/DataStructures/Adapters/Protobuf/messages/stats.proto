@@ -1,5 +1,5 @@
 option optimize_for = LITE_RUNTIME;
-package protbuf;
+package protobuf;
 
 message Stats{
  required uint32 count = 2;

@@ -29,7 +29,7 @@ int DBInitialize::initializeDB(DB &db)
 
     if(! rootExists(db)){
         ///TODO fixme
-//        pb::UserReq_Add add;
+//        protobuf::UserReq_Add add;
 //        auto stat  = add.mutable_acl();
 //        auto basic= add.mutable_basic();
 

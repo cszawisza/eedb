@@ -2,7 +2,7 @@
 
 #include "../../Interfaces/AclData.hpp"
 
-namespace pb{
+namespace protobuf{
     class Acl;
 }
 
@@ -13,7 +13,7 @@ namespace data{
 class ProtobufAclAdapter : public IAcl {
 public:
     ProtobufAclAdapter();
-    ProtobufAclAdapter( pb::Acl *p);
+    ProtobufAclAdapter( protobuf::Acl *p);
     ~ProtobufAclAdapter();
 
     UID get_id() const;
@@ -41,8 +41,8 @@ public:
     bool has_status() const;
     void clear_status();
 
-    pb::Acl *detachData();
+    protobuf::Acl *detachData();
 private:
-    pb::Acl *m_data;
+    protobuf::Acl *m_data;
     bool take_ovnership = false;
 };

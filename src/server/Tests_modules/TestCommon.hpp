@@ -27,7 +27,7 @@
 #include "database/CategoryHelper.hpp"
 
 
-#include "DataStructures/Adapters/Protobuf/UserAdapter.hpp"
+#include "DataStructures/Adapters/Protobuf/UserRequestAdapter.hpp"
 
 using std::string;
 

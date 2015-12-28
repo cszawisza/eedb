@@ -61,8 +61,8 @@ void showLoginDialog(QApplication &a)
     QSharedPointer<ICommunicationManager>  l_communicationManager =
             QSharedPointer<ICommunicationManager>(
                 new CommunicationManager(l_webSocket,
-                                         std::make_shared<ProtobufRequestsSerializer>(),
-                                         std::make_shared<ProtobufResponseSerializer>() ));
+                                         std::make_shared<RequestsSerializer>(),
+                                         std::make_shared<ResponseSerializer>() ));
     LoginVerificator l_loginVerificator;
     UserRegister l_userRegisterDialog;
 

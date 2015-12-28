@@ -101,16 +101,16 @@ void ProtobufAclAdapter::clear_status()
     m_data->clear_status();
 }
 
-pb::Acl *ProtobufAclAdapter::detachData(){
+protobuf::Acl *ProtobufAclAdapter::detachData(){
     take_ovnership = false;
     return m_data;
 }
 
 ProtobufAclAdapter::ProtobufAclAdapter():
-    m_data(new pb::Acl ), take_ovnership(true){}
+    m_data(new protobuf::Acl ), take_ovnership(true){}
 
 
-ProtobufAclAdapter::ProtobufAclAdapter(pb::Acl *p):
+ProtobufAclAdapter::ProtobufAclAdapter(protobuf::Acl *p):
     m_data(p), take_ovnership(false)
 {
 }

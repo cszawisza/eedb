@@ -47,7 +47,7 @@ TEST_F(CommunicationManagerTestSuite, closeConnectionWhenInConnectedState){
 //    EXPECT_CALL( *(webSocketMock.data()), state() ).WillOnce( Return(QAbstractSocket::ConnectedState) );
 
 //    QSignalSpy spy(&m_sut, SIGNAL( userRequestSent(RequestMetadata)));
-//    m_sut.sendUserRequest( std::make_shared<pb::UserReq>() );
+//    m_sut.sendUserRequest( std::make_shared<protobuf::UserReq>() );
 //}
 
 //TEST_F(CommunicationManagerTestSuite, ServerResponseParseError)

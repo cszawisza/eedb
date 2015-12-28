@@ -7,26 +7,26 @@
 
 #include <QByteArray>
 
-IClientRequest *ProtobufResponseSerializer::parseFromByteArray(const QByteArray &a) const
+IClientRequest *ResponseSerializer::parseClientRequest(const QByteArray &a) const
 {
-    auto adp = new ProtobufClientRequestAdapter();
-    parseFromByteArray(a,adp);
+    auto adp = new ClientRequest();
+    parseClientRequest(a,adp);
     return adp;
 }
 
-void ProtobufResponseSerializer::parseFromByteArray(const QByteArray &a, IClientRequest *req) const
+void ResponseSerializer::parseClientRequest(const QByteArray &a, IClientRequest *req) const
 {
-    auto adp = dynamic_cast<ProtobufClientRequestAdapter*>(req);
+    auto adp = dynamic_cast<ClientRequest*>(req);
     adp->rawPointer()->ParseFromArray(a.data(), a.size());
 }
 
-QByteArray ProtobufResponseSerializer::serializeToByteArray(IServerResponse *req) const
+QByteArray ResponseSerializer::serializeServerResponse(IServerResponse *req) const
 {
-    auto adp = static_cast<ProtobufServerResponseAdapter*>(req);
+    auto adp = static_cast<ServerResponse*>(req);
     return {adp->rawPointer()->SerializeAsString().c_str(), adp->rawPointer()->ByteSize()};
 }
 
-void ProtobufResponseSerializer::serializeToByteArray(IServerResponse *req, QByteArray &) const
+void ResponseSerializer::serializeServerResponse(IServerResponse *req, QByteArray &) const
 {
 
 }

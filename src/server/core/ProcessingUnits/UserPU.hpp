@@ -28,23 +28,23 @@ public:
     void process( DB &db, IClientRequest *msgReq ) override;
 
 private:
-    void handle_add         (DB &db, std::shared_ptr<requests::user::IAdd> msg    );
+    void handle_add         (DB &db, requests::user::IAdd &msg    );
     void handle_login       (DB &db, std::shared_ptr<requests::user::ILogin> loginMsg  );
-//    void handle_logout      (DB &db, const pb::UserReq_Logout &logoutMsg );
-//    void handle_modify      (DB &db, const pb::UserReq_Modify &msg );
-//    void handle_remove      (DB &db, const pb::UserReq_Remove &delateMsg );
-//    void handle_get         (DB &db, const pb::UserReq_Get    &getMsg    );
-//    void handle_changePasswd(DB &db, const pb::UserReq_ChangePasswd &msg );
+//    void handle_logout      (DB &db, const protobuf::UserReq_Logout &logoutMsg );
+//    void handle_modify      (DB &db, const protobuf::UserReq_Modify &msg );
+//    void handle_remove      (DB &db, const protobuf::UserReq_Remove &delateMsg );
+//    void handle_get         (DB &db, const protobuf::UserReq_Get    &getMsg    );
+//    void handle_changePasswd(DB &db, const protobuf::UserReq_ChangePasswd &msg );
 
 
     void addUser(DB &db, const requests::user::IAdd &msg );
 //    void goToOnlineState(DB &db, uint64_t uid);
 //    bool userExists(DB &db, string name, string email );
-//    void addErrorCode(pb::UserRes_Reply err);
+//    void addErrorCode(protobuf::UserRes_Reply err);
 //    void loadUserCache(DB &db, uint64_t uid);
 //    void addResponseMessage();
 
-//    pb::UserRes m_response;
+//    protobuf::UserRes m_response;
 };
 
 }

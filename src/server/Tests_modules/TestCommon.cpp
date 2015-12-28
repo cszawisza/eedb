@@ -20,9 +20,9 @@ return str;
 
 
 quint64 test::addShelf(DB &db, uint64_t storageId, string name, SharedUserData data){
-    pb::ClientRequest req;
+    protobuf::ClientRequest req;
 
-    auto add = pb::MsgInventoryRequest_AddShelf::default_instance();
+    auto add = protobuf::MsgInventoryRequest_AddShelf::default_instance();
     add.set_name( name );
     add.set_description("description");
     add.set_inventory_id( storageId );
@@ -39,11 +39,11 @@ quint64 test::addShelf(DB &db, uint64_t storageId, string name, SharedUserData d
 
 
 SharedUserData test::login(DB &db, const string &name, const string &pass){
-    pb::UserReq_Login msg;
+    protobuf::UserReq_Login msg;
     msg.mutable_cred()->set_nickname(name);
     msg.set_password(pass);
 
-    pb::ClientRequest req;
+    protobuf::ClientRequest req;
 
     auto userReq = req.mutable_userreq();
     userReq->mutable_login()->CopyFrom(msg);
@@ -55,7 +55,7 @@ SharedUserData test::login(DB &db, const string &name, const string &pass){
 
 quint64 test::addUser(DB &db, const string &name, const string &pass){
     constexpr schema::users u;
-    auto msg = std::make_shared<requests::user::ProtobufUserAddAdapter>();
+    auto msg = std::make_shared<requests::user::Add>();
 
     msg->set_nickname(name);
     msg->set_email(name + "@fake.xx");
@@ -70,11 +70,11 @@ quint64 test::addUser(DB &db, const string &name, const string &pass){
 
 quint64 test::addInventory(DB &db, string name, SharedUserData data)
 {
-    pb::ClientRequest req;
+    protobuf::ClientRequest req;
     eedb::pu::InventoryPU inventoryHandler;
     inventoryHandler.setUserData( data );
 
-    auto add_inv = pb::MsgInventoryRequest_Add::default_instance();
+    auto add_inv = protobuf::MsgInventoryRequest_Add::default_instance();
     add_inv.set_name( name );
     add_inv.set_description("description");
 

@@ -1,5 +1,5 @@
 option optimize_for = LITE_RUNTIME;
-package pb;
+package protobuf;
 import public "common.proto";
 
 message MsgParameterRequest{
@@ -20,7 +20,7 @@ message MsgParameterResponse{
 
 message ParameterValue{
   required uint32 id = 1; // parameter ID
-  optional pb.Variant stored_value = 2; // direct value of parameter
+  optional protobuf.Variant stored_value = 2; // direct value of parameter
   optional uint32 pointed_value = 3; // pointer to value in database
 }
 

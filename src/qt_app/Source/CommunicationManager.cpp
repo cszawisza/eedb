@@ -11,22 +11,22 @@ void handleConvertedServerResponse(const auto p_serverResponse)
 {
 //    switch(p_serverResponse.data_case())
 //    {
-//    case pb::ServerResponse::kUserRes:
+//    case protobuf::ServerResponse::kUserRes:
 //        qDebug() << "UserRes";
 //        break;
-//    case pb::ServerResponse::kMsgInventoryRes:
+//    case protobuf::ServerResponse::kMsgInventoryRes:
 //        qDebug() << "MsgInventoryRes";
 //        break;
-//    case pb::ServerResponse::kItemRes:
+//    case protobuf::ServerResponse::kItemRes:
 //        qDebug() << "ItemRes";
 //        break;
-//    case pb::ServerResponse::kCategoryRes:
+//    case protobuf::ServerResponse::kCategoryRes:
 //        qDebug() << "CategoryRes";
 //        break;
-//    case pb::ServerResponse::kMsgParameterRes:
+//    case protobuf::ServerResponse::kMsgParameterRes:
 //        qDebug() << "MsgParameterRes";
 //        break;
-//    case pb::ServerResponse::DATA_NOT_SET:
+//    case protobuf::ServerResponse::DATA_NOT_SET:
 //        qDebug() << "Data not set";
 //        break;
 //    }
@@ -67,7 +67,7 @@ CommunicationManager::CommunicationManager(QSharedPointer<ISocket> p_webSocket,
 //                                          std::string & p_userEmail,std::string & p_userAdress,
 //                                          std::string & p_userDescritpion, std::string & p_userPhoneNumber)
 //{
-////    pb::ClientRequests l_mainMsg;
+////    protobuf::ClientRequests l_mainMsg;
 //    qDebug() << "CommunicationManager::handleRegister()";
 //    uint64_t id;
 //    auto login = this->newRequest(id)->mutable_userreq()->mutable_add();
@@ -79,17 +79,17 @@ CommunicationManager::CommunicationManager(QSharedPointer<ISocket> p_webSocket,
 //    sendRequest();
 //}
 
-//void CommunicationManager::sendBinaryMessageOverQWebSocket(const pb::ClientRequests & p_clientRequests) const
+//void CommunicationManager::sendBinaryMessageOverQWebSocket(const protobuf::ClientRequests & p_clientRequests) const
 //{
 //
 ////    qDebug() << m_socket.state();
 //    m_socket->sendBinaryMessage(m_convertProtobufToQByteArray(p_clientRequests));
 //}
 
-//pb::ClientRequest *CommunicationManager::newRequest(uint64_t &request_id)
+//protobuf::ClientRequest *CommunicationManager::newRequest(uint64_t &request_id)
 //{
 //    static quint64 id = 1;
-//    auto req = new pb::ClientRequest();
+//    auto req = new protobuf::ClientRequest();
 //    req->set_request_id(id);
 //    request_id = id++;
 //    return req;

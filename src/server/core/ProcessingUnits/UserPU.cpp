@@ -45,7 +45,7 @@ void UserPU::process(DB &db, IClientRequest *msgReq)
 
     if(user()->isOffline()){
         if ( req->has_add() )
-            handle_add(db, req->add() );
+            handle_add(db, req->get_add() );
         else if( req->has_login() )
             handle_login(db, req->login() );
     }
@@ -143,7 +143,7 @@ void UserPU::addUser(DB &db, const IAdd &msg)
 //    add_response()->mutable_userres()->CopyFrom(m_response);
 //}
 
-void UserPU::handle_add(DB &db, std::shared_ptr<IAdd> msg)
+void UserPU::handle_add(DB &db, IAdd &msg)
 {
     bool error = false;
 
@@ -171,7 +171,7 @@ void UserPU::handle_add(DB &db, std::shared_ptr<IAdd> msg)
         if(stat.checkUserAction<users>("create"))
             addUser(db, *msg);
 //        else{
-//            sendServerError(pb::Error_AccesDeny);
+//            sendServerError(protobuf::Error_AccesDeny);
 //        }
     }
     else{
@@ -277,7 +277,7 @@ void UserPU::handle_login(DB &db, std::shared_ptr<requests::user::ILogin> loginM
 //        db(query);
 //    }
 //    else
-//        sendServerError(pb::Error_AccesDeny);
+//        sendServerError(protobuf::Error_AccesDeny);
 //}
 
 //void UserPU::handle_get(DB &db, const UserReq_Get &getMsg)

@@ -1,5 +1,5 @@
 option optimize_for = LITE_RUNTIME;
-package pb;
+package protobuf;
 
 import public "parameters.proto";
 import public "common.proto";

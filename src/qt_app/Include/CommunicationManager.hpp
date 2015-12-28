@@ -24,7 +24,7 @@ public:
     //                        std::string &, std::string &, std::string &) ;
     ~CommunicationManager(){}
 
-    //    pb::ClientRequest *newRequest(uint64_t &request_id ) override;
+    //    protobuf::ClientRequest *newRequest(uint64_t &request_id ) override;
 
     void sendRequest();
     //    QSharedPointer<ISocket> socket() const override;
@@ -37,5 +37,5 @@ private:
     QSharedPointer<ISocket> m_socket;
     std::shared_ptr<IRequestsSerializer> m_convertProtobufToQByteArray;
     std::shared_ptr<IResponseSerializer> m_convertQByteArrayToProtobuf;
-    //    pb::ClientRequest p_clientRequests;
+    //    protobuf::ClientRequest p_clientRequests;
 };

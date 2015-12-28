@@ -23,7 +23,7 @@ TEST( UserConfig, simple_conf ){
 }
 
 //TEST( UserConfig, createByMessage ){
-//    pb::UserConfig conf;
+//    protobuf::UserConfig conf;
 
 //    conf.set_last_group_id( 10 );
 ////    conf.set_last_item_id( 11 );

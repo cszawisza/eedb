@@ -34,8 +34,9 @@ inline void  operator delete[]( void* ptr   ) { myFree( ptr ); }
 
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
-    auto ret = RUN_ALL_TESTS();
+//    testing::GTEST_FLAG(filter) = "UserDataAddResTests*";
 
+    auto ret = RUN_ALL_TESTS();
     printf("allocated %d bytes in %d allocations\n",total, times);
     printf("max number of allocated elements %d\n", maxDepth);
     printf("biggest single alloc %d\n", maxAllocatedAtOnce);

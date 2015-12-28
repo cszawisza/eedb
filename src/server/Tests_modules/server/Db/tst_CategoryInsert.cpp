@@ -27,7 +27,7 @@ public:
 protected:
     DB db;
     CategoryHelper helper;
-    pb::CategoryReq dataToInsert;
+    protobuf::CategoryReq dataToInsert;
 };
 
 

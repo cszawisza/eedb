@@ -8,13 +8,13 @@ std::atomic<quint64> IMessageProcessingUnit::m_response_id;
 
 IMessageProcessingUnit::IMessageProcessingUnit(){
     ///FIXME
-//    m_outputFrame = SharedResponses(new pb::ServerResponses );
+//    m_outputFrame = SharedResponses(new protobuf::ServerResponses );
 }
 
 ///FIXME
 //IServerResponse IMessageProcessingUint::getLastResponse(){
 //    if(m_outputFrame->response_size() == 0 )
-//        return pb::ServerResponse::default_instance();
+//        return protobuf::ServerResponse::default_instance();
 //    return m_outputFrame->response(m_outputFrame->response_size()-1);
 //}
 
@@ -58,9 +58,9 @@ size_t IMessageProcessingUnit::responseCount() const {
 void IMessageProcessingUnit::process(IClientRequest *req){
 ///FIXME
 //    auto msg = m_outputFrame->add_response();
-//    msg->CopyFrom( pb::ServerResponse::default_instance() );
+//    msg->CopyFrom( protobuf::ServerResponse::default_instance() );
 //    msg->set_response_id( req.request_id() );
-//    msg->set_code(pb::Error_MsgUnknown);
+//    msg->set_code(protobuf::Error_MsgUnknown);
 }
 
 void IMessageProcessingUnit::process(DB &db, IClientRequest *req){
@@ -69,8 +69,8 @@ void IMessageProcessingUnit::process(DB &db, IClientRequest *req){
 
 IServerResponse *IMessageProcessingUnit::add_response() {
 //    if(!m_outputFrame)
-//        m_outputFrame = SharedResponses(new pb::ServerResponses);
-    auto res = new ProtobufServerResponseAdapter();//m_outputFrame->add_response();
+//        m_outputFrame = SharedResponses(new protobuf::ServerResponses);
+    auto res = new ServerResponse();//m_outputFrame->add_response();
     res->set_response_id( m_response_id++ );
     res->set_in_response_to(m_currentRequestId);
     return res;
@@ -78,7 +78,7 @@ IServerResponse *IMessageProcessingUnit::add_response() {
 
 void IMessageProcessingUnit::sendServerError(int e){
 //    auto res = add_response();
-    auto res = new ProtobufServerResponseAdapter();
+    auto res = new ServerResponse();
     res->set_response_code( e );
 }
 

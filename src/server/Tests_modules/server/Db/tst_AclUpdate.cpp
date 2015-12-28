@@ -33,7 +33,7 @@ public:
 protected:
     DB db;
     AclHelper helper;
-    pb::Acl dataToInsert;
+    protobuf::Acl dataToInsert;
 };
 
 TEST_F(UserHelperInsertTest, updateAclEntry ){

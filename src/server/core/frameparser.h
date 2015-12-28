@@ -14,7 +14,7 @@ class RequestsDecoder
 {
 public:
     explicit RequestsDecoder(QByteArray ba);
-    bool decodeTo(pb::ClientRequest &frame );
+    bool decodeTo(protobuf::ClientRequest &frame );
     void setData(QByteArray ba);
 private:
     QByteArray m_rawMessage;

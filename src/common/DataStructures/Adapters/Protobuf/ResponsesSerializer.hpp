@@ -2,11 +2,11 @@
 
 #include "../../IResponseSerializer.hpp"
 
-class ProtobufResponseSerializer : public IResponseSerializer {
+class ResponseSerializer : public IResponseSerializer {
 public:
-    IClientRequest *parseFromByteArray(const QByteArray &) const;
-    void parseFromByteArray(const QByteArray &a, IClientRequest*req) const;
+    IClientRequest *parseClientRequest(const QByteArray &) const;
+    void parseClientRequest(const QByteArray &a, IClientRequest*req) const;
 
-    QByteArray serializeToByteArray(IServerResponse *req) const;
-    void serializeToByteArray(IServerResponse *req, QByteArray&) const;
+    QByteArray serializeServerResponse(IServerResponse *req) const;
+    void serializeServerResponse(IServerResponse *req, QByteArray&) const;
 };

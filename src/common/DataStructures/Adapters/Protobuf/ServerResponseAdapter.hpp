@@ -2,35 +2,41 @@
 
 #include "../../Interfaces/ServerResponse.hpp"
 
-namespace pb{
+namespace protobuf{
     class ServerResponse;
 }
 
-namespace data{
-//namespace requests{
-//    class IUser;
-//}
+namespace responses{
+    class IUser;
 }
 
-class ProtobufServerResponseAdapter : public IServerResponse {
+class ResponseSerializer;
+
+class ServerResponse : public IServerResponse {
 public:
-    ProtobufServerResponseAdapter();
-    ProtobufServerResponseAdapter(pb::ServerResponse *req);
-    ~ProtobufServerResponseAdapter();
+    ServerResponse();
+    ServerResponse(protobuf::ServerResponse *req);
+    ~ServerResponse();
 
     void set_response_id( uint64_t id );
     void set_in_response_to(uint64_t id);
     void set_response_code(int code);
 //    int get_requestId() const;
 
-    requests::IUser* user();
-    void assign_user(requests::IUser *ur);
+    responses::IUser* user();
+    void assign(responses::IUser *ur);
     bool has_user() const;
     void clear_user();
 
-    pb::ServerResponse *rawPointer() const;
+    protobuf::ServerResponse *rawPointer() const;
 private:
     bool m_takeOvnership = false;
-    pb::ServerResponse *m_data;
+    protobuf::ServerResponse *m_data;
+    mutable responses::IUser *m_user;
+
+    // IServerResponse interface
+public:
+    const IServerResponse &parser() const;
+    const QByteArray &serializer() const;
 };
 

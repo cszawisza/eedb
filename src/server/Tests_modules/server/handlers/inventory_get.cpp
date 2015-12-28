@@ -28,14 +28,14 @@ public:
 
     void addInventory( string name )
     {
-        auto add_inv = pb::MsgInventoryRequest_Add::default_instance();
+        auto add_inv = protobuf::MsgInventoryRequest_Add::default_instance();
         add_inv.set_name( name );
         add_inv.set_description("description");
         add_inventory(add_inv);
     }
 
-    const pb::MsgInventoryResponse_Error add_inventory( const pb::MsgInventoryRequest_Add &msg){
-        pb::ClientRequest req;
+    const protobuf::MsgInventoryResponse_Error add_inventory( const protobuf::MsgInventoryRequest_Add &msg){
+        protobuf::ClientRequest req;
 
         auto userReq = req.mutable_msginventoryreq();
         userReq->mutable_add()->CopyFrom(msg);
@@ -54,7 +54,7 @@ public:
 };
 
 TEST_F(inventoryGetTest, getInventory ){
-    pb::ClientRequest req;
+    protobuf::ClientRequest req;
     auto get = req.mutable_msginventoryreq()->mutable_get();
     get->CopyFrom( MsgInventoryRequest_Get::default_instance() );
 

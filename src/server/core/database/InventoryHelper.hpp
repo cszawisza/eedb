@@ -20,7 +20,7 @@
 
 #include <boost/optional.hpp>
 
-using namespace pb;
+using namespace protobuf;
 using boost::optional;
 
 namespace eedb{

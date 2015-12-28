@@ -9,7 +9,7 @@ public:
    userLoginTest() {
         db.start_transaction();
 
-       pb::UserReq_Add add;
+       protobuf::UserReq_Add add;
        add.mutable_basic()->set_nickname("USER_NAME");
        add.mutable_basic()->set_email("EMAIL@asdfg.asdf");
        add.set_password("secret_pass");
@@ -21,8 +21,8 @@ public:
         db.rollback_transaction(false);
    }
 
-   UserRes_Reply requestAdd( pb::UserReq_Add &msg){
-       pb::ClientRequest req;
+   UserRes_Reply requestAdd( protobuf::UserReq_Add &msg){
+       protobuf::ClientRequest req;
 
        auto userReq = req.mutable_userreq();
        userReq->mutable_add()->CopyFrom(msg);
@@ -32,8 +32,8 @@ public:
        return handler.getLastResponse().userres().code(0);
    }
 
-   UserRes_Reply requestLogin( pb::UserReq_Login &msg){
-       pb::ClientRequest req;
+   UserRes_Reply requestLogin( protobuf::UserReq_Login &msg){
+       protobuf::ClientRequest req;
 
        auto userReq = req.mutable_userreq();
        userReq->mutable_login()->CopyFrom(msg);
@@ -49,7 +49,7 @@ public:
 
 TEST_F(userLoginTest, badCredentials){
     {
-        pb::UserReq_Login login;
+        protobuf::UserReq_Login login;
         login.mutable_cred()->set_nickname("BAD_NAME");
         login.set_password("secret_pass");
 
@@ -60,7 +60,7 @@ TEST_F(userLoginTest, badCredentials){
     }
 
     {
-        pb::UserReq_Login login;
+        protobuf::UserReq_Login login;
         login.mutable_cred()->set_email("BAD_EMAIL");
         login.set_password("secret_pass");
 
@@ -71,7 +71,7 @@ TEST_F(userLoginTest, badCredentials){
     }
 
     {
-        pb::UserReq_Login login;
+        protobuf::UserReq_Login login;
         login.mutable_cred()->set_email("aaa' OR TRUE -- "); // simple sql injection
         login.set_password("aaa\\' OR TRUE -- ");
 
@@ -82,7 +82,7 @@ TEST_F(userLoginTest, badCredentials){
     }
 
     {
-        pb::UserReq_Login login;
+        protobuf::UserReq_Login login;
         login.mutable_cred()->set_email("EMAIL@asdfg.asdf");
         login.set_password("bad_pass");
 
@@ -93,7 +93,7 @@ TEST_F(userLoginTest, badCredentials){
     }
 
     {
-        pb::UserReq_Login login;
+        protobuf::UserReq_Login login;
         login.mutable_cred()->set_nickname("USER_NAME");
         login.set_password("bad_pass");
 
@@ -107,7 +107,7 @@ TEST_F(userLoginTest, badCredentials){
 
 TEST_F(userLoginTest, goodCredentials){
     {
-        pb::UserReq_Login login;
+        protobuf::UserReq_Login login;
         login.mutable_cred()->set_nickname("USER_NAME");
         login.set_password("secret_pass");
 
@@ -118,7 +118,7 @@ TEST_F(userLoginTest, goodCredentials){
     }
 
     {
-        pb::UserReq_Login login;
+        protobuf::UserReq_Login login;
         login.mutable_cred()->set_email("EMAIL@asdfg.asdf");
         login.set_password("secret_pass");
 
@@ -129,7 +129,7 @@ TEST_F(userLoginTest, goodCredentials){
 
 TEST_F(userLoginTest, doubleLogin){
     {
-        pb::UserReq_Login login;
+        protobuf::UserReq_Login login;
         login.mutable_cred()->set_nickname("USER_NAME");
         login.set_password("secret_pass");
 
