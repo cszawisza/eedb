@@ -57,7 +57,7 @@ message UserReq{
   message Get {
     message Where {
       optional bool self = 1; // check only logged user
-      optional int32 uid = 2; // check this user uid
+      optional protobuf.Credentials cred = 2; // check this user uid
 //      optional int32 group = 3; // get all from group
     }
     optional bool uid = 1;

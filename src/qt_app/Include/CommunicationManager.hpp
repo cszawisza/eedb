@@ -3,8 +3,8 @@
 #include <memory>
 #include <ICommunicationManager.hpp>
 
-#include "IRequestSerializer.hpp"
-#include "IResponseSerializer.hpp"
+#include "Interfaces/ClientRequest.hpp"
+#include "Interfaces/ServerResponse.hpp"
 
 #include "ISocket.hpp"
 
@@ -16,9 +16,7 @@ class CommunicationManager : public ICommunicationManager
 {
     Q_OBJECT
 public:
-    CommunicationManager(QSharedPointer<ISocket> p_webSocket,
-                         std::shared_ptr<IRequestsSerializer> p_serializer,
-                         std::shared_ptr<IResponseSerializer> p_deserializer);
+    CommunicationManager(QSharedPointer<ISocket> p_webSocket);
 
     //    void handleRegister(std::string &, std::string &, std::string &,
     //                        std::string &, std::string &, std::string &) ;
@@ -35,7 +33,5 @@ public slots:
 
 private:
     QSharedPointer<ISocket> m_socket;
-    std::shared_ptr<IRequestsSerializer> m_convertProtobufToQByteArray;
-    std::shared_ptr<IResponseSerializer> m_convertQByteArrayToProtobuf;
     //    protobuf::ClientRequest p_clientRequests;
 };

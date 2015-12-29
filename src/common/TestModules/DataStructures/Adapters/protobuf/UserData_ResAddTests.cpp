@@ -6,22 +6,16 @@
 #include <DataStructures/Adapters/Protobuf/ClientRequestAdapter.hpp>
 #include <DataStructures/Adapters/Protobuf/ServerResponseAdapter.hpp>
 
-#include <DataStructures/Adapters/Protobuf/ResponsesSerializer.hpp>
-#include <DataStructures/Adapters/Protobuf/RequestSerializer.hpp>
-
-
 class UserDataAddResTests : public testing::Test{
 protected:
     responses::user::Add sut;
 
     responses::user::Add roundtrip(){
         ServerResponse sr;
-        RequestsSerializer parser;
-        ResponseSerializer serializer;
 
         sr.user()->assign(&sut);
 
-        auto serializedResponse = serializer.serializeServerResponse(&sr);
+        auto serializedResponse = sr.serialize();
 
 //        return parser.parseServerResponse(serializer.serializeServerResponse(&sr));
         return sut;

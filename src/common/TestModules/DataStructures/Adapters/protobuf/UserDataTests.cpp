@@ -59,17 +59,21 @@ TEST(ProtobufUserAdapterTest, getPointerTest ){
 TEST(ProtobufUserAdapterTest, getMessageMethods ){
     User sut = User(  );
 
-//    sut.add()->set_address("adr");
-//    sut.add()->set_email("email");
+    sut.add()->set_address("adr");
+    sut.add()->set_email("email");
 
-//    EXPECT_EQ( sut.get_add().get_address(), "adr" );
-//    EXPECT_EQ( sut.get_add().get_email(), "email" );
+    EXPECT_EQ( sut.get_add().get_address(), "adr" );
+    EXPECT_EQ( sut.get_add().get_email(), "email" );
+    sut.clear_add();
 
     sut.get()->request_acl();
     sut.get()->request_avatar();
     EXPECT_TRUE( sut.get_get().has_requestedAcl() );
     EXPECT_TRUE( sut.get_get().has_requestedAvatar());
+    sut.clear_get();
 
-//    sut.login()->set_password("pass");
-//    EXPECT_EQ( sut.get_login().get_password(), "pass");
+    sut.login()->set_password("pass");
+    sut.login()->credentials()->set_authorization("my_nickname");
+    EXPECT_EQ( sut.get_login().get_password(), "pass");
+    EXPECT_EQ( sut.get_login().get_credentials().is_authorized_by_nickname(), true);
 }

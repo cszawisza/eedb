@@ -24,6 +24,6 @@ public:
     MOCK_CONST_METHOD0_T(has_requestedAcl, bool ());
     MOCK_METHOD1_T(request_Acl, void (bool));
 
-    MOCK_METHOD1_T(set_requestCriterion, void (ICriterion));
+    MOCK_METHOD1_T(assign, void (ICriterion));
     MOCK_CONST_METHOD0_T(get_criteria, const ICriterion());
 };

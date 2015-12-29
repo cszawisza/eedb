@@ -2,6 +2,8 @@
 
 #include "../../Interfaces/ClientRequest.hpp"
 
+#include <memory>
+
 namespace protobuf{
     class ClientRequest;
 }
@@ -30,5 +32,10 @@ private:
     protobuf::ClientRequest *m_data;
     bool m_takeOvnership = false;
     mutable requests::User *m_userreq;
+
+    // IClientRequest interface
+public:
+    void parse(const QByteArray &data);
+    QByteArray serialize() const;
 };
 

@@ -11,9 +11,6 @@ set( PB
     AclAdapter.cpp
     ClientRequestAdapter.cpp
 
-    RequestSerializer.cpp
-    ResponsesSerializer.cpp
-
     ServerResponseAdapter.cpp
     CommonDataStructuresAdapter.cpp
 )

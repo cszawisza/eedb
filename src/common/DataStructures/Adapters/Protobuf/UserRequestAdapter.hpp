@@ -8,6 +8,7 @@ namespace protobuf{
     class UserReq_Login;
     class UserReq_Add;
     class UserReq_Get;
+    class UserReq_Get_Where;
 }
 
 class ProtobufAclAdapter;
@@ -18,8 +19,24 @@ namespace user{
 
 class ICriterion;
 
-class ProtobufCriterionAdapter: public requests::user::ICriterion
+class Criterion: public requests::user::ICriterion
 {
+public:
+    Criterion();
+    Criterion(protobuf::UserReq_Get_Where *msg);
+    ~Criterion();
+    void require_data_own(bool self);
+    void require_data_of_user(const IAuthorizationData &id);
+
+    bool has_requested_own_data() const;
+    bool has_requested_foreign_uid() const;
+    UID get_foreign_uid() const;
+
+    protobuf::UserReq_Get_Where *detachData();
+private:
+    Criterion(protobuf::UserReq_Get_Where *msg, bool take);
+    bool m_takeOwnership;
+    protobuf::UserReq_Get_Where *m_data;
 };
 
 class Add: public requests::user::IAdd
@@ -98,6 +115,7 @@ public:
     ~Login();
 
     IAuthorizationData* credentials() override;
+    const IAuthorizationData& get_credentials() const override;
     void assign_credentials( IAuthorizationData* cred ) override;
     bool has_credentials() const override;
 
@@ -141,13 +159,14 @@ public:
     void request_acl(bool request = true ) override;
 
     requests::user::ICriterion *criteria() override;
-    void set_requestCriterion(ICriterion*) override;
-    const ICriterion& getCriteria() const override;
+    void assign(ICriterion*crit) override;
+    const ICriterion& get_criteria() const override;
 
     protobuf::UserReq_Get *detachData();
 private:
     protobuf::UserReq_Get * m_data;
     bool m_takeOvnership = false;
+    mutable user::Criterion *m_crit;
 };
 
 }

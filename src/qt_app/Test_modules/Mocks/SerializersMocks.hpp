@@ -1,11 +1,13 @@
 #pragma once
 
 #include <gmock/gmock.h>
-#include "DataStructures/IResponseSerializer.hpp"
-#include "DataStructures/IRequestSerializer.hpp"
 
 
-class IRequestSerializerMock : public IRequestsSerializer{
+#include "Interfaces/ClientRequest.hpp"
+#include "Interfaces/ServerResponse.hpp"
+
+
+class IRequestSerializerMock : public IClientRequest{
 public:
     MOCK_CONST_METHOD1_T(serializeClientRequest, QByteArray (IClientRequest *));
     MOCK_CONST_METHOD2_T(serializeClientRequest, void (IClientRequest *, QByteArray&));
@@ -14,7 +16,7 @@ public:
     MOCK_CONST_METHOD2_T(parseServerResponse, void (const QByteArray &, IServerResponse*));
 };
 
-class IResponseSerializerMock : public IResponseSerializer{
+class IResponseSerializerMock : public IServerResponse{
 public:
     MOCK_CONST_METHOD1_T(serializeServerResponse, QByteArray (IServerResponse *));
     MOCK_CONST_METHOD2_T(serializeServerResponse, void (IServerResponse *, QByteArray&));

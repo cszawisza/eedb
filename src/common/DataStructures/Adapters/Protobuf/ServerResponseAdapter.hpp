@@ -34,9 +34,10 @@ private:
     protobuf::ServerResponse *m_data;
     mutable responses::IUser *m_user;
 
+
     // IServerResponse interface
 public:
-    const IServerResponse &parser() const;
-    const QByteArray &serializer() const;
+    void parse(const QByteArray &data);
+    QByteArray serialize() const;
 };
 

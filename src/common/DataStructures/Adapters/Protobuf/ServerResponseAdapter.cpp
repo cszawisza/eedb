@@ -18,6 +18,8 @@ ServerResponse::~ServerResponse()
 {
     if(m_takeOvnership)
         delete m_data;
+    if(m_user)
+        delete m_user;
 }
 
 void ServerResponse::set_response_id(uint64_t id)
@@ -38,8 +40,9 @@ void ServerResponse::set_response_code(int code)
 responses::IUser *ServerResponse::user()
 {
     if(!m_user)
-        m_user = new responses::User();
-    m_user->operator=(responses::User(m_data->mutable_userres()));
+        m_user = new responses::User(m_data->mutable_userres());
+    else
+        m_user->operator=(responses::User(m_data->mutable_userres()));
     return m_user;
 }
 
@@ -64,11 +67,17 @@ protobuf::ServerResponse *ServerResponse::rawPointer() const
     return m_data;
 }
 
-
-const IServerResponse &ServerResponse::parser() const
+void ServerResponse::parse(const QByteArray &data)
 {
+    m_data->ParseFromArray(data.data(),data.size());
 }
 
-const QByteArray &ServerResponse::serializer() const
+QByteArray ServerResponse::serialize() const
 {
+    int size = m_data->ByteSize();
+
+    QByteArray ba;
+    ba.resize(size);
+    m_data->SerializePartialToArray(ba.data(), size);
+    return ba;
 }

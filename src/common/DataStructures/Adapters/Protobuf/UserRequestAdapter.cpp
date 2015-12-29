@@ -13,12 +13,12 @@ namespace requests {
 namespace user{
 
 Add::Add():
-    m_data(new protobuf::UserReq_Add()), take_ovnership(true), m_adp( new ProtobufAclAdapter() )
+    m_data(new protobuf::UserReq_Add()), take_ovnership(true), m_adp( nullptr )
 {
 }
 
 Add::Add(protobuf::UserReq_Add *msg):
-    m_data(msg), m_adp( new ProtobufAclAdapter() )
+    m_data(msg), m_adp( nullptr )
 {
 }
 
@@ -26,9 +26,9 @@ Add::~Add()
 {
     if(take_ovnership){
         delete m_data;
-        if(m_adp)
-            delete m_adp;
     }
+    if(m_adp)
+        delete m_adp;
 }
 
 UID Add::get_id() const
@@ -276,9 +276,9 @@ Login::~Login()
 {
     if(m_takeOvnership){
         delete m_data;
-        if(m_auth)
-            delete m_auth;
     }
+    if(m_auth)
+        delete m_auth;
 }
 
 IAuthorizationData* Login::credentials()
@@ -288,6 +288,14 @@ IAuthorizationData* Login::credentials()
     else
         m_auth->operator=(ProtobufAuthorizationDataAdapter( m_data->mutable_cred() ));
     return m_auth;
+}
+
+const IAuthorizationData &Login::get_credentials() const
+{
+    if(!m_auth)
+        m_auth = new ProtobufAuthorizationDataAdapter( );
+    m_auth->operator=(ProtobufAuthorizationDataAdapter( const_cast<protobuf::Credentials*>(&m_data->cred())));
+    return *m_auth;
 }
 
 void Login::assign_credentials(IAuthorizationData* cred)
@@ -329,14 +337,16 @@ protobuf::UserReq_Login *Login::detachData()
 
 Get::Get():
     m_data( new protobuf::UserReq_Get(protobuf::UserReq_Get::default_instance() ) ),
-    m_takeOvnership(true)
+    m_takeOvnership(true),
+    m_crit(nullptr)
 {
 
 }
 
 Get::Get(protobuf::UserReq_Get *get):
     m_data( get ),
-    m_takeOvnership(false)
+    m_takeOvnership(false),
+    m_crit(nullptr)
 {
 
 }
@@ -345,6 +355,8 @@ Get::~Get()
 {
     if(m_takeOvnership)
         delete m_data;
+    if(m_crit)
+        delete m_crit;
 }
 
 bool Get::has_requestedUid() const
@@ -427,17 +439,25 @@ void Get::request_acl(bool request)
 
 requests::user::ICriterion *Get::criteria()
 {
-    ///FIXME
+    if(!m_crit)
+        m_crit = new user::Criterion(m_data->mutable_where());
+    else
+        m_crit->operator =(user::Criterion(m_data->mutable_where()));
+    return m_crit;
 }
 
-void Get::set_requestCriterion(ICriterion *)
+void Get::assign(ICriterion *crit)
 {
-    ///FIXME
+    m_data->set_allocated_where(dynamic_cast<user::Criterion*>(crit)->detachData() );
+    delete crit;
 }
 
-const ICriterion &Get::getCriteria() const
+const ICriterion &Get::get_criteria() const
 {
-    ///FIXME
+    if(!m_crit)
+        m_crit = new user::Criterion( );
+    m_crit->operator =(user::Criterion(const_cast<protobuf::UserReq_Get_Where*>(&m_data->where())));
+    return *m_crit;
 }
 
 protobuf::UserReq_Get *Get::detachData()
@@ -469,7 +489,7 @@ User::User():
 }
 
 User::User(protobuf::UserReq *req):
-    m_data(req), m_add(nullptr), m_login(nullptr), m_get(nullptr)
+    m_data(req), m_takeOvnership(false), m_add(nullptr), m_login(nullptr), m_get(nullptr)
 {
 }
 
@@ -477,14 +497,13 @@ User::~User()
 {
     if(m_takeOvnership){
         delete m_data;
-
-        if(m_add)
-            delete m_add;
-        if(m_get)
-            delete m_get;
-        if(m_login)
-            delete m_login;
     }
+    if(m_add)
+        delete m_add;
+    if(m_get)
+        delete m_get;
+    if(m_login)
+        delete m_login;
 }
 
 bool User::has_add() const
@@ -508,26 +527,27 @@ requests::user::ILogin* User::login()
 
 const user::ILogin &User::get_login() const
 {
-    ///FIXME
+    if( !m_login )
+        m_login = new user::Login();
+    else
+        m_login->operator=(user::Login( const_cast<protobuf::UserReq_Login*>(&m_data->login())));
+    return *m_login;
 }
 
 void User::assign(requests::user::IAdd* add)
 {
-    ///TODO check if dynamic cast failed, copy data if so
     m_data->set_allocated_add( dynamic_cast<user::Add*>(add)->detachData() );
     delete add;
 }
 
 void User::assign(requests::user::ILogin* login)
 {
-    ///TODO check if dynamic cast failed, copy data if so
     m_data->set_allocated_login( dynamic_cast<user::Login*>(login)->detachData() );
     delete login;
 }
 
 void User::assign(requests::user::IGet* get)
 {
-    ///TODO check if dynamic cast failed, copy data if so
     m_data->set_allocated_get( dynamic_cast<user::Get*>(get)->detachData() );
     delete get;
 }
@@ -574,4 +594,64 @@ protobuf::UserReq *User::detachData()
     return m_data;
 }
 
+}
+
+
+requests::user::Criterion::Criterion():
+    Criterion(new protobuf::UserReq_Get_Where(protobuf::UserReq_Get_Where::default_instance()), true)
+{
+
+}
+
+requests::user::Criterion::Criterion(protobuf::UserReq_Get_Where *msg):
+    Criterion(msg,false)
+{
+
+}
+
+requests::user::Criterion::~Criterion()
+{
+    if(m_takeOwnership)
+        delete m_data;
+}
+
+void requests::user::Criterion::require_data_own(bool self)
+{
+    m_data->set_self(true);
+}
+
+void requests::user::Criterion::require_data_of_user(const IAuthorizationData &id)
+{
+    if(id.is_authorized_by_email())
+        m_data->mutable_cred()->set_email(id.get_email());
+    else if(id.is_authorized_by_id())
+        m_data->mutable_cred()->set_id(id.get_uid());
+    else
+        m_data->mutable_cred()->set_nickname(id.get_nickname());
+}
+
+requests::user::Criterion::Criterion(protobuf::UserReq_Get_Where *msg, bool take):
+    m_data(msg), m_takeOwnership(take)
+{
+}
+
+bool requests::user::Criterion::has_requested_own_data() const
+{
+    return m_data->has_self() && m_data->self();
+}
+
+bool requests::user::Criterion::has_requested_foreign_uid() const
+{
+    return m_data->has_cred() && m_data->cred().has_id();
+}
+
+UID requests::user::Criterion::get_foreign_uid() const
+{
+    return m_data->cred().id();
+}
+
+protobuf::UserReq_Get_Where *requests::user::Criterion::detachData()
+{
+    m_takeOwnership = false;
+    return m_data;
 }

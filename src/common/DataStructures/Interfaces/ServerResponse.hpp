@@ -10,8 +10,8 @@ class IServerResponse{
 public:
     virtual ~IServerResponse() = default;
 
-    virtual const IServerResponse &parser() const = 0;
-    virtual const QByteArray &serializer() const = 0;
+    virtual void parse(const QByteArray &data) = 0;
+    virtual QByteArray serialize() const = 0;
 
     virtual void set_response_id( UID id ) = 0;
     virtual void set_in_response_to( UID id) = 0;

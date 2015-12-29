@@ -11,8 +11,8 @@ class IClientRequest{
 public:
     virtual ~IClientRequest() = default;
 
-    virtual const IRequestParser &parser() const = 0;
-    virtual const QByteArray &serializer() const = 0;
+    virtual void parse(const QByteArray &data) = 0;
+    virtual QByteArray serialize() const = 0;
 
     virtual int get_requestId() const = 0;
 

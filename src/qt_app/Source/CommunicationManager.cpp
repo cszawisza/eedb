@@ -34,20 +34,17 @@ void handleConvertedServerResponse(const auto p_serverResponse)
 
 } // namespace anonymous
 
-CommunicationManager::CommunicationManager(QSharedPointer<ISocket> p_webSocket,
-                                           std::shared_ptr<IRequestsSerializer> p_serializer,
-                                           std::shared_ptr<IResponseSerializer> p_deserializer)
-    : m_socket(p_webSocket),
-      m_convertProtobufToQByteArray(p_serializer),
-      m_convertQByteArrayToProtobuf(p_deserializer)
+CommunicationManager::CommunicationManager(QSharedPointer<ISocket> p_webSocket)
+    : m_socket(p_webSocket)
 {
     auto socket = m_socket.data();
 
     QObject::connect(socket, &ISocket::binaryMessageReceived, [=](const QByteArray & p_serverResponse)
     {
         qDebug() << "Binary message recceived";
-        auto l_serverResponseArray = m_convertQByteArrayToProtobuf->parseFromByteArray(p_serverResponse);
-        if (l_serverResponseArray)
+//        auto l_serverResponseArray = m_convertQByteArrayToProtobuf->parseFromByteArray(p_serverResponse);
+//        if (l_serverResponseArray)
+        if(true)
         {
             ///FIXME
 //            handleConvertedServerResponse(l_serverResponseArray.get());

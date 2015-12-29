@@ -42,8 +42,9 @@ requests::IUser* ClientRequest::user()
 const IUser &ClientRequest::get_user() const
 {
     if(!m_userreq)
-        m_userreq = new User();
-    m_userreq->operator=( User(const_cast<protobuf::UserReq*>(&m_data->userreq())));
+        m_userreq = new User(const_cast<protobuf::UserReq*>(&m_data->userreq()));
+    else
+        m_userreq->operator=( User(const_cast<protobuf::UserReq*>(&m_data->userreq())));
     return *m_userreq;
 }
 
@@ -69,10 +70,15 @@ protobuf::ClientRequest *ClientRequest::rawPointer() const
 }
 
 
-const IRequestParser &ClientRequest::parser() const
+void ClientRequest::parse(const QByteArray &data)
 {
+    m_data->ParseFromArray(data.data(), data.size());
 }
 
-const QByteArray &ClientRequest::serializer() const
+QByteArray ClientRequest::serialize() const
 {
+    QByteArray ba;
+    ba.resize(m_data->ByteSize());
+    m_data->SerializePartialToArray(ba.data(), ba.size());
+    return ba;
 }

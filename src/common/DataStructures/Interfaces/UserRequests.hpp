@@ -7,9 +7,15 @@ class IAcl;
 namespace requests{
 namespace user{
 
-struct ICriterion{
+class ICriterion{
+public:
+    virtual ~ICriterion() = default;
     virtual void require_data_own( bool self = true ) = 0;
     virtual void require_data_of_user(const IAuthorizationData &) = 0;
+
+    virtual bool has_requested_own_data() const = 0;
+    virtual bool has_requested_foreign_uid() const = 0;
+    virtual UID get_foreign_uid() const = 0;
 };
 
 class IAdd{
@@ -75,6 +81,7 @@ public:
     virtual ~ILogin() = default;
 
     virtual IAuthorizationData* credentials() = 0;
+    virtual const IAuthorizationData& get_credentials() const = 0;
     virtual void assign_credentials( IAuthorizationData* cred ) = 0;
     virtual bool has_credentials() const = 0;
 
@@ -121,8 +128,8 @@ public:
     virtual void request_acl( bool request = true ) = 0;
 
     virtual ICriterion *criteria() = 0;
-    virtual const ICriterion &getCriteria() const = 0;
-    virtual void set_requestCriterion( ICriterion * ) = 0;
+    virtual const ICriterion &get_criteria() const = 0;
+    virtual void assign( ICriterion * ) = 0;
 };
 
 }
