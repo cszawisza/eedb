@@ -2,6 +2,7 @@
 
 namespace requests{
     class IUser;
+    class ICategory;
 }
 
 class QByteArray;
@@ -17,8 +18,14 @@ public:
     virtual int get_requestId() const = 0;
 
     virtual requests::IUser* user() =0;
-    virtual void assign_user( requests::IUser* ) = 0;
+    virtual void assign( requests::IUser* ) = 0;
     virtual const requests::IUser& get_user() const = 0;
     virtual bool has_user() const = 0;
     virtual void clear_user() = 0;
+
+    virtual requests::ICategory* category() =0;
+    virtual void assign( requests::ICategory* ) = 0;
+    virtual const requests::ICategory& get_category() const = 0;
+    virtual bool has_category() const = 0;
+    virtual void clear_category() = 0;
 };

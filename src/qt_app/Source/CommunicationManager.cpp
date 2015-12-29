@@ -34,8 +34,12 @@ void handleConvertedServerResponse(const auto p_serverResponse)
 
 } // namespace anonymous
 
-CommunicationManager::CommunicationManager(QSharedPointer<ISocket> p_webSocket)
-    : m_socket(p_webSocket)
+CommunicationManager::CommunicationManager(QSharedPointer<ISocket> p_webSocket,
+                                           std::shared_ptr<IClientRequest> p_req,
+                                           std::shared_ptr<IServerResponse> p_res)
+    : m_socket(p_webSocket),
+      m_req(p_req),
+      m_res(p_res)
 {
     auto socket = m_socket.data();
 

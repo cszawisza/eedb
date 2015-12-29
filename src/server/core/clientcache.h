@@ -30,16 +30,12 @@ public:
             return 0;
     }
 
-//    protobuf::UserBasic *mutable_basic(){
-//        return &m_basicData;
-//    }
-
-//    protobuf::Acl *mutable_acl(){
-//        return &m_stat;
-//    }
+    int uid() const;
+    void setUid(int uid);
 
 private:
     Status m_status;
+    int m_uid;
 //    protobuf::UserBasic m_basicData;
 //    protobuf::Acl m_stat;
 };

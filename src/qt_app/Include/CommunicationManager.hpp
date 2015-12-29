@@ -11,15 +11,14 @@
 class QByteArray;
 class Url;
 
-
 class CommunicationManager : public ICommunicationManager
 {
     Q_OBJECT
 public:
-    CommunicationManager(QSharedPointer<ISocket> p_webSocket);
+    CommunicationManager(QSharedPointer<ISocket> p_webSocket,
+                         std::shared_ptr<IClientRequest> p_req,
+                         std::shared_ptr<IServerResponse> p_res);
 
-    //    void handleRegister(std::string &, std::string &, std::string &,
-    //                        std::string &, std::string &, std::string &) ;
     ~CommunicationManager(){}
 
     //    protobuf::ClientRequest *newRequest(uint64_t &request_id ) override;
@@ -33,5 +32,7 @@ public slots:
 
 private:
     QSharedPointer<ISocket> m_socket;
-    //    protobuf::ClientRequest p_clientRequests;
+
+    std::shared_ptr<IClientRequest> m_req;
+    std::shared_ptr<IServerResponse> m_res;
 };

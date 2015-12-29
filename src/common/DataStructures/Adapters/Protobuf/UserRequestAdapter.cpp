@@ -13,12 +13,12 @@ namespace requests {
 namespace user{
 
 Add::Add():
-    m_data(new protobuf::UserReq_Add()), take_ovnership(true), m_adp( nullptr )
+    m_data(new protobuf::UserReq_Add()), take_ovnership(true)
 {
 }
 
 Add::Add(protobuf::UserReq_Add *msg):
-    m_data(msg), m_adp( nullptr )
+    m_data(msg)
 {
 }
 
@@ -27,8 +27,8 @@ Add::~Add()
     if(take_ovnership){
         delete m_data;
     }
-    if(m_adp)
-        delete m_adp;
+//    if(m_adp)
+//        delete m_adp;
 }
 
 UID Add::get_id() const
@@ -176,36 +176,36 @@ void Add::clear_avatar()
     m_data->mutable_basic()->clear_avatar();
 }
 
-IAcl *Add::acl()
-{
-    if( !m_adp )
-        m_adp = new ProtobufAclAdapter(m_data->mutable_acl());
-    else
-        m_adp->operator=(ProtobufAclAdapter(m_data->mutable_acl()));
-    return m_adp;
-}
+//IAcl *Add::acl()
+//{
+//    if( !m_adp )
+//        m_adp = new ProtobufAclAdapter(m_data->mutable_acl());
+//    else
+//        m_adp->operator=(ProtobufAclAdapter(m_data->mutable_acl()));
+//    return m_adp;
+//}
 
-const IAcl &Add::get_acl() const
-{
-    m_adp->operator=( ProtobufAclAdapter(const_cast<protobuf::Acl*>(&m_data->acl())));
-    return *m_adp;
-}
+//const IAcl &Add::get_acl() const
+//{
+//    m_adp->operator=( ProtobufAclAdapter(const_cast<protobuf::Acl*>(&m_data->acl())));
+//    return *m_adp;
+//}
 
-void Add::assign_acl( IAcl *acl)
-{
-    m_data->set_allocated_acl( dynamic_cast<ProtobufAclAdapter*>(acl)->detachData() );
-    delete acl;
-}
+//void Add::assign_acl( IAcl *acl)
+//{
+//    m_data->set_allocated_acl( dynamic_cast<ProtobufAclAdapter*>(acl)->detachData() );
+//    delete acl;
+//}
 
-bool Add::has_acl() const
-{
-    return m_data->has_acl();
-}
+//bool Add::has_acl() const
+//{
+//    return m_data->has_acl();
+//}
 
-void Add::clear_acl()
-{
-    m_data->clear_acl();
-}
+//void Add::clear_acl()
+//{
+//    m_data->clear_acl();
+//}
 
 String *Add::address()
 {

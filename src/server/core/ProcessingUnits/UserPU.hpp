@@ -28,8 +28,8 @@ public:
     void process( DB &db, IClientRequest *msgReq ) override;
 
 private:
-    void handle_add         (DB &db, requests::user::IAdd &msg    );
-    void handle_login       (DB &db, std::shared_ptr<requests::user::ILogin> loginMsg  );
+    void handle_add         (DB &db, const requests::user::IAdd &msg    );
+    void handle_login       (DB &db, const requests::user::ILogin &loginMsg  );
 //    void handle_logout      (DB &db, const protobuf::UserReq_Logout &logoutMsg );
 //    void handle_modify      (DB &db, const protobuf::UserReq_Modify &msg );
 //    void handle_remove      (DB &db, const protobuf::UserReq_Remove &delateMsg );
@@ -38,10 +38,10 @@ private:
 
 
     void addUser(DB &db, const requests::user::IAdd &msg );
-//    void goToOnlineState(DB &db, uint64_t uid);
-//    bool userExists(DB &db, string name, string email );
+    void goToOnlineState(DB &db, uint64_t uid);
+    bool userExists(DB &db, const string &name, const string &email );
 //    void addErrorCode(protobuf::UserRes_Reply err);
-//    void loadUserCache(DB &db, uint64_t uid);
+    void loadUserCache(DB &db, uint64_t uid);
 //    void addResponseMessage();
 
 //    protobuf::UserRes m_response;

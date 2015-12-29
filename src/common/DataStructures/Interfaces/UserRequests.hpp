@@ -57,11 +57,11 @@ public:
     virtual bool has_avatar() const = 0;
     virtual void clear_avatar() = 0;
 
-    virtual IAcl* acl() =0;
-    virtual const IAcl& get_acl() const = 0;
-    virtual void assign_acl( IAcl* ) = 0;
-    virtual bool has_acl() const = 0;
-    virtual void clear_acl() = 0;
+//    virtual IAcl* acl() =0;
+//    virtual const IAcl& get_acl() const = 0;
+//    virtual void assign_acl( IAcl* ) = 0;
+//    virtual bool has_acl() const = 0;
+//    virtual void clear_acl() = 0;
 
     virtual String* address() = 0;
     virtual const String& get_address() const = 0;

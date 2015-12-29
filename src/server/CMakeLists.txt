@@ -34,7 +34,7 @@ set(Core_CPP
     core/iprocessor.cpp
     core/server.cpp
 
-#    core/ProcessingUnits/CategoryPU.cpp
+    core/ProcessingUnits/CategoryPU.cpp
 #    core/ProcessingUnits/ItemPU.cpp
     core/ProcessingUnits/UserPU.cpp
 #    core/ProcessingUnits/InventoryPU.cpp

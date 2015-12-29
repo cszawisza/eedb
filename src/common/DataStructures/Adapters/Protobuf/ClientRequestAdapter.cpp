@@ -48,7 +48,7 @@ const IUser &ClientRequest::get_user() const
     return *m_userreq;
 }
 
-void ClientRequest::assign_user(requests::IUser *ur)
+void ClientRequest::assign(requests::IUser *ur)
 {
     m_data->set_allocated_userreq( dynamic_cast<User*>(ur)->detachData() );
     delete ur;
@@ -81,4 +81,26 @@ QByteArray ClientRequest::serialize() const
     ba.resize(m_data->ByteSize());
     m_data->SerializePartialToArray(ba.data(), ba.size());
     return ba;
+}
+
+
+ICategory *ClientRequest::category()
+{
+}
+
+const ICategory &ClientRequest::get_category() const
+{
+}
+
+void ClientRequest::assign(ICategory *ur)
+{
+
+}
+
+bool ClientRequest::has_category() const
+{
+}
+
+void ClientRequest::clear_category()
+{
 }

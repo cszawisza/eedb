@@ -3,6 +3,12 @@
 #include "iprocessor.h"
 
 class DB;
+namespace requests{
+namespace category{
+class IAdd;
+class IGet;
+}
+}
 
 namespace eedb {
 namespace pu {
@@ -20,8 +26,8 @@ public:
 
 private:
 
-//    void handle_add(DB &db, pb::CategoryReq_Add &msg);
-//    void handle_get(DB &db, pb::CategoryReq_Get &msg);
+    void handle_add(DB &db, const requests::category::IAdd &msg);
+    void handle_get(DB &db, const requests::category::IGet &msg);
 };
 
 }

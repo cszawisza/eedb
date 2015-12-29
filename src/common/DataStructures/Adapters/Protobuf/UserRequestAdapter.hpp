@@ -81,11 +81,11 @@ public:
     bool has_avatar() const override;
     void clear_avatar() override;
 
-    IAcl* acl() override;
-    const IAcl &get_acl() const override;
-    void assign_acl(IAcl *acl) override;
-    bool has_acl() const override;
-    void clear_acl() override;
+//    IAcl* acl() override;
+//    const IAcl &get_acl() const override;
+//    void assign_acl(IAcl *acl) override;
+//    bool has_acl() const override;
+//    void clear_acl() override;
 
     String *address() override;
     const String &get_address() const override;
@@ -103,7 +103,7 @@ public:
 private:
     protobuf::UserReq_Add *m_data;
     bool take_ovnership = false;
-    mutable ProtobufAclAdapter *m_adp;
+//    mutable ProtobufAclAdapter *m_adp;
 };
 
 class Login: public requests::user::ILogin

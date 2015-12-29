@@ -47,13 +47,13 @@ void UserPU::process(DB &db, IClientRequest *msgReq)
         if ( req->has_add() )
             handle_add(db, req->get_add() );
         else if( req->has_login() )
-            handle_login(db, req->login() );
+            handle_login(db, req->get_login() );
     }
     else{
         if ( req->has_add() )
-            handle_add(db, req->add() );
+            handle_add(db, req->get_add() );
         else if( req->has_login() )
-            handle_login(db, req->login() );
+            handle_login(db, req->get_login() );
 //        else if( )
 ////        UserReq::ActionCase msgType = req.action_case();
 //        switch ( msgType ) {
@@ -107,15 +107,17 @@ void UserPU::addUser(DB &db, const IAdd &msg)
 //    m_response.add_code(err);
 //}
 
-//void UserPU::loadUserCache(DB &db, uint64_t uid)
-//{
+void UserPU::loadUserCache(DB &db, uint64_t uid)
+{
 //    constexpr users u;
-////    constexpr inventories i;
-////    constexpr user_inventories ui;
+//    constexpr inventories i;
+//    constexpr user_inventories ui;
 
 //    auto udAll = db( uh::selectAll( u.uid == uid ) );
 //    const auto &ud = udAll.front();
+///NOTE do i really need stored user information? UID only is not enougt?
 
+    user()->setUid(uid);
 //    auto basic = user()->mutable_basic();
 //    auto stat   = user()->mutable_acl();
 
@@ -129,38 +131,34 @@ void UserPU::addUser(DB &db, const IAdd &msg)
 //    stat->set_status( ud.status );
 //    stat->set_unixperms( ud.unixperms );
 
-//    ///TODO get config
+    ///TODO get config
 
-////    auto userInventories = db(select(s.uid, s.owner, s.stat_group, s.unixperms, s.status, s.name )
-////                           .from(s.inner_join(us)
-////                                 .on(us.c_storage_id == s.uid) )
-////                           .where(us.user_id == uid ));
+//    auto userInventories = db(select(s.uid, s.owner, s.stat_group, s.unixperms, s.status, s.name )
+//                           .from(s.inner_join(us)
+//                                 .on(us.c_storage_id == s.uid) )
+//                           .where(us.user_id == uid ));
 
-//}
+}
 
 //void UserPU::addResponseMessage()
 //{
 //    add_response()->mutable_userres()->CopyFrom(m_response);
 //}
 
-void UserPU::handle_add(DB &db, IAdd &msg)
+void UserPU::handle_add(DB &db,const IAdd &msg)
 {
     bool error = false;
 
     requests::UserAddValidator validator;
-//    mailREX.setCaseSensitivity(Qt::CaseInsensitive);
-//    mailREX.setPatternSyntax(QRegExp::RegExp);
-//    const auto &basic = msg.basic();
-//    const auto &det = msg.details();
 
-    if( !validator.hasRequiredFields( *msg ) ){
+    if( !validator.hasRequiredFields( msg ) ){
         ///FIXME
-//        addErrorCode( UserRes_Reply_MissingRequiredField);
+        //        addErrorCode( UserRes_Reply_MissingRequiredField);
         error = true;
         return;
     }
 
-    if( !validator.isValid( *msg ) ){
+    if( !validator.isValid( msg ) ){
         error = true;
         return;
     }
@@ -169,35 +167,38 @@ void UserPU::handle_add(DB &db, IAdd &msg)
         auth::AccesControl stat(user()->id());
 
         if(stat.checkUserAction<users>("create"))
-            addUser(db, *msg);
-//        else{
-//            sendServerError(protobuf::Error_AccesDeny);
-//        }
+            addUser(db, msg);
+        ///FIXME
+        //        else{
+        //            sendServerError(protobuf::Error_AccesDeny);
+        //        }
     }
     else{
-//        if( userExists( db, basic.nickname(), basic.email() ) )
-//            addErrorCode(UserRes_Reply_UserAlreadyExists );
-//        else
-//        {
-//            if(msg.has_acl())
-//                msg.clear_acl(); // force default values
-
-//            addUser(db, msg);
-//        }
+        if( userExists( db, msg.get_nickname(), msg.get_email() ) ){
+            ///FIXME
+            //            addErrorCode(UserRes_Reply_UserAlreadyExists );
+        }
+        else
+        {
+            //            if(msg.has_acl())
+            //                msg.clear_acl(); // force default values
+            addUser(db, msg);
+        }
     }
 }
 
-//void UserPU::goToOnlineState(DB &db, uint64_t uid)
-//{
-//    saveUserActionInDatabase(db, uid, "login");
+void UserPU::goToOnlineState(DB &db, uint64_t uid)
+{
+    saveUserActionInDatabase(db, uid, "login");
+    ///FIXME
 //    addErrorCode(UserRes_Reply_LoginPass);
 
-//    user()->goOnline();
+    user()->goOnline();
 
-//    loadUserCache(db, uid);
-//}
+    loadUserCache(db, uid);
+}
 
-void UserPU::handle_login(DB &db, std::shared_ptr<requests::user::ILogin> loginMsg)
+void UserPU::handle_login(DB &db, const ILogin &loginMsg)
 {
     if(user()->isOnline()){
         ///FIXME
@@ -205,39 +206,48 @@ void UserPU::handle_login(DB &db, std::shared_ptr<requests::user::ILogin> loginM
     }
     else
     {
+        Q_ASSERT(loginMsg.has_credentials());
+        Q_ASSERT(loginMsg.has_password());
+
         constexpr users u;
 
         auto prep = db.prepare(uh::selectCredentials(u.name == parameter(u.name) or
                                                      u.uid == parameter(u.uid) or
                                                      u.email == parameter(u.email) ) );
         auto &param = prep.params;
-///FIXME
-//        if( loginMsg->has_credentials() )
-//            param.name = loginMsg.cred().nickname();
-//        else if( loginMsg.cred().has_email() )
-//            param.email = loginMsg.cred().email();
-//        else
-//            param.uid = loginMsg.cred().id();
+
+
+        const auto &cred = loginMsg.get_credentials();
+
+        if(cred.is_authorized_by_nickname())
+            param.name = cred.get_nickname();
+        else if( cred.is_authorized_by_email() )
+            param.email = cred.get_email();
+        else
+            param.uid = cred.get_uid();
+
 
         auto queryRes = db(prep);
 
-//        if ( queryRes.empty() ){
+        if ( queryRes.empty() ){
+            ///FIXME
 //            addErrorCode(UserRes_Reply_UserDontExist );
-//        }
-//        else{
-//            const auto &row = queryRes.front();
+        }
+        else{
+            const auto &row = queryRes.front();
 
-//            string salt = row.salt;
-//            string hash = row.password;
-//            string hashed_pass = PasswordHash::hashPassword( loginMsg.password(), salt );
+            string salt = row.salt;
+            string hash = row.password;
+            string hashed_pass = PasswordHash::hashPassword( loginMsg.get_password(), salt );
 
-//            if( hashed_pass == hash )
-//                goToOnlineState(db, row.uid );
-//            else{
-//                saveUserActionInDatabase(db, row.uid , "wrong password");
+            if( hashed_pass == hash )
+                goToOnlineState(db, row.uid );
+            else{
+                saveUserActionInDatabase(db, row.uid , "wrong password");
+                ///FIXME
 //                addErrorCode(UserRes_Reply_LoginDeny );
-//            }
-//        }
+            }
+        }
     }
 }
 
@@ -307,15 +317,15 @@ void UserPU::handle_login(DB &db, std::shared_ptr<requests::user::ILogin> loginM
 //    //    }
 //}
 
-//bool UserPU::userExists(DB &db, string name, string email)
-//{
-//    auto query = db.prepare(uh::selectExists(u.name == parameter(u.name) || u.email == parameter(u.email)));
+bool UserPU::userExists(DB &db, const string &name, const string &email )
+{
+    auto query = db.prepare(uh::selectExists(u.name == parameter(u.name) || u.email == parameter(u.email)));
 
-//    query.params.name = name;
-//    query.params.email = email;
+    query.params.name = name;
+    query.params.email = email;
 
-//    return db(query).front().exists;
-//}
+    return db(query).front().exists;
+}
 
 }
 }

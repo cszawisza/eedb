@@ -36,7 +36,7 @@ TEST_F( ProtobufSerializerTest, ctor ){
     auto usrAdp = new requests::User();
     usrAdp->assign(addAdp);
 
-    m_data.assign_user(usrAdp);
+    m_data.assign(usrAdp);
 
     auto array = m_data.serialize();
     EXPECT_GT(array.size(), 0);

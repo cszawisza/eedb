@@ -43,14 +43,14 @@ protected:
         EXPECT_TRUE(sut->has_nickname());
         EXPECT_TRUE(sut->has_password());
         EXPECT_TRUE(sut->has_phoneNumber());
-        EXPECT_TRUE(sut->has_acl());
+//        EXPECT_TRUE(sut->has_acl());
     }
 
     void all_false()
     {
         ///FIXME
         //        make_roundtrip();
-        EXPECT_FALSE(sut->has_acl());
+//        EXPECT_FALSE(sut->has_acl());
         EXPECT_FALSE(sut->has_address());
         EXPECT_FALSE(sut->has_avatar());
         EXPECT_FALSE(sut->has_email());
@@ -66,7 +66,7 @@ TEST_F(UserDataAddReqTests, ctor){
 }
 
 TEST_F(UserDataAddReqTests, setDataByPointer ){
-    sut->acl();
+//    sut->acl();
     sut->address();
     sut->avatar();
     sut->email();
@@ -79,7 +79,7 @@ TEST_F(UserDataAddReqTests, setDataByPointer ){
 
 
 TEST_F(UserDataAddReqTests, setDataBySetAccesor ){
-    sut->assign_acl( new ProtobufAclAdapter() );
+//    sut->assign_acl( new ProtobufAclAdapter() );
 
     sut->set_address("adr");
     sut->set_avatar("avatardata");
@@ -92,7 +92,7 @@ TEST_F(UserDataAddReqTests, setDataBySetAccesor ){
 }
 
 TEST_F(UserDataAddReqTests, clearData ){
-    sut->assign_acl( new ProtobufAclAdapter() );
+//    sut->assign_acl( new ProtobufAclAdapter() );
     sut->set_address("adr");
     sut->set_avatar("avatardata");
     sut->set_email("email123@ww.ww");
@@ -100,7 +100,7 @@ TEST_F(UserDataAddReqTests, clearData ){
     sut->set_password("pass");
     sut->set_phoneNumber("number123");
 
-    sut->clear_acl();
+//    sut->clear_acl();
     sut->clear_address();
     sut->clear_avatar();
     sut->clear_description();

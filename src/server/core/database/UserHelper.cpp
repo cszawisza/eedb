@@ -44,19 +44,19 @@ UID UserHelper::insertUser(DB &db, const requests::user::IAdd &msg)
         pre.params.avatar = ba.toBase64().toStdString();
     }
 
-    if( msg.has_acl() ){
-        const auto &stat = msg.get_acl();
-        pre.params.stat_group = stat.has_groups() ? stat.get_groups() : auth::GROUP_users | auth::GROUP_inventories;
-        pre.params.unixperms = stat.has_unixperms() ? stat.get_unixperms().toInteger() : UnixPermissions({6,4,4}).toInteger();
-        pre.params.owner = stat.has_owner() ? stat.get_owner() : 1;
-        pre.params.status = stat.has_status() ? stat.get_status() : (int)auth::State_Normal;
-    }
-    else{
+//    if( msg.has_acl() ){
+//        const auto &stat = msg.get_acl();
+//        pre.params.stat_group = stat.has_groups() ? stat.get_groups() : auth::GROUP_users | auth::GROUP_inventories;
+//        pre.params.unixperms = stat.has_unixperms() ? stat.get_unixperms().toInteger() : UnixPermissions({6,4,4}).toInteger();
+//        pre.params.owner = stat.has_owner() ? stat.get_owner() : 1;
+//        pre.params.status = stat.has_status() ? stat.get_status() : (int)auth::State_Normal;
+//    }
+//    else{
         pre.params.stat_group = auth::GROUP_users | auth::GROUP_inventories;
         pre.params.unixperms = UnixPermissions({6,4,4}).toInteger();
         pre.params.owner = 1;
         pre.params.status = (int)auth::State_Normal;
-    }
+//    }
 
     if(msg.has_description())
         pre.params.description = msg.get_description();
