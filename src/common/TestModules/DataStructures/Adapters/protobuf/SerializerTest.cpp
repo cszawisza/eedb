@@ -27,21 +27,21 @@ void set_data(requests::user::IAdd* add)
     add->set_description("alskdalksdjlkalkjsdjalkjsklkjlkjlkjlkjlkjlkjlkjlkjlkj");
 }
 
-TEST_F( ProtobufSerializerTest, ctor ){
-    auto addAdp =  new requests::user::Add();
-    addAdp->set_nickname("asdf");
-    addAdp->set_password("asdfg");
-    addAdp->set_email("cycki@xy.xy");
+//TEST_F( ProtobufSerializerTest, ctor ){
+//    auto addAdp =  new requests::user::Add();
+//    addAdp->set_nickname("asdf");
+//    addAdp->set_password("asdfg");
+//    addAdp->set_email("cycki@xy.xy");
 
-    auto usrAdp = new requests::User();
-    usrAdp->assign(addAdp);
+//    auto usrAdp = new requests::User();
+//    usrAdp->assign(addAdp);
 
-    m_data.assign(usrAdp);
+//    m_data.assign(usrAdp);
 
-    auto array = m_data.serialize();
-    EXPECT_GT(array.size(), 0);
-    EXPECT_TRUE(array.contains("cycki@xy.xy"));
-}
+//    auto array = m_data.serialize();
+//    EXPECT_GT(array.size(), 0);
+//    EXPECT_TRUE(array.contains("cycki@xy.xy"));
+//}
 
 TEST_F( ProtobufSerializerTest, goUp ){
     auto addAdp = m_data.user()->add();

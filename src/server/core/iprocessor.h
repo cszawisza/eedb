@@ -39,8 +39,8 @@ protected:
     virtual void process(IClientRequest *req);
     virtual void process(DB &db, IClientRequest *req);
 
-    IServerResponse *add_response();
-    void sendServerError( int e);
+    IServerResponse *response();
+    void sendServerError(IServerResponse::ResponseFlags e );
 
 private:
     static std::atomic<quint64> m_response_id;

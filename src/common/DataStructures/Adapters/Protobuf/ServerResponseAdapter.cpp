@@ -32,11 +32,6 @@ void ServerResponse::set_in_response_to(uint64_t id)
     m_data->set_in_response_to(id);
 }
 
-void ServerResponse::set_response_code(int code)
-{
-    m_data->set_code(code);
-}
-
 responses::IUser *ServerResponse::user()
 {
     if(!m_user)
@@ -62,6 +57,26 @@ void ServerResponse::clear_user()
     m_data->clear_userres();
 }
 
+responses::ICategory *ServerResponse::category()
+{
+
+}
+
+void ServerResponse::assign(responses::ICategory *ur)
+{
+
+}
+
+bool ServerResponse::has_category() const
+{
+
+}
+
+void ServerResponse::clear_category()
+{
+
+}
+
 protobuf::ServerResponse *ServerResponse::rawPointer() const
 {
     return m_data;
@@ -80,4 +95,9 @@ QByteArray ServerResponse::serialize() const
     ba.resize(size);
     m_data->SerializePartialToArray(ba.data(), size);
     return ba;
+}
+
+void ServerResponse::set_response_code(IServerResponse::ResponseFlags code)
+{
+    m_data->set_code(code);
 }

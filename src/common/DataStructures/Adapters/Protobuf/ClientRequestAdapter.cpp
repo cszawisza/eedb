@@ -30,29 +30,29 @@ int ClientRequest::get_requestId() const
 {
 }
 
-requests::IUser* ClientRequest::user()
+IUser *ClientRequest::user()
 {
     if(!m_userreq)
-        m_userreq = new User(m_data->mutable_userreq());
+        m_userreq = new requests::User(m_data->mutable_userreq());
     else
-        m_userreq->operator =( User(m_data->mutable_userreq()));
+        m_userreq->operator =( requests::User(m_data->mutable_userreq()));
     return m_userreq;
 }
 
 const IUser &ClientRequest::get_user() const
 {
     if(!m_userreq)
-        m_userreq = new User(const_cast<protobuf::UserReq*>(&m_data->userreq()));
+        m_userreq = new requests::User(const_cast<protobuf::UserReq*>(&m_data->userreq()));
     else
-        m_userreq->operator=( User(const_cast<protobuf::UserReq*>(&m_data->userreq())));
+        m_userreq->operator=( requests::User(const_cast<protobuf::UserReq*>(&m_data->userreq())));
     return *m_userreq;
 }
 
-void ClientRequest::assign(requests::IUser *ur)
-{
-    m_data->set_allocated_userreq( dynamic_cast<User*>(ur)->detachData() );
-    delete ur;
-}
+//void ClientRequest::assign(requests::IUser *ur)
+//{
+//    m_data->set_allocated_userreq( dynamic_cast<requests::User*>(ur)->detachData() );
+//    delete ur;
+//}
 
 bool ClientRequest::has_user() const
 {
@@ -86,21 +86,25 @@ QByteArray ClientRequest::serialize() const
 
 ICategory *ClientRequest::category()
 {
+///IMPLEMENT
 }
 
 const ICategory &ClientRequest::get_category() const
 {
+    ///IMPLEMENT
 }
 
-void ClientRequest::assign(ICategory *ur)
-{
-
-}
+//void ClientRequest::assign(ICategory *ur)
+//{
+/////IMPLEMENT
+//}
 
 bool ClientRequest::has_category() const
 {
+    ///IMPLEMENT
 }
 
 void ClientRequest::clear_category()
 {
+    ///IMPLEMENT
 }

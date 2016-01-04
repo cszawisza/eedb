@@ -10,22 +10,20 @@ using namespace requests::user;
 
 class UserDataAddReqTests : public testing::Test{
 public:
-    UserDataAddReqTests():
-        sut( new Add() )
+    UserDataAddReqTests()
     {
-
+        sut = dynamic_cast<Add*>(client_req.user()->add());
     }
     ~UserDataAddReqTests(){
-        delete sut;
     }
 
 
 protected:
     Add *sut;
+    ClientRequest client_req;
 
     void make_roundtrip(){
-        ClientRequest client_req;
-        client_req.user()->assign(sut);
+//        client_req.user()->assign(sut);
         auto ba = client_req.serialize();
 
         ClientRequest parsed;

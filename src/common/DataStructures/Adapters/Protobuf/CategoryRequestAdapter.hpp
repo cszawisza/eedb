@@ -5,15 +5,16 @@
 class IAcl;
 
 namespace protobuf{
-
+class CategoryReq_Add;
 }
-
 
 namespace requests{
 namespace category{
 class Add : public IAdd{
     // IAdd interface
 public:
+    Add();
+    ~Add();
     String get_name() const;
     void set_name(String name);
     bool has_name() const;
@@ -28,6 +29,10 @@ public:
     void set_description(String desc);
     bool has_description() const;
     void clear_description();
+
+
+private:
+    protobuf::CategoryReq_Add *m_data;
 };
 }
 

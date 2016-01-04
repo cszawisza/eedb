@@ -8,6 +8,7 @@
 #include "utils/unixPerms.hpp"
 
 #include "Interfaces/CategoryRequests.hpp"
+#include "Interfaces/CategoryResponses.hpp"
 
 using CH = eedb::db::CategoryHelper;
 using sqlpp::fieldName;
@@ -24,15 +25,12 @@ void CategoryPU::process(IClientRequest *msgReq)
 void CategoryPU::process(DB &db, IClientRequest *msgReq)
 {
     // Check if this is the message that handler wants
-    ///FIXME asserts
-//    Q_ASSERT( msgReq.data_case() == pb::ClientRequest::kCategoryReqFieldNumber );
     Q_ASSERT( msgReq->has_category() );
 
     requests::ICategory *req = msgReq->category();
 
     if(user()->isOffline()){
-        ///FIXME
-//        sendServerError(pb::Error_UserOffilne);
+        sendServerError( IServerResponse::Error_UserOfline );
         return;
     }
     else{
@@ -66,8 +64,7 @@ void CategoryPU::handle_add(DB &db, const requests::category::IAdd &msg)
 
     ///TODO add name chacking
     if( !msg.has_name() ){
-        ///FIXME
-//        add_response()->mutable_categoryres()->set_code(CategoryRes_Replay_MissingName);
+        response()->category()->add()->set_code(responses::category::IAdd::Error_NameMissing );
         return;
     }
     if( !msg.has_parentId() ){
@@ -77,42 +74,41 @@ void CategoryPU::handle_add(DB &db, const requests::category::IAdd &msg)
     }
 
     if(stat.checkUserAction<schema::categories>(db, "write") ){
-        // treat id = =0 as root category
-//        if(!msg.has_parentId() || msg.parent_id() == 0 )
+//         treat id = =0 as root category
+        if(!msg.has_parentId() || msg.get_parentId() == 0 );
 //            msg.set_parentId( CH::rootCategoryId(db).get_value_or(0) );
 
-//        auto response = add_response()->mutable_categoryres();
-//        auto prepare = db.prepare(CH::insert_into().set(
-//                                      cat.name = parameter(cat.name),
-//                                      cat.description = parameter(cat.description ),
-//                                      cat.owner = user()->id(),
-//                                      cat.stat_group = (int)auth::GROUP_categories,
-//                                      cat.unixperms = UnixPermissions({7,4,4}).toInteger(),
-//                                      cat.parent_category_id = msg.parent_id()
-//                ).returning(cat.uid));
+        auto res = response()->category();
+        auto prepare = db.prepare(CH::insert_into().set(
+                                      cat.name = parameter(cat.name),
+                                      cat.description = parameter(cat.description ),
+                                      cat.owner = user()->id(),
+                                      cat.stat_group = (int)auth::GROUP_categories,
+                                      cat.unixperms = UnixPermissions({7,4,4}).toInteger(),
+                                      cat.parent_category_id = msg.get_parentId()
+                ).returning(cat.uid));
 
-//        prepare.params.name = msg.name();
-//        if( msg.has_description() )
-//            prepare.params.description = msg.description();
+        prepare.params.name = msg.get_name();
+        if( msg.has_description() )
+            prepare.params.description = msg.get_description();
 
-//        try{
-//            auto result = db(prepare);
+        try{
+            auto result = db(prepare);
 
-//            response->set_code(CategoryRes_Replay_AddSuccesful);
-//            if(msg.has_returningid() && msg.returningid())
+//            res->add()->set_code(0);
+//            if(msg.has_parentId() && msg.returningid())
 //                response->set_id(result.front().uid);
-//        }
-//        catch(sqlpp::postgresql::pg_exception e){
+        }
+        catch(sqlpp::postgresql::pg_exception e){
 //            if(e.code().pgClass() == "23") // Unique key validation
 //                response->set_code(CategoryRes_Replay_CategoryExists); // occour when category exists or no parent id
 //            else{
 //                LOG_DB_EXCEPTION(e);
 //            }
-//        }
+        }
     }
     else{
-        ///FIXME
-//        sendServerError(pb::Error_AccesDeny);
+        sendServerError( IServerResponse::Error_AccesDeny );
     }
 }
 
@@ -131,8 +127,8 @@ void CategoryPU::handle_get(DB &db, const requests::category::IGet &msg)
         if(msg.has_requestedParentUid())
             s.selected_columns.add(cat.parent_category_id);
 
-//        if(msg.get_criteria().)
-//            s.where.add(cat.status == static_cast<int>(auth::State_Normal));
+        if(msg.get_criteria().has_requested_all())
+            s.where.add(cat.status == static_cast<int>(auth::State_Normal));
 
         auto results = db(s);
 ///FIXME

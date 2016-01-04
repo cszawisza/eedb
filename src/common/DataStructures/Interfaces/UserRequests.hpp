@@ -141,20 +141,21 @@ public:
 
     virtual user::IAdd* add() =0;
     virtual const user::IAdd& get_add() const = 0;
-    virtual void assign( user::IAdd* ) = 0;
     virtual bool has_add() const = 0;
     virtual void clear_add() = 0;
 
     virtual user::ILogin* login() =0;
     virtual const user::ILogin& get_login() const = 0;
-    virtual void assign( user::ILogin* ) = 0;
     virtual bool has_login() const = 0;
     virtual void clear_login() = 0;
 
     virtual user::IGet* get() = 0;
     virtual const user::IGet& get_get() const = 0;
-    virtual void assign( user::IGet* ) = 0;
     virtual bool has_get() const = 0;
     virtual void clear_get() = 0;
+
+    //    virtual void assign( user::IAdd* ) = 0;
+//    virtual void assign( user::ILogin* ) = 0;
+//    virtual void assign( user::IGet* ) = 0;
 };
 }

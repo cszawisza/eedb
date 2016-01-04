@@ -67,18 +67,17 @@ void IMessageProcessingUnit::process(DB &db, IClientRequest *req){
     process(req);
 }
 
-IServerResponse *IMessageProcessingUnit::add_response() {
-//    if(!m_outputFrame)
-//        m_outputFrame = SharedResponses(new protobuf::ServerResponses);
+IServerResponse *IMessageProcessingUnit::response() {
+    ///TODO remove dependency
+    ///TODO remove memory leak
     auto res = new ServerResponse();//m_outputFrame->add_response();
+    res->set_response_code( 0 );
     res->set_response_id( m_response_id++ );
     res->set_in_response_to(m_currentRequestId);
     return res;
 }
 
-void IMessageProcessingUnit::sendServerError(int e){
-//    auto res = add_response();
-    auto res = new ServerResponse();
-    res->set_response_code( e );
+void IMessageProcessingUnit::sendServerError( IServerResponse::ResponseFlags e){
+    response()->set_response_code( e );
 }
 

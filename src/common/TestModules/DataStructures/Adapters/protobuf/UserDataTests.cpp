@@ -17,20 +17,20 @@ TEST(ProtobufUserAdapterTest, assignOneOf ){
     EXPECT_FALSE( sut.has_login() );
     EXPECT_FALSE( sut.has_get() );
 
-    sut.assign( new Add() );
-    EXPECT_TRUE ( sut.has_add() );
-    EXPECT_FALSE( sut.has_login() );
-    EXPECT_FALSE( sut.has_get() );
+//    sut.assign( new Add() );
+//    EXPECT_TRUE ( sut.has_add() );
+//    EXPECT_FALSE( sut.has_login() );
+//    EXPECT_FALSE( sut.has_get() );
 
-    sut.assign( new Login() );
-    EXPECT_FALSE( sut.has_add() );
-    EXPECT_TRUE ( sut.has_login() );
-    EXPECT_FALSE( sut.has_get() );
+//    sut.assign( new Login() );
+//    EXPECT_FALSE( sut.has_add() );
+//    EXPECT_TRUE ( sut.has_login() );
+//    EXPECT_FALSE( sut.has_get() );
 
-    sut.assign( new Get() );
-    EXPECT_FALSE( sut.has_add() );
-    EXPECT_FALSE( sut.has_login() );
-    EXPECT_TRUE ( sut.has_get() );
+//    sut.assign( new Get() );
+//    EXPECT_FALSE( sut.has_add() );
+//    EXPECT_FALSE( sut.has_login() );
+//    EXPECT_TRUE ( sut.has_get() );
 }
 
 TEST(ProtobufUserAdapterTest, getPointerTest ){

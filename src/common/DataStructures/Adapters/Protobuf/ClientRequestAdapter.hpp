@@ -23,15 +23,16 @@ public:
 
     requests::IUser* user() override;
     const requests::IUser &get_user() const override;
-    void assign(requests::IUser *ur) override;
     bool has_user() const override;
     void clear_user() override;
 
-    requests::ICategory *category() override;
+    requests::ICategory * category() override;
     const requests::ICategory &get_category() const override;
-    void assign(requests::ICategory *ur) override;
     bool has_category() const override;
     void clear_category() override;
+
+//    void assign(requests::IUser *ur) override;
+//    void assign(requests::ICategory *ur) override;
 
     protobuf::ClientRequest *rawPointer() const;
 private:

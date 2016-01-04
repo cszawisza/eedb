@@ -8,6 +8,7 @@ namespace protobuf{
 
 namespace responses{
     class IUser;
+    class ICategory;
 }
 
 class ResponseSerializer;
@@ -18,15 +19,20 @@ public:
     ServerResponse(protobuf::ServerResponse *req);
     ~ServerResponse();
 
-    void set_response_id( uint64_t id );
-    void set_in_response_to(uint64_t id);
-    void set_response_code(int code);
+    void set_response_id( uint64_t id ) override;
+    void set_in_response_to(uint64_t id) override;
+    void set_response_code(ResponseFlags code) override;
 //    int get_requestId() const;
 
-    responses::IUser* user();
-    void assign(responses::IUser *ur);
-    bool has_user() const;
-    void clear_user();
+    responses::IUser* user() override;
+    void assign(responses::IUser *ur) override;
+    bool has_user() const override;
+    void clear_user() override;
+
+    responses::ICategory* category() override;
+    void assign(responses::ICategory *ur) override;
+    bool has_category() const override;
+    void clear_category() override;
 
     protobuf::ServerResponse *rawPointer() const;
 private:
@@ -37,7 +43,7 @@ private:
 
     // IServerResponse interface
 public:
-    void parse(const QByteArray &data);
-    QByteArray serialize() const;
+    void parse(const QByteArray &data) override;
+    QByteArray serialize() const override;
 };
 

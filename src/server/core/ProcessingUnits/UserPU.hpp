@@ -40,11 +40,12 @@ private:
     void addUser(DB &db, const requests::user::IAdd &msg );
     void goToOnlineState(DB &db, uint64_t uid);
     bool userExists(DB &db, const string &name, const string &email );
-//    void addErrorCode(protobuf::UserRes_Reply err);
+
+    void raise_addErrorCode(int err);
+    void raise_loginError(int err);
+
     void loadUserCache(DB &db, uint64_t uid);
 //    void addResponseMessage();
-
-//    protobuf::UserRes m_response;
 };
 
 }

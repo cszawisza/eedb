@@ -8,12 +8,23 @@ class IAcl;
 namespace responses{
 namespace user{
 
+enum Action{
+    Add,
+    Get,
+    Modify,
+    Delete,
+    ChengePassword,
+};
+
+
 class IAdd{
 public:
     enum AddError{
-        Error_noError       = 0,
-        Error_NameToShort   = 1<<0,
-        Error_BadEmail      = 1<<1
+        Error_noError               = 0,
+        Error_NameToShort           = 1<<0,
+        Error_BadEmail              = 1<<1,
+        Error_MissingRequiredFields = 1<<2,
+        Error_UserExists            = 1<<3
     };
     Q_DECLARE_FLAGS(AddErrors, AddError)
 
@@ -30,8 +41,10 @@ public:
 class ILogin{
 public:
     enum LoginError{
-        Error_noError,
-        Error_WrongNameOrPass
+        noError,
+        Error_WrongNameOrPass = 1<<0,
+        Error_UserOnline      = 1<<1,
+        Error_UserDontExists  = 1<<2,
     };
     Q_DECLARE_FLAGS(LoginErrors, LoginError)
 
@@ -41,7 +54,7 @@ public:
     virtual void set_successful() = 0;
 
     virtual bool is_not_successful() const = 0;
-    virtual void set_error( LoginError code ) = 0;
+    virtual void set_error( LoginErrors code ) = 0;
     virtual LoginError get_error_code() const = 0;
 };
 
@@ -53,8 +66,6 @@ public:
 class IGet{
 public:
     virtual ~IGet() = default;
-
-
 };
 
 }
@@ -63,20 +74,17 @@ class IUser{
 public:
     virtual ~IUser() = default;
 
-    virtual user::IAdd* add() =0;
-    virtual void assign( user::IAdd* ) = 0;
-    virtual bool has_add() const = 0;
-    virtual void clear_add() = 0;
+    //! returns stored action type or none
+    virtual boost::optional<user::Action> stored_action() const = 0;
+    virtual void clear_action(){}
 
-    virtual user::ILogin* login() =0;
-    virtual void assign( user::ILogin* ) = 0;
-    virtual bool has_login() const = 0;
-    virtual void clear_login() = 0;
+    virtual bool has_add() const {return false;}
+    virtual bool has_login() const {return false;}
+    virtual bool has_get() const {return false;}
 
-    virtual user::IGet* get() = 0;
-    virtual void assign( user::IGet* ) = 0;
-    virtual bool has_get() const = 0;
-    virtual void clear_get() = 0;
+    virtual boost::optional<user::IAdd*> add() { return boost::none; }
+    virtual boost::optional<user::ILogin*> login() {return boost::none; }
+    virtual boost::optional<user::IGet*> get() { return boost::none; }
 };
 }
 

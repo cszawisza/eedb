@@ -36,7 +36,7 @@ public:
     void set_successful();
 
     bool is_not_successful() const;
-    void set_error(LoginError code);
+    void set_error(LoginErrors code);
     LoginError get_error_code() const;
 };
 
@@ -49,28 +49,20 @@ public:
     User(protobuf::UserRes *res);
     ~User();
 
+    boost::optional<user::Action> stored_action() const;
+    void clear_action() override;
 
-    user::IAdd *add() override;
-    void assign( user::IAdd* msg);
+    boost::optional<user::IAdd*> add() override;
+    boost::optional<user::ILogin*> login() override;
+    boost::optional<user::IGet*> get() override;
+
     bool has_add() const override;
-    void clear_add() override;
-
-    user::ILogin *login() override;
-    void assign( user::ILogin* msg);
     bool has_login() const override;
-    void clear_login() override;
-
-    user::IGet *get() override;
-    void assign( user::IGet* msg);
     bool has_get() const override;
-    void clear_get() override;
 
     protobuf::UserRes *detachData();
 private:
     protobuf::UserRes *m_data;
     bool m_takeOvnership = false;
-//    protobuf::UserRes *m_userres;
-//    protobuf::UserRes *m_userres;
-//    protobuf::UserRes *m_userres;
 };
 }

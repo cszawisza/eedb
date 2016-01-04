@@ -4,15 +4,21 @@
 #include "utils/LogUtils.hpp"
 
 #include <Interfaces/UserRequests.hpp>
+#include <Interfaces/UserResponses.hpp>
+
 #include <Validators/UserDataValidator.hpp>
+
+#include <QFlags>
 
 using eedb::utils::PasswordHash;
 using uh = eedb::db::UserHelper;
+
 using namespace schema;
-using namespace requests::user;
 
 using sqlpp::postgresql::pg_exception;
 
+namespace req = requests::user;
+namespace res = responses::user;
 
 constexpr users u;
 
@@ -87,7 +93,7 @@ void UserPU::process(DB &db, IClientRequest *msgReq)
 }
 
 
-void UserPU::addUser(DB &db, const IAdd &msg)
+void UserPU::addUser(DB &db, const req::IAdd &msg)
 {
     try{
         auto uid = eedb::db::UserHelper::insertUser(db, msg);
@@ -102,10 +108,19 @@ void UserPU::addUser(DB &db, const IAdd &msg)
     }
 }
 
-//void UserPU::addErrorCode(UserRes_Reply err)
-//{
-//    m_response.add_code(err);
-//}
+void UserPU::raise_addErrorCode(int err)
+{
+    res::IAdd::AddErrors flags = response()->user()->add()->get_error_code();
+    flags |= QFlag(err);
+    response()->user()->add()->set_error(flags);
+}
+
+void UserPU::raise_loginError(int err)
+{
+    res::ILogin::LoginErrors flags = response()->user()->login()->get_error_code();
+    flags |= QFlag(err);
+    response()->user()->login()->set_error(flags);
+}
 
 void UserPU::loadUserCache(DB &db, uint64_t uid)
 {
@@ -145,15 +160,14 @@ void UserPU::loadUserCache(DB &db, uint64_t uid)
 //    add_response()->mutable_userres()->CopyFrom(m_response);
 //}
 
-void UserPU::handle_add(DB &db,const IAdd &msg)
+void UserPU::handle_add(DB &db,const req::IAdd &msg)
 {
     bool error = false;
 
     requests::UserAddValidator validator;
 
     if( !validator.hasRequiredFields( msg ) ){
-        ///FIXME
-        //        addErrorCode( UserRes_Reply_MissingRequiredField);
+        raise_addErrorCode( res::IAdd::Error_MissingRequiredFields );
         error = true;
         return;
     }
@@ -168,15 +182,13 @@ void UserPU::handle_add(DB &db,const IAdd &msg)
 
         if(stat.checkUserAction<users>("create"))
             addUser(db, msg);
-        ///FIXME
-        //        else{
-        //            sendServerError(protobuf::Error_AccesDeny);
-        //        }
+        else{
+            sendServerError( IServerResponse::Error_AccesDeny);
+        }
     }
     else{
         if( userExists( db, msg.get_nickname(), msg.get_email() ) ){
-            ///FIXME
-            //            addErrorCode(UserRes_Reply_UserAlreadyExists );
+            raise_addErrorCode(res::IAdd::Error_UserExists );
         }
         else
         {
@@ -190,19 +202,18 @@ void UserPU::handle_add(DB &db,const IAdd &msg)
 void UserPU::goToOnlineState(DB &db, uint64_t uid)
 {
     saveUserActionInDatabase(db, uid, "login");
-    ///FIXME
-//    addErrorCode(UserRes_Reply_LoginPass);
+    ///TODO change to something else
+    raise_loginError(0);
 
     user()->goOnline();
 
     loadUserCache(db, uid);
 }
 
-void UserPU::handle_login(DB &db, const ILogin &loginMsg)
+void UserPU::handle_login(DB &db, const req::ILogin &loginMsg)
 {
     if(user()->isOnline()){
-        ///FIXME
-//        addErrorCode(UserRes_Reply_UserOnline );
+        raise_loginError(res::ILogin::Error_UserOnline );
     }
     else
     {
@@ -230,8 +241,7 @@ void UserPU::handle_login(DB &db, const ILogin &loginMsg)
         auto queryRes = db(prep);
 
         if ( queryRes.empty() ){
-            ///FIXME
-//            addErrorCode(UserRes_Reply_UserDontExist );
+            raise_loginError(res::ILogin::Error_UserDontExists );
         }
         else{
             const auto &row = queryRes.front();
@@ -244,8 +254,7 @@ void UserPU::handle_login(DB &db, const ILogin &loginMsg)
                 goToOnlineState(db, row.uid );
             else{
                 saveUserActionInDatabase(db, row.uid , "wrong password");
-                ///FIXME
-//                addErrorCode(UserRes_Reply_LoginDeny );
+                raise_loginError(res::ILogin::Error_WrongNameOrPass );
             }
         }
     }

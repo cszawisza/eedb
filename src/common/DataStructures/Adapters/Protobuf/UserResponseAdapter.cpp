@@ -1,40 +1,35 @@
 #include "UserResponseAdapter.hpp"
 
 #include "user.pb.h"
-responses::user::IAdd *responses::User::add()
-{
-}
 
 bool responses::User::has_add() const
 {
+    ///IMPLEMENT
 }
 
-void responses::User::clear_add()
+boost::optional<responses::user::ILogin *> responses::User::login()
 {
-}
-
-responses::user::ILogin *responses::User::login()
-{
+    ///IMPLEMENT
 }
 
 bool responses::User::has_login() const
 {
+    ///IMPLEMENT
 }
 
-void responses::User::clear_login()
+boost::optional<responses::user::IGet *> responses::User::get()
 {
-}
-
-responses::user::IGet *responses::User::get()
-{
+    ///IMPLEMENT
 }
 
 bool responses::User::has_get() const
 {
+    ///IMPLEMENT
 }
 
-void responses::User::clear_get()
+void responses::User::clear_action()
 {
+    m_data->Clear();
 }
 
 protobuf::UserRes *responses::User::detachData()
@@ -58,21 +53,6 @@ responses::User::~User()
     if(m_takeOvnership){
         delete m_data;
     }
-}
-
-void responses::User::assign(responses::user::IAdd *msg)
-{
-    m_data->set_has_error(msg->get_error_code() != responses::user::Add::Error_noError );
-}
-
-
-void responses::User::assign(responses::user::ILogin *msg)
-{
-}
-
-
-void responses::User::assign(responses::user::IGet *msg)
-{
 }
 
 responses::user::Add::Add():
@@ -128,21 +108,39 @@ responses::user::IAdd::AddErrors responses::user::Add::get_error_code() const
 
 bool responses::user::Login::is_successful() const
 {
-
+    ///IMPLEMENT
 }
 
 void responses::user::Login::set_successful()
 {
+    ///IMPLEMENT
 }
 
 bool responses::user::Login::is_not_successful() const
 {
+    ///IMPLEMENT
 }
 
-void responses::user::Login::set_error(responses::user::ILogin::LoginError code)
+void responses::user::Login::set_error(responses::user::ILogin::LoginErrors code)
 {
+    ///IMPLEMENT
+
 }
 
 responses::user::ILogin::LoginError responses::user::Login::get_error_code() const
 {
+    ///IMPLEMENT
+
+}
+
+
+boost::optional<responses::user::Action> responses::User::stored_action() const
+{
+    ///IMPLEMENT
+}
+
+boost::optional<responses::user::IAdd *> responses::User::add()
+{
+    ///IMPLEMENT
+
 }

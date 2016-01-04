@@ -177,9 +177,9 @@ public:
     User( protobuf::UserReq *req );
 
     ~User();
-    void assign(requests::user::IAdd *add) override;
-    void assign(requests::user::ILogin *login) override;
-    void assign(requests::user::IGet *get) override;
+//    void assign(requests::user::IAdd *add) override;
+//    void assign(requests::user::ILogin *login) override;
+//    void assign(requests::user::IGet *get) override;
 
     requests::user::IAdd* add() override;
     const requests::user::IAdd& get_add() const override;

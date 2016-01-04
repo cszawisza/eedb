@@ -7,20 +7,22 @@ using namespace requests::user;
 
 class UserDataGetTests : public testing::Test{
 public:
-    UserDataGetTests(): sut(new Get() ){}
-    ~UserDataGetTests(){ delete sut;}
+    UserDataGetTests(){
+        sut = dynamic_cast<Get*>(client_req.user()->get());
+    }
+    ~UserDataGetTests(){ }
 protected:
+    ClientRequest client_req;
+    ClientRequest parsed;
     Get *sut;
 
     void make_roundtrip(){
-        ClientRequest client_req;
-        client_req.user()->assign(sut);
+//        client_req.user()->assign(sut);
         auto ba = client_req.serialize();
 
-        ClientRequest parsed;
         parsed.parse(ba);
 
-        sut = new Get( dynamic_cast<Get*>(parsed.user()->get())->detachData());
+        sut = dynamic_cast<Get*>(parsed.user()->get());
     }
 
     void all_false()

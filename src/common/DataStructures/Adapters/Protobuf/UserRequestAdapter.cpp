@@ -455,7 +455,7 @@ void Get::assign(ICriterion *crit)
 const ICriterion &Get::get_criteria() const
 {
     if(!m_crit)
-        m_crit = new user::Criterion( );
+        m_crit = new user::Criterion(const_cast<protobuf::UserReq_Get_Where*>(&m_data->where()));
     m_crit->operator =(user::Criterion(const_cast<protobuf::UserReq_Get_Where*>(&m_data->where())));
     return *m_crit;
 }
@@ -534,23 +534,23 @@ const user::ILogin &User::get_login() const
     return *m_login;
 }
 
-void User::assign(requests::user::IAdd* add)
-{
-    m_data->set_allocated_add( dynamic_cast<user::Add*>(add)->detachData() );
-    delete add;
-}
+//void User::assign(requests::user::IAdd* add)
+//{
+//    m_data->set_allocated_add( dynamic_cast<user::Add*>(add)->detachData() );
+//    delete add;
+//}
 
-void User::assign(requests::user::ILogin* login)
-{
-    m_data->set_allocated_login( dynamic_cast<user::Login*>(login)->detachData() );
-    delete login;
-}
+//void User::assign(requests::user::ILogin* login)
+//{
+//    m_data->set_allocated_login( dynamic_cast<user::Login*>(login)->detachData() );
+//    delete login;
+//}
 
-void User::assign(requests::user::IGet* get)
-{
-    m_data->set_allocated_get( dynamic_cast<user::Get*>(get)->detachData() );
-    delete get;
-}
+//void User::assign(requests::user::IGet* get)
+//{
+//    m_data->set_allocated_get( dynamic_cast<user::Get*>(get)->detachData() );
+//    delete get;
+//}
 
 bool User::has_login() const
 {

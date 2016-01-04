@@ -19,31 +19,31 @@ TEST_F(ProtobufClientRequestAdapterTest, ctor ){
     EXPECT_FALSE(sut.has_category());
 }
 
-TEST_F(ProtobufClientRequestAdapterTest, assign_user){
-    EXPECT_FALSE(sut.has_user());
-    auto msg = new requests::User();
-    sut.assign(msg);
-    EXPECT_TRUE(sut.has_user());
+//TEST_F(ProtobufClientRequestAdapterTest, assign_user){
+//    EXPECT_FALSE(sut.has_user());
+//    auto msg = new requests::User();
+//    sut.assign(msg);
+//    EXPECT_TRUE(sut.has_user());
 
-    sut.clear_user();
+//    sut.clear_user();
 
-    EXPECT_FALSE(sut.has_user());
-    sut.user();
-    EXPECT_TRUE(sut.has_user());
-}
+//    EXPECT_FALSE(sut.has_user());
+//    sut.user();
+//    EXPECT_TRUE(sut.has_user());
+//}
 
-TEST_F(ProtobufClientRequestAdapterTest, assign_category){
-    EXPECT_FALSE(sut.has_category());
-    auto msg = new requests::Category();
-    sut.assign(msg);
-    EXPECT_TRUE(sut.has_category());
+//TEST_F(ProtobufClientRequestAdapterTest, assign_category){
+//    EXPECT_FALSE(sut.has_category());
+//    auto msg = new requests::Category();
+//    sut.assign(msg);
+//    EXPECT_TRUE(sut.has_category());
 
-    sut.clear_category();
+//    sut.clear_category();
 
-    EXPECT_FALSE(sut.has_category());
-    sut.user();
-    EXPECT_TRUE(sut.has_category());
-}
+//    EXPECT_FALSE(sut.has_category());
+//    sut.user();
+//    EXPECT_TRUE(sut.has_category());
+//}
 
 TEST_F(ProtobufClientRequestAdapterTest, getReturnsDefault){
     EXPECT_FALSE(sut.has_user());
