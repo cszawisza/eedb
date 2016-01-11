@@ -1,8 +1,8 @@
 #include "UserRequestAdapter.hpp"
 #include "AclAdapter.hpp"
-#include "user.pb.h"
-
 #include "CommonDataStructuresAdapter.hpp"
+
+#include "user.pb.h"
 
 #include "../../Interfaces/AclData.hpp"
 #include "../../Interfaces/UserRequests.hpp"
@@ -437,28 +437,28 @@ void Get::request_acl(bool request)
         m_data->clear_acl();
 }
 
-requests::user::ICriterion *Get::criteria()
-{
-    if(!m_crit)
-        m_crit = new user::Criterion(m_data->mutable_where());
-    else
-        m_crit->operator =(user::Criterion(m_data->mutable_where()));
-    return m_crit;
-}
+//requests::user::ICriterion *Get::criteria()
+//{
+//    if(!m_crit)
+//        m_crit = new user::Criterion(m_data->mutable_where());
+//    else
+//        m_crit->operator =(user::Criterion(m_data->mutable_where()));
+//    return m_crit;
+//}
 
-void Get::assign(ICriterion *crit)
-{
-    m_data->set_allocated_where(dynamic_cast<user::Criterion*>(crit)->detachData() );
-    delete crit;
-}
+//void Get::assign(ICriterion *crit)
+//{
+//    m_data->set_allocated_where(dynamic_cast<user::Criterion*>(crit)->detachData() );
+//    delete crit;
+//}
 
-const ICriterion &Get::get_criteria() const
-{
-    if(!m_crit)
-        m_crit = new user::Criterion(const_cast<protobuf::UserReq_Get_Where*>(&m_data->where()));
-    m_crit->operator =(user::Criterion(const_cast<protobuf::UserReq_Get_Where*>(&m_data->where())));
-    return *m_crit;
-}
+//const ICriterion &Get::get_criteria() const
+//{
+//    if(!m_crit)
+//        m_crit = new user::Criterion(const_cast<protobuf::UserReq_Get_Where*>(&m_data->where()));
+//    m_crit->operator =(user::Criterion(const_cast<protobuf::UserReq_Get_Where*>(&m_data->where())));
+//    return *m_crit;
+//}
 
 protobuf::UserReq_Get *Get::detachData()
 {
@@ -478,7 +478,7 @@ requests::user::IAdd* User::add()
 const user::IAdd &User::get_add() const
 {
     if( !m_add )
-        m_add = new user::Add();
+        m_add = new user::Add(const_cast<protobuf::UserReq_Add*>(&m_data->add()));
     m_add->operator=( user::Add(const_cast<protobuf::UserReq_Add*>(&m_data->add())));
     return *m_add;
 }
@@ -528,29 +528,11 @@ requests::user::ILogin* User::login()
 const user::ILogin &User::get_login() const
 {
     if( !m_login )
-        m_login = new user::Login();
+        m_login = new user::Login( const_cast<protobuf::UserReq_Login*>(&m_data->login()));
     else
         m_login->operator=(user::Login( const_cast<protobuf::UserReq_Login*>(&m_data->login())));
     return *m_login;
 }
-
-//void User::assign(requests::user::IAdd* add)
-//{
-//    m_data->set_allocated_add( dynamic_cast<user::Add*>(add)->detachData() );
-//    delete add;
-//}
-
-//void User::assign(requests::user::ILogin* login)
-//{
-//    m_data->set_allocated_login( dynamic_cast<user::Login*>(login)->detachData() );
-//    delete login;
-//}
-
-//void User::assign(requests::user::IGet* get)
-//{
-//    m_data->set_allocated_get( dynamic_cast<user::Get*>(get)->detachData() );
-//    delete get;
-//}
 
 bool User::has_login() const
 {
@@ -573,7 +555,7 @@ requests::user::IGet* User::get()
 const user::IGet &User::get_get() const
 {
     if( !m_get )
-        m_get = new user::Get();
+        m_get = new user::Get(const_cast<protobuf::UserReq_Get*>(&m_data->get()));
     m_get->operator=( user::Get(const_cast<protobuf::UserReq_Get*>(&m_data->get())));
     return *m_get;
 }
@@ -654,4 +636,20 @@ protobuf::UserReq_Get_Where *requests::user::Criterion::detachData()
 {
     m_takeOwnership = false;
     return m_data;
+}
+
+
+boost::optional<ActionId> requests::User::action() const
+{
+    using protobuf::UserReq;
+    switch (m_data->action_case()) {
+    case UserReq::kAdd:
+        return user::userActionAdd;
+    case UserReq::kLogin:
+        return user::userActionLogin;
+    case UserReq::kGet:
+        return user::userActionGet;
+    default:
+        break;
+    }
 }

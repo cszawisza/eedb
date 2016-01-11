@@ -10,10 +10,13 @@ set( PB
     CategoryRequestAdapter.cpp
 
     UserResponseAdapter.cpp
-    AclAdapter.cpp
-    ClientRequestAdapter.cpp
+    CategoryResponseAdapter.cpp
 
+    AclAdapter.cpp
+
+    ClientRequestAdapter.cpp
     ServerResponseAdapter.cpp
+
     CommonDataStructuresAdapter.cpp
 )
 

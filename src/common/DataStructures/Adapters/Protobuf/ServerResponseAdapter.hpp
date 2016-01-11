@@ -25,12 +25,12 @@ public:
 //    int get_requestId() const;
 
     responses::IUser* user() override;
-    void assign(responses::IUser *ur) override;
+    const responses::IUser &get_user() const;
     bool has_user() const override;
     void clear_user() override;
 
     responses::ICategory* category() override;
-    void assign(responses::ICategory *ur) override;
+    const responses::ICategory &get_category() const;
     bool has_category() const override;
     void clear_category() override;
 
@@ -38,8 +38,8 @@ public:
 private:
     bool m_takeOvnership = false;
     protobuf::ServerResponse *m_data;
-    mutable responses::IUser *m_user;
-
+    mutable std::shared_ptr<responses::IUser> m_user;
+    mutable std::shared_ptr<responses::ICategory> m_category;
 
     // IServerResponse interface
 public:

@@ -20,20 +20,17 @@
 
 #include <boost/optional.hpp>
 
-using namespace protobuf;
-using boost::optional;
-
 namespace eedb{
 namespace db{
 
 class InventoryHelper {
 public:
 
-    static optional<int64_t> getInventoryIdByName( DB &db, const std::string &name);
-    static optional<int64_t> getShelfId(DB &db, uint64_t parentId, const std::string &name );
-    static void insertInventory(DB &db, MsgInventoryRequest_Add &add);
+    static boost::optional<int64_t> getInventoryIdByName( DB &db, const std::string &name);
+    static boost::optional<int64_t> getShelfId(DB &db, uint64_t parentId, const std::string &name );
+    static void insertInventory(DB &db,  protobuf::MsgInventoryRequest_Add &add);
     static void linkWithUser(DB &db, SharedUserData user, uint64_t inv_id );
-    static void insertShelf(DB &db, MsgInventoryRequest_AddShelf &add );
+    static void insertShelf(DB &db, protobuf::MsgInventoryRequest_AddShelf &add );
 };
 
 }

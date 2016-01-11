@@ -39,7 +39,7 @@ optional<int64_t> InventoryHelper::getShelfId(DB &db, uint64_t parentId, const s
     return id;
 }
 
-void InventoryHelper::insertInventory(DB &db, MsgInventoryRequest_Add &add)
+void InventoryHelper::insertInventory(DB &db, protobuf::MsgInventoryRequest_Add &add)
 {
     if(!add.has_acl()){
         auto stat = add.mutable_acl();
@@ -77,7 +77,7 @@ void InventoryHelper::linkWithUser(DB &db, SharedUserData user, uint64_t inv_id)
            u_i.user_id = user->id() ) );
 }
 
-void InventoryHelper::insertShelf(DB &db, MsgInventoryRequest_AddShelf &add)
+void InventoryHelper::insertShelf(DB &db, protobuf::MsgInventoryRequest_AddShelf &add)
 {
     auto insert =  sqlpp::postgresql::insert_into(s).set(
                 s.owner = add.acl().owner(),

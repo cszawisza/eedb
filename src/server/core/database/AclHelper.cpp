@@ -6,7 +6,7 @@ namespace eedb{
 namespace db {
 
 
-optional<protobuf::Acl> AclHelper::getAcl(DB &db, UID objectID)
+boost::optional<protobuf::Acl> AclHelper::getAcl(DB &db, UID objectID)
 {
     return eedb::db::AclHelper::getAcl<schema::stat>(db, objectID);
 }

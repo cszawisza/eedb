@@ -6,46 +6,51 @@
 #include <DataStructures/Adapters/Protobuf/ClientRequestAdapter.hpp>
 #include <DataStructures/Adapters/Protobuf/ServerResponseAdapter.hpp>
 
-//class UserDataAddResTests : public testing::Test{
-//protected:
-//    responses::user::Add sut;
+class UserDataAddResTests : public testing::Test{
+public:
+    UserDataAddResTests():
+        sut(sr.user()->add())
+    {}
+protected:
+    ServerResponse sr;
+    ServerResponse res;
+    responses::user::IAdd *sut;
 
-//    responses::user::Add roundtrip(){
-//        ServerResponse sr;
+    void reset(){
+        sut = sr.user()->add();
+    }
 
-//        sr.user()->assign(&sut);
+    void roundtrip(){
+        res.parse( sr.serialize() );
+        sut = res.user()->add();
+    }
+};
 
-//        auto serializedResponse = sr.serialize();
+TEST_F(UserDataAddResTests, setSucces ){
+    sut->set_successful();
+    roundtrip();
 
-////        return parser.parseServerResponse(serializer.serializeServerResponse(&sr));
-//        return sut;
-//    }
-//};
+    EXPECT_TRUE ( sut->is_successful() );
+    EXPECT_FALSE( sut->is_not_successful() );
+    reset();
 
-//TEST_F(UserDataAddResTests, setSucces ){
-//    using namespace responses::user;
-//    sut.set_successful();
-//    EXPECT_TRUE( sut.is_successful() );
-//    EXPECT_FALSE(sut.is_not_successful());
+    sut->set_successful(false);
+    roundtrip();
+    EXPECT_FALSE( sut->is_successful() );
+    EXPECT_TRUE ( sut->is_not_successful() );
+}
 
-//    sut.set_successful(false);
-//    EXPECT_FALSE(sut.is_successful() );
-//    EXPECT_TRUE(sut.is_not_successful());
-//}
+TEST_F(UserDataAddResTests, setNoErrorIsASuccess ){
+    sut->set_successful( false );
+    sut->set_error( responses::user::IAdd::Error_noError );
+    roundtrip();
+    EXPECT_TRUE( sut->is_successful() );
+}
 
-//TEST_F(UserDataAddResTests, setNoErrorIsASuccess ){
-//    using namespace responses::user;
-//    sut.set_successful(false);
-//    sut.set_error( Add::Error_noError );
-
-//    EXPECT_TRUE( sut.is_successful() );
-//}
-
-////TEST_F(UserDataAddResTests, setError ){
-////    using namespace responses::user;
-////    sut.set_successful(false);
-////    sut.set_error( Add::Error_noError );
-
-////    EXPECT_TRUE( roundtrip().is_successful() );
-////}
+TEST_F(UserDataAddResTests, setError ){
+    sut->set_successful(false);
+    sut->set_error( responses::user::IAdd::Error_noError );
+    roundtrip();
+    EXPECT_TRUE( sut->is_successful() );
+}
 

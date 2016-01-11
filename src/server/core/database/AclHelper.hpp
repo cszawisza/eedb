@@ -8,8 +8,6 @@
 
 #include <boost/optional.hpp>
 
-using boost::optional;
-
 namespace eedb{
 namespace db{
 
@@ -63,7 +61,7 @@ public:
 //    }
 
     template<typename T>
-    static optional<protobuf::Acl> getAcl(DB &db, UID objectID)
+    static boost::optional<protobuf::Acl> getAcl(DB &db, UID objectID)
     {
         static constexpr T a;
         boost::optional<protobuf::Acl> optionalAclData;
@@ -82,7 +80,7 @@ public:
         return optionalAclData;
     }
 
-    static optional<protobuf::Acl> getAcl(DB &db, UID objectID);
+    static boost::optional<protobuf::Acl> getAcl(DB &db, UID objectID);
     static void updateAcl(DB &db, protobuf::Acl objectID ) throw(sqlpp::postgresql::pg_exception);
 };
 }

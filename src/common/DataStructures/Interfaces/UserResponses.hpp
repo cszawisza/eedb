@@ -9,11 +9,11 @@ namespace responses{
 namespace user{
 
 enum Action{
-    Add,
-    Get,
-    Modify,
-    Delete,
-    ChengePassword,
+    Action_Add,
+    Action_Get,
+    Action_Modify,
+    Action_Delete,
+    Action_ChengePassword,
 };
 
 
@@ -82,9 +82,13 @@ public:
     virtual bool has_login() const {return false;}
     virtual bool has_get() const {return false;}
 
-    virtual boost::optional<user::IAdd*> add() { return boost::none; }
-    virtual boost::optional<user::ILogin*> login() {return boost::none; }
-    virtual boost::optional<user::IGet*> get() { return boost::none; }
+    virtual user::IAdd* add() { return nullptr; }
+    virtual user::ILogin* login() {return nullptr; }
+    virtual user::IGet* get() { return nullptr; }
+
+    virtual const user::IAdd& get_add() const {}
+    virtual const user::ILogin& get_login() const {}
+    virtual const user::IGet& get_get() const {}
 };
 }
 

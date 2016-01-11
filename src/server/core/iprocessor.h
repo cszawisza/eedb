@@ -35,7 +35,7 @@ public:
     void clear();
     SharedUserData user();
     size_t responseCount() const;
-protected:
+//protected:
     virtual void process(IClientRequest *req);
     virtual void process(DB &db, IClientRequest *req);
 

@@ -29,4 +29,4 @@ IF ( CMAKE_BUILD_TYPE STREQUAL "Coverage")
     SETUP_TARGET_FOR_COVERAGE_COBERTURA( Server_cover ${TEST_EXECUTABLE_NAME} cover/server)
 ENDIF() # CMAKE_BUILD_TYPE STREQUAL "Coverage"
 
-target_link_libraries(Tests gtest eedb_lib pq)
+target_link_libraries(Tests gtest eedb_lib pq ProtobufAdapter)

@@ -37,3 +37,28 @@ public:
 
     virtual void Clear() const = 0;
 };
+
+template <typename ID>
+class NamedIdentyfier
+{
+    public:
+        constexpr NamedIdentyfier(const ID& val) : _value(val), _name(""){}
+        constexpr NamedIdentyfier(const ID& val, const char *name) : _value(val), _name(name) {}
+        constexpr ID getId() const {return _value;}
+        constexpr char *getName() const {return _name;}
+
+        constexpr bool operator == ( const NamedIdentyfier &other ) const { return this->getId() == other.getId(); }
+        constexpr bool operator <  ( const NamedIdentyfier &other ) const { return this->getId() < other.getId();}
+        constexpr bool operator >  ( const NamedIdentyfier &other ) const { return !this->operator <( other ) && !this->operator ==( other); }
+        constexpr bool operator >= ( const NamedIdentyfier &other ) const { return this->operator >( other ) || this->operator ==( other ); }
+        constexpr bool operator <= ( const NamedIdentyfier &other ) const { return this->operator <( other ) || this->operator ==( other ); }
+        constexpr bool operator != ( const NamedIdentyfier &other ) const { return !this->operator ==(other); }
+    protected:
+        ID _value;
+        const char *_name;
+};
+
+using CategoryTypeId = NamedIdentyfier<int>;
+using ActionId = NamedIdentyfier<int>;
+
+//constexpr ActionId UserAdd = ActionId(1, "user::action::add");

@@ -1,5 +1,10 @@
 #include "TestCommon.hpp"
 
+#include "DataStructures/Adapters/Protobuf/ClientRequestAdapter.hpp"
+
+#include "message_conteiner.pb.h"
+#include "common.pb.h"
+#include "user.pb.h"
 
 string test::random_string(size_t length)
 {
@@ -17,41 +22,36 @@ std::generate_n( str.begin(), length, randchar );
 return str;
 }
 
+//quint64 test::addShelf(DB &db, uint64_t storageId, string name, SharedUserData data){
+//    protobuf::ClientRequest req;
 
+//    auto add = protobuf::MsgInventoryRequest_AddShelf::default_instance();
+//    add.set_name( name );
+//    add.set_description("description");
+//    add.set_inventory_id( storageId );
 
-quint64 test::addShelf(DB &db, uint64_t storageId, string name, SharedUserData data){
-    protobuf::ClientRequest req;
+//    auto userReq = req.mutable_msginventoryreq();
+//    userReq->mutable_addshelf()->CopyFrom(add);
+//    eedb::pu::InventoryPU inventoryHandler;
+//    inventoryHandler.setUserData(data);
+//    inventoryHandler.process(db, req);
 
-    auto add = protobuf::MsgInventoryRequest_AddShelf::default_instance();
-    add.set_name( name );
-    add.set_description("description");
-    add.set_inventory_id( storageId );
-
-    auto userReq = req.mutable_msginventoryreq();
-    userReq->mutable_addshelf()->CopyFrom(add);
-    eedb::pu::InventoryPU inventoryHandler;
-    inventoryHandler.setUserData(data);
-    inventoryHandler.process(db, req);
-
-    //    return inventoryHandler.getLastResponse().msginventoryres().code(0);
-    return eedb::db::InventoryHelper::getShelfId(db, storageId, name).get_value_or(0);
-}
-
+//    //    return inventoryHandler.getLastResponse().msginventoryres().code(0);
+//    return eedb::db::InventoryHelper::getShelfId(db, storageId, name).get_value_or(0);
+//}
 
 SharedUserData test::login(DB &db, const string &name, const string &pass){
-    protobuf::UserReq_Login msg;
-    msg.mutable_cred()->set_nickname(name);
-    msg.set_password(pass);
 
-    protobuf::ClientRequest req;
+    // set pb namespace
+    auto req = ClientRequest();
+    auto loginReq = req.user()->login();
+    loginReq->set_password(pass);
+    loginReq->credentials()->set_authorization(name);
 
-    auto userReq = req.mutable_userreq();
-    userReq->mutable_login()->CopyFrom(msg);
     eedb::pu::UserPU userHandler;
-    userHandler.process(db, req);
+    userHandler.process(db, &req);
     return userHandler.user();
 }
-
 
 quint64 test::addUser(DB &db, const string &name, const string &pass){
     constexpr schema::users u;
@@ -67,21 +67,20 @@ quint64 test::addUser(DB &db, const string &name, const string &pass){
     return db(UserHelper::selectId( u.name == name )).front().uid;
 }
 
+//quint64 test::addInventory(DB &db, string name, SharedUserData data)
+//{
+//    protobuf::ClientRequest req;
+//    eedb::pu::InventoryPU inventoryHandler;
+//    inventoryHandler.setUserData( data );
 
-quint64 test::addInventory(DB &db, string name, SharedUserData data)
-{
-    protobuf::ClientRequest req;
-    eedb::pu::InventoryPU inventoryHandler;
-    inventoryHandler.setUserData( data );
+//    auto add_inv = protobuf::MsgInventoryRequest_Add::default_instance();
+//    add_inv.set_name( name );
+//    add_inv.set_description("description");
 
-    auto add_inv = protobuf::MsgInventoryRequest_Add::default_instance();
-    add_inv.set_name( name );
-    add_inv.set_description("description");
+//    auto userReq = req.mutable_msginventoryreq();
+//    userReq->mutable_add()->CopyFrom(add_inv);
+//    inventoryHandler.process(db, req);
 
-    auto userReq = req.mutable_msginventoryreq();
-    userReq->mutable_add()->CopyFrom(add_inv);
-    inventoryHandler.process(db, req);
-
-    //    auto returnCode = inventoryHandler.getLastResponse().msginventoryres().code(0);
-    return eedb::db::InventoryHelper::getInventoryIdByName(db, name ).get_value_or(0);
-}
+//    //    auto returnCode = inventoryHandler.getLastResponse().msginventoryres().code(0);
+//    return eedb::db::InventoryHelper::getInventoryIdByName(db, name ).get_value_or(0);
+//}

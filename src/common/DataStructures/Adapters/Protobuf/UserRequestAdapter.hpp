@@ -158,9 +158,9 @@ public:
     bool has_requestedAcl() const override;
     void request_acl(bool request = true ) override;
 
-    requests::user::ICriterion *criteria() override;
-    void assign(ICriterion*crit) override;
-    const ICriterion& get_criteria() const override;
+//    requests::user::ICriterion *criteria();
+//    void assign(ICriterion*crit);
+//    const ICriterion& get_criteria() const;
 
     protobuf::UserReq_Get *detachData();
 private:
@@ -175,11 +175,9 @@ class User: public requests::IUser {
 public:
     User();
     User( protobuf::UserReq *req );
-
     ~User();
-//    void assign(requests::user::IAdd *add) override;
-//    void assign(requests::user::ILogin *login) override;
-//    void assign(requests::user::IGet *get) override;
+
+    boost::optional<ActionId> action() const;
 
     requests::user::IAdd* add() override;
     const requests::user::IAdd& get_add() const override;

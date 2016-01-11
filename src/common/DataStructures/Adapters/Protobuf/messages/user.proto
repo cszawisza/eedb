@@ -84,13 +84,25 @@ message UserReq{
 }
 
 message UserRes {
-    optional bool has_error = 1 [default=false];
-    optional bool login_success = 2 [default=false];
-    optional int32 error_code = 3 [default=0];
-//    optional UserBasic basic = 2;
-//    optional UserConfig config = 3;
-//    optional UserStats stats = 4;
-//    optional UserDetails details = 5;
+    oneof action{
+      Add add = 2;
+      Login login = 3;
+//      Logout logout = 4;
+//      Remove remove = 5;
+//      Modify modify = 6;
+//      Get get = 7;
+//      ChangePasswd changePasswd = 8;
+    }
+
+    message Add{
+        optional bool succes = 1 [default=true];
+        optional int32 error_code = 2 [default=0];
+    }
+
+    message Login{
+        optional bool success = 1 [default=true];
+        optional int32 error_code = 2 [default=0];
+    }
 }
 
 message UserBasic{

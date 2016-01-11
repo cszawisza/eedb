@@ -23,6 +23,6 @@ public:
     size_t minNickNameLength() const;
     void setMinNickNameLength(const size_t &minNickNameLength);
 private:
-    size_t m_maxNickNameLength;
     size_t m_minNickNameLength;
+    size_t m_maxNickNameLength;
 };

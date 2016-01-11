@@ -1,6 +1,8 @@
 #include "gtest/gtest.h"
 
 #include "DataStructures/Adapters/Protobuf/UserResponseAdapter.hpp"
+#include "DataStructures/Adapters/Protobuf/CategoryResponseAdapter.hpp"
+
 #include "DataStructures/Adapters/Protobuf/ServerResponseAdapter.hpp"
 
 
@@ -14,24 +16,36 @@ protected:
 
 TEST_F(ProtobufServerResponseAdapterTest, ctor ){
     EXPECT_FALSE(sut.has_user());
+    EXPECT_FALSE(sut.has_category());
 }
 
-TEST_F(ProtobufServerResponseAdapterTest, assign){
-    EXPECT_FALSE(sut.has_user());
+TEST_F(ProtobufServerResponseAdapterTest, userres){
+    sut.user()->add();
+    EXPECT_TRUE( sut.has_user() );
 
-    auto usrRes = new responses::User();
-//    auto catres = new responses::ProtobufCategoryAdapter();
+    EXPECT_TRUE( sut.get_user().has_add() );
+    EXPECT_FALSE( sut.get_user().has_get() );
+    EXPECT_FALSE( sut.get_user().has_login() );
 
-    sut.assign(usrRes);
-    EXPECT_TRUE(sut.has_user());
+    sut.user()->get();
+    EXPECT_FALSE( sut.get_user().has_add() );
+    EXPECT_TRUE( sut.get_user().has_get() );
+    EXPECT_FALSE( sut.get_user().has_login() );
 
-    sut.clear_user();
-
-    EXPECT_FALSE(sut.has_user());
-    sut.user();
-    EXPECT_TRUE(sut.has_user());
+    sut.user()->login();
+    EXPECT_FALSE( sut.get_user().has_add() );
+    EXPECT_FALSE( sut.get_user().has_get() );
+    EXPECT_TRUE( sut.get_user().has_login() );
 }
 
-//TEST_F(ProtobufServerResponseAdapterTest, getReturnsDefault){
-//    EXPECT_FALSE(sut.has_user());
-//}
+TEST_F(ProtobufServerResponseAdapterTest, categoryres){
+    sut.category()->add();
+    EXPECT_TRUE( sut.has_category() );
+
+    EXPECT_TRUE( sut.get_category().has_add() );
+    EXPECT_FALSE( sut.get_category().has_get() );
+
+    sut.category()->get();
+    EXPECT_FALSE( sut.get_category().has_add() );
+    EXPECT_TRUE( sut.get_category().has_get() );
+}

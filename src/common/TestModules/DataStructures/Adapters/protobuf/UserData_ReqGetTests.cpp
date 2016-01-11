@@ -92,9 +92,9 @@ TEST_F(UserDataGetTests, clearBySetFalse ){
 }
 
 
-TEST_F(UserDataGetTests, getCriteria ){
-    sut->criteria()->require_data_own(true);
+//TEST_F(UserDataGetTests, getCriteria ){
+//    sut->criteria()->require_data_own(true);
 
-    make_roundtrip();
-    EXPECT_TRUE(sut->get_criteria().has_requested_own_data());
-}
+//    make_roundtrip();
+//    EXPECT_TRUE(sut->get_criteria().has_requested_own_data());
+//}

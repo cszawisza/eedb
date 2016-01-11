@@ -9,7 +9,7 @@ class ICriterion{
 public:
     virtual ~ICriterion() = default;
 
-    virtual bool request_all( bool request = true ) = 0;
+    virtual void request_all( bool request = true ) = 0;
     virtual bool has_requested_all() const = 0;
 };
 
@@ -55,23 +55,26 @@ public:
 //    virtual bool has_requestedAcl() const = 0;
 //    virtual void request_acl( bool request = true ) = 0;
 
-    virtual ICriterion *criteria() = 0;
-    virtual const ICriterion &get_criteria() const = 0;
-    virtual void assign( ICriterion * ) = 0;
+//    virtual ICriterion *criteria() = 0;
+//    virtual const ICriterion &get_criteria() const = 0;
 };
 
 }
 
 class ICategory{
 public:
-    ~ICategory() = default;
+    virtual ~ICategory() = default;
+//    Optional<ActionId> ActionId
 
     virtual category::IAdd* add() =0;
     virtual const category::IAdd& get_add() const = 0;
-    virtual void assign( category::IAdd* ) = 0;
     virtual bool has_add() const = 0;
     virtual void clear_add() = 0;
 
+    virtual category::IGet* get() =0;
+    virtual const category::IGet& get_get() const = 0;
+    virtual bool has_get() const = 0;
+    virtual void clear_get() = 0;
 };
 
 }

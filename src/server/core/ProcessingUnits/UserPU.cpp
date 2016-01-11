@@ -110,7 +110,7 @@ void UserPU::addUser(DB &db, const req::IAdd &msg)
 
 void UserPU::raise_addErrorCode(int err)
 {
-    res::IAdd::AddErrors flags = response()->user()->add()->get_error_code();
+    auto flags = response()->user()->add()->get_error_code();
     flags |= QFlag(err);
     response()->user()->add()->set_error(flags);
 }

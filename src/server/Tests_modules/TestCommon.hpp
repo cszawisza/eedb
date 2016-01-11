@@ -39,9 +39,9 @@ extern quint64 addUser(DB &db, const string &name, const std::string &pass = "xx
 
 extern SharedUserData login(DB &db, const string &name, const std::string &pass = "xxxx");
 
-extern quint64 addInventory(DB &db, string name, SharedUserData data );
+//extern quint64 addInventory(DB &db, string name, SharedUserData data );
 
-extern quint64 addShelf(DB &db,uint64_t storageId, string name, SharedUserData data );
+//extern quint64 addShelf(DB &db,uint64_t storageId, string name, SharedUserData data );
 
 extern std::string random_string( size_t length );
 
