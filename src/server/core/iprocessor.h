@@ -22,28 +22,27 @@ class IMessageProcessingUnit
 public:
     IMessageProcessingUnit();
     virtual ~IMessageProcessingUnit(){}
-//    IServerResponse getLastResponse();
-//    void setInputData( SharedRequest frame );
-//    void setOutputData( SharedResponses frame );
-
     /**
      * @brief setClientCache
      * @param cache: sets a pointer to common cache (containing user status information and session stuf)
      */
     void setUserData( SharedUserData userData);
-    void process( int msgId );
+
+    void setOutputData( IServerResponse *frame );
+
     void clear();
     SharedUserData user();
-    size_t responseCount() const;
-//protected:
+
     virtual void process(IClientRequest *req);
     virtual void process(DB &db, IClientRequest *req);
 
     IServerResponse *response();
+    void prepareNewResponse();
     void sendServerError(IServerResponse::ResponseFlags e );
 
 private:
     static std::atomic<quint64> m_response_id;
     quint64 m_currentRequestId = 0;
     SharedUserData m_userData;
+    IServerResponse *m_response;
 };

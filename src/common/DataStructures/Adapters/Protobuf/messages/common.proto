@@ -9,6 +9,10 @@ message Credentials{
   }
 }
 
+message StdError{
+    optional bool success = 1 [default=true];
+    optional int32 error_code = 2 [default=0];
+}
 
 //message Filter {
 //  message FilterComponent {

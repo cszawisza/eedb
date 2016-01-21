@@ -7,8 +7,12 @@
 #include <string>
 #include <array>
 #include <type_traits>
+#include <memory>
 
 #include <QString>
+#include <QHash>
+
+#include "../utils/NamedIdnetyfier.hpp"
 
 using Int64 = int64_t;
 using UInt64 = uint64_t;
@@ -18,7 +22,19 @@ using String = std::string;
 using Email = std::string;
 
 enum Status{
+};
 
+class IMessageContainer{
+    virtual boost::optional<ActionTypeId> message_type() const = 0;
+};
+
+class IMessageActionContainer{
+    virtual boost::optional<ActionId> action_type() const = 0;
+};
+
+class ISerialize{
+    virtual void parse(const QByteArray &data) = 0;
+    virtual QByteArray serialize() const = 0;
 };
 
 class  IAuthorizationData{
@@ -37,28 +53,3 @@ public:
 
     virtual void Clear() const = 0;
 };
-
-template <typename ID>
-class NamedIdentyfier
-{
-    public:
-        constexpr NamedIdentyfier(const ID& val) : _value(val), _name(""){}
-        constexpr NamedIdentyfier(const ID& val, const char *name) : _value(val), _name(name) {}
-        constexpr ID getId() const {return _value;}
-        constexpr char *getName() const {return _name;}
-
-        constexpr bool operator == ( const NamedIdentyfier &other ) const { return this->getId() == other.getId(); }
-        constexpr bool operator <  ( const NamedIdentyfier &other ) const { return this->getId() < other.getId();}
-        constexpr bool operator >  ( const NamedIdentyfier &other ) const { return !this->operator <( other ) && !this->operator ==( other); }
-        constexpr bool operator >= ( const NamedIdentyfier &other ) const { return this->operator >( other ) || this->operator ==( other ); }
-        constexpr bool operator <= ( const NamedIdentyfier &other ) const { return this->operator <( other ) || this->operator ==( other ); }
-        constexpr bool operator != ( const NamedIdentyfier &other ) const { return !this->operator ==(other); }
-    protected:
-        ID _value;
-        const char *_name;
-};
-
-using CategoryTypeId = NamedIdentyfier<int>;
-using ActionId = NamedIdentyfier<int>;
-
-//constexpr ActionId UserAdd = ActionId(1, "user::action::add");

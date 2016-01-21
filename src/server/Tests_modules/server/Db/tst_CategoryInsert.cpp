@@ -12,22 +12,22 @@ using namespace eedb;
 using namespace test;
 using eedb::db::CategoryHelper;
 
-class CategoryDbLayerInserttest : public ::testing::Test
+class CategoryDbLayerInsertTest : public ::testing::Test
 {
 public:
-    CategoryDbLayerInserttest()
+    CategoryDbLayerInsertTest()
     {
         db.start_transaction();
     }
 
-    ~CategoryDbLayerInserttest(){
+    ~CategoryDbLayerInsertTest(){
         db.rollback_transaction(false);
     }
 
 protected:
     DB db;
     CategoryHelper helper;
-    protobuf::CategoryReq dataToInsert;
+    requests::category::IAdd* dataToInsert;
 };
 
 

@@ -5,7 +5,6 @@
 #include <QSharedPointer>
 #include <QHash>
 
-#include "frameparser.h"
 #include "iprocessor.h"
 #include "clientcache.h"
 
@@ -17,17 +16,20 @@ class ClientWorker : public QObject
 {
     Q_OBJECT
 public:
-    typedef QSharedPointer<protobuf::ClientRequest> SharedRequests;
-    typedef QSharedPointer<protobuf::ServerResponse> SharedResponses;
     explicit ClientWorker(QObject *parent = 0);
 
-    void printMessageInfo(const protobuf::ClientRequest &request);
-    void processMessages();
+    void printMessageInfo(const IClientRequest &request);
+    void processMessage(const QByteArray &message);
 signals:
     /**
-     * @brief jobFinished signal emmited when worker ends processing data
+     * @brief beforeProcessing signal emited before worker atempts to parse message
      */
-    void jobFinished();
+    void beforeProcessing();
+
+    /**
+     * @brief afterProcessing signal emmited when worker ends processing data
+     */
+    void afterProcessing();
 
     /**
      * @brief binnaryMessageReadyToSend: Signal emmited every time a package can be send
@@ -48,8 +50,8 @@ public slots:
     void processBinnaryMessage(QByteArray frame);
 private:
     SharedUserData m_cache;
-    SharedResponses m_responseFrame;
-    SharedRequests m_inputFrame;
-    QHash<protobuf::ClientRequest::DataCase, QSharedPointer<IMessageProcessingUnit>> m_msgHandlers;
+    IServerResponse *m_response;
+    IClientRequest *m_request;
+    QHash<CategoryTypeId, QSharedPointer<IMessageProcessingUnit>> m_msgHandlers;
     QSharedPointer<IMessageProcessingUnit> m_defaultProcessor;
 };

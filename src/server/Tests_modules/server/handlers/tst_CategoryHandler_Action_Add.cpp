@@ -3,10 +3,11 @@
 
 ///TODO intruduce a std implementation of messages to avoid using one of adapters
 #include "DataStructures/Adapters/Protobuf/ClientRequestAdapter.hpp"
-#include "DataStructures/Adapters/Protobuf/ClientResponseAdapter.hpp"
+#include "DataStructures/Adapters/Protobuf/ServerResponseAdapter.hpp"
 
 #include "DataStructures/Adapters/Protobuf/CategoryRequestAdapter.hpp"
-#include "DataStructures/Adapters/Protobuf/ServerResponseAdapter.hpp"
+#include "DataStructures/Adapters/Protobuf/CategoryResponseAdapter.hpp"
+#include "DataStructures/Adapters/Protobuf/UserResponseAdapter.hpp"
 
 using namespace eedb::db;
 using namespace test;
@@ -32,6 +33,7 @@ public:
     }
 
     IServerResponse* runMessageHandlerProcess(){
+        handler.setOutputData( new ServerResponse() );
         handler.process(db, &clientReq);
         return handler.response();
     }
@@ -49,32 +51,26 @@ protected:
     eedb::pu::CategoryPU handler;
 };
 
-TEST_F(CategoryHelpertest, userWithDefaultPermsShoudCannotAddCategory ){
+TEST_F(CategoryHelpertest, userWithDefaultPermsCannotAddCategory ){
     add->set_name("New Category");
     add->set_parentId(CategoryHelper::rootCategoryId(db).get_value_or(0));
     auto res = runMessageHandlerProcess();
 
-    ASSERT_TRUE ( res->has_user() );
-    ASSERT_TRUE ( res->get_user().has_add() );
-//    ASSERT_EQ   ( ServerError::Error_AccesDeny, res.code());
-//    EXPECT_FALSE(res.has_categoryres());
+    EXPECT_EQ( res->response_code(), ServerResponse::Error_AccesDeny );
+    EXPECT_FALSE(res->has_category());
 }
 
-//TEST_F(CategoryHelpertest, addCategory){
-//    upgradeUserPrivileges();
-//    addMsg.set_name("New Category");
-//    addMsg.set_parent_id(CategoryHelper::rootCategoryId(db).get_value_or(0));
-//    ServerResponse res = runMessageHandlerProcess();
+TEST_F(CategoryHelpertest, addCategory){
+    upgradeUserPrivileges();
+    add->set_name("New Category");
+    add->set_parentId(CategoryHelper::rootCategoryId(db).get_value_or(0));
+    auto res = runMessageHandlerProcess();
 
-//    ASSERT_TRUE ( res.has_categoryres() );
+    ASSERT_TRUE ( res->has_category() );
 
-//    CategoryRes catRes = res.categoryres();
-//    EXPECT_EQ   ( CategoryRes_Replay_AddSuccesful, catRes.code());
-//    EXPECT_FALSE(catRes.has_id());
-//    EXPECT_FALSE(catRes.has_description());
-//    EXPECT_FALSE(catRes.has_name());
-//    EXPECT_FALSE(catRes.has_parent_id());
-//}
+    auto const&catRes = res->category()->get_add();
+    EXPECT_EQ   ( responses::category::IAdd::NoErrors, catRes.get_error_codes());
+}
 
 //TEST_F(CategoryHelpertest, addCategoryReturnId){
 //    upgradeUserPrivileges();

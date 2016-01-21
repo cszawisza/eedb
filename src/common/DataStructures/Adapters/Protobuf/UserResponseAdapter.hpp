@@ -3,9 +3,8 @@
 #include "../../Interfaces/UserResponses.hpp"
 
 namespace protobuf{
+    class StdError;
     class UserRes;
-    class UserRes_Add;
-    class UserRes_Get;
     class ServerResponse;
 }
 
@@ -15,9 +14,8 @@ namespace user{
 class Add: public responses::user::IAdd{
     // IAdd interface
 public:
-    Add();
-    Add(protobuf::UserRes_Add *);
-    Add( const protobuf::UserRes_Add &add);
+    Add(protobuf::StdError *);
+    Add( const protobuf::StdError &add);
 
     ~Add();
 
@@ -28,24 +26,37 @@ public:
     void set_error(AddErrors code) override;
     AddErrors get_error_code() const override;
 private:
+    protobuf::StdError *m_data;
     bool m_takeOvnership = false;
-    protobuf::UserRes_Add *m_data;
     bool m_isMutable = true;
 };
 
 class Login: public responses::user::ILogin{
     // IAdd interface
 public:
-    bool is_successful() const;
-    void set_successful();
+    Login( protobuf::StdError* msg);
+    Login(const protobuf::StdError &msg);
+    bool is_successful() const override;
+    void set_successful(bool is_successful = true) override;
 
     bool is_not_successful() const;
     void set_error(LoginErrors code);
-    LoginError get_error_code() const;
+    LoginErrors get_error_code() const;
+private:
+    bool m_takeOvnership;
+    protobuf::StdError *m_data;
+    bool m_isMutable;
 };
 
 class Get: public responses::user::IGet{
+public:
+    Get( protobuf::StdError *msg );
+    Get( const protobuf::StdError &msg );
 
+private:
+    protobuf::StdError *m_data;
+    bool m_takeOwnership;
+    bool m_isMutable;
 };
 
 }

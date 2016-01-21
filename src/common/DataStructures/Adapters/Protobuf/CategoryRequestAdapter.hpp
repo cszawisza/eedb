@@ -53,9 +53,9 @@ public:
     void clear_description();
 
 private:
-    bool m_takeOvnership;
     protobuf::CategoryReq_Add *m_data;
-    bool m_isMutable = true;
+    bool m_takeOvnership;
+    bool m_isMutable;
 };
 
 class Get : public IGet{
@@ -94,6 +94,8 @@ public:
     Category(protobuf::CategoryReq *req);
     Category(const protobuf::CategoryReq &req);
     ~Category();
+
+    boost::optional<ActionId> action_type() const override;
 
     category::IAdd *add();
     const category::IAdd &get_add() const;

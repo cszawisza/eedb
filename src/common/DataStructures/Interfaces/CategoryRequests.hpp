@@ -45,26 +45,13 @@ public:
 
     virtual bool has_requestedName() const = 0;
     virtual void request_name( bool request = true ) = 0;
-
-//    virtual bool has_requestedDescription() const = 0;
-//    virtual void request_description( bool request = true ) = 0;
-
-//    virtual bool has_requestedAvatar() const = 0;
-//    virtual void request_avatar( bool request = true ) = 0;
-
-//    virtual bool has_requestedAcl() const = 0;
-//    virtual void request_acl( bool request = true ) = 0;
-
-//    virtual ICriterion *criteria() = 0;
-//    virtual const ICriterion &get_criteria() const = 0;
 };
 
 }
 
-class ICategory{
+class ICategory : public IMessageActionContainer {
 public:
     virtual ~ICategory() = default;
-//    Optional<ActionId> ActionId
 
     virtual category::IAdd* add() =0;
     virtual const category::IAdd& get_add() const = 0;

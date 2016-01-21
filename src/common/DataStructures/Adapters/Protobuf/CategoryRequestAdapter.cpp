@@ -3,34 +3,6 @@
 #include "category.pb.h"
 
 
-requests::category::Add::Add():
-    m_takeOvnership(true),
-    m_data( new protobuf::CategoryReq_Add(protobuf::CategoryReq_Add::default_instance()))
-{
-}
-
-requests::category::Add::Add(protobuf::CategoryReq_Add *add):
-    m_takeOvnership(false),
-    m_data(add)
-{
-
-}
-
-requests::category::Add::Add(const protobuf::CategoryReq_Add &add):
-    m_takeOvnership(false),
-    m_data(const_cast<protobuf::CategoryReq_Add *>(&add)),
-    m_isMutable(false)
-{
-
-}
-
-requests::category::Add::~Add()
-{
-    if(m_takeOvnership)
-        delete m_data;
-}
-
-
 requests::Category::Category():
     m_takeovnership(true),
     m_data(new protobuf::CategoryReq(protobuf::CategoryReq::default_instance())),
@@ -123,6 +95,135 @@ void requests::Category::clear_get()
     m_get.reset();
 }
 
+requests::category::Get::Get():
+    m_takeOvnership(false),
+    m_data( new protobuf::CategoryReq_Get( protobuf::CategoryReq_Get::default_instance() ))
+{
+
+}
+
+requests::category::Get::Get(protobuf::CategoryReq_Get *get):
+    m_takeOvnership(false),
+    m_data(get)
+{
+
+}
+
+requests::category::Get::Get(const protobuf::CategoryReq_Get &get):
+    m_takeOvnership(false),
+    m_data( const_cast<protobuf::CategoryReq_Get *>(&get) ),
+    m_isMutable(true)
+{
+
+}
+
+requests::category::Get::~Get()
+{
+    if(m_takeOvnership)
+        delete m_data;
+}
+
+bool requests::category::Get::has_requestedUid() const
+{
+    return m_data->has_get_ids() && m_data->get_ids();
+}
+
+void requests::category::Get::request_uid(bool request)
+{
+    Q_ASSERT(m_isMutable);
+    m_data->set_get_ids(request);
+}
+
+bool requests::category::Get::has_requestedParentUid() const
+{
+    return m_data->has_get_parent_id() && m_data->get_parent_id();
+}
+
+void requests::category::Get::request_parentUid(bool request)
+{
+    Q_ASSERT(m_isMutable);
+    m_data->set_get_parent_id(request);
+}
+
+bool requests::category::Get::has_requestedName() const
+{
+    return m_data->has_get_name() && m_data->get_name();
+}
+
+void requests::category::Get::request_name(bool request)
+{
+    Q_ASSERT(m_isMutable);
+    m_data->set_get_name(request);
+}
+
+requests::category::Criteria::Criteria():
+    m_takeOvnership(true),
+    m_data( new protobuf::CategoryReq_Get_Where(protobuf::CategoryReq_Get_Where::default_instance())),
+    m_isMutable(true)
+{
+}
+
+requests::category::Criteria::Criteria(protobuf::CategoryReq_Get_Where *crit):
+    m_takeOvnership(true),
+    m_data( crit ),
+    m_isMutable(true)
+{
+}
+
+requests::category::Criteria::Criteria(const protobuf::CategoryReq_Get_Where &crit):
+    m_takeOvnership(true),
+    m_data( const_cast<protobuf::CategoryReq_Get_Where *>(&crit) ),
+    m_isMutable(false)
+{
+}
+
+requests::category::Criteria::~Criteria()
+{
+    if(m_takeOvnership)
+        delete m_data;
+}
+
+void requests::category::Criteria::request_all(bool request)
+{
+    Q_ASSERT(m_isMutable);
+    m_data->set_all_groups(request);
+}
+
+bool requests::category::Criteria::has_requested_all() const
+{
+    return m_data->has_all_groups();
+}
+
+
+boost::optional<ActionId> requests::Category::action_type() const
+{
+    ///TODO implement
+    return boost::none;
+}
+
+
+requests::category::Add::Add(protobuf::CategoryReq_Add *add):
+    m_data(add),
+    m_takeOvnership(false),
+    m_isMutable(true)
+{
+
+}
+
+requests::category::Add::Add(const protobuf::CategoryReq_Add &add):
+    m_data(const_cast<protobuf::CategoryReq_Add *>(&add)),
+    m_takeOvnership(false),
+    m_isMutable(false)
+{
+
+}
+
+requests::category::Add::~Add()
+{
+    if(m_takeOvnership)
+        delete m_data;
+}
+
 String requests::category::Add::get_name() const
 {
     return m_data->name();
@@ -187,119 +288,4 @@ void requests::category::Add::clear_description()
 {
     Q_ASSERT(m_isMutable);
     m_data->clear_description();
-}
-
-requests::category::Get::Get():
-    m_takeOvnership(false),
-    m_data( new protobuf::CategoryReq_Get( protobuf::CategoryReq_Get::default_instance() ))
-{
-
-}
-
-requests::category::Get::Get(protobuf::CategoryReq_Get *get):
-    m_takeOvnership(false),
-    m_data(get)
-{
-
-}
-
-requests::category::Get::Get(const protobuf::CategoryReq_Get &get):
-    m_takeOvnership(false),
-    m_data( const_cast<protobuf::CategoryReq_Get *>(&get) ),
-    m_isMutable(true)
-{
-
-}
-
-requests::category::Get::~Get()
-{
-    if(m_takeOvnership)
-        delete m_data;
-}
-
-bool requests::category::Get::has_requestedUid() const
-{
-    return m_data->has_get_ids() && m_data->get_ids();
-}
-
-void requests::category::Get::request_uid(bool request)
-{
-    Q_ASSERT(m_isMutable);
-    m_data->set_get_ids(request);
-}
-
-bool requests::category::Get::has_requestedParentUid() const
-{
-    return m_data->has_get_parent_id() && m_data->get_parent_id();
-}
-
-void requests::category::Get::request_parentUid(bool request)
-{
-    Q_ASSERT(m_isMutable);
-    m_data->set_get_parent_id(request);
-}
-
-bool requests::category::Get::has_requestedName() const
-{
-    return m_data->has_get_name() && m_data->get_name();
-}
-
-void requests::category::Get::request_name(bool request)
-{
-    Q_ASSERT(m_isMutable);
-    m_data->set_get_name(request);
-}
-
-//requests::category::ICriterion *requests::category::Get::criteria()
-//{
-//    Q_ASSERT(m_isMutable);
-//    ///IMPLEMENT
-//}
-
-//const requests::category::ICriterion &requests::category::Get::get_criteria() const
-//{
-//    ///IMPLEMENT
-//}
-
-//void requests::category::Get::assign(requests::category::ICriterion *)
-//{
-//    ///IMPLEMENT
-//}
-
-requests::category::Criteria::Criteria():
-    m_takeOvnership(true),
-    m_data( new protobuf::CategoryReq_Get_Where(protobuf::CategoryReq_Get_Where::default_instance())),
-    m_isMutable(true)
-{
-}
-
-requests::category::Criteria::Criteria(protobuf::CategoryReq_Get_Where *crit):
-    m_takeOvnership(true),
-    m_data( crit ),
-    m_isMutable(true)
-{
-}
-
-requests::category::Criteria::Criteria(const protobuf::CategoryReq_Get_Where &crit):
-    m_takeOvnership(true),
-    m_data( const_cast<protobuf::CategoryReq_Get_Where *>(&crit) ),
-    m_isMutable(false)
-{
-}
-
-requests::category::Criteria::~Criteria()
-{
-    if(m_takeOvnership)
-        delete m_data;
-}
-
-void requests::category::Criteria::request_all(bool request)
-{
-    Q_ASSERT(m_isMutable);
-    m_data->set_all_groups(request);
-}
-
-bool requests::category::Criteria::has_requested_all() const
-{
-    return m_data->has_all_groups();
 }

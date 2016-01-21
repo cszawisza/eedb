@@ -5,6 +5,8 @@
 
 #include "message_conteiner.pb.h"
 
+#include "DefinedActions.hpp"
+
 using namespace requests;
 using namespace requests::user;
 using namespace requests::category;
@@ -37,15 +39,15 @@ int ClientRequest::get_requestId() const
     return m_data->request_id();
 }
 
-Optional<CategoryTypeId> ClientRequest::message_type() const
+boost::optional<ActionTypeId> ClientRequest::message_type() const
 {
     using protobuf::ClientRequest;
 
     switch (m_data->data_case()) {
     case ClientRequest::kUserReq:
-        return clientRequestsUser;
+        return actions::typeUser;
     case ClientRequest::kCategoryReq:
-        return clientRequestsCategory;
+        return actions::typeCategory;
     default:
         return boost::none;
     }

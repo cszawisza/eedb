@@ -60,7 +60,7 @@ void CategoryPU::process(DB &db, IClientRequest *msgReq)
 void CategoryPU::handle_add(DB &db, const requests::category::IAdd &msg)
 {
     static constexpr schema::categories cat;
-    auth::AccesControl stat( user()->id() );
+    auth::AccesControl stat( user()->uid() );
 
     ///TODO add name chacking
     if( !msg.has_name() ){
@@ -82,7 +82,7 @@ void CategoryPU::handle_add(DB &db, const requests::category::IAdd &msg)
         auto prepare = db.prepare(CH::insert_into().set(
                                       cat.name = parameter(cat.name),
                                       cat.description = parameter(cat.description ),
-                                      cat.owner = user()->id(),
+                                      cat.owner = user()->uid(),
                                       cat.stat_group = (int)auth::GROUP_categories,
                                       cat.unixperms = UnixPermissions({7,4,4}).toInteger(),
                                       cat.parent_category_id = msg.get_parentId()
@@ -95,16 +95,17 @@ void CategoryPU::handle_add(DB &db, const requests::category::IAdd &msg)
         try{
             auto result = db(prepare);
 
-//            res->add()->set_code(0);
-//            if(msg.has_parentId() && msg.returningid())
+            res->add()->set_code( responses::category::IAdd::NoErrors );
+            ///TODO add 'returning' feature (after implementing get message)
+//            if(msg.)
 //                response->set_id(result.front().uid);
         }
         catch(sqlpp::postgresql::pg_exception e){
-//            if(e.code().pgClass() == "23") // Unique key validation
-//                response->set_code(CategoryRes_Replay_CategoryExists); // occour when category exists or no parent id
-//            else{
-//                LOG_DB_EXCEPTION(e);
-//            }
+            if(e.code().pgClass() == "23") // Unique key validation
+                response()->category()->add()->set_code(responses::category::IAdd::Error_CategoryExists ); // occour when category exists or no parent id
+            else{
+                LOG_DB_EXCEPTION(e);
+            }
         }
     }
     else{
@@ -115,7 +116,7 @@ void CategoryPU::handle_add(DB &db, const requests::category::IAdd &msg)
 void CategoryPU::handle_get(DB &db, const requests::category::IGet &msg)
 {
     static constexpr schema::categories cat;
-    auth::AccesControl stat( user()->id() );
+    auth::AccesControl stat( user()->uid() );
 
     if(stat.checkUserAction<schema::categories>(db, "read") ){
         auto s = dynamic_select(db.connection()).dynamic_columns().dynamic_from(cat).dynamic_where();
@@ -126,9 +127,9 @@ void CategoryPU::handle_get(DB &db, const requests::category::IGet &msg)
             s.selected_columns.add(cat.name);
         if(msg.has_requestedParentUid())
             s.selected_columns.add(cat.parent_category_id);
-
-        if(msg.get_criteria().has_requested_all())
-            s.where.add(cat.status == static_cast<int>(auth::State_Normal));
+        ///FIXME
+//        if(msg.get_criteria().has_requested_all())
+//            s.where.add(cat.status == static_cast<int>(auth::State_Normal));
 
         auto results = db(s);
 ///FIXME

@@ -23,21 +23,12 @@ public:
     void goOnline() { m_status = UserOnline; }
     void goOffLine() { m_status = UserOffline; }
 
-    uint64_t id() const {
-//        if(m_basicData.has_id())
-//            return m_basicData.id();
-//        else
-            return 0;
-    }
-
     int uid() const;
     void setUid(int uid);
 
 private:
     Status m_status;
     int m_uid;
-//    protobuf::UserBasic m_basicData;
-//    protobuf::Acl m_stat;
 };
 
 class ClientCache

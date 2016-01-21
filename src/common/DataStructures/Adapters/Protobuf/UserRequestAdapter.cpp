@@ -4,31 +4,34 @@
 
 #include "user.pb.h"
 
-#include "../../Interfaces/AclData.hpp"
-#include "../../Interfaces/UserRequests.hpp"
+#include "AclData.hpp"
+#include "UserRequests.hpp"
+
+#include "DefinedActions.hpp"
 
 using namespace data;
 
 namespace requests {
 namespace user{
 
-Add::Add():
-    m_data(new protobuf::UserReq_Add()), take_ovnership(true)
+Add::Add(protobuf::UserReq_Add *msg):
+    m_data(msg),
+    m_takeOwnership(false),
+    m_isMutable(true)
 {
 }
 
-Add::Add(protobuf::UserReq_Add *msg):
-    m_data(msg)
+Add::Add(const protobuf::UserReq_Add &req):
+    m_data(const_cast<protobuf::UserReq_Add*>(&req)),
+    m_takeOwnership(false),
+    m_isMutable(false)
 {
 }
 
 Add::~Add()
 {
-    if(take_ovnership){
+    if(m_takeOwnership)
         delete m_data;
-    }
-//    if(m_adp)
-//        delete m_adp;
 }
 
 UID Add::get_id() const
@@ -38,6 +41,7 @@ UID Add::get_id() const
 
 void Add::set_id(UID id)
 {
+    Q_ASSERT(m_isMutable);
     m_data->mutable_basic()->set_id( id );
 }
 
@@ -48,11 +52,13 @@ bool Add::has_id() const
 
 void Add::clear_id()
 {
+    Q_ASSERT(m_isMutable);
     m_data->mutable_basic()->clear_id();
 }
 
 String *Add::nickname()
 {
+    Q_ASSERT(m_isMutable);
     return m_data->mutable_basic()->mutable_nickname();
 }
 
@@ -63,6 +69,7 @@ const String &Add::get_nickname() const
 
 void Add::set_nickname(String nick)
 {
+    Q_ASSERT(m_isMutable);
     m_data->mutable_basic()->set_nickname( nick );
 }
 
@@ -73,11 +80,13 @@ bool Add::has_nickname() const
 
 void Add::clear_nickname()
 {
+    Q_ASSERT(m_isMutable);
     m_data->mutable_basic()->clear_nickname();
 }
 
 String *Add::email()
 {
+    Q_ASSERT(m_isMutable);
     return m_data->mutable_basic()->mutable_email();
 }
 
@@ -88,6 +97,7 @@ const String &Add::get_email() const
 
 void Add::set_email(String email)
 {
+    Q_ASSERT(m_isMutable);
     m_data->mutable_basic()->set_email( email );
 }
 
@@ -98,11 +108,13 @@ bool Add::has_email() const
 
 void Add::clear_email()
 {
+    Q_ASSERT(m_isMutable);
     m_data->mutable_basic()->clear_email();
 }
 
 String *Add::password()
 {
+    Q_ASSERT(m_isMutable);
     return m_data->mutable_password();
 }
 
@@ -113,6 +125,7 @@ const String &Add::get_password() const
 
 void Add::set_password(String pass)
 {
+    Q_ASSERT(m_isMutable);
     m_data->set_password( pass );
 }
 
@@ -123,11 +136,13 @@ bool Add::has_password() const
 
 void Add::clear_password()
 {
+    Q_ASSERT(m_isMutable);
     m_data->clear_password();
 }
 
 String *Add::description()
 {
+    Q_ASSERT(m_isMutable);
     return m_data->mutable_basic()->mutable_description();
 }
 
@@ -138,6 +153,7 @@ const String &Add::get_description() const
 
 void Add::set_description(String desc)
 {
+    Q_ASSERT(m_isMutable);
     m_data->mutable_basic()->set_description( desc );
 }
 
@@ -148,11 +164,13 @@ bool Add::has_description() const
 
 void Add::clear_description()
 {
+    Q_ASSERT(m_isMutable);
     m_data->mutable_basic()->clear_description();
 }
 
 Bytes *Add::avatar()
 {
+    Q_ASSERT(m_isMutable);
     return m_data->mutable_basic()->mutable_avatar();
 }
 
@@ -163,6 +181,7 @@ const Bytes &Add::get_avatar() const
 
 void Add::set_avatar(Bytes avatar)
 {
+    Q_ASSERT(m_isMutable);
     m_data->mutable_basic()->set_avatar(move(avatar));
 }
 
@@ -173,6 +192,7 @@ bool Add::has_avatar() const
 
 void Add::clear_avatar()
 {
+    Q_ASSERT(m_isMutable);
     m_data->mutable_basic()->clear_avatar();
 }
 
@@ -209,6 +229,7 @@ void Add::clear_avatar()
 
 String *Add::address()
 {
+    Q_ASSERT(m_isMutable);
     return m_data->mutable_details()->mutable_address();
 }
 
@@ -219,6 +240,7 @@ const String &Add::get_address() const
 
 void Add::set_address(String ads)
 {
+    Q_ASSERT(m_isMutable);
     m_data->mutable_details()->set_address(std::move(ads));
 }
 
@@ -229,11 +251,13 @@ bool Add::has_address() const
 
 void Add::clear_address()
 {
+    Q_ASSERT(m_isMutable);
     m_data->mutable_details()->clear_address();
 }
 
 String *Add::phoneNumber()
 {
+    Q_ASSERT(m_isMutable);
     return m_data->mutable_details()->mutable_phone_number();
 }
 
@@ -244,6 +268,7 @@ const String &Add::get_phoneNumber() const
 
 void Add::set_phoneNumber(String number)
 {
+    Q_ASSERT(m_isMutable);
     m_data->mutable_details()->set_phone_number(std::move(number));
 }
 
@@ -254,22 +279,37 @@ bool Add::has_phoneNumber() const
 
 void Add::clear_phoneNumber()
 {
+    Q_ASSERT(m_isMutable);
     m_data->mutable_details()->clear_phone_number();
 }
 
 protobuf::UserReq_Add *Add::detachData()
 {
-    take_ovnership = false;
+    m_takeOwnership = false;
     return m_data;
 }
 
 Login::Login():
-    m_data(new protobuf::UserReq_Login() ), m_takeOvnership(true), m_auth(nullptr)
+    m_data(new protobuf::UserReq_Login() ),
+    m_takeOvnership(true),
+    m_isMutable(true),
+    m_auth(nullptr)
 {
 }
 
 Login::Login(protobuf::UserReq_Login *login_msg):
-    m_data(login_msg), m_auth(nullptr){
+    m_data(login_msg),
+    m_takeOvnership(false),
+    m_isMutable(true),
+    m_auth(nullptr){
+}
+
+Login::Login(const protobuf::UserReq_Login &login):
+    m_data(const_cast<protobuf::UserReq_Login*>(&login)),
+    m_takeOvnership(false),
+    m_isMutable(false),
+    m_auth(nullptr)
+{
 }
 
 Login::~Login()
@@ -283,6 +323,7 @@ Login::~Login()
 
 IAuthorizationData* Login::credentials()
 {
+    Q_ASSERT(m_isMutable);
     if(!m_auth)
         m_auth = new ProtobufAuthorizationDataAdapter( m_data->mutable_cred() );
     else
@@ -300,6 +341,7 @@ const IAuthorizationData &Login::get_credentials() const
 
 void Login::assign_credentials(IAuthorizationData* cred)
 {
+    Q_ASSERT(m_isMutable);
     m_data->set_allocated_cred( dynamic_cast<ProtobufAuthorizationDataAdapter*>(cred)->detachData() );
     delete cred;
 }
@@ -311,6 +353,7 @@ bool Login::has_credentials() const
 
 String *Login::password()
 {
+    Q_ASSERT(m_isMutable);
     return m_data->mutable_password();
 }
 
@@ -321,6 +364,7 @@ const String &Login::get_password() const
 
 void Login::set_password(String pass)
 {
+    Q_ASSERT(m_isMutable);
     m_data->set_password(move(pass));
 }
 
@@ -331,6 +375,7 @@ bool Login::has_password() const
 
 protobuf::UserReq_Login *Login::detachData()
 {
+    Q_ASSERT(m_isMutable);
     m_takeOvnership = false;
     return m_data;
 }
@@ -338,6 +383,7 @@ protobuf::UserReq_Login *Login::detachData()
 Get::Get():
     m_data( new protobuf::UserReq_Get(protobuf::UserReq_Get::default_instance() ) ),
     m_takeOvnership(true),
+    m_isMutable(true),
     m_crit(nullptr)
 {
 
@@ -346,6 +392,16 @@ Get::Get():
 Get::Get(protobuf::UserReq_Get *get):
     m_data( get ),
     m_takeOvnership(false),
+    m_isMutable(true),
+    m_crit(nullptr)
+{
+
+}
+
+Get::Get(const protobuf::UserReq_Get &get):
+    m_data( const_cast<protobuf::UserReq_Get*>(&get) ),
+    m_takeOvnership(false),
+    m_isMutable(false),
     m_crit(nullptr)
 {
 
@@ -366,6 +422,7 @@ bool Get::has_requestedUid() const
 
 void Get::request_uid(bool request)
 {
+    Q_ASSERT(m_isMutable);
     if(request)
         m_data->set_uid(true);
     else
@@ -379,6 +436,7 @@ bool Get::has_requestedAddress() const
 
 void Get::request_address(bool request)
 {
+    Q_ASSERT(m_isMutable);
     if(request)
         m_data->set_address(true);
     else
@@ -392,6 +450,7 @@ bool Get::has_requestedPhoneNumber() const
 
 void Get::request_phoneNumber(bool request)
 {
+    Q_ASSERT(m_isMutable);
     if(request)
         m_data->set_phone_number(true);
     else
@@ -405,6 +464,7 @@ bool Get::has_requestedDescription() const
 
 void Get::request_description(bool request)
 {
+    Q_ASSERT(m_isMutable);
     if(request)
         m_data->set_description(true);
     else
@@ -418,6 +478,7 @@ bool Get::has_requestedAvatar() const
 
 void Get::request_avatar(bool request)
 {
+    Q_ASSERT(m_isMutable);
     if(request)
         m_data->set_avatar(true);
     else
@@ -431,6 +492,7 @@ bool Get::has_requestedAcl() const
 
 void Get::request_acl(bool request)
 {
+    Q_ASSERT(m_isMutable);
     if(request)
         m_data->set_acl(true);
     else
@@ -468,42 +530,44 @@ protobuf::UserReq_Get *Get::detachData()
 }
 requests::user::IAdd* User::add()
 {
-    if( !m_add )
-        m_add = new user::Add(m_data->mutable_add());
-    else
-        m_add->operator=(user::Add(m_data->mutable_add()));
-    return m_add;
+    Q_ASSERT(m_isMutable);
+    m_add.reset(new user::Add(m_data->mutable_add()));
+    return m_add.get();
 }
 
 const user::IAdd &User::get_add() const
 {
-    if( !m_add )
-        m_add = new user::Add(const_cast<protobuf::UserReq_Add*>(&m_data->add()));
-    m_add->operator=( user::Add(const_cast<protobuf::UserReq_Add*>(&m_data->add())));
+    m_add.reset(new user::Add(m_data->add()));
     return *m_add;
 }
 
+
 User::User():
-    m_data(new protobuf::UserReq), m_takeOvnership(true), m_add(nullptr), m_login(nullptr), m_get(nullptr)
+    m_data( new protobuf::UserReq(protobuf::UserReq::default_instance() ) ),
+    m_takeOvnership(true),
+    m_isMutable(true)
 {
+
 }
 
 User::User(protobuf::UserReq *req):
-    m_data(req), m_takeOvnership(false), m_add(nullptr), m_login(nullptr), m_get(nullptr)
+    m_data(req),
+    m_takeOvnership(false),
+    m_isMutable(true)
+{
+}
+
+User::User(const protobuf::UserReq &req):
+    m_data(const_cast<protobuf::UserReq*>(&req)),
+    m_takeOvnership(false),
+    m_isMutable(false)
 {
 }
 
 User::~User()
 {
-    if(m_takeOvnership){
+    if(m_takeOvnership)
         delete m_data;
-    }
-    if(m_add)
-        delete m_add;
-    if(m_get)
-        delete m_get;
-    if(m_login)
-        delete m_login;
 }
 
 bool User::has_add() const
@@ -518,19 +582,13 @@ void User::clear_add()
 
 requests::user::ILogin* User::login()
 {
-    if( !m_login )
-        m_login = new user::Login(m_data->mutable_login());
-    else
-        m_login->operator=(user::Login(m_data->mutable_login()));
-    return m_login;
+    m_login.reset(new user::Login(m_data->mutable_login()));
+    return m_login.get();
 }
 
 const user::ILogin &User::get_login() const
 {
-    if( !m_login )
-        m_login = new user::Login( const_cast<protobuf::UserReq_Login*>(&m_data->login()));
-    else
-        m_login->operator=(user::Login( const_cast<protobuf::UserReq_Login*>(&m_data->login())));
+    m_login.reset(new user::Login(m_data->login()));
     return *m_login;
 }
 
@@ -546,17 +604,13 @@ void User::clear_login()
 
 requests::user::IGet* User::get()
 {
-    if( !m_get )
-        m_get = new user::Get(m_data->mutable_get());
-    m_get->operator=(user::Get(m_data->mutable_get()));
-    return m_get;
+    m_get.reset(new user::Get(m_data->mutable_get()));
+    return m_get.get();
 }
 
 const user::IGet &User::get_get() const
 {
-    if( !m_get )
-        m_get = new user::Get(const_cast<protobuf::UserReq_Get*>(&m_data->get()));
-    m_get->operator=( user::Get(const_cast<protobuf::UserReq_Get*>(&m_data->get())));
+    m_get.reset(new user::Get(m_data->get()));
     return *m_get;
 }
 
@@ -599,7 +653,7 @@ requests::user::Criterion::~Criterion()
 
 void requests::user::Criterion::require_data_own(bool self)
 {
-    m_data->set_self(true);
+    m_data->set_self( self);
 }
 
 void requests::user::Criterion::require_data_of_user(const IAuthorizationData &id)
@@ -613,7 +667,8 @@ void requests::user::Criterion::require_data_of_user(const IAuthorizationData &i
 }
 
 requests::user::Criterion::Criterion(protobuf::UserReq_Get_Where *msg, bool take):
-    m_data(msg), m_takeOwnership(take)
+    m_data(msg),
+    m_takeOwnership(take)
 {
 }
 
@@ -639,17 +694,19 @@ protobuf::UserReq_Get_Where *requests::user::Criterion::detachData()
 }
 
 
-boost::optional<ActionId> requests::User::action() const
+boost::optional<ActionId> requests::User::action_type() const
 {
     using protobuf::UserReq;
     switch (m_data->action_case()) {
     case UserReq::kAdd:
-        return user::userActionAdd;
+        return ::actions::user::ActionAdd;
     case UserReq::kLogin:
-        return user::userActionLogin;
+        return ::actions::user::ActionLogin;
     case UserReq::kGet:
-        return user::userActionGet;
+        return ::actions::user::ActionGet;
     default:
         break;
     }
+
+    return boost::none;
 }

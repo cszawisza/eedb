@@ -7,10 +7,6 @@ class IAcl;
 namespace requests{
 namespace user{
 
-static constexpr auto userActionAdd = ActionId(0, "user::add");
-static constexpr auto userActionLogin = ActionId(1, "user::login");
-static constexpr auto userActionGet = ActionId(2, "user::get");
-
 class ICriterion{
 public:
     virtual ~ICriterion() = default;
@@ -104,6 +100,8 @@ public:
     virtual String* description() = 0;
     virtual const String& get_description() const = 0;
     virtual void set_description( String ) = 0;
+    virtual void q_set_description( QString desc ) { set_description( desc.toStdString()); }
+
     virtual bool has_description() const = 0;
     virtual void clear_description() = 0;
 
@@ -134,10 +132,9 @@ public:
 }
 
 ///TODO add "one_off" class that contains info about which Action is in IUser message
-class IUser{
+class IUser : public IMessageActionContainer{
 public:
     virtual ~IUser() = default;
-    virtual boost::optional<ActionId> action() const { return boost::none; }
 
     virtual user::IAdd* add() =0;
     virtual const user::IAdd& get_add() const = 0;

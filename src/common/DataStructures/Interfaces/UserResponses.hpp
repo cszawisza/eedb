@@ -21,7 +21,7 @@ class IAdd{
 public:
     enum AddError{
         Error_noError               = 0,
-        Error_NameToShort           = 1<<0,
+        Error_BadName               = 1<<0,
         Error_BadEmail              = 1<<1,
         Error_MissingRequiredFields = 1<<2,
         Error_UserExists            = 1<<3
@@ -51,11 +51,11 @@ public:
     virtual ~ILogin() = default;
 
     virtual bool is_successful() const = 0;
-    virtual void set_successful() = 0;
+    virtual void set_successful( bool is_successful = true ) = 0;
 
     virtual bool is_not_successful() const = 0;
     virtual void set_error( LoginErrors code ) = 0;
-    virtual LoginError get_error_code() const = 0;
+    virtual LoginErrors get_error_code() const = 0;
 };
 
 class IModify{
@@ -86,9 +86,9 @@ public:
     virtual user::ILogin* login() {return nullptr; }
     virtual user::IGet* get() { return nullptr; }
 
-    virtual const user::IAdd& get_add() const {}
-    virtual const user::ILogin& get_login() const {}
-    virtual const user::IGet& get_get() const {}
+    virtual const user::IAdd& get_add() const = 0;
+    virtual const user::ILogin& get_login() const = 0;
+    virtual const user::IGet& get_get() const = 0;
 };
 }
 

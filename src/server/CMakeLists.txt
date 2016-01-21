@@ -30,7 +30,6 @@ set(Core_CPP
     core/clientcache.cpp
     core/clientconnection.cpp
     core/clientworker.cpp
-    core/frameparser.cpp
     core/iprocessor.cpp
     core/server.cpp
 
@@ -57,9 +56,9 @@ target_link_libraries(eedb_lib
 )
 
 add_executable(EedbServer app_start.cpp)
-target_link_libraries(EedbServer sqlpp-postgresql pq eedb_lib)
+target_link_libraries(EedbServer sqlpp-postgresql pq eedb_lib ProtobufAdapter)
 
-add_dependencies(eedb_lib Common)
+add_dependencies(eedb_lib Common ProtobufAdapter)
 
 install( TARGETS EedbServer DESTINATION bin )
 

@@ -84,6 +84,8 @@ int DBInitialize::initializeDB(DB &db)
             .privilegeFor("add_public_item")
             .forTable(i)
             .force_save(db);
+
+    return 0;
 }
 
 bool DBInitialize::rootExists(DB &db) const

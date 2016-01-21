@@ -8,10 +8,14 @@
 #include "ProcessingUnits/ItemPU.hpp"
 
 #include "utils/LogUtils.hpp"
+#include "iprocessor.h"
+
+#include <DataStructures/Adapters/Protobuf/ClientRequestAdapter.hpp>
 
 ClientWorker::ClientWorker(QObject *parent) :
     QObject(parent),
-    m_cache( SharedUserData (new UserData() ))
+    m_cache( SharedUserData (new UserData() )),
+    m_request( new ClientRequest() )
 //    m_responseFrame( SharedResponses(new protobuf::ServerResponses ))
   /*,
     m_defaultProcessor(QSharedPointer<MessageHandler>(new UnknownMessageProcessor()))*/
@@ -25,36 +29,27 @@ ClientWorker::ClientWorker(QObject *parent) :
 //    m_msgHandlers.insert( protobuf::ClientRequest::kCategoryReq, QSharedPointer<eedb::pu::CategoryPU>(new eedb::pu::CategoryPU() ));
 }
 
-void ClientWorker::printMessageInfo(const protobuf::ClientRequest &request)
+void ClientWorker::printMessageInfo(const IClientRequest &request)
 {
-    getServerLoger()->trace("Get req message(type_id:{}) from user {}", request.data_case(), m_cache->id() );
+    getServerLoger()->trace("Get req message(type_id:{}) from user {}", request.message_type(), m_cache->uid() );
 }
 
-void ClientWorker::processMessages()
+void ClientWorker::processMessage( const QByteArray &message )
 {
     ///FIXME
-//    for(int msgId=0; msgId<m_inputFrame->request_size(); msgId++ ){
-//        printMessageInfo(m_inputFrame->request(msgId));
-//        auto processor = m_msgHandlers.value(m_inputFrame->request(msgId).data_case(),  QSharedPointer<IMessageProcessingUint>(new IMessageProcessingUint()));
-//        processor->setUserData(m_cache);
-//        processor->setInputData(m_inputFrame);
-//        processor->setOutputData(m_responseFrame);
-//        processor->process( msgId );
-//    }
+    m_request->parse(message);
+    printMessageInfo( *m_request );
+    auto processor = m_msgHandlers.value( m_request->message_type().get()/*,  QSharedPointer<IMessageProcessingUint>(new IMessageProcessingUint())*/);
+    processor->setUserData(m_cache);
+    processor->setOutputData(m_response);
+    processor->process( m_request );
+
+    emit binnaryMessageReadyToSend( m_response->serialize() );
 }
 
 void ClientWorker::processBinnaryMessage(QByteArray frame)
 {
-    m_responseFrame->Clear();
-    RequestsDecoder decoder(frame);
-    decoder.decodeTo(*m_inputFrame);
-
-    processMessages();
-
-    QByteArray ba;
-    ba.resize(m_responseFrame->ByteSize());
-    m_responseFrame->SerializeToArray(ba.data(), ba.size());
-
-    emit binnaryMessageReadyToSend(ba);
-    emit jobFinished();
+    emit beforeProcessing();
+    processMessage( frame );
+    emit afterProcessing();
 }

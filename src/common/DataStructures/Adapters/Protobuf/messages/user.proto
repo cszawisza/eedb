@@ -85,23 +85,13 @@ message UserReq{
 
 message UserRes {
     oneof action{
-      Add add = 2;
-      Login login = 3;
+      StdError add = 2;
+      StdError login = 3;
 //      Logout logout = 4;
 //      Remove remove = 5;
 //      Modify modify = 6;
-//      Get get = 7;
+      StdError get = 7;
 //      ChangePasswd changePasswd = 8;
-    }
-
-    message Add{
-        optional bool succes = 1 [default=true];
-        optional int32 error_code = 2 [default=0];
-    }
-
-    message Login{
-        optional bool success = 1 [default=true];
-        optional int32 error_code = 2 [default=0];
     }
 }
 

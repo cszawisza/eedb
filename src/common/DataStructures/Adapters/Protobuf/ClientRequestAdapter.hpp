@@ -5,12 +5,12 @@
 #include <memory>
 
 namespace protobuf{
-class ClientRequest;
+    class ClientRequest;
 }
 
 namespace requests{
-class User;
-class Category;
+    class User;
+    class Category;
 }
 
 class ClientRequest : public IClientRequest {
@@ -23,7 +23,7 @@ public:
     ~ClientRequest();
 
     int get_requestId() const;
-    Optional<CategoryTypeId> message_type() const override;
+    boost::optional<ActionTypeId> message_type() const override;
 
     requests::IUser* user() override;
     const requests::IUser &get_user() const override;
@@ -39,6 +39,7 @@ public:
 private:
     protobuf::ClientRequest *m_data;
     bool m_takeOvnership = false;
+//    bool m_isMutable;
     mutable requests::User *m_userreq;
     mutable requests::Category *m_catreq;
 

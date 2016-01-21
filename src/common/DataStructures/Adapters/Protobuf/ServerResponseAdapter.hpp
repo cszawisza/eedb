@@ -20,9 +20,13 @@ public:
     ~ServerResponse();
 
     void set_response_id( uint64_t id ) override;
+    UID response_id() const override;
+
     void set_in_response_to(uint64_t id) override;
+    UID in_response_to() const override;
+
     void set_response_code(ResponseFlags code) override;
-//    int get_requestId() const;
+    ResponseFlags response_code() const override;
 
     responses::IUser* user() override;
     const responses::IUser &get_user() const;
@@ -36,8 +40,8 @@ public:
 
     protobuf::ServerResponse *rawPointer() const;
 private:
-    bool m_takeOvnership = false;
     protobuf::ServerResponse *m_data;
+    bool m_takeOvnership = false;
     mutable std::shared_ptr<responses::IUser> m_user;
     mutable std::shared_ptr<responses::ICategory> m_category;
 

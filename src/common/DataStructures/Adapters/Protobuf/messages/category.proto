@@ -71,33 +71,11 @@ message CategoryReq{
 }
 
 message CategoryRes{
-    enum Replay{
-        OK = 0;
-        AddSuccesful =1;
-        InvalidParentId = 2;
-        MissingParentId = 3;
-        InvalidName = 4;
-        MissingName = 5;
-        CategoryExists = 6;
-    }
-
     oneof action{
-        Add add = 200;
-        Get  get = 700;
+        StdError add = 200;
+        StdError  get = 700;
 //        Remove remove = 5;
 //        Modify modify = 6;
 //        ModifyParameters modifyParameters= 8;
     }
-
-    message Add{
-    }
-
-    message Get{
-    }
-
-    optional Replay code = 1 [default = OK];
-    optional uint32 id = 2;
-    optional string name =3;
-    optional uint32 parent_id = 4;
-    optional string description = 5;
 }

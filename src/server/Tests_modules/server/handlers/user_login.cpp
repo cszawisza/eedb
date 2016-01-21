@@ -20,7 +20,7 @@ public:
         ///TODO create a std implementation
         auto add = requests::user::Add();
         add.set_nickname("USER_NAME");
-        add.set_email("EMAIL@asdfg.asdf");
+        add.set_email("email@asdfg.asdf");
         add.set_password("secret_pass");
 
         requestAdd(add);
@@ -46,9 +46,10 @@ public:
     }
 
     responses::user::ILogin::LoginErrors requestLogin(){
+        handler.setOutputData(new ServerResponse() );
         handler.process(db, &req);
 
-//        return handler.getLastResponse().userres().code(0);
+        return handler.response()->user()->login()->get_error_code();
     }
     DB db;
     eedb::pu::UserPU handler;
@@ -64,85 +65,70 @@ TEST_F(userLoginTest, badCredentials){
 
         auto res = requestLogin();
 
-//        EXPECT_EQ(UserRes_Reply_UserDontExist, res);
-//        handler.clear();
+        EXPECT_EQ( responses::user::Login::Error_UserDontExists, res);
+        handler.clear();
     }
 
-//    {
-//        protobuf::UserReq_Login login;
-//        login.mutable_cred()->set_email("BAD_EMAIL");
-//        login.set_password("secret_pass");
+    {
+        login->credentials()->set_authorization("BAD_EMAIL@bad_domain.com");
 
-//        auto res = requestLogin(login);
+        auto res = requestLogin();
 
-//        EXPECT_EQ(UserRes_Reply_UserDontExist, res);
-//        handler.clear();
-//    }
+        EXPECT_EQ(responses::user::Login::Error_UserDontExists, res);
+        handler.clear();
+    }
 
-//    {
-//        protobuf::UserReq_Login login;
-//        login.mutable_cred()->set_email("aaa' OR TRUE -- "); // simple sql injection
-//        login.set_password("aaa\\' OR TRUE -- ");
+    {
+        login->credentials()->set_authorization("aaa' OR TRUE -- "); // simple sql injection
+        login->set_password("aaa\\' OR TRUE -- ");
 
-//        auto res = requestLogin(login);
+        auto res = requestLogin();
 
-//        EXPECT_EQ(UserRes_Reply_UserDontExist, res);
-//        handler.clear();
-//    }
+        EXPECT_EQ(responses::user::Login::Error_UserDontExists, res);
+        handler.clear();
+    }
 
-//    {
-//        protobuf::UserReq_Login login;
-//        login.mutable_cred()->set_email("EMAIL@asdfg.asdf");
-//        login.set_password("bad_pass");
+    {
+        login->credentials()->set_authorization("email@asdfg.asdf");
+        login->set_password("bad_pass");
 
-//        auto res = requestLogin(login);
+        auto res = requestLogin();
 
-//        EXPECT_EQ(UserRes_Reply_LoginDeny, res);
-//        handler.clear();
-//    }
+        EXPECT_EQ(responses::user::Login::Error_WrongNameOrPass, res);
+        handler.clear();
+    }
 
-//    {
-//        protobuf::UserReq_Login login;
-//        login.mutable_cred()->set_nickname("USER_NAME");
-//        login.set_password("bad_pass");
+    {
+        login->credentials()->set_authorization("USER_NAME");
+        login->set_password("bad_pass");
 
-//        auto res = requestLogin(login);
+        auto res = requestLogin();
 
-//        EXPECT_EQ(UserRes_Reply_LoginDeny, res);
-//        handler.clear();
-//    }
+        EXPECT_EQ(responses::user::Login::Error_WrongNameOrPass, res);
+        handler.clear();
+    }
 }
 
+TEST_F(userLoginTest, goodCredentialsTest1)
+{
+    login->credentials()->set_authorization("USER_NAME");
+    login->set_password("secret_pass");
 
-//TEST_F(userLoginTest, goodCredentials){
-//    {
-//        protobuf::UserReq_Login login;
-//        login.mutable_cred()->set_nickname("USER_NAME");
-//        login.set_password("secret_pass");
+    EXPECT_EQ(responses::user::ILogin::noError, requestLogin());
+}
 
-//        auto res = requestLogin(login);
+TEST_F(userLoginTest, goodCredentialsTest2)
+{
+    login->credentials()->set_authorization("email@asdfg.asdf");
+    login->set_password("secret_pass");
 
-//        EXPECT_EQ(UserRes_Reply_LoginPass, res);
-//        handler.clear();
-//    }
+    EXPECT_EQ(responses::user::ILogin::noError, requestLogin());
+}
 
-//    {
-//        protobuf::UserReq_Login login;
-//        login.mutable_cred()->set_email("EMAIL@asdfg.asdf");
-//        login.set_password("secret_pass");
+TEST_F(userLoginTest, doubleLogin){
+    login->credentials()->set_authorization("email@asdfg.asdf");
+    login->set_password("secret_pass");
 
-//        EXPECT_EQ(UserRes_Reply_LoginPass, requestLogin(login));
-//        handler.clear();
-//    }
-//}
-
-//TEST_F(userLoginTest, doubleLogin){
-//    {
-//        protobuf::UserReq_Login login;
-//        login.mutable_cred()->set_nickname("USER_NAME");
-//        login.set_password("secret_pass");
-
-//        EXPECT_EQ(UserRes_Reply_LoginPass, requestLogin(login));
-//        EXPECT_EQ(UserRes_Reply_UserOnline, requestLogin(login));
-//    }
-//}
+    EXPECT_EQ(responses::user::ILogin::noError, requestLogin());
+    EXPECT_EQ(responses::user::ILogin::Error_UserOnline, requestLogin());
+}

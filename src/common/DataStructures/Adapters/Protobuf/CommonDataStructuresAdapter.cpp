@@ -25,6 +25,8 @@ ProtobufAuthorizationDataAdapter::~ProtobufAuthorizationDataAdapter()
 
 void ProtobufAuthorizationDataAdapter::set_authorization(boost::variant<String, UID> auth)
 {
+    m_data->Clear();
+
     if( auth.type() == typeid(String) ){
         const auto &auth_str = boost::get<String>(auth);
         EmailValidator emailValidator;

@@ -56,38 +56,18 @@ void UserPU::process(DB &db, IClientRequest *msgReq)
             handle_login(db, req->get_login() );
     }
     else{
-        if ( req->has_add() )
+        switch (req->action().get_value_or(ActionId(-1,"NONE ACTION"))) {
+        case requests::user::userActionAdd:
             handle_add(db, req->get_add() );
-        else if( req->has_login() )
+            break;
+        case requests::user::userActionGet:
+            break;
+        case requests::user::userActionLogin:
             handle_login(db, req->get_login() );
-//        else if( )
-////        UserReq::ActionCase msgType = req.action_case();
-//        switch ( msgType ) {
-//        case UserReq::kAdd:
-//            handle_add(db, *req.mutable_add() );
-//            break;
-//        case UserReq::kLogin:
-//            handle_login(db, req.login() );
-//            break;
-//        case UserReq::kLogout:
-//            handle_logout(db, req.logout() );
-//            break;
-//        case UserReq::kGet:
-//            handle_get(db, req.get() );
-//            break;
-//        case UserReq::kRemove:
-//            handle_remove(db, req.remove() );
-//            break;
-//        case UserReq::kModify:
-//            handle_modify(db, req.modify() );
-//            break;
-//        case UserReq::kChangePasswd:
-//            handle_changePasswd(db, req.changepasswd());
-//            break;
-//        case UserReq::ACTION_NOT_SET:
-//            // send server error
-//            break;
-//        }
+            break;
+        default:
+            break;
+        }
     }
 //    addResponseMessage();
 }
@@ -124,41 +104,9 @@ void UserPU::raise_loginError(int err)
 
 void UserPU::loadUserCache(DB &db, uint64_t uid)
 {
-//    constexpr users u;
-//    constexpr inventories i;
-//    constexpr user_inventories ui;
-
-//    auto udAll = db( uh::selectAll( u.uid == uid ) );
-//    const auto &ud = udAll.front();
-///NOTE do i really need stored user information? UID only is not enougt?
-
+    Q_UNUSED(db);
     user()->setUid(uid);
-//    auto basic = user()->mutable_basic();
-//    auto stat   = user()->mutable_acl();
-
-//    basic->set_id   ( ud.uid );
-//    basic->set_nickname ( ud.name );
-//    basic->set_email( ud.email );
-//    basic->set_description( ud.description );
-
-//    stat->set_uid(uid);
-//    stat->set_group(ud.stat_group);
-//    stat->set_status( ud.status );
-//    stat->set_unixperms( ud.unixperms );
-
-    ///TODO get config
-
-//    auto userInventories = db(select(s.uid, s.owner, s.stat_group, s.unixperms, s.status, s.name )
-//                           .from(s.inner_join(us)
-//                                 .on(us.c_storage_id == s.uid) )
-//                           .where(us.user_id == uid ));
-
 }
-
-//void UserPU::addResponseMessage()
-//{
-//    add_response()->mutable_userres()->CopyFrom(m_response);
-//}
 
 void UserPU::handle_add(DB &db,const req::IAdd &msg)
 {
@@ -173,12 +121,13 @@ void UserPU::handle_add(DB &db,const req::IAdd &msg)
     }
 
     if( !validator.isValid( msg ) ){
+        raise_addErrorCode( res::IAdd::Error_BadName );
         error = true;
         return;
     }
 
     if(user()->isOnline()){
-        auth::AccesControl stat(user()->id());
+        auth::AccesControl stat(user()->uid());
 
         if(stat.checkUserAction<users>("create"))
             addUser(db, msg);

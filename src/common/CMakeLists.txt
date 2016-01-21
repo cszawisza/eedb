@@ -4,6 +4,7 @@ add_subdirectory(DataStructures/Adapters/Protobuf)
 
 include_directories( ${ProtobufIncludePath} )
 include_directories( ./Interfaces )
+include_directories( . )
 
 file(GLOB UTILS "utils/*.h" "utils/*.cpp" "utils/*.hpp"  )
 file(GLOB DS  "DataStructures/*.*" )

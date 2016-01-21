@@ -4,7 +4,7 @@
 #include "DataStructures/Adapters/Protobuf/CategoryRequestAdapter.hpp"
 
 #include "DataStructures/Adapters/Protobuf/ClientRequestAdapter.hpp"
-
+#include "Interfaces/DefinedActions.hpp"
 
 class ProtobufClientRequestAdapterTest : public testing::Test {
 public:
@@ -23,8 +23,8 @@ TEST_F(ProtobufClientRequestAdapterTest, getActionType){
     EXPECT_FALSE(sut.message_type().is_initialized());
 
     sut.category();
-    EXPECT_EQ( sut.message_type(), clientRequestsCategory);
+    EXPECT_EQ( sut.message_type(), actions::typeCategory);
 
     sut.user();
-    EXPECT_EQ( sut.message_type(), clientRequestsUser);
+    EXPECT_EQ( sut.message_type(), actions::typeUser);
 }

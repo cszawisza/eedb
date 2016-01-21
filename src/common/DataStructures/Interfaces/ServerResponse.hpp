@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../StructuresCommon.hpp"
-#include "CommonDefinitions.hpp"
 #include <QFlags>
 
 namespace responses{
@@ -9,7 +8,7 @@ namespace responses{
     class ICategory;
 }
 
-class IServerResponse{
+class IServerResponse: public ISerialize/*, public IMessageType*/{
 public:
     enum ResponseFlag{
         NoError             = 0,
@@ -20,13 +19,14 @@ public:
 
     virtual ~IServerResponse() = default;
 
-    virtual void parse(const QByteArray &data) = 0;
-    virtual QByteArray serialize() const = 0;
-
     virtual void set_response_id( UID id ) = 0;
-    virtual void set_in_response_to( UID id) = 0;
-    virtual void set_response_code( ResponseFlags code ) = 0;
+    virtual UID response_id() const = 0;
 
+    virtual void set_in_response_to( UID id) = 0;
+    virtual UID in_response_to() const = 0;
+
+    virtual void set_response_code( ResponseFlags code ) = 0;
+    virtual ResponseFlags response_code() const = 0;
 
     virtual responses::IUser* user() =0;
     virtual const responses::IUser& get_user() const = 0;

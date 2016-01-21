@@ -74,7 +74,7 @@ void InventoryHelper::linkWithUser(DB &db, SharedUserData user, uint64_t inv_id)
 {
     db(sqlpp::postgresql::insert_into(u_i).set(
        u_i.inventory_id = inv_id,
-           u_i.user_id = user->id() ) );
+           u_i.user_id = user->uid() ) );
 }
 
 void InventoryHelper::insertShelf(DB &db, protobuf::MsgInventoryRequest_AddShelf &add)

@@ -34,9 +34,19 @@ void ServerResponse::set_response_id(uint64_t id)
     m_data->set_response_id(id);
 }
 
+UID ServerResponse::response_id() const
+{
+    return m_data->response_id();
+}
+
 void ServerResponse::set_in_response_to(uint64_t id)
 {
     m_data->set_in_response_to(id);
+}
+
+UID ServerResponse::in_response_to() const
+{
+    return m_data->in_response_to();
 }
 
 responses::IUser *ServerResponse::user()
@@ -106,4 +116,10 @@ QByteArray ServerResponse::serialize() const
 void ServerResponse::set_response_code(IServerResponse::ResponseFlags code)
 {
     m_data->set_code(code);
+}
+
+IServerResponse::ResponseFlags ServerResponse::response_code() const
+{
+    int code = m_data->code();
+    return ResponseFlags(code);
 }

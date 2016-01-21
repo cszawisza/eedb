@@ -29,6 +29,7 @@ protected:
         ClientRequest parsed;
         parsed.parse(ba);
 
+        ///FIXME remove detachData statement
         sut = new Add( dynamic_cast<Add*>(parsed.user()->add())->detachData());
     }
 

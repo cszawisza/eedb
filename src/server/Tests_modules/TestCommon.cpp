@@ -1,6 +1,13 @@
 #include "TestCommon.hpp"
 
 #include "DataStructures/Adapters/Protobuf/ClientRequestAdapter.hpp"
+#include "DataStructures/Adapters/Protobuf/ServerResponseAdapter.hpp"
+
+#include "DataStructures/Adapters/Protobuf/CategoryRequestAdapter.hpp"
+#include "DataStructures/Adapters/Protobuf/UserRequestAdapter.hpp"
+
+#include "DataStructures/Adapters/Protobuf/UserResponseAdapter.hpp"
+#include "DataStructures/Adapters/Protobuf/CategoryResponseAdapter.hpp"
 
 #include "message_conteiner.pb.h"
 #include "common.pb.h"
@@ -49,6 +56,7 @@ SharedUserData test::login(DB &db, const string &name, const string &pass){
     loginReq->credentials()->set_authorization(name);
 
     eedb::pu::UserPU userHandler;
+    userHandler.setOutputData( new ServerResponse() );
     userHandler.process(db, &req);
     return userHandler.user();
 }

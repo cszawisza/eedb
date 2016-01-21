@@ -20,7 +20,7 @@ eedb::utils::UserConfig::UserConfig(std::string json)
 
 QString eedb::utils::UserConfig::toString() const
 {
-    return QString(getJson());
+    return QString::fromLatin1(getJson());
 }
 
 std::string eedb::utils::UserConfig::toStdString() const

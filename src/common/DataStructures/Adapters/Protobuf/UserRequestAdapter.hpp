@@ -25,7 +25,7 @@ public:
     Criterion();
     Criterion(protobuf::UserReq_Get_Where *msg);
     ~Criterion();
-    void require_data_own(bool self);
+    void require_data_own(bool self = true);
     void require_data_of_user(const IAuthorizationData &id);
 
     bool has_requested_own_data() const;
@@ -35,15 +35,15 @@ public:
     protobuf::UserReq_Get_Where *detachData();
 private:
     Criterion(protobuf::UserReq_Get_Where *msg, bool take);
-    bool m_takeOwnership;
     protobuf::UserReq_Get_Where *m_data;
+    bool m_takeOwnership;
 };
 
 class Add: public requests::user::IAdd
 {
 public:
-    Add();
     Add( protobuf::UserReq_Add * );
+    Add( const protobuf::UserReq_Add &req);
     ~Add();
 
     UID get_id() const override;
@@ -99,11 +99,11 @@ public:
     bool has_phoneNumber() const override;
     void clear_phoneNumber() override;
 
-    protobuf::UserReq_Add *detachData();
+    protobuf::UserReq_Add* detachData();
 private:
     protobuf::UserReq_Add *m_data;
-    bool take_ovnership = false;
-//    mutable ProtobufAclAdapter *m_adp;
+    bool m_takeOwnership;
+    bool m_isMutable;
 };
 
 class Login: public requests::user::ILogin
@@ -112,6 +112,7 @@ class Login: public requests::user::ILogin
 public:
     Login();
     Login( protobuf::UserReq_Login *login_msg );
+    Login( const protobuf::UserReq_Login &login );
     ~Login();
 
     IAuthorizationData* credentials() override;
@@ -127,7 +128,8 @@ public:
     protobuf::UserReq_Login *detachData();
 private:
     protobuf::UserReq_Login *m_data;
-    bool m_takeOvnership = false;
+    bool m_takeOvnership;
+    bool m_isMutable;
 
     mutable ProtobufAuthorizationDataAdapter* m_auth;
 };
@@ -138,6 +140,7 @@ class Get: public requests::user::IGet
 public:
     Get();
     Get( protobuf::UserReq_Get *get );
+    Get( const protobuf::UserReq_Get &get );
     ~Get();
 
     bool has_requestedUid() const override;
@@ -165,7 +168,8 @@ public:
     protobuf::UserReq_Get *detachData();
 private:
     protobuf::UserReq_Get * m_data;
-    bool m_takeOvnership = false;
+    bool m_takeOvnership;
+    bool m_isMutable;
     mutable user::Criterion *m_crit;
 };
 
@@ -175,9 +179,10 @@ class User: public requests::IUser {
 public:
     User();
     User( protobuf::UserReq *req );
+    User( const protobuf::UserReq &req);
     ~User();
 
-    boost::optional<ActionId> action() const;
+    boost::optional<ActionId> action_type() const override;
 
     requests::user::IAdd* add() override;
     const requests::user::IAdd& get_add() const override;
@@ -197,11 +202,12 @@ public:
     protobuf::UserReq *detachData();
 private:
     protobuf::UserReq *m_data;
-    bool m_takeOvnership = false;
+    bool m_takeOvnership;
+    bool m_isMutable;
 
-    mutable requests::user::IAdd *m_add;
-    mutable requests::user::ILogin *m_login;
-    mutable requests::user::IGet *m_get;
+    mutable std::shared_ptr<requests::user::IAdd> m_add;
+    mutable std::shared_ptr<requests::user::ILogin> m_login;
+    mutable std::shared_ptr<requests::user::IGet> m_get;
 };
 
 }
