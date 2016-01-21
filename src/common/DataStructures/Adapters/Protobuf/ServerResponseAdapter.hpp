@@ -49,5 +49,6 @@ private:
 public:
     void parse(const QByteArray &data) override;
     QByteArray serialize() const override;
+    mutable QByteArray m_buffer;
 };
 

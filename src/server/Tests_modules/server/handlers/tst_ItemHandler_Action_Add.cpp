@@ -1,14 +1,14 @@
 #include "gtest/gtest.h"
 #include "TestCommon.hpp"
 
-#include "DataStructures/Adapters/Protobuf/ClientRequestAdapter.hpp"
-#include "DataStructures/Adapters/Protobuf/ServerResponseAdapter.hpp"
+//#include "DataStructures/Adapters/Protobuf/ClientRequestAdapter.hpp"
+//#include "DataStructures/Adapters/Protobuf/ServerResponseAdapter.hpp"
 
-using namespace eedb::db;
-using namespace test;
+//using namespace eedb::db;
+//using namespace test;
 
-constexpr schema::items i;
-constexpr schema::users u;
+//constexpr schema::items i;
+//constexpr schema::users u;
 
 //class ItemHandlerAddTest : public ::testing::Test
 //{

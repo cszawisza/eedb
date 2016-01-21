@@ -6,6 +6,8 @@
 
 #include "utils/unixPerms.hpp"
 
+#include "UserHelper.hpp"
+
 using boost::optional;
 
 namespace eedb{
@@ -30,8 +32,13 @@ optional<int64_t> InventoryHelper::getInventoryIdByName(DB &db, const string &na
 
 optional<int64_t> InventoryHelper::getShelfId(DB &db, uint64_t parentId, const string &name)
 {
-    ///TODO prevent sql injection
-    auto val = db(sqlpp::select(s.uid).from(s).where(s.name == name and s.inventory_id == parentId ));
+    auto selectStatement = sqlpp::select(s.uid).from(s).where(s.name == sqlpp::parameter(s.name) and s.inventory_id == parameter(s.inventory_id) );
+
+    auto prepared = db.prepare(selectStatement);
+    prepared.params.name = name;
+    prepared.params.inventory_id = parentId;
+
+    auto val = db(prepared);
 
     optional<int64_t> id;
     if(!val.empty())
@@ -43,8 +50,8 @@ void InventoryHelper::insertInventory(DB &db, protobuf::MsgInventoryRequest_Add 
 {
     if(!add.has_acl()){
         auto stat = add.mutable_acl();
-        stat->set_owner(1); ///TODO set proper root id
-        stat->set_group(2); ///TOFO set proper group (some default group)
+        stat->set_owner( eedb::db::UserHelper::getRootId( db ) );
+        stat->set_group(2); ///TODO set proper group (some default group)
         stat->set_status( auth::State_Normal );
         stat->set_unixperms( UnixPermissions("-rwdrw-r--").toInteger() );
     }
@@ -70,7 +77,7 @@ void InventoryHelper::insertInventory(DB &db, protobuf::MsgInventoryRequest_Add 
     add.mutable_acl()->set_uid(inserted.front().uid);
 }
 
-void InventoryHelper::linkWithUser(DB &db, SharedUserData user, uint64_t inv_id)
+void InventoryHelper::linkWithUser(DB &db, std::shared_ptr<UserData> user, uint64_t inv_id)
 {
     db(sqlpp::postgresql::insert_into(u_i).set(
        u_i.inventory_id = inv_id,

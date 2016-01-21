@@ -36,5 +36,3 @@ class ClientCache
 public:
     ClientCache();
 };
-
-using SharedUserData = QSharedPointer<UserData>;

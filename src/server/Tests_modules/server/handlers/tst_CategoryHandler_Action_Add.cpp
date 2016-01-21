@@ -9,6 +9,15 @@
 #include "DataStructures/Adapters/Protobuf/CategoryResponseAdapter.hpp"
 #include "DataStructures/Adapters/Protobuf/UserResponseAdapter.hpp"
 
+#include "auth/acl.hpp"
+#include "auth/action.hpp"
+#include "auth/implementedaction.hpp"
+#include "auth/privilege.hpp"
+
+#include "database/CategoryHelper.hpp"
+
+#include "ProcessingUnits/CategoryPU.hpp"
+
 using namespace eedb::db;
 using namespace test;
 
@@ -33,7 +42,7 @@ public:
     }
 
     IServerResponse* runMessageHandlerProcess(){
-        handler.setOutputData( new ServerResponse() );
+        handler.setOutputData(std::make_shared<ServerResponse>());
         handler.process(db, &clientReq);
         return handler.response();
     }

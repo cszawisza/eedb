@@ -1,10 +1,21 @@
 #include "UserHelper.hpp"
 
+#include "sql_schema/user_inventories.h"
+#include "sql_schema/user_history.h"
+#include "sql_schema/inventories.h"
+#include "auth/implementedaction.hpp"
+#include "auth/privilege.hpp"
+#include "auth/acl.hpp"
+
 #include <Interfaces/UserRequests.hpp>
 #include <Interfaces/AclData.hpp>
 
+#include "utils/hash_passwd.h"
+
 namespace eedb{
 namespace db{
+
+boost::optional<UID> UserHelper::m_rootID = boost::none;
 
 UID UserHelper::insertUser(DB &db, const requests::user::IAdd &msg)
 {
@@ -71,5 +82,23 @@ UID UserHelper::insertUser(DB &db, const requests::user::IAdd &msg)
 
     return insertedId.front().uid;
 }
+
+UID UserHelper::getRootId(DB &db)
+{
+    static constexpr schema::users u;
+    if(!m_rootID.is_initialized()){
+        try{
+            m_rootID = (UID)db(sqlpp::select(u.uid).from(u).where(u.name == "ROOT")).front().uid;
+        }
+        catch( sqlpp::postgresql::pg_exception * ){
+            ///TODO add logs
+        }
+        catch( sqlpp::exception * ){
+            ///TODO add logs
+        }
+    }
+    return m_rootID.get_value_or(1);
+}
+
 }
 }

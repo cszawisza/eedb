@@ -10,9 +10,11 @@ protected:
 };
 
 TEST_F( NickNameValidatorTest, toLongName ){
-    EXPECT_FALSE(sut.isValid(("asdfghjkloasdfghjklasdfghjklasdfghjklasdfghjklasdfghjklasdfghjklasdfghjklasdfghjklasdfghjklasdfghjklx")));
+    EXPECT_FALSE(sut.isValid("asdfghjkloasdfghjklasdfghjklasdfghjklasdfghjklasdfghjklasdfghjklasdfghjklasdfghjklasdfghjklasdfghjklx"));
+    EXPECT_TRUE (sut.isValid("sdjhfsdfhjklx"));
     sut.setMaxNickNameLength(5);
     EXPECT_FALSE(sut.isValid(("asdfgh") ));
+    EXPECT_FALSE(sut.isValid(("asdfh") ));
 }
 
 TEST_F( NickNameValidatorTest, toShortName ){
@@ -23,10 +25,11 @@ TEST_F( NickNameValidatorTest, toShortName ){
 
 TEST_F( NickNameValidatorTest, validNames ){
     EXPECT_TRUE(sut.isValid("A_NAME"));
-    EXPECT_TRUE(sut.isValid("aa"));
+    EXPECT_TRUE(sut.isValid("aaa"));
     EXPECT_TRUE(sut.isValid("a123_"));
 }
 
 TEST_F( NickNameValidatorTest, invalidCharacters ){
     EXPECT_FALSE( sut.isValid("name_with_invalid_@_char"));
+    EXPECT_FALSE( sut.isValid("name_with_invalid_ _char"));
 }

@@ -1,6 +1,8 @@
 #include "CategoryResponseAdapter.hpp"
 
 #include "category.pb.h"
+#include <../Interfaces/DefinedActions.hpp>
+
 
 responses::category::Add::Add(protobuf::StdError *add):
     m_data(add),
@@ -52,14 +54,15 @@ responses::category::Get::~Get()
         delete m_data;
 }
 
-void responses::category::Get::set_code(responses::category::IGet::GetErrors)
+void responses::category::Get::set_code(responses::category::IGet::GetErrors e)
 {
-    ///TODO Implement
+    Q_ASSERT(m_isMutable);
+    m_data->set_error_code(e);
 }
 
 responses::category::IGet::GetErrors responses::category::Get::get_error_codes() const
 {
-    ///TODO Implement
+    return IGet::GetErrors(m_data->error_code());
 }
 
 responses::category::IAdd *responses::Category::add()
@@ -103,7 +106,20 @@ responses::Category::~Category()
 
 boost::optional<ActionId> responses::Category::action_type() const
 {
-    ///TODO implement
+    using namespace protobuf;
+    using namespace actions::category;
+    switch (m_data->action_case()) {
+    case CategoryReq::kAdd:
+        return ActionAdd;
+    case CategoryReq::kGet:
+        return ActionGet;
+    case CategoryReq::kModify:
+        return ActionModify;
+    case CategoryReq::kRemove:
+        return ActionRemove;
+    default:
+        break;
+    }
     return boost::none;
 }
 

@@ -13,7 +13,7 @@
 
 #define STR(x) #x
 #define STATE_GUARD(statename) \
-    // connect( statename, &QState::entered, [&](){ qDebug() << STR(statename) << " entered "; } );  connect( statename, &QState::exited, [&](){ qDebug() << STR(statename) << " exited "; } );
+     connect( statename, &QState::entered, [&](){ qDebug() << STR(statename) << " entered "; } );  connect( statename, &QState::exited, [&](){ qDebug() << STR(statename) << " exited "; } );
 
 
 LoginDialog::LoginDialog(const ILoginVerificator &p_loginVerificator,
@@ -245,7 +245,7 @@ void LoginDialog::loginToServer()
 
 void LoginDialog::setDeafultServerInfo()
 {
-    ui->serverIp->setText(setup.value(QStringLiteral("ServerIp"), QStringLiteral("eedb.pl")).toString());
+    ui->serverIp->setText(setup.value(QStringLiteral("ServerIp"), QStringLiteral("localhost")).toString());
     ui->serverPort->setText(setup.value(QStringLiteral("ServerPort"), 6666).toString());
     ui->userLogin->setText(setup.value(QStringLiteral("Login"), QStringLiteral("")).toString());
     ui->userPassword->setEchoMode(QLineEdit::Password);

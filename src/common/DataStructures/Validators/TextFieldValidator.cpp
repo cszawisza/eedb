@@ -23,8 +23,8 @@ bool TextFieldValidator::isValid(const QString &data) const
 bool TextFieldValidator::hasValidLength(const String &data) const
 {
     auto len = data.length();
-    if( len > maxNickNameLength() ||
-            len < minNickNameLength() ){
+    if( len >= maxTextLength() ||
+            len <= minTextLength() ){
         return false;
     }
     return true;
@@ -35,22 +35,22 @@ bool TextFieldValidator::isValid(const char *data) const
     return isValid( String(data));
 }
 
-size_t TextFieldValidator::maxNickNameLength() const
+size_t TextFieldValidator::maxTextLength() const
 {
     return m_maxNickNameLength;
 }
 
-void TextFieldValidator::setMaxNickNameLength(const size_t &maxNickNameLength)
+void TextFieldValidator::setMaxTextLength(const size_t &textLength)
 {
-    m_maxNickNameLength = maxNickNameLength;
+    m_maxNickNameLength = textLength;
 }
 
-size_t TextFieldValidator::minNickNameLength() const
+size_t TextFieldValidator::minTextLength() const
 {
     return m_minNickNameLength;
 }
 
-void TextFieldValidator::setMinNickNameLength(const size_t &minNickNameLength)
+void TextFieldValidator::setMinTextLength(const size_t &textLength)
 {
-    m_minNickNameLength = minNickNameLength;
+    m_minNickNameLength = textLength;
 }

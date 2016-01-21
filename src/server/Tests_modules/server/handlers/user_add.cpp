@@ -1,12 +1,15 @@
 #include "gtest/gtest.h"
 #include "TestCommon.hpp"
 
+#include "database/idatabase.h"
+
 ///TODO do not use protobuf structures in tests
 #include "DataStructures/Adapters/Protobuf/ClientRequestAdapter.hpp"
 #include "DataStructures/Adapters/Protobuf/ServerResponseAdapter.hpp"
 #include "DataStructures/Adapters/Protobuf/UserRequestAdapter.hpp"
 #include "DataStructures/Adapters/Protobuf/UserResponseAdapter.hpp"
 
+#include "core/ProcessingUnits/UserPU.hpp"
 #include <boost/algorithm/string.hpp>
 
 using namespace test;
@@ -25,7 +28,7 @@ public:
     }
 
     responses::user::IAdd::AddErrors sendRequest( ){
-        handler.setOutputData(new ServerResponse() );
+        handler.setOutputData(std::make_shared<ServerResponse>());
         handler.process(db, &req);
         return handler.response()->user()->add()->get_error_code();
     }

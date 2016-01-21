@@ -36,10 +36,6 @@ TEST_F(UserHelperTest, checkIfExists ){
     EXPECT_FALSE(db(e).front().exists );
 }
 
-//TEST_F(UserHelperTest, getUserData ){
-
-//}
-
 TEST_F(UserHelperTest, prep){
     constexpr schema::users u;
     auto preparedStatement = db.prepare( helper.selectExists(u.name == parameter(u.name)) );

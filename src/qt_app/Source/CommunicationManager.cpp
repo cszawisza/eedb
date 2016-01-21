@@ -34,12 +34,8 @@ void handleConvertedServerResponse(const auto p_serverResponse)
 
 } // namespace anonymous
 
-CommunicationManager::CommunicationManager(QSharedPointer<ISocket> p_webSocket,
-                                           std::shared_ptr<IClientRequest> p_req,
-                                           std::shared_ptr<IServerResponse> p_res)
-    : m_socket(p_webSocket),
-      m_req(p_req),
-      m_res(p_res)
+CommunicationManager::CommunicationManager(QSharedPointer<ISocket> p_webSocket)
+    : m_socket(p_webSocket)
 {
     auto socket = m_socket.data();
 
@@ -62,6 +58,15 @@ CommunicationManager::CommunicationManager(QSharedPointer<ISocket> p_webSocket,
     QObject::connect(socket, &ISocket::closed, [this](){
         emit socketDisconnected();
     });
+}
+
+void CommunicationManager::sendRequest(IClientRequest *req)
+{
+    qDebug() << "CommunicationManager::sendBinaryMessageOverQWebSocket()";
+    ///FIXME
+    m_socket->sendBinaryMessage( req->serialize() );
+//    for(const auto &req :*p_clientRequests.mutable_request() )
+//        emit userRequestSent( RequestMetadata(p_clientRequests) );
 }
 
 //void CommunicationManager::handleRegister(std::string & p_userName, std::string & p_userPassword,
@@ -97,19 +102,10 @@ CommunicationManager::CommunicationManager(QSharedPointer<ISocket> p_webSocket,
 //}
 
 
-void CommunicationManager::sendRequest()
-{
-    qDebug() << "CommunicationManager::sendBinaryMessageOverQWebSocket()";
-    ///FIXME
-//    m_socket->sendBinaryMessage(m_convertProtobufToQByteArray(p_clientRequests));
-//    for(const auto &req :*p_clientRequests.mutable_request() )
-//        emit userRequestSent( RequestMetadata(p_clientRequests) );
-}
-
 void CommunicationManager::sendUserRequest(IClientRequest* data)
 {
     if(m_socket->state() == QAbstractSocket::ConnectedState ){
-        sendRequest();
+        sendRequest(data);
     }
 }
 

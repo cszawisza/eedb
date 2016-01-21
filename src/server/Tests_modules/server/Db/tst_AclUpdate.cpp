@@ -1,8 +1,8 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include <sqlpp11/sqlpp11.h>
-#include "database/UserHelper.hpp"
+#include "database/AclHelper.hpp"
+#include "sql_schema/users.h"
 
 #include "TestCommon.hpp"
 

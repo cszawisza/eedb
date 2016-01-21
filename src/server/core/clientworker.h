@@ -19,8 +19,7 @@ class ClientWorker : public QObject
 public:
     explicit ClientWorker(QObject *parent = 0);
 
-    void printMessageInfo(const IClientRequest &request);
-    void processMessage(const QByteArray &message);
+    void processMessage();
 signals:
     /**
      * @brief beforeProcessing signal emited before worker atempts to parse message
@@ -50,9 +49,12 @@ public slots:
      */
     void processBinnaryMessage(QByteArray frame);
 private:
-    SharedUserData m_cache;
-    IServerResponse *m_response;
-    IClientRequest *m_request;
+    void printMessageInfo(const IMessageContainer *request);
+
+    std::shared_ptr<UserData> m_cache;
+    std::shared_ptr<IServerResponse> m_response;
+    std::shared_ptr<IClientRequest> m_request;
+
     QHash<ActionTypeId, QSharedPointer<IMessageProcessingUnit>> m_msgHandlers;
     QSharedPointer<IMessageProcessingUnit> m_defaultProcessor;
 };

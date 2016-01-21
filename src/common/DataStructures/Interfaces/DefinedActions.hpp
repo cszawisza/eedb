@@ -22,6 +22,11 @@ SCA ActionModify        = ActionId(5, "user::modify");
 
 namespace category{
 
+SCA ActionAdd           = ActionId(0, "category::add");
+SCA ActionGet           = ActionId(2, "category::get");
+SCA ActionModify        = ActionId(5, "category::modify");
+SCA ActionRemove        = ActionId(10,"category::remove");
+
 }
 
 namespace item{

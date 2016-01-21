@@ -12,6 +12,7 @@
 #include "sql_schema/categories.h"
 #include "sql_schema/items.h"
 
+#include "auth/acl.hpp"
 
 using auth::Action;
 using auth::Groups;

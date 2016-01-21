@@ -15,15 +15,13 @@ class CommunicationManager : public ICommunicationManager
 {
     Q_OBJECT
 public:
-    CommunicationManager(QSharedPointer<ISocket> p_webSocket,
-                         std::shared_ptr<IClientRequest> p_req,
-                         std::shared_ptr<IServerResponse> p_res);
+    CommunicationManager(QSharedPointer<ISocket> p_webSocket);
 
     ~CommunicationManager(){}
 
     //    protobuf::ClientRequest *newRequest(uint64_t &request_id ) override;
 
-    void sendRequest();
+    void sendRequest( IClientRequest *req );
     //    QSharedPointer<ISocket> socket() const override;
 public slots:
     void sendUserRequest( IClientRequest* data) override;

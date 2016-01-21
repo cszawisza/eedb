@@ -1,7 +1,7 @@
 #include "CategoryRequestAdapter.hpp"
 
 #include "category.pb.h"
-
+#include "DefinedActions.hpp"
 
 requests::Category::Category():
     m_takeovnership(true),
@@ -197,7 +197,21 @@ bool requests::category::Criteria::has_requested_all() const
 
 boost::optional<ActionId> requests::Category::action_type() const
 {
-    ///TODO implement
+    ///TODO introduce a common method for requests and responses
+    using namespace protobuf;
+    using namespace actions::category;
+    switch (m_data->action_case()) {
+    case CategoryReq::kAdd:
+        return ActionAdd;
+    case CategoryReq::kGet:
+        return ActionGet;
+    case CategoryReq::kModify:
+        return ActionModify;
+    case CategoryReq::kRemove:
+        return ActionRemove;
+    default:
+        break;
+    }
     return boost::none;
 }
 

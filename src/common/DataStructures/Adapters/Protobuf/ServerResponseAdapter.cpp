@@ -11,7 +11,7 @@ ServerResponse::ServerResponse():
     m_user(),
     m_category()
 {
-
+    m_buffer.reserve(1024*500); // reserve 500k of buffer data
 }
 
 ServerResponse::ServerResponse(protobuf::ServerResponse *req):
@@ -20,7 +20,7 @@ ServerResponse::ServerResponse(protobuf::ServerResponse *req):
     m_user(),
     m_category()
 {
-
+    m_buffer.reserve(1024*500); // reserve 500k of buffer data
 }
 
 ServerResponse::~ServerResponse()
@@ -107,10 +107,9 @@ QByteArray ServerResponse::serialize() const
 {
     int size = m_data->ByteSize();
 
-    QByteArray ba;
-    ba.resize(size);
-    m_data->SerializePartialToArray(ba.data(), size);
-    return ba;
+    m_buffer.resize(size);
+    m_data->SerializeToArray(m_buffer.data(), size);
+    return m_buffer;
 }
 
 void ServerResponse::set_response_code(IServerResponse::ResponseFlags code)

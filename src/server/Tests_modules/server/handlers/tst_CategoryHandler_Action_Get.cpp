@@ -1,14 +1,22 @@
 #include "gtest/gtest.h"
 #include "TestCommon.hpp"
 
-using namespace eedb::db;
-using namespace test;
+#include "database/idatabase.h"
+#include "ProcessingUnits/CategoryPU.hpp"
+#include "database/CategoryHelper.hpp"
+#include "database/AclHelper.hpp"
+#include "auth/acl.hpp"
+#include "auth/privilege.hpp"
+
+#include "sql_schema/categories.h"
 
 ///TODO intruduce a std implementation of messages to avoid using one of adapters
 #include "DataStructures/Adapters/Protobuf/ClientRequestAdapter.hpp"
 
 #include "DataStructures/Adapters/Protobuf/CategoryRequestAdapter.hpp"
 #include "DataStructures/Adapters/Protobuf/ServerResponseAdapter.hpp"
+using namespace eedb::db;
+using namespace test;
 
 class CategoryHelperGetTest : public ::testing::Test
 {

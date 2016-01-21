@@ -3,41 +3,14 @@
 #include <string>
 #include <memory>
 
-#include <sqlpp11/sqlpp11.h>
-
-#include "ProcessingUnits/InventoryPU.hpp"
-#include "ProcessingUnits/UserPU.hpp"
-#include "ProcessingUnits/CategoryPU.hpp"
-#include "ProcessingUnits/ItemPU.hpp"
-
-#include "sql_schema/items.h"
-#include "sql_schema/item_files.h"
-#include "sql_schema/users.h"
-#include "sql_schema/user_history.h"
-#include "sql_schema/shelfs.h"
-#include "sql_schema/inventories.h"
-#include "sql_schema/files.h"
-#include "sql_schema/categories.h"
-#include "sql_schema/category_files.h"
-
-#include "database/idatabase.h"
-#include "database/AclHelper.hpp"
-#include "database/InventoryHelper.hpp"
-#include "database/UserHelper.hpp"
-#include "database/CategoryHelper.hpp"
-
-
-//#include "DataStructures/Adapters/Protobuf/UserRequestAdapter.hpp"
-
-using std::string;
+class UserData;
+class DB;
 
 namespace test{
 
-using eedb::db::UserHelper;
+extern uint64_t addUser(DB &db, const std::string &name, const std::string &pass = "xxxx");
 
-extern quint64 addUser(DB &db, const string &name, const std::string &pass = "xxxx");
-
-extern SharedUserData login(DB &db, const string &name, const std::string &pass = "xxxx");
+extern std::shared_ptr<UserData> login(DB &db, const std::string &name, const std::string &pass = "xxxx");
 
 //extern quint64 addInventory(DB &db, string name, SharedUserData data );
 

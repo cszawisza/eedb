@@ -14,6 +14,7 @@ public:
         NoError             = 0,
         Error_UserOfline    = 1<<1,
         Error_AccesDeny     = 1<<2,
+        Error_UnknownMessage= 1<<3
     };
     Q_DECLARE_FLAGS(ResponseFlags, ResponseFlag)
 

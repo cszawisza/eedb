@@ -2,7 +2,7 @@
 
 #include <QString>
 
-constexpr auto notAllowedCharacters = "@";
+constexpr auto notAllowedCharacters = "@ ";
 
 NickNameValidator::NickNameValidator() :
     TextFieldValidator(2,100)

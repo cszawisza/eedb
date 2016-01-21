@@ -1,11 +1,13 @@
 #include "UserPU.hpp"
-#include "database/UserHelper.hpp"
-#include "auth/acl.hpp"
+
 #include "utils/LogUtils.hpp"
+#include "utils/hash_passwd.h"
+
+#include "auth/acl.hpp"
+#include "database/UserHelper.hpp"
 
 #include <Interfaces/UserRequests.hpp>
 #include <Interfaces/UserResponses.hpp>
-
 #include <Interfaces/DefinedActions.hpp>
 
 #include <Validators/UserDataValidator.hpp>
@@ -33,8 +35,7 @@ void saveUserActionInDatabase(DB& db, uint64_t uid, const string &action){
     try{
         db(sqlpp::postgresql::insert_into(uh).set(uh.uid = uid, uh.action = action ));
     }
-    catch(const pg_exception &e){
-        ///TODO proper exception handling
+    catch(const pg_exception &e){      
         LOG_DB_ERROR(e);
     }
 }
@@ -76,15 +77,19 @@ void UserPU::process(DB &db, IClientRequest *msgReq)
 
 void UserPU::addUser(DB &db, const req::IAdd &msg)
 {
+    using namespace responses::user;
     try{
         auto uid = eedb::db::UserHelper::insertUser(db, msg);
-//        addErrorCode(UserRes_Reply_UserAddOk );
+
+        response()->user()->add()->set_error(IAdd::Error_noError);
+        response()->user()->add()->set_successful(true);
+
         saveUserActionInDatabase(db, uid, "register" );
     }
     catch (const pg_exception &e) {
         LOG_DB_EXCEPTION(e)
         if(e.code().pgClass() == "23" ){ //integrity constant validation
-//            addErrorCode(UserRes_Reply_UserAlreadyExists);
+            raise_addErrorCode(res::IAdd::Error_UserExists );
         }
     }
 }

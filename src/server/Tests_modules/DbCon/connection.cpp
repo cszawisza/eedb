@@ -41,7 +41,7 @@ struct t_test : sqlpp::table_t<t_test, t_test_::x> {
     };
 };
 
-t_test test;
+constexpr t_test test;
 
 TEST(DB, connectToDatabaseAndSimpleQUery){
     DB db;

@@ -13,6 +13,31 @@
 #include "common.pb.h"
 #include "user.pb.h"
 
+#include "database/idatabase.h"
+#include "database/AclHelper.hpp"
+#include "database/InventoryHelper.hpp"
+#include "database/UserHelper.hpp"
+#include "database/CategoryHelper.hpp"
+
+#include <sqlpp11/sqlpp11.h>
+
+#include "ProcessingUnits/InventoryPU.hpp"
+#include "ProcessingUnits/UserPU.hpp"
+#include "ProcessingUnits/CategoryPU.hpp"
+#include "ProcessingUnits/ItemPU.hpp"
+
+#include "sql_schema/items.h"
+#include "sql_schema/item_files.h"
+#include "sql_schema/users.h"
+#include "sql_schema/user_history.h"
+#include "sql_schema/shelfs.h"
+#include "sql_schema/inventories.h"
+#include "sql_schema/files.h"
+#include "sql_schema/categories.h"
+#include "sql_schema/category_files.h"
+
+using namespace eedb::db;
+
 string test::random_string(size_t length)
 {
     auto randchar = []() -> char
@@ -47,7 +72,7 @@ return str;
 //    return eedb::db::InventoryHelper::getShelfId(db, storageId, name).get_value_or(0);
 //}
 
-SharedUserData test::login(DB &db, const string &name, const string &pass){
+std::shared_ptr<UserData> test::login(DB &db, const string &name, const string &pass){
 
     // set pb namespace
     auto req = ClientRequest();
@@ -56,12 +81,12 @@ SharedUserData test::login(DB &db, const string &name, const string &pass){
     loginReq->credentials()->set_authorization(name);
 
     eedb::pu::UserPU userHandler;
-    userHandler.setOutputData( new ServerResponse() );
+    userHandler.setOutputData( std::make_shared<ServerResponse>() );
     userHandler.process(db, &req);
     return userHandler.user();
 }
 
-quint64 test::addUser(DB &db, const string &name, const string &pass){
+uint64_t test::addUser(DB &db, const string &name, const string &pass){
     constexpr schema::users u;
     auto msg = std::make_shared<requests::user::Add>();
 

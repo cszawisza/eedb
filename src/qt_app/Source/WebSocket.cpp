@@ -8,7 +8,9 @@ void WebSocket::sendBinaryMessage(QByteArray message)
 
 void WebSocket::open(const QUrl &url)
 {
-    m_socket.open(url);
+    auto p_url = url;
+    p_url.setScheme(QStringLiteral("ws"));
+    m_socket.open(p_url);
 }
 
 void WebSocket::close(ISocket::CloseCode closeCode, const QString &reason)

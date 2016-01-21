@@ -1,6 +1,9 @@
 #include "gtest/gtest.h"
 #include "TestCommon.hpp"
 
+#include "database/idatabase.h"
+#include "ProcessingUnits/UserPU.hpp"
+
 #include "DataStructures/Adapters/Protobuf/ClientRequestAdapter.hpp"
 #include "DataStructures/Adapters/Protobuf/ServerResponseAdapter.hpp"
 
@@ -46,7 +49,7 @@ public:
     }
 
     responses::user::ILogin::LoginErrors requestLogin(){
-        handler.setOutputData(new ServerResponse() );
+        handler.setOutputData(std::make_shared<ServerResponse>());
         handler.process(db, &req);
 
         return handler.response()->user()->login()->get_error_code();

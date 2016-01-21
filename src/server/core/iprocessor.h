@@ -2,13 +2,7 @@
 // interface allowing to create message parsers
 #include <atomic>
 
-#include <QObject>
-#include <QSharedPointer>
-#include <QDebug>
-
 #include "clientcache.h"
-#include "database/idatabase.h"
-#include "auth/acl.hpp"
 
 #include <Interfaces/ClientRequest.hpp>
 #include <Interfaces/ServerResponse.hpp>
@@ -16,6 +10,7 @@
 /**
  * @brief The IProcessor class
  */
+class DB;
 
 class IMessageProcessingUnit
 {
@@ -26,12 +21,12 @@ public:
      * @brief setClientCache
      * @param cache: sets a pointer to common cache (containing user status information and session stuf)
      */
-    void setUserData( SharedUserData userData);
+    void setUserData( std::shared_ptr<UserData> userData);
 
-    void setOutputData( IServerResponse *frame );
+    void setOutputData(std::shared_ptr<IServerResponse> frame );
 
     void clear();
-    SharedUserData user();
+    std::shared_ptr<UserData> user();
 
     virtual void process(IClientRequest *req);
     virtual void process(DB &db, IClientRequest *req);
@@ -42,7 +37,6 @@ public:
 
 private:
     static std::atomic<quint64> m_response_id;
-    quint64 m_currentRequestId = 0;
-    SharedUserData m_userData;
-    IServerResponse *m_response;
+    std::shared_ptr<UserData> m_userData;
+    std::shared_ptr<IServerResponse> m_response;
 };

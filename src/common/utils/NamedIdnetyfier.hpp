@@ -9,7 +9,7 @@ class NamedIdentyfier
         explicit constexpr NamedIdentyfier(const ID& val) : _value(val), _name(""){}
         constexpr NamedIdentyfier(const ID& val, const char *name) : _value(val), _name(name) {}
         constexpr ID getId() const {return _value; }
-        constexpr char *getName() const { return _name; }
+        constexpr const char *getName() const { return _name; }
 
         constexpr operator int () const { return _value; }
 

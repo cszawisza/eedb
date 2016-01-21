@@ -24,7 +24,6 @@ private:
     static void push(unique_ptr<DbConnection> &&db);
     static size_t size();
 
-
     static mutex m_dbMutex;
     static stack<unique_ptr<DbConnection>> m_databases;
 };
@@ -99,3 +98,7 @@ public:
         return db->operator()(t);
     }
 };
+
+//class Transaction : public DB {
+
+//};
