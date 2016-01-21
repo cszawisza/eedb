@@ -124,7 +124,7 @@ MRichTextEdit::MRichTextEdit(QWidget *parent) : QWidget(parent) {
     connect(f_strikeout, SIGNAL(clicked()), this, SLOT(textStrikeout()));
 
     QAction *removeFormat = new QAction(tr("Remove character formatting"), this);
-    removeFormat->setShortcut(QKeySequence("CTRL+M"));
+    removeFormat->setShortcut(QKeySequence(QStringLiteral("CTRL+M")));
     connect(removeFormat, SIGNAL(triggered()), this, SLOT(textRemoveFormat()));
     f_textedit->addAction(removeFormat);
 
@@ -133,7 +133,7 @@ MRichTextEdit::MRichTextEdit(QWidget *parent) : QWidget(parent) {
     f_textedit->addAction(removeAllFormat);
 
     QAction *textsource = new QAction(tr("Edit document source"), this);
-    textsource->setShortcut(QKeySequence("CTRL+O"));
+    textsource->setShortcut(QKeySequence(QStringLiteral("CTRL+O")));
     connect(textsource, SIGNAL(triggered()), this, SLOT(textSource()));
     f_textedit->addAction(textsource);
 
@@ -216,7 +216,7 @@ void MRichTextEdit::textRemoveFormat() {
     f_underline ->setChecked(false);
     f_italic    ->setChecked(false);
     f_strikeout ->setChecked(false);
-    f_fontsize  ->setCurrentIndex(f_fontsize->findText("9"));
+    f_fontsize  ->setCurrentIndex(f_fontsize->findText(QStringLiteral("9")));
 
 //  QTextBlockFormat bfmt = cursor.blockFormat();
 //  bfmt->setIndent(0);
@@ -232,7 +232,7 @@ void MRichTextEdit::textRemoveAllFormat() {
     f_underline ->setChecked(false);
     f_italic    ->setChecked(false);
     f_strikeout ->setChecked(false);
-    f_fontsize  ->setCurrentIndex(f_fontsize->findText("9"));
+    f_fontsize  ->setCurrentIndex(f_fontsize->findText(QStringLiteral("9")));
     QString text = f_textedit->toPlainText();
     f_textedit->setPlainText(text);
 }
@@ -342,7 +342,7 @@ void MRichTextEdit::textStyle(int index) {
         }
     if (index == ParagraphMonospace) {
         fmt = cursor.charFormat();
-        fmt.setFontFamily("Monospace");
+        fmt.setFontFamily(QStringLiteral("Monospace"));
         fmt.setFontStyleHint(QFont::Monospace);
         fmt.setFontFixedPitch(true);
         }
@@ -452,7 +452,7 @@ void MRichTextEdit::fontChanged(const QFont &f) {
       } else if (f.pointSize() == m_fontsize_h4) {
         f_paragraph->setCurrentIndex(ParagraphHeading4);
       } else {
-        if (f.fixedPitch() && f.family() == "Monospace") {
+        if (f.fixedPitch() && f.family() == QStringLiteral("Monospace")) {
             f_paragraph->setCurrentIndex(ParagraphMonospace);
           } else {
             f_paragraph->setCurrentIndex(ParagraphStandard);
@@ -502,9 +502,9 @@ void MRichTextEdit::slotClipboardDataChanged() {
 QString MRichTextEdit::toHtml() const {
     QString s = f_textedit->toHtml();
     // convert emails to links
-    s = s.replace(QRegExp("(<[^a][^>]+>(?:<span[^>]+>)?|\\s)([a-zA-Z\\d]+@[a-zA-Z\\d]+\\.[a-zA-Z]+)"), "\\1<a href=\"mailto:\\2\">\\2</a>");
+    s = s.replace(QRegExp(QStringLiteral("(<[^a][^>]+>(?:<span[^>]+>)?|\\s)([a-zA-Z\\d]+@[a-zA-Z\\d]+\\.[a-zA-Z]+)")), QStringLiteral("\\1<a href=\"mailto:\\2\">\\2</a>"));
     // convert links
-    s = s.replace(QRegExp("(<[^a][^>]+>(?:<span[^>]+>)?|\\s)((?:https?|ftp|file)://[^\\s'\"<>]+)"), "\\1<a href=\"\\2\">\\2</a>");
+    s = s.replace(QRegExp(QStringLiteral("(<[^a][^>]+>(?:<span[^>]+>)?|\\s)((?:https?|ftp|file)://[^\\s'\"<>]+)")), QStringLiteral("\\1<a href=\"\\2\">\\2</a>"));
     // see also: Utils::linkify()
     return s;
 }
@@ -534,7 +534,7 @@ void MRichTextEdit::setText(const QString& text) {
         setPlainText(text);
         return;
         }
-    if (text[0] == '<') {
+    if (text[0] == QLatin1Char('<')) {
         setHtml(text);
       } else {
         setPlainText(text);
@@ -543,15 +543,14 @@ void MRichTextEdit::setText(const QString& text) {
 
 void MRichTextEdit::insertImage() {
     QSettings s;
-    QString attdir = s.value("general/filedialog-path").toString();
+    QString attdir = s.value(QStringLiteral("general/filedialog-path")).toString();
     QString file = QFileDialog::getOpenFileName(this, 
                                     tr("Select an image"),
                                     attdir,
                                     tr("JPEG (*.jpg);; GIF (*.gif);; PNG (*.png);; BMP (*.bmp);; All (*)"));
     QImage image = QImageReader(file).read();
 
-    f_textedit->dropImage(image, QFileInfo(file).suffix().toUpper().toLatin1().data() );
-
+    f_textedit->dropImage(image, QFileInfo(file).suffix().toUpper() );
 }
 
 

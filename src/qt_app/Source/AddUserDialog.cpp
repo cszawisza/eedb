@@ -40,7 +40,7 @@ void AddUserDialog::on_registerNewUser_clicked()
     if(!(!(ui->name->text().isEmpty()) && !(ui->email->text().isEmpty()) && !(ui->password->text().isEmpty()))) // NOR
     {
         QMessageBox msgBox{};
-        msgBox.setText("Podaj nazwę użytkownika, hasło oraz email");
+        msgBox.setText(QStringLiteral("Podaj nazwę użytkownika, hasło oraz email"));
         msgBox.exec();
         return;
     }

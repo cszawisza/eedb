@@ -7,6 +7,7 @@
 
 #include "iprocessor.h"
 #include "clientcache.h"
+#include "Interfaces/DefinedActions.hpp"
 
 /**
  * @brief The ClientWorker class
@@ -52,6 +53,6 @@ private:
     SharedUserData m_cache;
     IServerResponse *m_response;
     IClientRequest *m_request;
-    QHash<CategoryTypeId, QSharedPointer<IMessageProcessingUnit>> m_msgHandlers;
+    QHash<ActionTypeId, QSharedPointer<IMessageProcessingUnit>> m_msgHandlers;
     QSharedPointer<IMessageProcessingUnit> m_defaultProcessor;
 };

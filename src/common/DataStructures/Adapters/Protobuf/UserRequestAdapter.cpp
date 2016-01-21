@@ -14,6 +14,14 @@ using namespace data;
 namespace requests {
 namespace user{
 
+Add::Add():
+    m_data( new protobuf::UserReq_Add(protobuf::UserReq_Add::default_instance())),
+    m_takeOwnership(true),
+    m_isMutable(true)
+{
+
+}
+
 Add::Add(protobuf::UserReq_Add *msg):
     m_data(msg),
     m_takeOwnership(false),

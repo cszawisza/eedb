@@ -6,6 +6,8 @@
 #include <Interfaces/UserRequests.hpp>
 #include <Interfaces/UserResponses.hpp>
 
+#include <Interfaces/DefinedActions.hpp>
+
 #include <Validators/UserDataValidator.hpp>
 
 #include <QFlags>
@@ -56,20 +58,19 @@ void UserPU::process(DB &db, IClientRequest *msgReq)
             handle_login(db, req->get_login() );
     }
     else{
-        switch (req->action().get_value_or(ActionId(-1,"NONE ACTION"))) {
-        case requests::user::userActionAdd:
+        switch (req->action_type().get_value_or(ActionId(-1,"NONE ACTION"))) {
+        case actions::user::ActionAdd:
             handle_add(db, req->get_add() );
             break;
-        case requests::user::userActionGet:
+        case actions::user::ActionChangePassword:
             break;
-        case requests::user::userActionLogin:
+        case actions::user::ActionLogin:
             handle_login(db, req->get_login() );
             break;
         default:
             break;
         }
     }
-//    addResponseMessage();
 }
 
 

@@ -25,14 +25,17 @@ enum Status{
 };
 
 class IMessageContainer{
+public:
     virtual boost::optional<ActionTypeId> message_type() const = 0;
 };
 
 class IMessageActionContainer{
+public:
     virtual boost::optional<ActionId> action_type() const = 0;
 };
 
 class ISerialize{
+public:
     virtual void parse(const QByteArray &data) = 0;
     virtual QByteArray serialize() const = 0;
 };

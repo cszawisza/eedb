@@ -2,7 +2,6 @@ find_package( Qt5Core REQUIRED)
 find_package( Qt5WebSockets REQUIRED)
 find_package( Protobuf REQUIRED)
 
-add_definitions(-DQT_NO_CAST_FROM_ASCII)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 

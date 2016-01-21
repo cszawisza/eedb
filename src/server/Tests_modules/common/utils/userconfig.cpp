@@ -11,7 +11,7 @@ TEST( UserConfig, ctor ){
     UserConfig uc("");
 
     EXPECT_EQ(uc.toStdString(), "{}");
-    EXPECT_EQ(uc.toString(), "{}");
+    EXPECT_EQ(uc.toString(), QStringLiteral("{}"));
 }
 
 TEST( UserConfig, simple_conf ){
@@ -19,7 +19,7 @@ TEST( UserConfig, simple_conf ){
                     \t \"last_group_id\":10 \n\
                    }");
     EXPECT_EQ(uc.toStdString(), "{\"last_group_id\":10}");
-    EXPECT_EQ(uc.toString(), "{\"last_group_id\":10}");
+    EXPECT_EQ(uc.toString(), QStringLiteral("{\"last_group_id\":10}"));
 }
 
 //TEST( UserConfig, createByMessage ){

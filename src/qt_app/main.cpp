@@ -21,7 +21,7 @@ namespace
 
 void showHelloMessage(const char *argv)
 {
-    QFile prog(argv);
+    QFile prog(QString::fromLatin1(argv));
     QString msg{};
 
     msg.append(QStringLiteral("Program ma wielkość "));
@@ -36,7 +36,7 @@ void showHelloMessage(const char *argv)
     msg.append(QStringLiteral("\nna kompilatorze GCC w wersji "));
     msg.append(QStringLiteral(__VERSION__));
     msg.append(QStringLiteral("\nkorzystając z QT w wersji "));
-    msg.append(QT_VERSION_STR);
+    msg.append(QStringLiteral(QT_VERSION_STR));
     qDebug() << msg.toUtf8();
 }
 

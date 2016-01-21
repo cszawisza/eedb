@@ -59,11 +59,11 @@ LoginDialog::LoginDialog(const ILoginVerificator &p_loginVerificator,
 
     disconnectedState->assignProperty( ui->login_groupbox, "enabled", false );
     disconnectedState->assignProperty( ui->connection_groupbox, "enabled", true );
-    disconnectedState->assignProperty( ui->connectBtn, "text", "Connect");
+    disconnectedState->assignProperty( ui->connectBtn, "text", QStringLiteral("Connect"));
     disconnectedState->addTransition(ui->connectBtn, SIGNAL(clicked()), tryConnectState);
 
     tryConnectState->assignProperty(ui->connection_groupbox, "enabled", false );
-    tryConnectState->assignProperty(ui->connectBtn, "text", "Try to connect" );
+    tryConnectState->assignProperty(ui->connectBtn, "text", QStringLiteral("Try to connect") );
     tryConnectState->addTransition(m_manager.data(), SIGNAL(socketConnected()), connectedState);
     tryConnectState->addTransition(m_manager.data(), SIGNAL(socketDisconnected()), disconnectedState);
 
@@ -71,7 +71,7 @@ LoginDialog::LoginDialog(const ILoginVerificator &p_loginVerificator,
         connectToServer();
     });
 
-    connectedState->assignProperty(ui->connectBtn, "text", "Disconnect");
+    connectedState->assignProperty(ui->connectBtn, "text", QStringLiteral("Disconnect"));
     connectedState->assignProperty(ui->login_groupbox, "enabled", true );
 
     connectedState->addTransition(ui->registerNewUser, SIGNAL(clicked()), userRegister);
@@ -245,8 +245,8 @@ void LoginDialog::loginToServer()
 
 void LoginDialog::setDeafultServerInfo()
 {
-    ui->serverIp->setText(setup.value("ServerIp", "eedb.pl").toString());
-    ui->serverPort->setText(setup.value("ServerPort", 6666).toString());
-    ui->userLogin->setText(setup.value("Login", "").toString());
+    ui->serverIp->setText(setup.value(QStringLiteral("ServerIp"), QStringLiteral("eedb.pl")).toString());
+    ui->serverPort->setText(setup.value(QStringLiteral("ServerPort"), 6666).toString());
+    ui->userLogin->setText(setup.value(QStringLiteral("Login"), QStringLiteral("")).toString());
     ui->userPassword->setEchoMode(QLineEdit::Password);
 }

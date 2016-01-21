@@ -42,6 +42,7 @@ private:
 class Add: public requests::user::IAdd
 {
 public:
+    Add();
     Add( protobuf::UserReq_Add * );
     Add( const protobuf::UserReq_Add &req);
     ~Add();
