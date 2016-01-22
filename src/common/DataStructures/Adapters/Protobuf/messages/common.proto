@@ -1,0 +1,94 @@
+option optimize_for = LITE_RUNTIME;
+package protobuf;
+
+message Credentials{
+  oneof login_id{
+    uint32 id = 1;
+    string nickname = 2;
+    string email = 3;
+  }
+}
+
+message StdError{
+    optional bool success = 1 [default=true];
+    optional int32 error_code = 2 [default=0];
+}
+
+//message Filter {
+//  message FilterComponent {
+//    enum Operation {
+//      Equal = 1;
+//      NotEqual = 2;
+//      LessThen = 3;
+//    }
+//    required bytes lvalue = 1;
+//    required Operation operation = 2;
+//    required bytes rvalue = 3;
+//  }
+//  repeated FilterComponent component = 1;
+//}
+
+message DateTime{
+  message Unix{
+    // fixed unix time value
+    required fixed64 d = 1;
+  }
+  
+  message Text{
+    // text representation of datae
+    required string date_string = 1;
+  }
+  
+  message Date{
+    // date devided into pieces
+    optional uint32 year = 1;
+    optional uint32 month = 2;
+    optional uint32 day = 3;
+    optional uint32 hour = 4;
+    optional uint32 minute =5;
+    optional uint32 sec = 6;
+  }
+  
+  optional Unix unix = 1;
+  optional Text text = 2;
+  optional Date date = 3;
+}
+
+message HistoryEntry{
+  required DateTime when = 1;
+  required string what = 2;
+}
+
+message Acl{
+  optional int32 uid = 1 [ default = 0];
+  optional int32 owner = 2 [ default = 0 ];
+  optional int32 group = 3 [default = 2 ];
+  optional int32 unixperms = 4 [default = 0]; ///FIXME set to -rwdr--r--
+  optional int32 status = 5 [default = 0];
+}
+
+message Variant{
+    oneof value{
+        bytes    tBytes    = 1; // same as string
+        string   tString   = 2; // string parameter
+        int32    tUInt     = 3; // small ints/ints
+        sint32   tInt      = 4; // negative values
+        fixed64  tFixed64  = 5; // big integers
+        sfixed64 tSFixed64 = 6; // big negative integers
+        double   tDouble   = 7; // double point values
+        float    tFloat    = 8; // floating point values
+    }
+}
+
+message FileStat{
+    optional int32 id = 1;
+    optional string name = 2;
+    optional string sha = 3;
+    optional string mime = 4;
+    optional Acl Acl=5;
+}
+
+message FileData{
+    optional int32 fileId = 1;
+    optional bytes data = 2;
+}

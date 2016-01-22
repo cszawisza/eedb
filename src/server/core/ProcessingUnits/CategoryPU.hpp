@@ -3,17 +3,17 @@
 #include "iprocessor.h"
 
 class DB;
-
-namespace pb {
-    class ClientRequest;
-    class CategoryReq_Add;
-    class CategoryReq_Get;
+namespace requests{
+namespace category{
+class IAdd;
+class IGet;
+}
 }
 
 namespace eedb {
 namespace pu {
 
-class CategoryPU : public IMessageProcessingUint
+class CategoryPU : public IMessageProcessingUnit
 {
 public:
     CategoryPU() {}
@@ -21,13 +21,13 @@ public:
 
     // MessageHandler interface
 public:
-    void process(pb::ClientRequest &msgReq );
-    void process(DB &db, pb::ClientRequest &msgReq ) override;
+    void process( IClientRequest *msgReq );
+    void process(DB &db, IClientRequest *msgReq ) override;
 
 private:
 
-    void handle_add(DB &db, pb::CategoryReq_Add &msg);
-    void handle_get(DB &db, pb::CategoryReq_Get &msg);
+    void handle_add(DB &db, const requests::category::IAdd &msg);
+    void handle_get(DB &db, const requests::category::IGet &msg);
 };
 
 }

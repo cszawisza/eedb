@@ -1,0 +1,8 @@
+option optimize_for = LITE_RUNTIME;
+package protobuf;
+
+message Stats{
+ required uint32 count = 2;
+ required uint64 totalTime = 3;
+ required uint64 executionTime = 4;
+}

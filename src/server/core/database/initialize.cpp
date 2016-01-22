@@ -1,18 +1,18 @@
 #include "initialize.hpp"
 
-#include "sql_schema/system_info.h"
-#include "sql_schema/users.h"
-
 #include "ProcessingUnits/UserPU.hpp"
 #include "../auth/privilege.hpp"
 
 #include "database/UserHelper.hpp"
 
+#include "sql_schema/system_info.h"
+#include "sql_schema/users.h"
 #include "sql_schema/inventories.h"
 #include "sql_schema/shelfs.h"
 #include "sql_schema/categories.h"
 #include "sql_schema/items.h"
 
+#include "auth/acl.hpp"
 
 using auth::Action;
 using auth::Groups;
@@ -29,19 +29,20 @@ int DBInitialize::initializeDB(DB &db)
     static constexpr schema::items i;
 
     if(! rootExists(db)){
-        pb::UserReq_Add add;
-        auto stat  = add.mutable_acl();
-        auto basic= add.mutable_basic();
+        ///TODO fixme
+//        protobuf::UserReq_Add add;
+//        auto stat  = add.mutable_acl();
+//        auto basic= add.mutable_basic();
 
-        stat->set_owner( 1 );
-        stat->set_group( 1 );
+//        stat->set_owner( 1 );
+//        stat->set_group( 1 );
 
-        basic->set_name("ROOT");
-        basic->set_description("Root user");
-        basic->set_email("b.w@linux.pl");
+//        basic->set_nickname("ROOT");
+//        basic->set_description("Root user");
+//        basic->set_email("b.w@linux.pl");
 
-        add.set_password("admin_eedb");
-        UserHelper::insertUser(db, add);
+//        add.set_password("admin_eedb");
+//        UserHelper::insertUser(db, add);
     }
 
     if(! rootCategoryExists(db)){
@@ -84,6 +85,8 @@ int DBInitialize::initializeDB(DB &db)
             .privilegeFor("add_public_item")
             .forTable(i)
             .force_save(db);
+
+    return 0;
 }
 
 bool DBInitialize::rootExists(DB &db) const

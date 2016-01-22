@@ -156,7 +156,7 @@ private:
 
 
     template<class Data>
-    void readAclFromData(pb::Acl& stat, const Data &statInfo){
+    void readAclFromData(protobuf::Acl& stat, const Data &statInfo){
         stat.set_uid       ( statInfo.front().uid         );
         stat.set_owner     ( statInfo.front().owner       );
         stat.set_unixperms ( statInfo.front().unixperms   );
@@ -165,7 +165,7 @@ private:
     }
 
     int64_t m_userId;
-    pb::Acl m_userAcl;
+    protobuf::Acl m_userAcl;
 };
 }
 

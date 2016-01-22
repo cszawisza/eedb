@@ -1,19 +1,33 @@
 #include "UserHelper.hpp"
 
+#include "sql_schema/user_inventories.h"
+#include "sql_schema/user_history.h"
+#include "sql_schema/inventories.h"
+#include "auth/implementedaction.hpp"
+#include "auth/privilege.hpp"
+#include "auth/acl.hpp"
+
+#include <Interfaces/UserRequests.hpp>
+#include <Interfaces/AclData.hpp>
+
+#include "utils/hash_passwd.h"
+
 namespace eedb{
 namespace db{
 
-UID UserHelper::insertUser(DB &db, const UserReq_Add &msg)
+boost::optional<UID> UserHelper::m_rootID = boost::none;
+
+UID UserHelper::insertUser(DB &db, const requests::user::IAdd &msg)
 {
     constexpr schema::users u;
-    const auto &stat = msg.acl();
-    const auto &basic = msg.basic();
-    const auto &det = msg.details();
-//    const auto &conf= msg.config();
-    PasswordHash passwd;
-    passwd.setPassword( msg.password() );
 
-//    utils::UserConfig userConfig( conf );
+    //    const auto basic = msg.basic();
+    //    const auto det = msg.details();
+    //    const auto &conf= msg.config();
+    utils::PasswordHash passwd;
+    passwd.setPassword( msg.get_password() );
+
+    //    utils::UserConfig userConfig( conf );
 
     // run query
     auto pre = db.prepare(sqlpp::postgresql::insert_into(u)
@@ -29,44 +43,62 @@ UID UserHelper::insertUser(DB &db, const UserReq_Add &msg)
                               u.address = parameter(u.address),
                               u.phonenumber = parameter(u.phonenumber),
                               u.description = parameter(u.description),
-//                              u.config = userConfig.toStdString(), // must be a proper JSON document no need to parametrize
+                              //u.config = userConfig.toStdString(), // must be a proper JSON document no need to parametrize
                               u.avatar = parameter(u.avatar)
             ).returning(u.uid));
 
-    pre.params.name  = basic.name();
-    pre.params.email = basic.email();
+    pre.params.name  = msg.get_nickname();
+    pre.params.email = msg.get_email();
 
-    if(basic.has_avatar()){
-        QByteArray ba = QByteArray::fromRawData(basic.avatar().data(), basic.avatar().size() );
+    if(msg.has_avatar()){
+        QByteArray ba = QByteArray::fromRawData(msg.get_avatar().data(), msg.get_avatar().size() );
         pre.params.avatar = ba.toBase64().toStdString();
     }
 
-    if( msg.has_acl() ){
-        pre.params.stat_group = stat.has_group() ? stat.group() : auth::GROUP_users | auth::GROUP_inventories;
-        pre.params.unixperms = stat.has_unixperms() ? stat.unixperms() : UnixPermissions({6,4,4}).toInteger();
-        pre.params.owner = stat.has_owner() ? stat.owner() : 1;
-        pre.params.status = stat.has_status() ? stat.status() : (int)auth::State_Normal;
-    }
-    else{
+//    if( msg.has_acl() ){
+//        const auto &stat = msg.get_acl();
+//        pre.params.stat_group = stat.has_groups() ? stat.get_groups() : auth::GROUP_users | auth::GROUP_inventories;
+//        pre.params.unixperms = stat.has_unixperms() ? stat.get_unixperms().toInteger() : UnixPermissions({6,4,4}).toInteger();
+//        pre.params.owner = stat.has_owner() ? stat.get_owner() : 1;
+//        pre.params.status = stat.has_status() ? stat.get_status() : (int)auth::State_Normal;
+//    }
+//    else{
         pre.params.stat_group = auth::GROUP_users | auth::GROUP_inventories;
         pre.params.unixperms = UnixPermissions({6,4,4}).toInteger();
         pre.params.owner = 1;
         pre.params.status = (int)auth::State_Normal;
-    }
+//    }
 
+    if(msg.has_description())
+        pre.params.description = msg.get_description();
 
-    if(basic.has_description())
-        pre.params.description = basic.description();
+    if(msg.has_address())
+        pre.params.address = msg.get_address();
 
-    if(det.has_address())
-        pre.params.address = det.address();
-
-    if(det.has_phone_number())
-        pre.params.phonenumber = det.phone_number();
+    if(msg.has_phoneNumber())
+        pre.params.phonenumber = msg.get_phoneNumber();
 
     auto insertedId = db(pre);
 
     return insertedId.front().uid;
 }
+
+UID UserHelper::getRootId(DB &db)
+{
+    static constexpr schema::users u;
+    if(!m_rootID.is_initialized()){
+        try{
+            m_rootID = (UID)db(sqlpp::select(u.uid).from(u).where(u.name == "ROOT")).front().uid;
+        }
+        catch( sqlpp::postgresql::pg_exception * ){
+            ///TODO add logs
+        }
+        catch( sqlpp::exception * ){
+            ///TODO add logs
+        }
+    }
+    return m_rootID.get_value_or(1);
+}
+
 }
 }

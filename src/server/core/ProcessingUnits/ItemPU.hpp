@@ -13,7 +13,7 @@ namespace pb{
 namespace eedb {
 namespace pu {
 
-class ItemPU : public IMessageProcessingUint
+class ItemPU : public IMessageProcessingUnit
 {
 public:
     ItemPU();

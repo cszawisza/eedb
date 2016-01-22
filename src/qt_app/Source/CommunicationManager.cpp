@@ -1,58 +1,53 @@
 #include <QWebSocket>
 #include "ISocket.hpp"
 #include <CommunicationManager.hpp>
-#include "message_conteiner.pb.h"
 #include <boost/optional.hpp>
-#include "user.pb.h"
 #include "utils/Url.hpp"
 
 namespace
 {
 
-void handleConvertedServerResponse(const pb::ServerResponses & p_serverResponse)
+void handleConvertedServerResponse(const auto p_serverResponse)
 {
-    auto l_serverResponse = p_serverResponse.response(0);
-    switch(l_serverResponse.data_case())
-    {
-    case pb::ServerResponse::kUserRes:
-        qDebug() << "UserRes";
-        break;
-    case pb::ServerResponse::kMsgInventoryRes:
-        qDebug() << "MsgInventoryRes";
-        break;
-    case pb::ServerResponse::kItemRes:
-        qDebug() << "ItemRes";
-        break;
-    case pb::ServerResponse::kCategoryRes:
-        qDebug() << "CategoryRes";
-        break;
-    case pb::ServerResponse::kMsgParameterRes:
-        qDebug() << "MsgParameterRes";
-        break;
-    case pb::ServerResponse::DATA_NOT_SET:
-        qDebug() << "Data not set";
-        break;
-    }
+//    switch(p_serverResponse.data_case())
+//    {
+//    case protobuf::ServerResponse::kUserRes:
+//        qDebug() << "UserRes";
+//        break;
+//    case protobuf::ServerResponse::kMsgInventoryRes:
+//        qDebug() << "MsgInventoryRes";
+//        break;
+//    case protobuf::ServerResponse::kItemRes:
+//        qDebug() << "ItemRes";
+//        break;
+//    case protobuf::ServerResponse::kCategoryRes:
+//        qDebug() << "CategoryRes";
+//        break;
+//    case protobuf::ServerResponse::kMsgParameterRes:
+//        qDebug() << "MsgParameterRes";
+//        break;
+//    case protobuf::ServerResponse::DATA_NOT_SET:
+//        qDebug() << "Data not set";
+//        break;
+//    }
 }
 
 } // namespace anonymous
 
-CommunicationManager::CommunicationManager(QSharedPointer<ISocket> p_webSocket,
-                                           ProtobufToQByteArrayConverter p_convertProtobufToString,
-                                           QByteArrayToProtobufConverter p_convertQByteArrayToProtobuf)
-    : m_socket(p_webSocket),
-      m_convertProtobufToQByteArray(p_convertProtobufToString),
-      m_convertQByteArrayToProtobuf(p_convertQByteArrayToProtobuf)
+CommunicationManager::CommunicationManager(QSharedPointer<ISocket> p_webSocket)
+    : m_socket(p_webSocket)
 {
     auto socket = m_socket.data();
 
     QObject::connect(socket, &ISocket::binaryMessageReceived, [=](const QByteArray & p_serverResponse)
     {
         qDebug() << "Binary message recceived";
-        auto l_serverResponseArray = m_convertQByteArrayToProtobuf(p_serverResponse);
-        if (l_serverResponseArray)
+//        auto l_serverResponseArray = m_convertQByteArrayToProtobuf->parseFromByteArray(p_serverResponse);
+//        if (l_serverResponseArray)
+        if(true)
         {
-            handleConvertedServerResponse(l_serverResponseArray.get());
+            ///FIXME
+//            handleConvertedServerResponse(l_serverResponseArray.get());
         }
     });
 
@@ -65,50 +60,52 @@ CommunicationManager::CommunicationManager(QSharedPointer<ISocket> p_webSocket,
     });
 }
 
+void CommunicationManager::sendRequest(IClientRequest *req)
+{
+    qDebug() << "CommunicationManager::sendBinaryMessageOverQWebSocket()";
+    ///FIXME
+    m_socket->sendBinaryMessage( req->serialize() );
+//    for(const auto &req :*p_clientRequests.mutable_request() )
+//        emit userRequestSent( RequestMetadata(p_clientRequests) );
+}
+
 //void CommunicationManager::handleRegister(std::string & p_userName, std::string & p_userPassword,
 //                                          std::string & p_userEmail,std::string & p_userAdress,
 //                                          std::string & p_userDescritpion, std::string & p_userPhoneNumber)
 //{
-////    pb::ClientRequests l_mainMsg;
+////    protobuf::ClientRequests l_mainMsg;
 //    qDebug() << "CommunicationManager::handleRegister()";
 //    uint64_t id;
 //    auto login = this->newRequest(id)->mutable_userreq()->mutable_add();
 
 //    login->set_password( p_userPassword );
-//    login->mutable_basic()->set_name(p_userName);
+//    login->mutable_basic()->set_nickname(p_userName);
 //    login->mutable_basic()->set_email(p_userEmail);
 
 //    sendRequest();
 //}
 
-//void CommunicationManager::sendBinaryMessageOverQWebSocket(const pb::ClientRequests & p_clientRequests) const
+//void CommunicationManager::sendBinaryMessageOverQWebSocket(const protobuf::ClientRequests & p_clientRequests) const
 //{
 //
 ////    qDebug() << m_socket.state();
 //    m_socket->sendBinaryMessage(m_convertProtobufToQByteArray(p_clientRequests));
 //}
 
-pb::ClientRequest *CommunicationManager::newRequest(uint64_t &request_id)
-{
-    static quint64 id = 1;
-    auto req = p_clientRequests.add_request();
-    req->set_request_id(id);
-    request_id = id++;
-    return req;
-}
+//protobuf::ClientRequest *CommunicationManager::newRequest(uint64_t &request_id)
+//{
+//    static quint64 id = 1;
+//    auto req = new protobuf::ClientRequest();
+//    req->set_request_id(id);
+//    request_id = id++;
+//    return req;
+//}
 
-void CommunicationManager::sendRequest()
-{
-    qDebug() << "CommunicationManager::sendBinaryMessageOverQWebSocket()";
-    m_socket->sendBinaryMessage(m_convertProtobufToQByteArray(p_clientRequests));
-    for(const auto &req :*p_clientRequests.mutable_request() )
-        emit userRequestSent( RequestMetadata(req) );
-}
 
-void CommunicationManager::sendUserRequest(std::shared_ptr<pb::UserReq> data)
+void CommunicationManager::sendUserRequest(IClientRequest* data)
 {
     if(m_socket->state() == QAbstractSocket::ConnectedState ){
-        sendRequest();
+        sendRequest(data);
     }
 }
 

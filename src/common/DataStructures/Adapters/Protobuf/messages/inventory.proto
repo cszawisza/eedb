@@ -1,0 +1,103 @@
+option optimize_for = LITE_RUNTIME;
+package protobuf;
+import public "common.proto";
+
+
+// USER MESSAGE STRUCTURE
+message MsgInventoryRequest {
+  oneof action{
+    Add add = 2;
+    Remove remove = 5;
+    Modify modify = 6;
+    Get get = 7;
+    AddShelf addShelf = 15;
+//    RmShelf rmShelf = 16;
+//    MoveShelf mvShelf = 17;
+  };
+
+// ACTION MESSAGES /////////////////////
+  message Add{
+    required string name = 1;
+    optional string description = 2;
+    optional protobuf.Acl acl=4;
+  }
+
+  message Remove{
+    required int32 uid = 1;
+    optional bool removeItems = 2;
+    optional int32 move_items_to = 3;
+  }
+
+  message Modify{
+    required int32 uid = 1;
+    optional string newName = 2;
+    optional string newDesc = 3;
+    optional protobuf.Acl newAcl = 4;
+  }
+
+  message Get {
+//    optional bool id            = 1 [default = false];
+//    optional bool name          = 2 [default = false];
+//    optional bool description   = 3 [default = false];
+//    optional bool acl           = 4 [default = false]; // acl contains ID
+
+    optional bool all           = 6 [default = true];
+    optional Where where        = 15;
+
+    message Where{
+        oneof cred{
+            int32 user_id = 1; // will return all user inventories
+            int32 inventory_id = 2; // will return only one inventory
+//            int32 group_id = 3;
+        }
+    }
+  }
+
+  message  AddShelf {
+      optional int32 id=1;
+      optional string name = 2;
+      optional int32 inventory_id = 3;
+      optional string position_of_shelf = 4;
+      optional string description = 5;
+      optional protobuf.Acl acl = 10;
+  }
+}
+
+message MsgInventoryResponse {
+    enum Error {
+      No_Error = 0;
+      NameToLong = 1;
+      NameEmpty = 2;
+      DescriptionToLong = 3;
+      IdDontExists = 4;
+      DbAccesError = 100;
+    }
+
+  repeated Error code = 1;
+  optional int32 id = 2;
+  optional string name = 3;
+  optional string description = 4;
+  optional protobuf.Acl acl = 5; // acl contains ID
+  repeated InventoryShelf shelfs = 6;
+}
+
+//message PositionOfItemOnShelf {
+//}
+
+message InventoryShelf {
+    optional int32 id=1;
+    optional string name = 2;
+    optional int32 inventory_id = 3;
+    optional string position_of_shelf = 4;
+    optional string description = 5;
+//    repeated Item items = 6;
+    optional protobuf.Acl acl = 10;
+}
+
+message Inventory{
+    required string name = 1;
+    optional string description = 2;
+    repeated InventoryShelf shelfs = 3;
+    optional fixed64 creation_date = 4;
+    optional protobuf.Acl acl=5;
+}

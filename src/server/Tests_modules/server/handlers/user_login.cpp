@@ -1,139 +1,137 @@
 #include "gtest/gtest.h"
 #include "TestCommon.hpp"
 
+#include "database/idatabase.h"
+#include "ProcessingUnits/UserPU.hpp"
+
+#include "DataStructures/Adapters/Protobuf/ClientRequestAdapter.hpp"
+#include "DataStructures/Adapters/Protobuf/ServerResponseAdapter.hpp"
+
+#include "DataStructures/Adapters/Protobuf/UserRequestAdapter.hpp"
+#include "DataStructures/Adapters/Protobuf/UserResponseAdapter.hpp"
+
 using namespace test;
 
 class userLoginTest : public ::testing::Test
 {
 public:
-   userLoginTest() {
+    userLoginTest():
+        login( req.user()->login() )
+    {
         db.start_transaction();
 
-       pb::UserReq_Add add;
-       add.mutable_basic()->set_name("USER_NAME");
-       add.mutable_basic()->set_email("EMAIL@asdfg.asdf");
-       add.set_password("secret_pass");
+        ///TODO create a std implementation
+        auto add = requests::user::Add();
+        add.set_nickname("USER_NAME");
+        add.set_email("email@asdfg.asdf");
+        add.set_password("secret_pass");
 
-       requestAdd(add);
-   }
+        requestAdd(add);
+    }
 
-   ~userLoginTest(){
+    ~userLoginTest(){
         db.rollback_transaction(false);
-   }
+    }
 
-   UserRes_Reply requestAdd( pb::UserReq_Add &msg){
-       pb::ClientRequest req;
+    void requestAdd( requests::user::IAdd &msg){
+        ClientRequest userReq;
 
-       auto userReq = req.mutable_userreq();
-       userReq->mutable_add()->CopyFrom(msg);
+//        auto userReq = req.mutable_userreq();
+//        userReq->mutable_add()->CopyFrom(msg);
+        auto a = userReq.user()->add();
+        a->set_nickname( msg.get_nickname() );
+        a->set_email( msg.get_email() );
+        a->set_password( msg.get_password() );
 
-       handler.process(db, req);
+        handler.process(db, &userReq);
 
-       return handler.getLastResponse().userres().code(0);
-   }
+//        return handler.getLastResponse().userres().code(0);
+    }
 
-   UserRes_Reply requestLogin( pb::UserReq_Login &msg){
-       pb::ClientRequest req;
+    responses::user::ILogin::LoginErrors requestLogin(){
+        handler.setOutputData(std::make_shared<ServerResponse>());
+        handler.process(db, &req);
 
-       auto userReq = req.mutable_userreq();
-       userReq->mutable_login()->CopyFrom(msg);
-
-       handler.process(db, req);
-
-       return handler.getLastResponse().userres().code(0);
-   }
+        return handler.response()->user()->login()->get_error_code();
+    }
     DB db;
-   eedb::pu::UserPU handler;
+    eedb::pu::UserPU handler;
+    ClientRequest req;
+    requests::user::ILogin *login;
 };
 
 
 TEST_F(userLoginTest, badCredentials){
     {
-        pb::UserReq_Login login;
-        login.mutable_cred()->set_name("BAD_NAME");
-        login.set_password("secret_pass");
+        login->credentials()->set_authorization("BAD_NAME");
+        login->set_password("secret_pass");
 
-        auto res = requestLogin(login);
+        auto res = requestLogin();
 
-        EXPECT_EQ(UserRes_Reply_UserDontExist, res);
+        EXPECT_EQ( responses::user::Login::Error_UserDontExists, res);
         handler.clear();
     }
 
     {
-        pb::UserReq_Login login;
-        login.mutable_cred()->set_email("BAD_EMAIL");
-        login.set_password("secret_pass");
+        login->credentials()->set_authorization("BAD_EMAIL@bad_domain.com");
 
-        auto res = requestLogin(login);
+        auto res = requestLogin();
 
-        EXPECT_EQ(UserRes_Reply_UserDontExist, res);
+        EXPECT_EQ(responses::user::Login::Error_UserDontExists, res);
         handler.clear();
     }
 
     {
-        pb::UserReq_Login login;
-        login.mutable_cred()->set_email("aaa' OR TRUE -- "); // simple sql injection
-        login.set_password("aaa\\' OR TRUE -- ");
+        login->credentials()->set_authorization("aaa' OR TRUE -- "); // simple sql injection
+        login->set_password("aaa\\' OR TRUE -- ");
 
-        auto res = requestLogin(login);
+        auto res = requestLogin();
 
-        EXPECT_EQ(UserRes_Reply_UserDontExist, res);
+        EXPECT_EQ(responses::user::Login::Error_UserDontExists, res);
         handler.clear();
     }
 
     {
-        pb::UserReq_Login login;
-        login.mutable_cred()->set_email("EMAIL@asdfg.asdf");
-        login.set_password("bad_pass");
+        login->credentials()->set_authorization("email@asdfg.asdf");
+        login->set_password("bad_pass");
 
-        auto res = requestLogin(login);
+        auto res = requestLogin();
 
-        EXPECT_EQ(UserRes_Reply_LoginDeny, res);
+        EXPECT_EQ(responses::user::Login::Error_WrongNameOrPass, res);
         handler.clear();
     }
 
     {
-        pb::UserReq_Login login;
-        login.mutable_cred()->set_name("USER_NAME");
-        login.set_password("bad_pass");
+        login->credentials()->set_authorization("USER_NAME");
+        login->set_password("bad_pass");
 
-        auto res = requestLogin(login);
+        auto res = requestLogin();
 
-        EXPECT_EQ(UserRes_Reply_LoginDeny, res);
+        EXPECT_EQ(responses::user::Login::Error_WrongNameOrPass, res);
         handler.clear();
     }
 }
 
+TEST_F(userLoginTest, goodCredentialsTest1)
+{
+    login->credentials()->set_authorization("USER_NAME");
+    login->set_password("secret_pass");
 
-TEST_F(userLoginTest, goodCredentials){
-    {
-        pb::UserReq_Login login;
-        login.mutable_cred()->set_name("USER_NAME");
-        login.set_password("secret_pass");
+    EXPECT_EQ(responses::user::ILogin::noError, requestLogin());
+}
 
-        auto res = requestLogin(login);
+TEST_F(userLoginTest, goodCredentialsTest2)
+{
+    login->credentials()->set_authorization("email@asdfg.asdf");
+    login->set_password("secret_pass");
 
-        EXPECT_EQ(UserRes_Reply_LoginPass, res);
-        handler.clear();
-    }
-
-    {
-        pb::UserReq_Login login;
-        login.mutable_cred()->set_email("EMAIL@asdfg.asdf");
-        login.set_password("secret_pass");
-
-        EXPECT_EQ(UserRes_Reply_LoginPass, requestLogin(login));
-        handler.clear();
-    }
+    EXPECT_EQ(responses::user::ILogin::noError, requestLogin());
 }
 
 TEST_F(userLoginTest, doubleLogin){
-    {
-        pb::UserReq_Login login;
-        login.mutable_cred()->set_name("USER_NAME");
-        login.set_password("secret_pass");
+    login->credentials()->set_authorization("email@asdfg.asdf");
+    login->set_password("secret_pass");
 
-        EXPECT_EQ(UserRes_Reply_LoginPass, requestLogin(login));
-        EXPECT_EQ(UserRes_Reply_UserOnline, requestLogin(login));
-    }
+    EXPECT_EQ(responses::user::ILogin::noError, requestLogin());
+    EXPECT_EQ(responses::user::ILogin::Error_UserOnline, requestLogin());
 }

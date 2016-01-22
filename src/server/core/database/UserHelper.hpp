@@ -1,40 +1,26 @@
 #pragma once
 
-#include "user.pb.h"
 #include "idatabase.h"
 
+#include "config.h"
 #include "sql_schema/users.h"
-#include "sql_schema/user_inventories.h"
 #include "sql_schema/user_history.h"
 
-#include "sql_schema/inventories.h"
+#include <boost/optional.hpp>
 
-#include "utils/hash_passwd.h"
-#include "utils/userconfig.h"
-#include "utils/unixPerms.hpp"
-
-#include "auth/implementedaction.hpp"
-#include "auth/privilege.hpp"
-#include "auth/acl.hpp"
-
-
-using namespace pb;
-using eedb::utils::PasswordHash;
-
+namespace requests{
+namespace user{
+class IAdd;
+}
+}
 
 namespace eedb{
 namespace db{
 
-//struct UserData {
-//    UserData():
-//        uid(0){}
-
-//    uint64_t uid;
-//    string name;
-//};
-
 class UserHelper {
 public:
+    static UID getRootId(DB &db);
+
     template< typename T >
     static auto selectId( T&& t ){
         constexpr schema::users u;
@@ -68,26 +54,14 @@ public:
     template< typename T >
     static auto selectAll( T&& t ){
         constexpr schema::users u;
-        return sqlpp::select(
-                    u.uid,
-                    u.name,
-                    u.email,
-                    u.config,
-
-                    u.address,
-                    u.description,
-                    u.phonenumber,
-
-                    u.owner,
-                    u.status,
-                    u.stat_group,
-                    u.unixperms )
+        return sqlpp::select( sqlpp::all_of(u) )
                 .from(u)
                 .where( std::forward<T>(t) )
                 .limit(1);
     }
 
-    static UID insertUser(DB &db, const UserReq_Add &msg);
+    static UID insertUser(DB &db, const requests::user::IAdd &msg);
+    static boost::optional<UID> m_rootID;
 };
 
 }

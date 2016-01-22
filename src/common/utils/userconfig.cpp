@@ -13,14 +13,14 @@
 //    m_config = QJsonDocument::fromJson(QByteArray::fromRawData(json.data(), json.size())).object();
 //}
 
-//eedb::utils::UserConfig::UserConfig(const pb::UserConfig &conf)
+//eedb::utils::UserConfig::UserConfig(const protobuf::UserConfig &conf)
 //{
 //    m_conf.CopyFrom(conf);
 //}
 
 //QString eedb::utils::UserConfig::toString() const
 //{
-//    return QString(getJson());
+//    return QString::fromLatin1(getJson());
 //}
 
 //std::string eedb::utils::UserConfig::toStdString() const

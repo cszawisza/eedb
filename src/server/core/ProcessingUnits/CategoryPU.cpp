@@ -1,6 +1,5 @@
 #include "CategoryPU.hpp"
 #include "database/idatabase.h"
-#include "category.pb.h"
 #include "database/CategoryHelper.hpp"
 #include "auth/implementedaction.hpp"
 #include "auth/acl.hpp"
@@ -8,140 +7,146 @@
 #include "utils/LogUtils.hpp"
 #include "utils/unixPerms.hpp"
 
+#include "Interfaces/CategoryRequests.hpp"
+#include "Interfaces/CategoryResponses.hpp"
+
 using CH = eedb::db::CategoryHelper;
 using sqlpp::fieldName;
-using namespace pb;
 
 namespace eedb{
 namespace pu{
 
-void CategoryPU::process(ClientRequest &msgReq)
+void CategoryPU::process(IClientRequest *msgReq)
 {
     DB db;
     process(db, msgReq);
 }
 
-void CategoryPU::process(DB &db, pb::ClientRequest &msgReq)
+void CategoryPU::process(DB &db, IClientRequest *msgReq)
 {
     // Check if this is the message that handler wants
-    Q_ASSERT( msgReq.data_case() == pb::ClientRequest::kCategoryReqFieldNumber );
-    Q_ASSERT( msgReq.has_categoryreq() );
+    Q_ASSERT( msgReq->has_category() );
 
-    auto req = msgReq.categoryreq();
+    requests::ICategory *req = msgReq->category();
 
     if(user()->isOffline()){
-        sendServerError(pb::Error_UserOffilne);
+        sendServerError( IServerResponse::Error_UserOfline );
         return;
     }
     else{
-        auto msgType = req.action_case();
-        switch ( msgType ) {
-        case CategoryReq::kAdd:
-            handle_add(db, *req.mutable_add() );
-            break;
-        case CategoryReq::kRemove:
-            break;
-        case CategoryReq::kModify:
-            break;
-        case CategoryReq::kGet:
-            handle_get(db, *req.mutable_get() );
-            break;
-        case CategoryReq::kModifyParameters:
-            break;
-        case CategoryReq::ACTION_NOT_SET:
-            // send server error
-            break;
-        }
+        if(req->has_add())
+            handle_add(db, req->get_add() );
+
+//        auto msgType = req.action_case();
+//        switch ( msgType ) {
+//        case CategoryReq::kAdd:
+//            break;
+//        case CategoryReq::kRemove:
+//            break;
+//        case CategoryReq::kModify:
+//            break;
+//        case CategoryReq::kGet:
+//            handle_get(db, *req.mutable_get() );
+//            break;
+//        case CategoryReq::kModifyParameters:
+//            break;
+//        case CategoryReq::ACTION_NOT_SET:
+//            // send server error
+//            break;
+//        }
     }
 }
 
-void CategoryPU::handle_add(DB &db, CategoryReq_Add &msg)
+void CategoryPU::handle_add(DB &db, const requests::category::IAdd &msg)
 {
     static constexpr schema::categories cat;
-    auth::AccesControl stat( user().data()->id() );
+    auth::AccesControl stat( user()->uid() );
 
     ///TODO add name chacking
     if( !msg.has_name() ){
-        add_response()->mutable_categoryres()->set_code(CategoryRes_Replay_MissingName);
+        response()->category()->add()->set_code(responses::category::IAdd::Error_NameMissing );
         return;
     }
-    if( !msg.has_parent_id() ){
-        add_response()->mutable_categoryres()->set_code(CategoryRes_Replay_MissingParentId);
+    if( !msg.has_parentId() ){
+        ///FIXME
+//        add_response()->mutable_categoryres()->set_code(CategoryRes_Replay_MissingParentId);
         return;
     }
 
     if(stat.checkUserAction<schema::categories>(db, "write") ){
-        // treat id = =0 as root category
-        if(!msg.has_parent_id() || msg.parent_id() == 0 )
-            msg.set_parent_id( CH::rootCategoryId(db).get_value_or(0) );
+//         treat id = =0 as root category
+        if(!msg.has_parentId() || msg.get_parentId() == 0 );
+//            msg.set_parentId( CH::rootCategoryId(db).get_value_or(0) );
 
-        auto response = add_response()->mutable_categoryres();
+        auto res = response()->category();
         auto prepare = db.prepare(CH::insert_into().set(
                                       cat.name = parameter(cat.name),
                                       cat.description = parameter(cat.description ),
-                                      cat.owner = user()->id(),
+                                      cat.owner = user()->uid(),
                                       cat.stat_group = (int)auth::GROUP_categories,
                                       cat.unixperms = UnixPermissions({7,4,4}).toInteger(),
-                                      cat.parent_category_id = msg.parent_id()
+                                      cat.parent_category_id = msg.get_parentId()
                 ).returning(cat.uid));
 
-        prepare.params.name = msg.name();
+        prepare.params.name = msg.get_name();
         if( msg.has_description() )
-            prepare.params.description = msg.description();
+            prepare.params.description = msg.get_description();
 
         try{
             auto result = db(prepare);
 
-            response->set_code(CategoryRes_Replay_AddSuccesful);
-            if(msg.has_returningid() && msg.returningid())
-                response->set_id(result.front().uid);
+            res->add()->set_code( responses::category::IAdd::NoErrors );
+            ///TODO add 'returning' feature (after implementing get message)
+//            if(msg.)
+//                response->set_id(result.front().uid);
         }
         catch(sqlpp::postgresql::pg_exception e){
             if(e.code().pgClass() == "23") // Unique key validation
-                response->set_code(CategoryRes_Replay_CategoryExists); // occour when category exists or no parent id
+                response()->category()->add()->set_code(responses::category::IAdd::Error_CategoryExists ); // occour when category exists or no parent id
             else{
                 LOG_DB_EXCEPTION(e);
             }
         }
     }
     else{
-        sendServerError(pb::Error_AccesDeny);
+        sendServerError( IServerResponse::Error_AccesDeny );
     }
 }
 
-void CategoryPU::handle_get(DB &db, CategoryReq_Get &msg)
+void CategoryPU::handle_get(DB &db, const requests::category::IGet &msg)
 {
     static constexpr schema::categories cat;
-    auth::AccesControl stat( user().data()->id() );
+    auth::AccesControl stat( user()->uid() );
 
     if(stat.checkUserAction<schema::categories>(db, "read") ){
         auto s = dynamic_select(db.connection()).dynamic_columns().dynamic_from(cat).dynamic_where();
 
-        if(msg.has_get_ids() && msg.get_ids())
+        if(msg.has_requestedUid())
             s.selected_columns.add(cat.uid);
-        if(msg.has_get_name() && msg.get_name())
+        if(msg.has_requestedName())
             s.selected_columns.add(cat.name);
-        if(msg.has_get_description() && msg.get_description())
-            s.selected_columns.add(cat.description);
-
-        if(msg.where().all_groups())
-            s.where.add(cat.status == static_cast<int>(auth::State_Normal));
+        if(msg.has_requestedParentUid())
+            s.selected_columns.add(cat.parent_category_id);
+        ///FIXME
+//        if(msg.get_criteria().has_requested_all())
+//            s.where.add(cat.status == static_cast<int>(auth::State_Normal));
 
         auto results = db(s);
-
-        using namespace schema::categories_;
-        for(const auto &row:results){
-            auto cres = add_response()->mutable_categoryres();
-            if(msg.has_get_ids() && msg.get_ids())
-                cres->set_id(boost::lexical_cast<uint64_t>(row.at(fieldName<Uid>())));
-            if(msg.has_get_name() && msg.get_name())
-                cres->set_name(row.at(fieldName<Name>()));
-            if(msg.has_get_description() && msg.get_description())
-                cres->set_description(row.at(fieldName<Description>()));
-        }
+///FIXME
+//        using namespace schema::categories_;
+//        for(const auto &row:results){
+//            auto cres = add_response()->mutable_categoryres();
+//            if(msg.has_requestedUid())
+//                cres->set_id(boost::lexical_cast<uint64_t>(row.at(fieldName<Uid>())));
+//            if(msg.has_get_name() && msg.get_name())
+//                cres->set_name(row.at(fieldName<Name>()));
+//            if(msg.has_get_description() && msg.get_description())
+//                cres->set_description(row.at(fieldName<Description>()));
+//        }
     }
     else{
-        sendServerError( pb::Error_AccesDeny );
+        ///FIXME
+//        sendServerError( pb::Error_AccesDeny );
     }
 }
 

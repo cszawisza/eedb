@@ -3,9 +3,6 @@
 #include <QSharedPointer>
 #include <string>
 
-#include "user.pb.h"
-#include "common.pb.h" // for stat
-
 using namespace std;
 
 class UserData{
@@ -18,33 +15,20 @@ public:
     UserData():
         m_status(UserOffline)
     {
-        m_basicData.Clear();
-        m_stat.Clear();
+//        m_basicData.Clear();
+//        m_stat.Clear();
     }
     bool isOnline() const { return m_status == UserOnline; }
     bool isOffline() const { return m_status == UserOffline; }
     void goOnline() { m_status = UserOnline; }
     void goOffLine() { m_status = UserOffline; }
 
-    uint64_t id() const {
-        if(m_basicData.has_id())
-            return m_basicData.id();
-        else
-            return 0;
-    }
-
-    pb::UserBasic *mutable_basic(){
-        return &m_basicData;
-    }
-
-    pb::Acl *mutable_acl(){
-        return &m_stat;
-    }
+    int uid() const;
+    void setUid(int uid);
 
 private:
     Status m_status;
-    pb::UserBasic m_basicData;
-    pb::Acl m_stat;
+    int m_uid;
 };
 
 class ClientCache
@@ -52,5 +36,3 @@ class ClientCache
 public:
     ClientCache();
 };
-
-using SharedUserData = QSharedPointer<UserData>;

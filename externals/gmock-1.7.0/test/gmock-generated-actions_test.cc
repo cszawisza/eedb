@@ -46,10 +46,10 @@ namespace gmock_generated_actions_test {
 
 using ::std::plus;
 using ::std::string;
-using ::std::tr1::get;
-using ::std::tr1::make_tuple;
-using ::std::tr1::tuple;
-using ::std::tr1::tuple_element;
+using testing::get;
+using testing::make_tuple;
+using testing::tuple;
+using testing::tuple_element;
 using testing::_;
 using testing::Action;
 using testing::ActionInterface;
@@ -376,7 +376,8 @@ class SubstractAction : public ActionInterface<int(int, int)> {  // NOLINT
 TEST(WithArgsTest, NonInvokeAction) {
   Action<int(const string&, int, int)> a =  // NOLINT
       WithArgs<2, 1>(MakeAction(new SubstractAction));
-  EXPECT_EQ(8, a.Perform(make_tuple(string("hi"), 2, 10)));
+  string s("hello");
+  EXPECT_EQ(8, a.Perform(tuple<const string&, int, int>(s, 2, 10)));
 }
 
 // Tests using WithArgs to pass all original arguments in the original order.
@@ -639,7 +640,7 @@ TEST(ActionMacroTest, CanReferenceArgumentType) {
 // Tests that the body of ACTION() can reference the argument tuple
 // via args_type and args.
 ACTION(Sum2) {
-  StaticAssertTypeEq< ::std::tr1::tuple<int, char, int*>, args_type>();
+  StaticAssertTypeEq<tuple<int, char, int*>, args_type>();
   args_type args_copy = args;
   return get<0>(args_copy) + get<1>(args_copy);
 }
@@ -753,7 +754,7 @@ TEST(ActionPMacroTest, CanReferenceArgumentAndParameterTypes) {
 TEST(ActionPMacroTest, WorksInCompatibleMockFunction) {
   Action<std::string(const std::string& s)> a1 = Plus("tail");
   const std::string re = "re";
-  EXPECT_EQ("retail", a1.Perform(make_tuple(re)));
+  EXPECT_EQ("retail", a1.Perform(tuple<const std::string&>(re)));
 }
 
 // Tests that we can use ACTION*() to define actions overloaded on the
@@ -795,7 +796,7 @@ TEST(ActionPnMacroTest, WorksFor3Parameters) {
 
   Action<std::string(const std::string& s)> a2 = Plus("tail", "-", ">");
   const std::string re = "re";
-  EXPECT_EQ("retail->", a2.Perform(make_tuple(re)));
+  EXPECT_EQ("retail->", a2.Perform(tuple<const std::string&>(re)));
 }
 
 ACTION_P4(Plus, p0, p1, p2, p3) { return arg0 + p0 + p1 + p2 + p3; }
@@ -900,7 +901,9 @@ template <typename T1, typename T2>
 // pattern requires the user to use it directly.
 ConcatImplActionP3<std::string, T1, T2>
 Concat(const std::string& a, T1 b, T2 c) {
+  GTEST_INTENTIONAL_CONST_COND_PUSH_()
   if (true) {
+  GTEST_INTENTIONAL_CONST_COND_POP_()
     // This branch verifies that ConcatImpl() can be invoked without
     // explicit template arguments.
     return ConcatImpl(a, b, c);
@@ -1096,7 +1099,7 @@ TEST(ActionTemplateTest, WorksWithValueParams) {
 ACTION_TEMPLATE(MyDeleteArg,
                 HAS_1_TEMPLATE_PARAMS(int, k),
                 AND_0_VALUE_PARAMS()) {
-  delete std::tr1::get<k>(args);
+  delete get<k>(args);
 }
 
 // Resets a bool variable in the destructor.

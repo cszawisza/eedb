@@ -5,25 +5,25 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
-//using namespace eedb::utils;
+using namespace eedb::utils;
 
-//TEST( UserConfig, ctor ){
-//    UserConfig uc("");
+TEST( UserConfig, ctor ){
+    UserConfig uc("");
 
-//    EXPECT_EQ(uc.toStdString(), "{}");
-//    EXPECT_EQ(uc.toString(), "{}");
-//}
+    EXPECT_EQ(uc.toStdString(), "{}");
+    EXPECT_EQ(uc.toString(), QStringLiteral("{}"));
+}
 
-//TEST( UserConfig, simple_conf ){
-//    UserConfig uc("{ \n\
-//                    \t \"last_group_id\":10 \n\
-//                   }");
-//    EXPECT_EQ(uc.toStdString(), "{\"last_group_id\":10}");
-//    EXPECT_EQ(uc.toString(), "{\"last_group_id\":10}");
-//}
+TEST( UserConfig, simple_conf ){
+    UserConfig uc("{ \n\
+                    \t \"last_group_id\":10 \n\
+                   }");
+    EXPECT_EQ(uc.toStdString(), "{\"last_group_id\":10}");
+    EXPECT_EQ(uc.toString(), QStringLiteral("{\"last_group_id\":10}"));
+}
 
 //TEST( UserConfig, createByMessage ){
-//    pb::UserConfig conf;
+//    protobuf::UserConfig conf;
 
 //    conf.set_last_group_id( 10 );
 ////    conf.set_last_item_id( 11 );

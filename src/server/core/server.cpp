@@ -17,7 +17,7 @@ void EEDB::startServer()
     eedb::DBInitialize dbinit;
     dbinit.initializeDB( db );
 
-    quint16 port = setup.value("listenPort", 6666).toUInt();
+    quint16 port = setup.value(QStringLiteral("listenPort"), 6666).toUInt();
     if(!this->listen(QHostAddress::Any, port)){
         throw std::runtime_error("Can't listen on port: " + std::to_string(port));
     }

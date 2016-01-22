@@ -3,6 +3,7 @@
 
 #include <sqlpp11/sqlpp11.h>
 #include "database/CategoryHelper.hpp"
+#include "sql_schema/users.h"
 
 #include "TestCommon.hpp"
 
@@ -12,23 +13,23 @@ using namespace eedb;
 using namespace test;
 using eedb::db::CategoryHelper;
 
-class CategoryDbLayerInserttest : public ::testing::Test
-{
-public:
-    CategoryDbLayerInserttest()
-    {
-        db.start_transaction();
-    }
+//class CategoryDbLayerInsertTest : public ::testing::Test
+//{
+//public:
+//    CategoryDbLayerInsertTest()
+//    {
+//        db.start_transaction();
+//    }
 
-    ~CategoryDbLayerInserttest(){
-        db.rollback_transaction(false);
-    }
+//    ~CategoryDbLayerInsertTest(){
+//        db.rollback_transaction(false);
+//    }
 
-protected:
-    DB db;
-    CategoryHelper helper;
-    pb::CategoryReq dataToInsert;
-};
+//protected:
+//    DB db;
+//    CategoryHelper helper;
+//    requests::category::IAdd* dataToInsert;
+//};
 
 
 //TEST_F(CategoryDbLayerInserttest, insert ){

@@ -2,7 +2,7 @@
 
 #include "iprocessor.h"
 
-namespace pb{
+namespace protobuf{
     class ClientRequest;
     class ServerResponse;
     class MsgInventoryRequest_Add;
@@ -15,7 +15,7 @@ namespace pb{
 namespace eedb {
 namespace pu {
 
-class InventoryPU : public IMessageProcessingUint
+class InventoryPU : public IMessageProcessingUnit
 {
 public:
     InventoryPU() {}
@@ -23,19 +23,19 @@ public:
 
     // MessageHandler interface
 public:
-    void process(DB &db, pb::ClientRequest &msg);
-    void process(pb::ClientRequest &msg);
+    void process(DB &db, protobuf::ClientRequest &msg);
+    void process(protobuf::ClientRequest &msg);
 
 private:
-    void handle_add(DB &db, pb::MsgInventoryRequest_Add &msg );
-    void handle_get(DB &db, pb::MsgInventoryRequest_Get &msg);
-    void handle_modify(const pb::MsgInventoryRequest_Modify &msg);
-    void handle_remove( const pb::MsgInventoryRequest_Remove &msg );
-    void handle_addShelf( DB &db, pb::MsgInventoryRequest_AddShelf &msg);
+    void handle_add(DB &db, protobuf::MsgInventoryRequest_Add &msg );
+    void handle_get(DB &db, protobuf::MsgInventoryRequest_Get &msg);
+    void handle_modify(const protobuf::MsgInventoryRequest_Modify &msg);
+    void handle_remove( const protobuf::MsgInventoryRequest_Remove &msg );
+    void handle_addShelf( DB &db, protobuf::MsgInventoryRequest_AddShelf &msg);
 
-    void insertInventory(DB &db, pb::MsgInventoryRequest_Add &msg);
+    void insertInventory(DB &db, protobuf::MsgInventoryRequest_Add &msg);
 
-    void addErrorCode( pb::MsgInventoryResponse_Error code, pb::ServerResponse *res );
+//    void addErrorCode( pb::MsgInventoryResponse_Error code, pb::ServerResponse *res );
 };
 
 }

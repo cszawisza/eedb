@@ -13,7 +13,7 @@ INCLUDE_DIRECTORIES( ../server_lib )
 set(TEST_EXECUTABLE_NAME Tests )
 
 set(MAIN_SRC main.cpp)
-file(GLOB_RECURSE TESTS_SRC Test Common.hpp
+file(GLOB_RECURSE TESTS_SRC Test TestCommon.cpp
 DbCon/*
 common/*
 server/*
@@ -29,4 +29,5 @@ IF ( CMAKE_BUILD_TYPE STREQUAL "Coverage")
     SETUP_TARGET_FOR_COVERAGE_COBERTURA( Server_cover ${TEST_EXECUTABLE_NAME} cover/server)
 ENDIF() # CMAKE_BUILD_TYPE STREQUAL "Coverage"
 
-target_link_libraries(Tests gtest eedb_lib pq)
+target_link_libraries(${TEST_EXECUTABLE_NAME} gtest eedb_lib pq Common ProtobufAdapter)
+add_dependencies(${TEST_EXECUTABLE_NAME} Common ProtobufAdapter)

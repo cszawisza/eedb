@@ -4,6 +4,7 @@ include_directories( ../ )
 include_directories( core )
 
 include_directories( ${Common_SOURCE_DIR} )
+include_directories( ${Common_SOURCE_DIR}/DataStructures )
 
 add_subdirectory(Tests_modules)
 
@@ -29,14 +30,13 @@ set(Core_CPP
     core/clientcache.cpp
     core/clientconnection.cpp
     core/clientworker.cpp
-    core/frameparser.cpp
     core/iprocessor.cpp
     core/server.cpp
 
     core/ProcessingUnits/CategoryPU.cpp
-    core/ProcessingUnits/ItemPU.cpp
+#    core/ProcessingUnits/ItemPU.cpp
     core/ProcessingUnits/UserPU.cpp
-    core/ProcessingUnits/InventoryPU.cpp
+#    core/ProcessingUnits/InventoryPU.cpp
 )
 
 set(Core_H
@@ -56,9 +56,9 @@ target_link_libraries(eedb_lib
 )
 
 add_executable(EedbServer app_start.cpp)
-target_link_libraries(EedbServer sqlpp-postgresql pq eedb_lib)
+target_link_libraries(EedbServer sqlpp-postgresql pq eedb_lib ProtobufAdapter)
 
-add_dependencies(eedb_lib Common)
+add_dependencies(eedb_lib Common ProtobufAdapter)
 
 install( TARGETS EedbServer DESTINATION bin )
 

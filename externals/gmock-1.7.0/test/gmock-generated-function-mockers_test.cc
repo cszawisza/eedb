@@ -112,6 +112,14 @@ class FooInterface {
 #endif  // GTEST_OS_WINDOWS
 };
 
+// Const qualifiers on arguments were once (incorrectly) considered
+// significant in determining whether two virtual functions had the same
+// signature. This was fixed in Visual Studio 2008. However, the compiler
+// still emits a warning that alerts about this change in behavior.
+#ifdef _MSC_VER
+# pragma warning(push)
+# pragma warning(disable : 4373)
+#endif
 class MockFoo : public FooInterface {
  public:
   MockFoo() {}
@@ -167,6 +175,9 @@ class MockFoo : public FooInterface {
  private:
   GTEST_DISALLOW_COPY_AND_ASSIGN_(MockFoo);
 };
+#ifdef _MSC_VER
+# pragma warning(pop)
+#endif
 
 class FunctionMockerTest : public testing::Test {
  protected:
@@ -583,6 +594,29 @@ TEST(MockFunctionTest, WorksFor10Arguments) {
   EXPECT_EQ(1, foo.Call(false, 'a', 0, 0, 0, 0, 0, 'b', 0, true));
   EXPECT_EQ(2, foo.Call(true, 'a', 0, 0, 0, 0, 0, 'b', 1, false));
 }
+
+#if GTEST_HAS_STD_FUNCTION_
+TEST(MockFunctionTest, AsStdFunction) {
+  MockFunction<int(int)> foo;
+  auto call = [](const std::function<int(int)> &f, int i) {
+    return f(i);
+  };
+  EXPECT_CALL(foo, Call(1)).WillOnce(Return(-1));
+  EXPECT_CALL(foo, Call(2)).WillOnce(Return(-2));
+  EXPECT_EQ(-1, call(foo.AsStdFunction(), 1));
+  EXPECT_EQ(-2, call(foo.AsStdFunction(), 2));
+}
+
+TEST(MockFunctionTest, AsStdFunctionReturnsReference) {
+  MockFunction<int&()> foo;
+  int value = 1;
+  EXPECT_CALL(foo, Call()).WillOnce(ReturnRef(value));
+  int& ref = foo.AsStdFunction()();
+  EXPECT_EQ(1, ref);
+  value = 2;
+  EXPECT_EQ(2, ref);
+}
+#endif  // GTEST_HAS_STD_FUNCTION_
 
 }  // namespace gmock_generated_function_mockers_test
 }  // namespace testing

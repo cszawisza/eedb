@@ -10,6 +10,8 @@ include(CodeCoverage)
 # defines a macro: optional_add_subdirectory
 include(OptionalAddDirectory)
 
+add_definitions(-DQT_NO_CAST_FROM_ASCII)
+
 if(NOT MSVC)
     add_definitions( -std=c++1y )
     include_directories( /usr/local )

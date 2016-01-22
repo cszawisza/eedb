@@ -3,27 +3,24 @@
 #include <QJsonObject>
 #include <string>
 
-#include "user.pb.h"
-
 namespace eedb {
-//namespace utils {
+namespace utils {
 
-//using namespace std;
+using namespace std;
 
-//class UserConfig
-//{
-//public:
-//    explicit UserConfig( string json );
-//    UserConfig(const pb::UserConfig &conf);
+///NOTE implement and test
+class UserConfig
+{
+public:
+    explicit UserConfig( string json );
 
-//    QString toString() const;
-//    string toStdString() const;
+    QString toString() const;
+    string toStdString() const;
 
-//private:
-//    QByteArray getJson() const ;
-//    QJsonObject m_config; ///TODO replace with protbuf message
-//    pb::UserConfig m_conf;
-//};
+private:
+    QByteArray getJson() const ;
+    QJsonObject m_config;
+};
 
-//}
+}
 }

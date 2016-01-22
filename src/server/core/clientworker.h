@@ -5,9 +5,9 @@
 #include <QSharedPointer>
 #include <QHash>
 
-#include "frameparser.h"
 #include "iprocessor.h"
 #include "clientcache.h"
+#include "Interfaces/DefinedActions.hpp"
 
 /**
  * @brief The ClientWorker class
@@ -17,17 +17,19 @@ class ClientWorker : public QObject
 {
     Q_OBJECT
 public:
-    typedef QSharedPointer<pb::ClientRequests> SharedRequests;
-    typedef QSharedPointer<pb::ServerResponses> SharedResponses;
     explicit ClientWorker(QObject *parent = 0);
 
-    void printMessageInfo(const pb::ClientRequest &request);
-    void processMessages();
+    void processMessage();
 signals:
     /**
-     * @brief jobFinished signal emmited when worker ends processing data
+     * @brief beforeProcessing signal emited before worker atempts to parse message
      */
-    void jobFinished();
+    void beforeProcessing();
+
+    /**
+     * @brief afterProcessing signal emmited when worker ends processing data
+     */
+    void afterProcessing();
 
     /**
      * @brief binnaryMessageReadyToSend: Signal emmited every time a package can be send
@@ -47,9 +49,12 @@ public slots:
      */
     void processBinnaryMessage(QByteArray frame);
 private:
-    SharedUserData m_cache;
-    SharedResponses m_responseFrame;
-    SharedRequests m_inputFrame;
-    QHash<pb::ClientRequest::DataCase, QSharedPointer<IMessageProcessingUint>> m_msgHandlers;
-    QSharedPointer<IMessageProcessingUint> m_defaultProcessor;
+    void printMessageInfo(const IMessageContainer *request);
+
+    std::shared_ptr<UserData> m_cache;
+    std::shared_ptr<IServerResponse> m_response;
+    std::shared_ptr<IClientRequest> m_request;
+
+    QHash<ActionTypeId, QSharedPointer<IMessageProcessingUnit>> m_msgHandlers;
+    QSharedPointer<IMessageProcessingUnit> m_defaultProcessor;
 };

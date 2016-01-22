@@ -1,8 +1,11 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include <sqlpp11/sqlpp11.h>
 #include "database/UserHelper.hpp"
+#include "database/AclHelper.hpp"
+
+#include "sql_schema/inventories.h"
+#include "sql_schema/files.h"
 
 #include "TestCommon.hpp"
 
@@ -14,8 +17,6 @@ static constexpr schema::files f;
 using namespace eedb;
 using namespace test;
 using eedb::db::AclHelper;
-
-
 
 class UserHelperSelectTest : public ::testing::Test
 {
@@ -32,7 +33,7 @@ public:
 protected:
     DB db;
     AclHelper helper;
-    pb::Acl dataToInsert;
+    protobuf::Acl dataToInsert;
 };
 
 TEST_F(UserHelperSelectTest, executeSelectFromDifferentTables ){

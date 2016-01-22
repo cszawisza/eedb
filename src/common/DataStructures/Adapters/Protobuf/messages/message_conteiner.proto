@@ -1,0 +1,54 @@
+option optimize_for = LITE_RUNTIME;
+package protobuf;
+import public "common.proto";
+
+import public "user.proto";
+import public "inventory.proto";
+import public "item.proto";
+import public "category.proto";
+
+/// message used for sending back code of operation 
+/// (operation succes or error)
+
+enum MsgCoding{
+  msgprotobuf = 1;
+  msgBin = 2;
+  msgJson = 3;
+}
+
+message ClientRequest{
+  optional uint32	request_id	= 1 [default = 1];
+//  required MsgCoding	msgCoding 	= 3 [default = msgprotobuf]; // type that is stored in data field
+//  optional MsgTypeId	msgTypeId 	= 4; // used only for not protobuf type messages
+  
+  oneof data {
+    protobuf.UserReq                  userReq = 12;
+    protobuf.MsgInventoryRequest      msgInventoryReq = 13;
+    protobuf.ItemReq                  itemReq = 14;
+    protobuf.CategoryReq              categoryReq = 15;
+    protobuf.MsgParameterRequest      msgParameterReq = 16;
+  }
+}
+
+message ServerResponse {
+  optional int32    code                = 1 [default = 0];
+  optional uint64   response_id         = 2 [default = 0]; // server unique response id
+  optional uint64   in_response_to      = 3 [default = 0]; // in response to: request_if
+  optional bool     is_last_response    = 4 [default = true];
+//  required MsgCoding	msgCoding 	= 5 [default = msgprotobuf]; // type that is stored in data field
+//  optional MsgTypeId	msgTypeId 	= 6; // used only for not protobuf type messages
+  
+  oneof data {
+    protobuf.UserRes                  userRes = 12;
+    protobuf.MsgInventoryResponse     msgInventoryRes = 13;
+    protobuf.ItemResponse             itemRes = 14;
+    protobuf.CategoryRes              categoryRes = 15;
+    protobuf.MsgParameterResponse     msgParameterRes = 16;
+    
+//    ServerResponse msgServerResponse = 1000;
+  }
+}
+
+
+
+

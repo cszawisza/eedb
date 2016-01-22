@@ -3,21 +3,25 @@
 #include <QDebug>
 #include <QTimer>
 #include <QByteArray>
-#include "WebSocket.hpp"
 
 #include <LoginDialog.hpp>
 #include <CommunicationManager.hpp>
 #include <LoginVerificator.hpp>
 #include <ApplicationMainWindow.hpp>
-#include <ProtobufConverters.hpp>
 #include <UserRegister.hpp>
+#include <WebSocket.hpp>
+
+#include <Adapters/Protobuf/ClientRequestAdapter.hpp>
+#include <Adapters/Protobuf/ServerResponseAdapter.hpp>
+
+#include <memory>
 
 namespace
 {
 
 void showHelloMessage(const char *argv)
 {
-    QFile prog(argv);
+    QFile prog(QString::fromLatin1(argv));
     QString msg{};
 
     msg.append(QStringLiteral("Program ma wielkość "));
@@ -32,7 +36,7 @@ void showHelloMessage(const char *argv)
     msg.append(QStringLiteral("\nna kompilatorze GCC w wersji "));
     msg.append(QStringLiteral(__VERSION__));
     msg.append(QStringLiteral("\nkorzystając z QT w wersji "));
-    msg.append(QT_VERSION_STR);
+    msg.append(QStringLiteral(QT_VERSION_STR));
     qDebug() << msg.toUtf8();
 }
 
@@ -53,21 +57,9 @@ void showLoginDialog(QApplication &a)
 {
     QSharedPointer<ISocket> l_webSocket = QSharedPointer<ISocket>(new WebSocket());
 
-    auto l_protobufToQbyteArrayConverter = [](const pb::ClientRequests & p_clientRequests)
-    {
-        return convertProtobufClientRequestsToQByteArray(p_clientRequests);
-    };
-
-    auto l_qbyteArrayToProtobufConverter = [](const QByteArray & p_serverResponse)
-    {
-        return convertQByteArrayToProtobufServerResponse(p_serverResponse);
-    };
-
     QSharedPointer<ICommunicationManager>  l_communicationManager =
             QSharedPointer<ICommunicationManager>(
-                new CommunicationManager(l_webSocket,
-                                         l_protobufToQbyteArrayConverter,
-                                         l_qbyteArrayToProtobufConverter));
+                new CommunicationManager(l_webSocket ));
     LoginVerificator l_loginVerificator;
     UserRegister l_userRegisterDialog;
 

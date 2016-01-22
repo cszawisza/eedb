@@ -8,8 +8,6 @@
 
 #include <boost/optional.hpp>
 
-using boost::optional;
-
 namespace eedb{
 namespace db{
 
@@ -34,7 +32,7 @@ public:
     }
 
     template < typename T , typename W >
-    static auto updateWhere (const pb::Acl &data, W &&where ){
+    static auto updateWhere (const protobuf::Acl &data, W &&where ){
         constexpr T tab;
         auto du = dynamic_update(DB::connection(), tab).dynamic_set().dynamic_where();
         du.where.add( std::forward<W>(where) );
@@ -51,26 +49,26 @@ public:
         return du;
     }
 
-    static auto update (const pb::Acl &data ){
+    static auto update (const protobuf::Acl &data ){
         constexpr schema::stat a;
         auto uid = data.has_uid()?data.uid() : 0;
         return updateWhere<schema::stat>(data, a.uid == uid );
     }
 
 //    template< typename T >
-//    static auto update(const pb::Acl &data){
+//    static auto update(const protobuf::Acl &data){
 //        return
 //    }
 
     template<typename T>
-    static optional<pb::Acl> getAcl(DB &db, UID objectID)
+    static boost::optional<protobuf::Acl> getAcl(DB &db, UID objectID)
     {
         static constexpr T a;
-        boost::optional<pb::Acl> optionalAclData;
+        boost::optional<protobuf::Acl> optionalAclData;
         auto row = db( selectAclFrom<decltype(a)>( a.uid == objectID ));
 
         if( !row.empty() ){
-            pb::Acl stat = pb::Acl::default_instance();
+            protobuf::Acl stat = protobuf::Acl::default_instance();
             stat.set_group( row.front().stat_group );
             stat.set_owner( row.front().owner );
             stat.set_status( row.front().status );
@@ -82,8 +80,8 @@ public:
         return optionalAclData;
     }
 
-    static optional<pb::Acl> getAcl(DB &db, UID objectID);
-    static void updateAcl(DB &db, pb::Acl objectID ) throw(sqlpp::postgresql::pg_exception);
+    static boost::optional<protobuf::Acl> getAcl(DB &db, UID objectID);
+    static void updateAcl(DB &db, protobuf::Acl objectID ) throw(sqlpp::postgresql::pg_exception);
 };
 }
 }

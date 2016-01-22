@@ -1,9 +1,10 @@
 #pragma once
 #include <QObject>
-#include <memory>
-#include <QUrl>
 #include <QSharedPointer>
-#include "message_conteiner.pb.h"
+#include <QUrl>
+
+#include "Interfaces/ClientRequest.hpp"
+#include "Interfaces/ServerResponse.hpp"
 
 class ISocket;
 class Url;
@@ -14,13 +15,13 @@ class Url;
  */
 
 struct ResponseMetadata{
-    ResponseMetadata():
-        ResponseMetadata( pb::ServerResponse::default_instance() ){}
-    ResponseMetadata(const pb::ServerResponse &res){
-        response_id = res.response_id();
-        in_response_to = res.in_response_to();
-        is_last_response = res.is_last_response();
-    }
+//    ResponseMetadata():
+//        ResponseMetadata( protobuf::ServerResponse::default_instance() ){}
+//    ResponseMetadata(const protobuf::ServerResponse &res){
+//        response_id = res.response_id();
+//        in_response_to = res.in_response_to();
+//        is_last_response = res.is_last_response();
+//    }
 
     quint64 response_id;
     quint64 in_response_to;
@@ -28,11 +29,11 @@ struct ResponseMetadata{
 };
 
 struct RequestMetadata{
-    RequestMetadata():
-        RequestMetadata( pb::ClientRequest::default_instance() ){}
-    RequestMetadata( const pb::ClientRequest &req ){
-        request_id = req.request_id();
-    }
+//    RequestMetadata():
+//        RequestMetadata( IClientRequest &req){}
+//    RequestMetadata( const IClientRequest &req ){
+//        request_id = req.get_requestId();
+//    }
 
     uint64_t request_id;
 };
@@ -40,8 +41,6 @@ struct RequestMetadata{
 Q_DECLARE_METATYPE(ResponseMetadata)
 Q_DECLARE_METATYPE(RequestMetadata)
 
-Q_DECLARE_METATYPE( std::shared_ptr<pb::UserRes> )
-Q_DECLARE_METATYPE( std::shared_ptr<pb::CategoryRes> )
 
 class ICommunicationManager : public QObject{
     Q_OBJECT
@@ -52,7 +51,7 @@ public:
      * @brief newRequest
      * @return new a pointer to ClientRequests structure held in Communication Manager body
      */
-    virtual pb::ClientRequest *newRequest( uint64_t &request_id ) = 0;
+//    virtual protobuf::ClientRequest *newRequest( uint64_t &request_id ) = 0;
 
 public slots:
     /**
@@ -71,7 +70,7 @@ public slots:
      * @brief sendUserRequest
      * @param data
      */
-    virtual void sendUserRequest( std::shared_ptr<pb::UserReq> data) = 0;
+    virtual void sendUserRequest( IClientRequest* data) = 0;
 
 signals:
     void socketConnected() const;
@@ -79,6 +78,6 @@ signals:
     void loggedin() const;
     void logout() const;
 
-    void userRequestSent( RequestMetadata meta );
-    void userResponse( ResponseMetadata meta, std::shared_ptr<pb::UserRes> data);
+//    void userRequestSent( RequestMetadata meta );
+//    void userResponse( ResponseMetadata meta, std::shared_ptr<protobuf::UserRes> data);
 };

@@ -62,8 +62,8 @@ TEST_F(LoginDialogTestSuite, InvokeMainWindowAfterSuccesfullServerConnection)
     QSignalSpy buttonSpy(m_sut->getUi()->login, SIGNAL(clicked(bool)));
     QSignalSpy spy(m_sut, SIGNAL(loginSucces()));
 
-    m_sut->getUi()->userLogin->setText("login");
-    m_sut->getUi()->userPassword->setText("pass");
+    m_sut->getUi()->userLogin->setText(QStringLiteral("login"));
+    m_sut->getUi()->userPassword->setText(QStringLiteral("pass"));
     EXPECT_CALL(loginVerificatorMock, tryLogin(m_sut->getUi()->userPassword->text().toStdString(),
                                                m_sut->getUi()->userLogin->text().toStdString())).WillOnce(Return(true));
 
@@ -80,8 +80,8 @@ TEST_F(LoginDialogTestSuite, DontInvokeMainWindowAfterSuccesfullServerConnection
     QSignalSpy buttonSpy(m_sut->getUi()->login, SIGNAL(clicked(bool)));
     QSignalSpy spy(m_sut, SIGNAL(loginSucces()));
 
-    m_sut->getUi()->userLogin->setText("login");
-    m_sut->getUi()->userPassword->setText("pass");
+    m_sut->getUi()->userLogin->setText(QStringLiteral("login"));
+    m_sut->getUi()->userPassword->setText(QStringLiteral("pass"));
 
     EXPECT_CALL(loginVerificatorMock, tryLogin(m_sut->getUi()->userPassword->text().toStdString(),
                                                m_sut->getUi()->userLogin->text().toStdString())).WillOnce(Return(false));

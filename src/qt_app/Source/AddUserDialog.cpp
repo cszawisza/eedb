@@ -5,6 +5,9 @@
 #include "ui_AddUserDialog.h"
 #include "CommunicationManager.hpp"
 
+#include "DataStructures/Adapters/Protobuf/ClientRequestAdapter.hpp"
+#include "DataStructures/Adapters/Protobuf/UserRequestAdapter.hpp"
+
 AddUserDialog::AddUserDialog(QSharedPointer<ICommunicationManager> p_communicatioManager, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AddUserDialog),
@@ -40,7 +43,7 @@ void AddUserDialog::on_registerNewUser_clicked()
     if(!(!(ui->name->text().isEmpty()) && !(ui->email->text().isEmpty()) && !(ui->password->text().isEmpty()))) // NOR
     {
         QMessageBox msgBox{};
-        msgBox.setText("Podaj nazwę użytkownika, hasło oraz email");
+        msgBox.setText(QStringLiteral("Podaj nazwę użytkownika, hasło oraz email"));
         msgBox.exec();
         return;
     }
@@ -54,36 +57,41 @@ void AddUserDialog::on_registerNewUser_clicked()
     l_userDescritpion = ui->description->toPlainText().toStdString();
     l_userPhoneNumber = ui->phonenumber->text().toStdString();
 
-    emit registrationSuccesfull();
-    close();
-    ///FIXME
+//    emit registrationSuccesfull();
+//    close();
+///FIXME
 //    m_communicatioManager.handleRegister(l_userName, l_userPassword, l_userEmail,
 //                                         l_userAdress, l_userDescritpion, l_userPhoneNumber);
-//    pb::ClientRequests fullMessage;
-//    auto loginReq = fullMessage.add_request();
-//    auto userMsg = loginReq->mutable_userreq();
-//    auto login = userMsg->mutable_add();
-//    login->mutable_basic()->set_name( ui->name->text().toStdString() );
-//    login->mutable_basic()->set_email(ui->email->text().toStdString() );
+    ClientRequest fullMessage;
 
-//    if(! ui->description->toPlainText().isEmpty())
-//        login->mutable_basic()->set_description( ui->description->toHtml().toStdString() );
-//    if(! ui->address->toPlainText().isEmpty() )
-//        login->mutable_details()->set_address( ui->address->toPlainText().toStdString() );
-//    if(! ui->phonenumber->text().isEmpty() )
-//        login->mutable_details()->set_phone_number( ui->phonenumber->text().toStdString() );
+    auto login = fullMessage.user()->add();
+    login->set_nickname( ui->name->text().toStdString() );
+    login->set_email(ui->email->text().toStdString() );
 
-//    bool ok, ok2;
-//    QString passwd1 = QInputDialog::getText(this, "Wprowadź hasło","Wprowadź hasło",QLineEdit::Password,"",&ok);
-//    QString passwd2 = QInputDialog::getText(this, "Wprowadź hasło","Wprowadź ponownie hasło",QLineEdit::Password,"",&ok2);
+    if(! ui->description->toPlainText().isEmpty())
+        login->set_description( ui->description->toHtml().toStdString() );
+    if(! ui->address->toPlainText().isEmpty() )
+        login->set_address( ui->address->toPlainText().toStdString() );
+    if(! ui->phonenumber->text().isEmpty() )
+        login->set_phoneNumber( ui->phonenumber->text().toStdString() );
 
-//    if (passwd1 != passwd2 )
-//        return;
-//    login->set_password( passwd1.toStdString() );
+    bool ok, ok2;
+    QString passwd1 = QInputDialog::getText(this,
+                                            QStringLiteral("Wprowadź hasło"),
+                                            QStringLiteral("Wprowadź hasło"),
+                                            QLineEdit::Password,
+                                            QStringLiteral(""),
+                                            &ok);
+    QString passwd2 = QInputDialog::getText(this,
+                                            QStringLiteral("Wprowadź hasło"),
+                                            QStringLiteral("Wprowadź ponownie hasło"),
+                                            QLineEdit::Password,
+                                            QStringLiteral(""),
+                                            &ok2);
 
-//    QByteArray ba;
-//    ba.resize(fullMessage.ByteSize());
-//    fullMessage.SerializeToArray(ba.data(), ba.size() );
+    if (passwd1 != passwd2 )
+        return;
+    login->set_password( passwd1.toStdString() );
 
-//    m_socket.sendBinaryMessage(ba);
+    m_communicatioManager->sendUserRequest(&fullMessage);
 }

@@ -1,42 +1,36 @@
 #pragma once
 #include <string>
-
+#include <memory>
 #include <ICommunicationManager.hpp>
-#include <ProtobufConverters.hpp>
+
+#include "Interfaces/ClientRequest.hpp"
+#include "Interfaces/ServerResponse.hpp"
+
 #include "ISocket.hpp"
 
 class QByteArray;
 class Url;
 
-namespace pb
-{
-    class ClientRequests;
-}
-
 class CommunicationManager : public ICommunicationManager
 {
     Q_OBJECT
 public:
-    CommunicationManager(QSharedPointer<ISocket> p_webSocket,
-                         ProtobufToQByteArrayConverter p_convertProtobufToString,
-                         QByteArrayToProtobufConverter p_convertQByteArrayToProtobuf);
+    CommunicationManager(QSharedPointer<ISocket> p_webSocket);
 
-//    void handleRegister(std::string &, std::string &, std::string &,
-//                        std::string &, std::string &, std::string &) ;
     ~CommunicationManager(){}
 
-    pb::ClientRequest *newRequest(uint64_t &request_id ) override;
+    //    protobuf::ClientRequest *newRequest(uint64_t &request_id ) override;
 
-    void sendRequest();
-//    QSharedPointer<ISocket> socket() const override;
+    void sendRequest( IClientRequest *req );
+    //    QSharedPointer<ISocket> socket() const override;
 public slots:
-    void sendUserRequest(std::shared_ptr<pb::UserReq> data) override;
+    void sendUserRequest( IClientRequest* data) override;
     void openConnection(const Url &url) const override;
     void closeConnection() const override;
 
 private:
     QSharedPointer<ISocket> m_socket;
-    ProtobufToQByteArrayConverter m_convertProtobufToQByteArray;
-    QByteArrayToProtobufConverter m_convertQByteArrayToProtobuf;
-    pb::ClientRequests p_clientRequests;
+
+    std::shared_ptr<IClientRequest> m_req;
+    std::shared_ptr<IServerResponse> m_res;
 };

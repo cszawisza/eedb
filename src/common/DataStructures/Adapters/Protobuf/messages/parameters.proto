@@ -1,0 +1,57 @@
+option optimize_for = LITE_RUNTIME;
+package protobuf;
+import public "common.proto";
+
+message MsgParameterRequest{
+    oneof action{
+        Add add =1;
+    };
+
+    message Add {
+        required string name = 1;
+        optional string symbol = 2;
+        optional string quantity_name = 3;
+    }
+}
+
+message MsgParameterResponse{
+
+}
+
+message ParameterValue{
+  required uint32 id = 1; // parameter ID
+  optional protobuf.Variant stored_value = 2; // direct value of parameter
+  optional uint32 pointed_value = 3; // pointer to value in database
+}
+
+message Details{
+  required string name =1;
+  optional string description = 2;
+  optional fixed64 creation_date = 3;
+  optional fixed64 lastupdate = 4;
+}
+
+message ParameterConfig {
+  required int32 type = 1; // QVariant metadate type
+  optional bytes defaultValue = 2;
+  optional bytes minValue = 3;
+  optional bytes maxValue = 4;
+  optional int32 minLength = 5;
+  optional int32 maxLength = 6;
+}
+
+message ParameterDetails{
+  optional string description = 1;
+}
+
+message ParameterBasicInfo{
+  required uint32 id = 1;
+  optional string name = 2;
+  optional string symbol = 3;
+}
+
+message Parameter{
+  required ParameterBasicInfo basic = 1;
+  required Details details = 2;
+  required ParameterConfig config = 4;
+}

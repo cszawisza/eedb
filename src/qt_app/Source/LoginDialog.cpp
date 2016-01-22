@@ -31,7 +31,7 @@ LoginDialog::LoginDialog(const ILoginVerificator &p_loginVerificator,
 
     userReg = new AddUserDialog(m_manager, this);
 
-    QState* connectedState = new QState();//, waitForSend, waitForResponse, werify;
+    QState* connectedState = new QState();
     QState* tryConnectState = new QState();
 
     QState* tryDisconnect = new QState(connectedState);
@@ -59,11 +59,11 @@ LoginDialog::LoginDialog(const ILoginVerificator &p_loginVerificator,
 
     disconnectedState->assignProperty( ui->login_groupbox, "enabled", false );
     disconnectedState->assignProperty( ui->connection_groupbox, "enabled", true );
-    disconnectedState->assignProperty( ui->connectBtn, "text", "Connect");
+    disconnectedState->assignProperty( ui->connectBtn, "text", QStringLiteral("Connect"));
     disconnectedState->addTransition(ui->connectBtn, SIGNAL(clicked()), tryConnectState);
 
     tryConnectState->assignProperty(ui->connection_groupbox, "enabled", false );
-    tryConnectState->assignProperty(ui->connectBtn, "text", "Try to connect" );
+    tryConnectState->assignProperty(ui->connectBtn, "text", QStringLiteral("Try to connect") );
     tryConnectState->addTransition(m_manager.data(), SIGNAL(socketConnected()), connectedState);
     tryConnectState->addTransition(m_manager.data(), SIGNAL(socketDisconnected()), disconnectedState);
     tryConnectState->addTransition(ui->connectBtn, SIGNAL(clicked()), tryDisconnect);
@@ -72,7 +72,7 @@ LoginDialog::LoginDialog(const ILoginVerificator &p_loginVerificator,
         connectToServer();
     });
 
-    connectedState->assignProperty(ui->connectBtn, "text", "Disconnect");
+    connectedState->assignProperty(ui->connectBtn, "text", QStringLiteral("Disconnect"));
     connectedState->assignProperty(ui->login_groupbox, "enabled", true );
 
     connectedState->addTransition(ui->registerNewUser, SIGNAL(clicked()), userRegister);
@@ -142,15 +142,15 @@ Ui::LoginDialog *LoginDialog::getUi()
 //void LoginDialog::readyRead(QByteArray msg){
 //    //Server response handler code
 //    qDebug()<< msg.toHex();
-//    pb::ServerResponses sr;
+//    protobuf::ServerResponses sr;
 //    sr.ParseFromArray(msg.data(), msg.size());
 
-//    pb::UserRes loginRes = sr.response(0).userres();
+//    protobuf::UserRes loginRes = sr.response(0).userres();
 
-//    if(loginRes.code(0) == pb::UserRes_Reply_LoginPass ){
+//    if(loginRes.code(0) == protobuf::UserRes_Reply_LoginPass ){
 //        qDebug() << "Login pass";
 //    }
-//    else if(loginRes.code(0) == pb::UserRes_Reply_LoginDeny){
+//    else if(loginRes.code(0) == protobuf::UserRes_Reply_LoginDeny){
 //        qDebug() << "login deny";
 //    }
 
@@ -158,12 +158,12 @@ Ui::LoginDialog *LoginDialog::getUi()
 //    for(int i = 0; i<mc.capsules().size();++i)
 //        if(mc.getCapsule(i).msgtype() == MsgType::resLogin ){
 //            qDebug()<<" got login response";
-//            pb::LoginResponse res;
+//            protobuf::LoginResponse res;
 //            res.ParseFromString(mc.getCapsule(i).data());
-//            if(res.replay() == pb::Replay::LoginPass){
+//            if(res.replay() == protobuf::Replay::LoginPass){
 //                emit loginOk();
 //            }
-//            else if(res.replay() == pb::Replay::LoginDeny ){
+//            else if(res.replay() == protobuf::Replay::LoginDeny ){
 //                emit loginFailure();
 //            }
 //        }
@@ -201,14 +201,14 @@ Ui::LoginDialog *LoginDialog::getUi()
 
 //void LoginDialog::doLogin()
 //{
-//    pb::ClientRequests fullMessage;
+//    protobuf::ClientRequests fullMessage;
 //    auto loginReq = fullMessage.add_request();
 
 //    auto userMsg = loginReq->mutable_userreq();
 
 //    auto login = userMsg->mutable_login();
 //    login->set_password(ui->userPassword->text().toStdString() );
-//    login->mutable_cred()->set_name(ui->userLogin->text().toStdString());
+//    login->mutable_cred()->set_nickname(ui->userLogin->text().toStdString());
 
 //    QByteArray ba;
 //    ba.resize(fullMessage.ByteSize());
@@ -247,8 +247,8 @@ void LoginDialog::loginToServer()
 
 void LoginDialog::setDeafultServerInfo()
 {
-    ui->serverIp->setText(setup.value("ServerIp", "localhost").toString());
-    ui->serverPort->setText(setup.value("ServerPort", 6666).toString());
-    ui->userLogin->setText(setup.value("Login", "").toString());
+    ui->serverIp->setText(setup.value(QStringLiteral("ServerIp"), QStringLiteral("localhost")).toString());
+    ui->serverPort->setText(setup.value(QStringLiteral("ServerPort"), 6666).toString());
+    ui->userLogin->setText(setup.value(QStringLiteral("Login"), QStringLiteral("")).toString());
     ui->userPassword->setEchoMode(QLineEdit::Password);
 }

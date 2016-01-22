@@ -8,51 +8,53 @@
 #include "ProcessingUnits/ItemPU.hpp"
 
 #include "utils/LogUtils.hpp"
+#include "iprocessor.h"
+
+#include <DataStructures/Adapters/Protobuf/ClientRequestAdapter.hpp>
+#include <DataStructures/Adapters/Protobuf/ServerResponseAdapter.hpp>
 
 ClientWorker::ClientWorker(QObject *parent) :
     QObject(parent),
-    m_cache( SharedUserData (new UserData() )),
-    m_responseFrame( SharedResponses(new pb::ServerResponses )) /*,
-    m_defaultProcessor(QSharedPointer<MessageHandler>(new UnknownMessageProcessor()))*/
+    m_cache( std::make_shared<UserData>()),
+    m_request( std::make_shared<ClientRequest>() ),
+    m_response( std::make_shared<ServerResponse>() )
 {
-    m_inputFrame = SharedRequests(new pb::ClientRequests );
-    m_responseFrame = SharedResponses( new pb::ServerResponses );
+    m_msgHandlers.insert( actions::typeUser,
+                          QSharedPointer<eedb::pu::UserPU>(new eedb::pu::UserPU() ));
+    m_msgHandlers.insert( actions::typeCategory,
+                          QSharedPointer<eedb::pu::CategoryPU>(new eedb::pu::CategoryPU()) );
 
-    m_msgHandlers.insert( pb::ClientRequest::kItemReq, QSharedPointer<eedb::pu::ItemPU>(new eedb::pu::ItemPU() ));
-    m_msgHandlers.insert( pb::ClientRequest::kUserReq, QSharedPointer<eedb::pu::UserPU>(new eedb::pu::UserPU()) );
-    m_msgHandlers.insert( pb::ClientRequest::kMsgInventoryReq, QSharedPointer<eedb::pu::InventoryPU>( new eedb::pu::InventoryPU() ));
-    m_msgHandlers.insert( pb::ClientRequest::kCategoryReq, QSharedPointer<eedb::pu::CategoryPU>(new eedb::pu::CategoryPU() ));
+//    m_msgHandlers.insert( protobuf::ClientRequest::kMsgInventoryReq, QSharedPointer<eedb::pu::InventoryPU>( new eedb::pu::InventoryPU() ));
+//    m_msgHandlers.insert( protobuf::ClientRequest::kCategoryReq, QSharedPointer<eedb::pu::CategoryPU>(new eedb::pu::CategoryPU() ));
 }
 
-void ClientWorker::printMessageInfo(const pb::ClientRequest &request)
+void ClientWorker::printMessageInfo(const IMessageContainer *request)
 {
-    getServerLoger()->trace("Get req message(type_id:{}) from user {}", request.data_case(), m_cache->id() );
+    getServerLoger()->trace("Get req message of type: {}, from user {}",
+                            request->message_type().get_value_or(ActionTypeId(-1, "unknown message type")).getName(),
+                            m_cache->uid() );
 }
 
-void ClientWorker::processMessages()
+void ClientWorker::processMessage( )
 {
-    for(int msgId=0; msgId<m_inputFrame->request_size(); msgId++ ){
-        printMessageInfo(m_inputFrame->request(msgId));
-        auto processor = m_msgHandlers.value(m_inputFrame->request(msgId).data_case(),  QSharedPointer<IMessageProcessingUint>(new IMessageProcessingUint()));
-        processor->setUserData(m_cache);
-        processor->setInputData(m_inputFrame);
-        processor->setOutputData(m_responseFrame);
-        processor->process( msgId );
-    }
+    printMessageInfo( m_request.get() );
+    auto processor = m_msgHandlers.value( m_request->message_type().get_value_or(ActionTypeId(-1, "unknown message type")),
+                                          QSharedPointer<IMessageProcessingUnit>(new IMessageProcessingUnit()));
+    processor->setUserData(m_cache);
+    processor->setOutputData( m_response );
+    processor->prepareNewResponse();
+    m_response->set_in_response_to( m_request->get_requestId() );
+    processor->process( m_request.get() );
+
+    emit binnaryMessageReadyToSend( m_response->serialize() );
 }
 
 void ClientWorker::processBinnaryMessage(QByteArray frame)
 {
-    m_responseFrame->Clear();
-    RequestsDecoder decoder(frame);
-    decoder.decodeTo(*m_inputFrame);
+    emit beforeProcessing();
 
-    processMessages();
+    m_request->parse(frame);
+    processMessage( );
 
-    QByteArray ba;
-    ba.resize(m_responseFrame->ByteSize());
-    m_responseFrame->SerializeToArray(ba.data(), ba.size());
-
-    emit binnaryMessageReadyToSend(ba);
-    emit jobFinished();
+    emit afterProcessing();
 }

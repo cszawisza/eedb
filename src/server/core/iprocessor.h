@@ -1,53 +1,42 @@
 #pragma once
 // interface allowing to create message parsers
-#include <QObject>
-#include <QSharedPointer>
-#include <QDebug>
-#include <QSharedPointer>
-#include "message_conteiner.pb.h"
-#include "clientcache.h"
-#include "database/idatabase.h"
-#include "auth/acl.hpp"
 #include <atomic>
 
-using pb::ClientRequest;
-using pb::ClientRequests;
+#include "clientcache.h"
+
+#include <Interfaces/ClientRequest.hpp>
+#include <Interfaces/ServerResponse.hpp>
+
 /**
  * @brief The IProcessor class
  */
+class DB;
 
-class IMessageProcessingUint
+class IMessageProcessingUnit
 {
 public:
-    typedef QSharedPointer<pb::ClientRequests> SharedRequests;
-    typedef QSharedPointer<pb::ServerResponses> SharedResponses;
-
-    IMessageProcessingUint();
-    virtual ~IMessageProcessingUint(){}
-    pb::ServerResponse getLastResponse();
-    void setInputData( SharedRequests frame );
-    void setOutputData( SharedResponses frame );
-
+    IMessageProcessingUnit();
+    virtual ~IMessageProcessingUnit(){}
     /**
      * @brief setClientCache
      * @param cache: sets a pointer to common cache (containing user status information and session stuf)
      */
-    void setUserData( SharedUserData userData);
-    void process( int msgId );
-    void clear();
-    SharedUserData user();
-    size_t responseCount() const;
-protected:
-    virtual void process(pb::ClientRequest &req);
-    virtual void process(DB &db, pb::ClientRequest &req);
+    void setUserData( std::shared_ptr<UserData> userData);
 
-    pb::ServerResponse *add_response();
-    void sendServerError(pb::ServerError e);
+    void setOutputData(std::shared_ptr<IServerResponse> frame );
+
+    void clear();
+    std::shared_ptr<UserData> user();
+
+    virtual void process(IClientRequest *req);
+    virtual void process(DB &db, IClientRequest *req);
+
+    IServerResponse *response();
+    void prepareNewResponse();
+    void sendServerError(IServerResponse::ResponseFlags e );
 
 private:
     static std::atomic<quint64> m_response_id;
-    quint64 m_currentRequestId = 0;
-    SharedUserData m_userData;
-    SharedResponses m_outputFrame;
-    SharedRequests m_inputFrame;
+    std::shared_ptr<UserData> m_userData;
+    std::shared_ptr<IServerResponse> m_response;
 };
