@@ -30,6 +30,7 @@ public:
     responses::user::IAdd::AddErrors sendRequest( ){
         handler.setOutputData(std::make_shared<ServerResponse>());
         handler.process(db, &req);
+        add = req.user()->add();
         return handler.response()->user()->add()->get_error_code();
     }
 

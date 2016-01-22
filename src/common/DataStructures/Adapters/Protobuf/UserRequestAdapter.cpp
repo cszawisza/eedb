@@ -49,7 +49,7 @@ UID Add::get_id() const
 
 void Add::set_id(UID id)
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     m_data->mutable_basic()->set_id( id );
 }
 
@@ -60,13 +60,13 @@ bool Add::has_id() const
 
 void Add::clear_id()
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     m_data->mutable_basic()->clear_id();
 }
 
 String *Add::nickname()
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     return m_data->mutable_basic()->mutable_nickname();
 }
 
@@ -77,7 +77,7 @@ const String &Add::get_nickname() const
 
 void Add::set_nickname(String nick)
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     m_data->mutable_basic()->set_nickname( nick );
 }
 
@@ -88,13 +88,13 @@ bool Add::has_nickname() const
 
 void Add::clear_nickname()
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     m_data->mutable_basic()->clear_nickname();
 }
 
 String *Add::email()
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     return m_data->mutable_basic()->mutable_email();
 }
 
@@ -105,7 +105,7 @@ const String &Add::get_email() const
 
 void Add::set_email(String email)
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     m_data->mutable_basic()->set_email( email );
 }
 
@@ -116,13 +116,13 @@ bool Add::has_email() const
 
 void Add::clear_email()
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     m_data->mutable_basic()->clear_email();
 }
 
 String *Add::password()
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     return m_data->mutable_password();
 }
 
@@ -133,7 +133,7 @@ const String &Add::get_password() const
 
 void Add::set_password(String pass)
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     m_data->set_password( pass );
 }
 
@@ -144,13 +144,13 @@ bool Add::has_password() const
 
 void Add::clear_password()
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     m_data->clear_password();
 }
 
 String *Add::description()
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     return m_data->mutable_basic()->mutable_description();
 }
 
@@ -161,7 +161,7 @@ const String &Add::get_description() const
 
 void Add::set_description(String desc)
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     m_data->mutable_basic()->set_description( desc );
 }
 
@@ -172,13 +172,13 @@ bool Add::has_description() const
 
 void Add::clear_description()
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     m_data->mutable_basic()->clear_description();
 }
 
 Bytes *Add::avatar()
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     return m_data->mutable_basic()->mutable_avatar();
 }
 
@@ -189,7 +189,7 @@ const Bytes &Add::get_avatar() const
 
 void Add::set_avatar(Bytes avatar)
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     m_data->mutable_basic()->set_avatar(move(avatar));
 }
 
@@ -200,7 +200,7 @@ bool Add::has_avatar() const
 
 void Add::clear_avatar()
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     m_data->mutable_basic()->clear_avatar();
 }
 
@@ -237,7 +237,7 @@ void Add::clear_avatar()
 
 String *Add::address()
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     return m_data->mutable_details()->mutable_address();
 }
 
@@ -248,7 +248,7 @@ const String &Add::get_address() const
 
 void Add::set_address(String ads)
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     m_data->mutable_details()->set_address(std::move(ads));
 }
 
@@ -259,13 +259,13 @@ bool Add::has_address() const
 
 void Add::clear_address()
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     m_data->mutable_details()->clear_address();
 }
 
 String *Add::phoneNumber()
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     return m_data->mutable_details()->mutable_phone_number();
 }
 
@@ -276,7 +276,7 @@ const String &Add::get_phoneNumber() const
 
 void Add::set_phoneNumber(String number)
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     m_data->mutable_details()->set_phone_number(std::move(number));
 }
 
@@ -287,7 +287,7 @@ bool Add::has_phoneNumber() const
 
 void Add::clear_phoneNumber()
 {
-    Q_ASSERT(m_isMutable);
+////    Q_ASSERT(m_isMutable);
     m_data->mutable_details()->clear_phone_number();
 }
 
@@ -331,7 +331,7 @@ Login::~Login()
 
 IAuthorizationData* Login::credentials()
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     if(!m_auth)
         m_auth = new ProtobufAuthorizationDataAdapter( m_data->mutable_cred() );
     else
@@ -349,7 +349,7 @@ const IAuthorizationData &Login::get_credentials() const
 
 void Login::assign_credentials(IAuthorizationData* cred)
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     m_data->set_allocated_cred( dynamic_cast<ProtobufAuthorizationDataAdapter*>(cred)->detachData() );
     delete cred;
 }
@@ -361,7 +361,7 @@ bool Login::has_credentials() const
 
 String *Login::password()
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     return m_data->mutable_password();
 }
 
@@ -372,7 +372,7 @@ const String &Login::get_password() const
 
 void Login::set_password(String pass)
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     m_data->set_password(move(pass));
 }
 
@@ -383,7 +383,7 @@ bool Login::has_password() const
 
 protobuf::UserReq_Login *Login::detachData()
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     m_takeOvnership = false;
     return m_data;
 }
@@ -430,7 +430,7 @@ bool Get::has_requestedUid() const
 
 void Get::request_uid(bool request)
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     if(request)
         m_data->set_uid(true);
     else
@@ -444,7 +444,7 @@ bool Get::has_requestedAddress() const
 
 void Get::request_address(bool request)
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     if(request)
         m_data->set_address(true);
     else
@@ -458,7 +458,7 @@ bool Get::has_requestedPhoneNumber() const
 
 void Get::request_phoneNumber(bool request)
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     if(request)
         m_data->set_phone_number(true);
     else
@@ -472,7 +472,7 @@ bool Get::has_requestedDescription() const
 
 void Get::request_description(bool request)
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     if(request)
         m_data->set_description(true);
     else
@@ -486,7 +486,7 @@ bool Get::has_requestedAvatar() const
 
 void Get::request_avatar(bool request)
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     if(request)
         m_data->set_avatar(true);
     else
@@ -500,7 +500,7 @@ bool Get::has_requestedAcl() const
 
 void Get::request_acl(bool request)
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     if(request)
         m_data->set_acl(true);
     else
@@ -538,7 +538,7 @@ protobuf::UserReq_Get *Get::detachData()
 }
 requests::user::IAdd* User::add()
 {
-    Q_ASSERT(m_isMutable);
+//    Q_ASSERT(m_isMutable);
     m_add.reset(new user::Add(m_data->mutable_add()));
     return m_add.get();
 }

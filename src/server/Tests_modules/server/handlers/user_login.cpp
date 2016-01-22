@@ -43,6 +43,7 @@ public:
         a->set_email( msg.get_email() );
         a->set_password( msg.get_password() );
 
+        handler.setOutputData(std::make_shared<ServerResponse>());
         handler.process(db, &userReq);
 
 //        return handler.getLastResponse().userres().code(0);
