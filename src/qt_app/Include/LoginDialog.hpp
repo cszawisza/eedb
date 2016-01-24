@@ -20,20 +20,21 @@ class LoginDialog : public QDialog
     Q_OBJECT
 public:
     explicit LoginDialog(const ILoginVerificator & p_loginVerificator,
-                         QSharedPointer<ICommunicationManager> p_communicationManager,
+                         QSharedPointer<IUserCommunicationManager> p_communicationManager,
                          const IUserRegister & p_userRegister,
                          QWidget *parent = 0);
     ~LoginDialog();
 
     Ui::LoginDialog *getUi();
 
-public slots:
+private slots:
+
+    void userResponseReceived(const responses::IUser &);
 
 signals:
-    void loginOk();
+    void loginPass();
     void loginFailure();
     void showOtherWindow();
-    void loginSucces();
 
 protected:
     Ui::LoginDialog *ui;
@@ -43,11 +44,14 @@ private:
     void setDeafultServerInfo();
 
     QStateMachine *stateMachine;
-    QSharedPointer<ICommunicationManager> m_manager;
+    QSharedPointer<IUserCommunicationManager> m_manager;
     const ILoginVerificator & m_loginVerificator;
     const IUserRegister & m_userRegister;
     QSettings setup;
     AddUserDialog *userReg;
+
+private slots:
+    void showBadUsernameTooltip( QString txt );
 signals:
 
     void userRegisterOkExitSignal();

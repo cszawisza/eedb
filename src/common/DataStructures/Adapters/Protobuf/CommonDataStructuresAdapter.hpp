@@ -9,7 +9,8 @@ class ProtobufAuthorizationDataAdapter : public IAuthorizationData{
     // IAuthorizationData interface
 public:
     ProtobufAuthorizationDataAdapter();
-    ProtobufAuthorizationDataAdapter(protobuf::Credentials *cred);
+    ProtobufAuthorizationDataAdapter( protobuf::Credentials *cred);
+    ProtobufAuthorizationDataAdapter( const protobuf::Credentials &cred );
     ~ProtobufAuthorizationDataAdapter();
     void set_authorization(boost::variant<String, UID> auth);
 

@@ -1,7 +1,7 @@
 #pragma once
+#include <QObject>
 #include <QUrl>
 #include <QAbstractSocket>
-#include <QObject>
 
 class ISocket : public QObject {
     Q_OBJECT
@@ -9,8 +9,7 @@ public:
     enum CloseCode {
         CloseCodeNormal
     };
-
-    ISocket(){}
+    ~ISocket() = default;
 
 public slots:
     virtual void open(const QUrl & url) =0;

@@ -70,12 +70,10 @@ public:
 
 }
 
-class IUser{
+class IUser : public IMessageActionContainer {
 public:
     virtual ~IUser() = default;
 
-    //! returns stored action type or none
-    virtual boost::optional<user::Action> stored_action() const = 0;
     virtual void clear_action(){}
 
     virtual bool has_add() const {return false;}

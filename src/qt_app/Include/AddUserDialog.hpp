@@ -12,13 +12,13 @@ namespace Ui
 class AddUserDialog;
 }
 
-class ICommunicationManager;
+class IUserCommunicationManager;
 
 class AddUserDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit AddUserDialog(QSharedPointer<ICommunicationManager> m_communicatioManager,
+    explicit AddUserDialog(QSharedPointer<IUserCommunicationManager> m_communicatioManager,
                            QWidget *parent = 0);
     ~AddUserDialog();
 
@@ -34,6 +34,6 @@ signals:
     void registrationAborted();
 private:
     Ui::AddUserDialog *ui;
-    QSharedPointer<ICommunicationManager> m_communicatioManager;
+    QSharedPointer<IUserCommunicationManager> m_communicatioManager;
     QStateMachine *stateMachine;
 };

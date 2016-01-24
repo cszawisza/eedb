@@ -1,24 +1,25 @@
 #include "LoginVerificator.hpp"
-
-
-LoginVerificator::LoginVerificator()
+#include <Interfaces/UserResponses.hpp>
+void LoginVerificator::loginResponseReceived(const responses::user::ILogin &msg) const
 {
-}
+    using namespace responses::user;
 
-bool LoginVerificator::tryLogin(const std::string & p_password, const std::string & p_login) const
-{
-//    protobuf::ClientRequests l_clientRequests{};
-//    protobuf::ClientRequest * l_clientRequest = l_clientRequests.add_request();
+    if( msg.is_successful()){
+        emit loginSuccess();
+    } else {
+        emit loginError();
+        auto err = msg.get_error_code();
 
-//    protobuf::UserReq::Credentials * l_credentials{};
-//    l_credentials->set_nickname(p_login);
-
-//    protobuf::UserReq::Login * l_login{};
-//    l_login->set_allocated_cred(l_credentials);
-//    l_login->set_password(p_password);
-
-//    protobuf::UserReq * l_userReq{};
-//    l_userReq->set_allocated_login(l_login);
-//    l_clientRequest->set_allocated_userreq(l_userReq);
-    return true;
+        if(err == ILogin::Error_UserDontExists ){
+            emit loginError( QString(tr("User don't exists in database", "blah")) );
+        }
+        else if( err == ILogin::Error_UserOnline ){
+            emit loginError( QString(tr("User is online and should not try to login once more!", "blah2") ));
+        }
+        else if( err == ILogin::Error_WrongNameOrPass ){
+            emit loginError( QString(tr("Wrong password")));
+        }
+        else
+            emit loginError( QString(QStringLiteral("Unhandled error!")) );
+    }
 }

@@ -64,9 +64,19 @@ void UserPU::process(DB &db, IClientRequest *msgReq)
             handle_add(db, req->get_add() );
             break;
         case actions::user::ActionChangePassword:
+            ///TODO handla password change action
             break;
         case actions::user::ActionLogin:
             handle_login(db, req->get_login() );
+            break;
+        case actions::user::ActionLogout:
+            ///TODO handle logout
+            break;
+        case actions::user::ActionGet:
+            ///TODO handle get
+            break;
+        case actions::user::ActionModify:
+            ///TODO andle modify
             break;
         default:
             break;
@@ -105,6 +115,10 @@ void UserPU::raise_loginError(int err)
 {
     res::ILogin::LoginErrors flags = response()->user()->login()->get_error_code();
     flags |= QFlag(err);
+    if( flags != res::ILogin::noError )
+        response()->user()->login()->set_successful(false);
+    else
+        response()->user()->login()->set_successful(true);
     response()->user()->login()->set_error(flags);
 }
 

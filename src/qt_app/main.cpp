@@ -15,6 +15,7 @@
 #include <Adapters/Protobuf/ServerResponseAdapter.hpp>
 
 #include <memory>
+#include "CommunicationManager.hpp"
 
 namespace
 {
@@ -46,7 +47,7 @@ void killApp(QApplication &a)
     a.exec();
 }
 
-void showMainWindow(QApplication &a, QSharedPointer<ICommunicationManager> l_communicationManager)
+void showMainWindow(QApplication &a, QSharedPointer<IUserCommunicationManager> l_communicationManager)
 {
     ApplicationMainWindow l_mainApp(l_communicationManager);
     l_mainApp.show();
@@ -57,11 +58,13 @@ void showLoginDialog(QApplication &a)
 {
     QSharedPointer<ISocket> l_webSocket = QSharedPointer<ISocket>(new WebSocket());
 
-    QSharedPointer<ICommunicationManager>  l_communicationManager =
-            QSharedPointer<ICommunicationManager>(
+    QSharedPointer<IUserCommunicationManager>  l_communicationManager =
+            QSharedPointer<IUserCommunicationManager>(
                 new CommunicationManager(l_webSocket ));
     LoginVerificator l_loginVerificator;
     UserRegister l_userRegisterDialog;
+
+
 
     auto *lDialog = new LoginDialog(l_loginVerificator, l_communicationManager, l_userRegisterDialog);
 

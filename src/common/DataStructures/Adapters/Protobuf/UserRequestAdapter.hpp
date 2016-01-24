@@ -130,9 +130,8 @@ public:
 private:
     protobuf::UserReq_Login *m_data;
     bool m_takeOvnership;
-    bool m_isMutable;
 
-    mutable ProtobufAuthorizationDataAdapter* m_auth;
+    mutable std::shared_ptr<ProtobufAuthorizationDataAdapter> m_auth;
 };
 
 class Get: public requests::user::IGet

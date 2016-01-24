@@ -41,6 +41,7 @@ void ClientWorker::processMessage( )
     auto processor = m_msgHandlers.value( m_request->message_type().get_value_or(ActionTypeId(-1, "unknown message type")),
                                           QSharedPointer<IMessageProcessingUnit>(new IMessageProcessingUnit()));
     processor->setUserData(m_cache);
+    m_response->Clear();
     processor->setOutputData( m_response );
     processor->prepareNewResponse();
     m_response->set_in_response_to( m_request->get_requestId() );

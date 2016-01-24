@@ -26,6 +26,7 @@ set(QT_HEADERS
     Include/WebSocket.hpp
     Include/ISocket.hpp
     Include/IUserRegister.hpp
+    Include/ILoginVerificator.hpp
     Include/UserRegister.hpp
     Include/ICommunicationManager.hpp
     Include/CommunicationManager.hpp

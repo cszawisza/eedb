@@ -8,7 +8,7 @@
 #include "DataStructures/Adapters/Protobuf/ClientRequestAdapter.hpp"
 #include "DataStructures/Adapters/Protobuf/UserRequestAdapter.hpp"
 
-AddUserDialog::AddUserDialog(QSharedPointer<ICommunicationManager> p_communicatioManager, QWidget *parent) :
+AddUserDialog::AddUserDialog(QSharedPointer<IUserCommunicationManager> p_communicatioManager, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AddUserDialog),
     m_communicatioManager(p_communicatioManager),
@@ -57,14 +57,8 @@ void AddUserDialog::on_registerNewUser_clicked()
     l_userDescritpion = ui->description->toPlainText().toStdString();
     l_userPhoneNumber = ui->phonenumber->text().toStdString();
 
-//    emit registrationSuccesfull();
-//    close();
-///FIXME
-//    m_communicatioManager.handleRegister(l_userName, l_userPassword, l_userEmail,
-//                                         l_userAdress, l_userDescritpion, l_userPhoneNumber);
-    ClientRequest fullMessage;
 
-    auto login = fullMessage.user()->add();
+    auto login = m_communicatioManager->newRequest()->user()->add();
     login->set_nickname( ui->name->text().toStdString() );
     login->set_email(ui->email->text().toStdString() );
 
@@ -93,5 +87,5 @@ void AddUserDialog::on_registerNewUser_clicked()
         return;
     login->set_password( passwd1.toStdString() );
 
-    m_communicatioManager->sendUserRequest(&fullMessage);
+    m_communicatioManager->sendRequest();
 }

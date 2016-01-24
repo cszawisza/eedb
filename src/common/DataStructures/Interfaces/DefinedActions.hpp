@@ -17,6 +17,7 @@ SCA ActionGet           = ActionId(2, "user::get");
 SCA ActionLogout        = ActionId(3, "user::logout");
 SCA ActionChangePassword= ActionId(4, "user::change_password");
 SCA ActionModify        = ActionId(5, "user::modify");
+SCA ActionRemove        = ActionId(6, "user::remove");
 
 }
 

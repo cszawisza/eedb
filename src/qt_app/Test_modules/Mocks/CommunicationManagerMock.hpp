@@ -5,16 +5,16 @@
 #include <ICommunicationManager.hpp>
 #include "utils/Url.hpp"
 
-class ICommunicationManagerMock : public ICommunicationManager
+class ICommunicationManagerMock : public IUserCommunicationManager
 {
     Q_OBJECT
     // ICommunicationManager interface
 public:
-//    virtual protobuf::ClientRequest *newRequest(uint64_t &request_id)=0;
+    virtual IClientRequest* newRequest() = 0;
+    virtual void sendRequest( ) = 0;
 public slots:
     virtual void openConnection( const Url &url) const=0;
     virtual void closeConnection()const=0;
-    virtual void sendUserRequest( IClientRequest* data)=0;
 };
 
 
@@ -22,8 +22,8 @@ class CommunicationManagerMock : public ICommunicationManagerMock
 {
     Q_OBJECT
 public:
-//    MOCK_METHOD1_T(newRequest, protobuf::ClientRequest *(uint64_t &request_id));
-    MOCK_METHOD1_T(sendUserRequest, void (IClientRequest* data));
+    MOCK_METHOD0_T(newRequest, IClientRequest*() );
+    MOCK_METHOD0_T(sendRequest, void ( ) );
     MOCK_CONST_METHOD1_T(openConnection, void(const Url&));
     MOCK_CONST_METHOD0_T(closeConnection, void ());
 };

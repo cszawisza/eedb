@@ -1,10 +1,21 @@
 #pragma once
 
-#include <string>
+#include <QObject>
+#include "Interfaces/UserResponses.hpp"
+class QString;
 
-class ILoginVerificator
+
+class ILoginVerificator : public QObject
 {
+    Q_OBJECT
 public:
-    virtual bool tryLogin(const std::string &, const std::string &) const = 0;
-    virtual ~ILoginVerificator() {}
+    virtual ~ILoginVerificator() = default;
+
+public slots:
+    virtual void loginResponseReceived( const responses::user::ILogin &msg) const = 0;
+
+signals:
+    void loginSuccess() const;
+    void loginError() const;
+    void loginError( QString ) const;
 };

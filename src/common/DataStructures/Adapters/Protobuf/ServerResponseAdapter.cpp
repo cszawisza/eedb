@@ -4,6 +4,7 @@
 #include "CategoryResponseAdapter.hpp"
 
 #include "message_conteiner.pb.h"
+#include "DefinedActions.hpp"
 
 ServerResponse::ServerResponse():
     m_data(new protobuf::ServerResponse(protobuf::ServerResponse::default_instance()) ),
@@ -121,4 +122,24 @@ IServerResponse::ResponseFlags ServerResponse::response_code() const
 {
     int code = m_data->code();
     return ResponseFlags(code);
+}
+
+
+void ServerResponse::Clear()
+{
+    m_data->Clear();
+}
+
+boost::optional<ActionTypeId> ServerResponse::message_type() const
+{
+    switch (m_data->data_case()) {
+    case protobuf::ServerResponse::kUserRes:
+        return actions::typeUser;
+    case protobuf::ServerResponse::kCategoryRes:
+        return actions::typeCategory;
+    default:
+        break;
+    }
+
+    return boost::none;
 }

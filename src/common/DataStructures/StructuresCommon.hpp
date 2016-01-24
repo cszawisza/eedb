@@ -34,7 +34,7 @@ public:
     virtual boost::optional<ActionId> action_type() const = 0;
 };
 
-class ISerialize{
+class ISerializableData{
 public:
     virtual void parse(const QByteArray &data) = 0;
     virtual QByteArray serialize() const = 0;

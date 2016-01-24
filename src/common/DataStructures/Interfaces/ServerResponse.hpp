@@ -8,7 +8,7 @@ namespace responses{
     class ICategory;
 }
 
-class IServerResponse: public ISerialize/*, public IMessageType*/{
+class IServerResponse: public ISerializableData, public IMessageContainer{
 public:
     enum ResponseFlag{
         NoError             = 0,
@@ -19,6 +19,7 @@ public:
     Q_DECLARE_FLAGS(ResponseFlags, ResponseFlag)
 
     virtual ~IServerResponse() = default;
+    virtual void Clear() = 0;
 
     virtual void set_response_id( UID id ) = 0;
     virtual UID response_id() const = 0;

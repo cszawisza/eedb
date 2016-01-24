@@ -1,6 +1,7 @@
 #include "UserResponseAdapter.hpp"
 
 #include "user.pb.h"
+#include "DefinedActions.hpp"
 
 bool responses::User::has_add() const
 {
@@ -9,7 +10,6 @@ bool responses::User::has_add() const
 
 responses::user::ILogin * responses::User::login()
 {
-    Q_ASSERT(m_isMutable);
     m_login.reset(new responses::user::Login(m_data->mutable_login()) );
     return m_login.get();
 }
@@ -27,7 +27,6 @@ bool responses::User::has_login() const
 
 responses::user::IGet * responses::User::get()
 {
-    Q_ASSERT(m_isMutable);
     m_get.reset(new responses::user::Get(m_data->mutable_get()));
     return m_get.get();
 }
@@ -45,57 +44,67 @@ bool responses::User::has_get() const
 
 void responses::User::clear_action()
 {
-    Q_ASSERT(m_isMutable);
     m_data->Clear();
 }
 
 protobuf::UserRes *responses::User::detachData()
 {
-    Q_ASSERT(m_isMutable);
     m_takeOvnership = false;
     return m_data;
 }
 
 responses::User::User():
-    m_takeOvnership(true),
     m_data(new protobuf::UserRes),
-    m_isMutable(true)
+    m_takeOvnership(true)
 {
 }
 
 responses::User::User(protobuf::UserRes *res):
-    m_takeOvnership(false),
     m_data(res),
-    m_isMutable(true)
+    m_takeOvnership(false)
 {
 }
 
 responses::User::User(const protobuf::UserRes &res):
-    m_takeOvnership(false),
     m_data(const_cast<protobuf::UserRes *>(&res)),
-    m_isMutable(true)
+    m_takeOvnership(false)
 {
 
 }
 
 responses::User::~User()
 {
-    if(m_takeOvnership){
+    if(m_takeOvnership)
         delete m_data;
+}
+
+boost::optional<ActionId> responses::User::action_type() const
+{
+    using namespace actions::user;
+    using namespace protobuf;
+    switch (m_data->action_case()) {
+    case UserRes::kAdd:
+       return ActionAdd;
+    case UserRes::kLogin:
+        return ActionLogin;
+    case UserRes::kGet:
+        return ActionGet;
+    default:
+        break;
     }
+
+    return boost::none;
 }
 
 responses::user::Add::Add(protobuf::StdError *msg):
     m_data(msg),
-    m_takeOvnership(false),
-    m_isMutable(true)
+    m_takeOvnership(false)
 {
 }
 
 responses::user::Add::Add(const protobuf::StdError &add):
     m_data(const_cast<protobuf::StdError*>(&add)),
-    m_takeOvnership(false),
-    m_isMutable(false)
+    m_takeOvnership(false)
 {
 
 }
@@ -113,7 +122,6 @@ bool responses::user::Add::is_successful() const
 
 void responses::user::Add::set_successful(bool is_successful)
 {
-    Q_ASSERT(m_isMutable);
     m_data->set_success(is_successful);
 }
 
@@ -124,8 +132,6 @@ bool responses::user::Add::is_not_successful() const
 
 void responses::user::Add::set_error(responses::user::IAdd::AddErrors code)
 {
-    Q_ASSERT(m_isMutable);
-
     if(code == AddError::Error_noError)
         m_data->set_success(true);
 
@@ -139,17 +145,15 @@ responses::user::IAdd::AddErrors responses::user::Add::get_error_code() const
 }
 
 responses::user::Login::Login(protobuf::StdError *msg):
-    m_takeOvnership(false),
     m_data(msg),
-    m_isMutable(true)
+    m_takeOvnership(false)
 {
 
 }
 
 responses::user::Login::Login(const protobuf::StdError &msg):
-    m_takeOvnership(false),
     m_data(const_cast<protobuf::StdError*>(&msg)),
-    m_isMutable(false)
+    m_takeOvnership(false)
 {
 
 }
@@ -161,7 +165,6 @@ bool responses::user::Login::is_successful() const
 
 void responses::user::Login::set_successful(bool is_successful)
 {
-    Q_ASSERT(m_isMutable);
     m_data->set_success(is_successful);
 }
 
@@ -172,7 +175,6 @@ bool responses::user::Login::is_not_successful() const
 
 void responses::user::Login::set_error(responses::user::ILogin::LoginErrors code)
 {
-    Q_ASSERT(m_isMutable);
     m_data->set_error_code(code);
 }
 
@@ -182,23 +184,8 @@ responses::user::ILogin::LoginErrors responses::user::Login::get_error_code() co
     return LoginErrors(code);
 }
 
-
-boost::optional<responses::user::Action> responses::User::stored_action() const
-{
-    ///FIXME
-    switch (m_data->action_case()) {
-    case protobuf::UserRes::kAdd:
-       return user::Action_Add;
-    default:
-        break;
-    }
-
-    return boost::none;
-}
-
 responses::user::IAdd * responses::User::add()
 {
-    Q_ASSERT(m_isMutable);
     m_add.reset(new responses::user::Add(m_data->mutable_add()));
     return m_add.get();
 }
@@ -212,16 +199,14 @@ const responses::user::IAdd &responses::User::get_add() const
 
 responses::user::Get::Get(protobuf::StdError *msg):
     m_data(msg),
-    m_takeOwnership(false),
-    m_isMutable(true)
+    m_takeOwnership(false)
 {
 
 }
 
 responses::user::Get::Get(const protobuf::StdError &msg):
     m_data(const_cast<protobuf::StdError*>(&msg)),
-    m_takeOwnership(false),
-    m_isMutable(false)
+    m_takeOwnership(false)
 {
 
 }

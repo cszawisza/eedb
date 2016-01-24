@@ -2,7 +2,7 @@
 
 #include "IUserRegister.hpp"
 
-class ICommunicationManager;
+class IUserCommunicationManager;
 
 class UserRegister : public IUserRegister
 {

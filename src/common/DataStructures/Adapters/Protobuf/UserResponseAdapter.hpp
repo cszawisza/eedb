@@ -28,7 +28,6 @@ public:
 private:
     protobuf::StdError *m_data;
     bool m_takeOvnership = false;
-    bool m_isMutable = true;
 };
 
 class Login: public responses::user::ILogin{
@@ -36,6 +35,7 @@ class Login: public responses::user::ILogin{
 public:
     Login( protobuf::StdError* msg);
     Login(const protobuf::StdError &msg);
+
     bool is_successful() const override;
     void set_successful(bool is_successful = true) override;
 
@@ -43,9 +43,8 @@ public:
     void set_error(LoginErrors code);
     LoginErrors get_error_code() const;
 private:
-    bool m_takeOvnership;
     protobuf::StdError *m_data;
-    bool m_isMutable;
+    bool m_takeOvnership;
 };
 
 class Get: public responses::user::IGet{
@@ -56,7 +55,6 @@ public:
 private:
     protobuf::StdError *m_data;
     bool m_takeOwnership;
-    bool m_isMutable;
 };
 
 }
@@ -69,7 +67,7 @@ public:
     User( const protobuf::UserRes & res );
     ~User();
 
-    boost::optional<user::Action> stored_action() const;
+    boost::optional<ActionId> action_type() const;
     void clear_action() override;
 
     user::IAdd* add();
@@ -86,12 +84,12 @@ public:
 
     protobuf::UserRes *detachData();
 private:
-    bool m_takeOvnership = false;
     protobuf::UserRes *m_data;
-    bool m_isMutable = true;
+    bool m_takeOvnership = false;
 
     mutable std::shared_ptr<user::IAdd> m_add;
     mutable std::shared_ptr<user::IGet> m_get;
     mutable std::shared_ptr<user::ILogin> m_login;
 };
+
 }

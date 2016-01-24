@@ -11,7 +11,7 @@ namespace requests{
 class QByteArray;
 class IRequestParser;
 
-class IClientRequest : public ISerialize, public IMessageContainer{
+class IClientRequest : public ISerializableData, public IMessageContainer{
 public:
     virtual ~IClientRequest() = default;
 

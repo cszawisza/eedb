@@ -18,6 +18,9 @@ public:
     ServerResponse();
     ServerResponse(protobuf::ServerResponse *req);
     ~ServerResponse();
+    void Clear() override;
+
+    boost::optional<ActionTypeId> message_type() const override;
 
     void set_response_id( uint64_t id ) override;
     UID response_id() const override;

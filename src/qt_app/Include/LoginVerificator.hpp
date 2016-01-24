@@ -1,14 +1,16 @@
 #pragma once
 
-#include <string>
-
 #include "ILoginVerificator.hpp"
-#include "ICommunicationManager.hpp"
-#include <QSharedPointer>
+
+namespace requests{
+namespace user{
+class ILogin;
+}
+}
+
 
 class LoginVerificator : public ILoginVerificator
 {
-public:
-    LoginVerificator();
-    bool tryLogin(const std::string &, const std::string &) const override;
+public slots:
+    void loginResponseReceived(const responses::user::ILogin &msg) const override;
 };

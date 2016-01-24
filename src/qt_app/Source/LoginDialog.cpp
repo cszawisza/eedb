@@ -11,13 +11,15 @@
 #include "utils/Url.hpp"
 #include "AddUserDialog.hpp"
 
+#include <Interfaces/ClientRequest.hpp>
+#include <Interfaces/UserRequests.hpp>
+
 #define STR(x) #x
 #define STATE_GUARD(statename) \
      connect( statename, &QState::entered, [&](){ qDebug() << STR(statename) << " entered "; } );  connect( statename, &QState::exited, [&](){ qDebug() << STR(statename) << " exited "; } );
 
-
 LoginDialog::LoginDialog(const ILoginVerificator &p_loginVerificator,
-                         QSharedPointer<ICommunicationManager> p_communicationManager,
+                         QSharedPointer<IUserCommunicationManager> p_communicationManager,
                          const IUserRegister &p_userRegister,
                          QWidget *parent):    QDialog(parent),
     ui(new Ui::LoginDialog),
@@ -86,7 +88,6 @@ LoginDialog::LoginDialog(const ILoginVerificator &p_loginVerificator,
        m_manager->closeConnection();
     });
 
-//    userRegister->assignProperty( userReg, "visible", true);
     userRegister->addTransition( userReg, SIGNAL(rejected()), canLoginState);
     userRegister->addTransition( userReg, SIGNAL(registrationSuccesfull()), userRegisterOk );
     userRegister->addTransition( userReg, SIGNAL(registrationFailed()), userRegisterFail);
@@ -110,14 +111,23 @@ LoginDialog::LoginDialog(const ILoginVerificator &p_loginVerificator,
         emit userRegisterOkExitSignal();
      });
 
-    tryLogin->addTransition(this, SIGNAL(loginSucces()), loginOk);
-    tryLogin->addTransition(this, SIGNAL(loginFailure()), loginFail);
+    tryLogin->addTransition(&m_loginVerificator, SIGNAL(loginSuccess()), loginOk);
+    tryLogin->addTransition(&m_loginVerificator, SIGNAL(loginError()), loginFail);
+
+    loginFail->addTransition(this, SIGNAL(loginFailure()), canLoginState);
+
     connect(tryLogin, &QState::entered, [this](){
         loginToServer();
     });
 
     connect(loginOk, &QState::entered, [this](){
+        emit loginPass();
         this->accept();
+    });
+
+    connect(loginFail, &QState::entered, [this](){
+        qDebug() << "FAILED!";
+        QTimer::singleShot(500, [this]() { emit loginFailure(); } );
     });
 
     stateMachine->addState(disconnectedState);
@@ -127,11 +137,18 @@ LoginDialog::LoginDialog(const ILoginVerificator &p_loginVerificator,
     stateMachine->setInitialState(disconnectedState);
     stateMachine->start();
 
-    setDeafultServerInfo();
+
+    // Communication manager connections
+    connect( m_manager.data(), SIGNAL(receivedMessage(responses::IUser)),
+             this, SLOT(userResponseReceived(responses::IUser)));
+
+    connect(&m_loginVerificator, SIGNAL(loginError(QString)), this, SLOT(showBadUsernameTooltip(QString)));
 
     QTimer::singleShot(0, [&](){
         ui->connectBtn->click();
     });
+
+    setDeafultServerInfo();
 }
 
 Ui::LoginDialog *LoginDialog::getUi()
@@ -139,85 +156,15 @@ Ui::LoginDialog *LoginDialog::getUi()
     return ui;
 }
 
-//void LoginDialog::readyRead(QByteArray msg){
-//    //Server response handler code
-//    qDebug()<< msg.toHex();
-//    protobuf::ServerResponses sr;
-//    sr.ParseFromArray(msg.data(), msg.size());
-
-//    protobuf::UserRes loginRes = sr.response(0).userres();
-
-//    if(loginRes.code(0) == protobuf::UserRes_Reply_LoginPass ){
-//        qDebug() << "Login pass";
-//    }
-//    else if(loginRes.code(0) == protobuf::UserRes_Reply_LoginDeny){
-//        qDebug() << "login deny";
-//    }
-
-//    mc.fromArray(msg);
-//    for(int i = 0; i<mc.capsules().size();++i)
-//        if(mc.getCapsule(i).msgtype() == MsgType::resLogin ){
-//            qDebug()<<" got login response";
-//            protobuf::LoginResponse res;
-//            res.ParseFromString(mc.getCapsule(i).data());
-//            if(res.replay() == protobuf::Replay::LoginPass){
-//                emit loginOk();
-//            }
-//            else if(res.replay() == protobuf::Replay::LoginDeny ){
-//                emit loginFailure();
-//            }
-//        }
-//        else if(mc.getCapsule(i).msgtype() == MsgType::msgUser){
-//            qDebug()<<" got user response";
-//            user.fromArray(mc.getCapsule(i).getData());
-//        }
-//}
-
-//void LoginDialog::doReconnect(){
-//    static QString host = "";
-//    static int port = 0;
-
-//    QUrl url;
-//    url.setHost(ui->serverIp->text());
-//    url.setPort(ui->serverPort->text().toInt());
-//    url.setScheme("ws");
-
-//    if( host != url.host() || port != url.port() ){
-//        port = url.port();
-//        host = url.host();
-//        qDebug() << "closing socket";
-//        m_socket->close();
-//    }
-
-//    if(m_socket->state() == QAbstractSocket::UnconnectedState){
-//        m_socket->open(url);
-//        QEventLoop pause;
-//        QTimer *timer = new QTimer();
-//        timer->setSingleShot(1000);
-//        connect(timer, SIGNAL(timeout()), &pause, SLOT(quit()));
-//        connect(&m_socket, SIGNAL( connected() ), &pause, SLOT(quit()));
-//    }
-//}
-
-//void LoginDialog::doLogin()
-//{
-//    protobuf::ClientRequests fullMessage;
-//    auto loginReq = fullMessage.add_request();
-
-//    auto userMsg = loginReq->mutable_userreq();
-
-//    auto login = userMsg->mutable_login();
-//    login->set_password(ui->userPassword->text().toStdString() );
-//    login->mutable_cred()->set_nickname(ui->userLogin->text().toStdString());
-
-//    QByteArray ba;
-//    ba.resize(fullMessage.ByteSize());
-//    fullMessage.SerializeToArray(ba.data(), ba.size() );
-
-//    qDebug()<<" socket connected!: sending message: "<< QString(ba.toHex());
-
-//    m_socket->sendBinaryMessage(ba);
-//}
+void LoginDialog::userResponseReceived(const responses::IUser &msg)
+{
+    if(msg.has_login()){
+        m_loginVerificator.loginResponseReceived( msg.get_login() );
+    }
+    else if( msg.has_add() ){
+//        m_userRegister
+    }
+}
 
 LoginDialog::~LoginDialog()
 {
@@ -237,12 +184,13 @@ void LoginDialog::loginToServer()
 {
     const std::string l_login = ui->userLogin->text().toStdString();
     const std::string l_pass = ui->userPassword->text().toStdString();
-    if (m_loginVerificator.tryLogin(l_pass, l_login))
-    {
-        emit loginSucces();
-    }
-    else
-        emit loginFailure();
+
+    auto login = m_manager->newRequest()->user()->login();
+
+    login->set_password(l_pass);
+    login->credentials()->set_authorization(l_login);
+
+    m_manager->sendRequest();
 }
 
 void LoginDialog::setDeafultServerInfo()
@@ -251,4 +199,10 @@ void LoginDialog::setDeafultServerInfo()
     ui->serverPort->setText(setup.value(QStringLiteral("ServerPort"), 6666).toString());
     ui->userLogin->setText(setup.value(QStringLiteral("Login"), QStringLiteral("")).toString());
     ui->userPassword->setEchoMode(QLineEdit::Password);
+}
+
+void LoginDialog::showBadUsernameTooltip(QString txt)
+{
+    ui->userLogin->setToolTip( txt );
+    ui->userLogin->setToolTipDuration(2000);
 }

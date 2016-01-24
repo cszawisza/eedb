@@ -5,14 +5,22 @@
 #include "../Validators/EmailValidator.hpp"
 #include "../Validators/NickNameValidator.hpp"
 
+#include <boost/lexical_cast.hpp>
+
 ProtobufAuthorizationDataAdapter::ProtobufAuthorizationDataAdapter():
-    m_data( new protobuf::Credentials() ), m_takeOvnership(true)
+    m_data( new protobuf::Credentials( protobuf::Credentials::default_instance() ) ), m_takeOvnership(true)
 {
 
 }
 
 ProtobufAuthorizationDataAdapter::ProtobufAuthorizationDataAdapter(protobuf::Credentials *cred):
     m_data( cred ), m_takeOvnership(false)
+{
+
+}
+
+ProtobufAuthorizationDataAdapter::ProtobufAuthorizationDataAdapter(const protobuf::Credentials &cred):
+    m_data( const_cast<protobuf::Credentials*>(&cred) ), m_takeOvnership(false)
 {
 
 }
@@ -36,8 +44,17 @@ void ProtobufAuthorizationDataAdapter::set_authorization(boost::variant<String, 
             m_data->set_nickname(auth_str);
         else if(emailValidator.isValid(auth_str))
             m_data->set_email(auth_str);
+        else{
+            try{
+                auth = boost::lexical_cast<UID>(auth_str.data());
+            }
+            catch( boost::bad_lexical_cast e){
+               auth = 0;
+            }
+        }
     }
-    else if(auth.type() == typeid(UID))
+
+    if(auth.type() == typeid(UID))
         m_data->set_id(boost::get<UID>(auth));
 
 }

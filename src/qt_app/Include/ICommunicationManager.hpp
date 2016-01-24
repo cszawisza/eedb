@@ -3,56 +3,55 @@
 #include <QSharedPointer>
 #include <QUrl>
 
-#include "Interfaces/ClientRequest.hpp"
-#include "Interfaces/ServerResponse.hpp"
 
+#include <Interfaces/CategoryResponses.hpp>
+#include <Interfaces/UserResponses.hpp>
+
+class ISerializableData;
 class ISocket;
 class Url;
 
-/**
- * @brief The ICommunicationManager class handles the communication between client and serwer
- * also holds a container of
- */
+namespace responses{
+class IUser;
+class ICategory;
+}
 
-struct ResponseMetadata{
-//    ResponseMetadata():
-//        ResponseMetadata( protobuf::ServerResponse::default_instance() ){}
-//    ResponseMetadata(const protobuf::ServerResponse &res){
-//        response_id = res.response_id();
-//        in_response_to = res.in_response_to();
-//        is_last_response = res.is_last_response();
-//    }
+//struct ResponseMetadata{
+////    ResponseMetadata():
+////        ResponseMetadata( protobuf::ServerResponse::default_instance() ){}
+////    ResponseMetadata(const protobuf::ServerResponse &res){
+////        response_id = res.response_id();
+////        in_response_to = res.in_response_to();
+////        is_last_response = res.is_last_response();
+////    }
 
-    quint64 response_id;
-    quint64 in_response_to;
-    bool is_last_response;
-};
+//    quint64 response_id;
+//    quint64 in_response_to;
+//    bool is_last_response;
+//};
 
-struct RequestMetadata{
-//    RequestMetadata():
-//        RequestMetadata( IClientRequest &req){}
-//    RequestMetadata( const IClientRequest &req ){
-//        request_id = req.get_requestId();
-//    }
+//struct RequestMetadata{
+////    RequestMetadata():
+////        RequestMetadata( IClientRequest &req){}
+////    RequestMetadata( const IClientRequest &req ){
+////        request_id = req.get_requestId();
+////    }
 
-    uint64_t request_id;
-};
+//    uint64_t request_id;
+//};
 
-Q_DECLARE_METATYPE(ResponseMetadata)
-Q_DECLARE_METATYPE(RequestMetadata)
+//Q_DECLARE_METATYPE(ResponseMetadata)
+//Q_DECLARE_METATYPE(RequestMetadata)
 
+class IClientRequest;
 
-class ICommunicationManager : public QObject{
+class IUserCommunicationManager : public QObject{
     Q_OBJECT
 public:
-    virtual ~ICommunicationManager(){}
+    virtual ~IUserCommunicationManager(){}
 
-    /**
-     * @brief newRequest
-     * @return new a pointer to ClientRequests structure held in Communication Manager body
-     */
-//    virtual protobuf::ClientRequest *newRequest( uint64_t &request_id ) = 0;
-
+    virtual IClientRequest *newRequest() = 0;
+    virtual void sendRequest( ) = 0;
 public slots:
     /**
      * @brief openConnection, try to open a socket
@@ -64,20 +63,13 @@ public slots:
      * @brief closeConnection logout and close connection to server
      */
     virtual void closeConnection( ) const = 0;
-//    virtual void loginToServerAs( const QString &name, const QString &password) const =0;
-
-    /**
-     * @brief sendUserRequest
-     * @param data
-     */
-    virtual void sendUserRequest( IClientRequest* data) = 0;
 
 signals:
+    void receivedMessage( const responses::IUser &) const;
+    void receivedMessage( const responses::ICategory &) const;
+
     void socketConnected() const;
     void socketDisconnected() const;
     void loggedin() const;
     void logout() const;
-
-//    void userRequestSent( RequestMetadata meta );
-//    void userResponse( ResponseMetadata meta, std::shared_ptr<protobuf::UserRes> data);
 };
